@@ -1,0 +1,110 @@
+.training-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+    margin-right: 5%;
+}
+.initiate-training-container {
+    display: flex;
+    width:fit-content ;
+    justify-content: center;
+    flex-direction: column;
+    background-color: white;
+    margin-left: 25%;
+    margin-right: 5%;
+    margin-top: 2%;
+    padding-left: 50px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.training-details-paper, .assign-course-paper {
+    width: 97%;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.training-details-box {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.assign-course-typography {
+    margin-bottom: 20px;
+}
+
+.assign-course-avatar {
+    margin-right: 10px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Prevents table from breaking */
+}
+
+.table-container table {
+    table-layout: fixed; /* Ensures all columns have equal width */
+    width: 100%;
+}
+
+.table-container th, .table-container td {
+    white-space: nowrap; /* Prevents text wrapping */
+    padding: 10px;
+    text-align: left;
+    width: 14%; /* All columns get equal width */
+}
+
+.assign-course-button {
+    padding: 4px 8px; /* Smaller padding for the button */
+    font-size: smaller !important; /* Smaller font size for the button */
+}
+
+.header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ECF5FF;
+    color: rgb(10, 10, 10);
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.MuiPaper-root{
+ 
+    padding: 10px;
+    /* margin-left: 0; */
+}
+.collapse-button {
+    color: black;
+    border: 1px solid black;
+}
+.assign-course-header{
+background-color: #ECF5FF;
+margin-top: 0;
+}
+
+.bulk-assign-button-container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+.table-container th:nth-child(1)
+{
+    width: 27px !important
+}
+.action-buttons {
+    display: flex;
+    /* justify-content: flex-end; */
+    gap: 10px;
+   
+    margin-left: 410px;
+    margin-bottom: 20px;
+}
+.-container{
+padding: auto;
+}

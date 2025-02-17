@@ -1,0 +1,94 @@
+AssignCourseModal.css
+
+/* Main container */
+.assign-course-modal-container {
+    padding: 120px;
+  }
+  
+  /* Title section */
+  .dialog-title-container .MuiDialogTitle-root {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+ /* AssignCourseModal.css */
+
+/* Styling the label above the Select field */
+.select-course-label {
+    position: absolute;
+    top: -8px; /* Adjust this to control the vertical positioning */
+    left: 14px; /* Adjust if you need to align the label with the field */
+    background-color: white; /* Ensure the label has a white background to look consistent */
+    padding-left: 4px; /* Add some padding for better appearance */
+    padding-right: 4px;
+    font-size: 14px; /* Adjust the font size as needed */
+  }
+  
+  /* Styling for the Select field */
+  .select-course-input {
+    margin-top: 20px; /* Space between the label and the Select field */
+    width: 50%;
+    padding: 20px;
+    /* flex-direction: column; */
+    position: relative;
+    min-width: 5px;
+
+  }
+  
+  /* Form control container styling */
+  .form-control-container {
+    position: relative; /* Ensures that the label is positioned correctly */
+    margin-bottom: 20px;
+  }
+  
+  
+  /* Course details section */
+  .course-details-container {
+    margin-top: 20px;
+  }
+  
+  /* Course list container */
+  .course-list-container {
+    margin-top: 20px;
+  }
+  
+  /* Individual course item */
+  .course-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  
+  /* Course type selection */
+  .course-type-select {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  /* Delete button styling */
+  .delete-course-button {
+    margin-left: 10px;
+  }
+  
+  /* Note input styling */
+  .note-container {
+    margin-top: 20px;
+  }
+  
+  /* Dialog actions container */
+  .dialog-actions-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Customize Cancel Button */
+  .cancel-button {
+    background-color: #f44336; /* Red */
+  }
+  
+  /* Customize Assign Button */
+  .assign-button {
+    background-color: #4caf50; /* Green */
+  }
+ 

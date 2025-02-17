@@ -1,0 +1,23 @@
+/* src/App.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.app {
+  display: flex;
+  max-height: 200vh;
+  font-family: 'Poppins' !important;
+  font-weight: regular;
+ 
+}
+ 
+.content {
+  margin-left: 250px; /* Adjust based on the sidebar width */
+  margin-top: 64px; /* Adjust based on the header height */
+  padding: 20px;
+  flex-grow: 1;
+
+}
+body{
+  max-height: 120vh;
+  font-family: 'Poppins' !important; 
+  font-weight: regular;
+}

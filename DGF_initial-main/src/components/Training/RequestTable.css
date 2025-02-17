@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+ 
+.table-container {
+  margin: 20px !important; /*Set margin of 20px from each side */
+  width: calc(
+    100% - 50px
+  ) !important; /* Adjust width to account for the margins */
+  margin-top: -5px !important; /* Adjust top margin */
+  overflow: hidden !important; /* Prevent scrolling */
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 10px !important;
+  padding-left: 10px !important;
+  font-family: 'Poppins', sans-serif !important;
+  background-color: #F1F2FD !important;
+ box-shadow: none !important;
+}
+ 
+.table-container table {
+  width: 100%;
+  border-collapse: collapse; /* To remove space between rows */
+}
+ 
+.table-container table tr:nth-child(even) {
+  background-color:#F1F2FD; /* Set color for even rows */
+}
+ 
+.table-container table tr:nth-child(odd) {
+  background-color:#FFFFFF; /* Set color for odd rows */
+}
+.status {
+  margin-left: 0;
+  font-size: 5px !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+.status-text {
+  font-size: 10px !important;
+  white-space: pre-wrap;
+   /* Adjust the font size as needed */
+   font-family: 'Poppins', sans-serif !important;
+}
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  text-transform: none;
+  font-weight: bold !important;
+  font-family: 'Poppins', sans-serif !important;
+ 
+}
+ 
+.MuiTab-root {
+  min-width: 100px !important; /* Adjust the width of the tabs */
+  font-size: 14px !important;
+   /* Adjust the font size of the tabs */
+   text-transform: none !important;
+   font-family: 'Poppins', sans-serif !important;
+   letter-spacing: 0.3px !important;
+   opacity: 1 !important;
+   font-weight: 500 !important;
+   color: black !important;
+   border-bottom: 0.2px solid rgba(62, 60, 60, 0.692)  !important;
+ 
+}
+ 
+.MuiTableCell-root {
+  padding: 8px !important; /* Decrease padding to reduce row height */
+  font-size: 12px !important; /* Adjust font size if needed */
+  height: 48px !important; /* Set a fixed height for table cells */
+  font-family: 'Poppins',  !important;
+  height: 25px  !important;
+  border-right: #F1F2FD 0.2px solid !important;
+}
+ 
+.MuiTableRow-root {
+  height: 10px !important; /* Set a fixed height for table rows */
+  font-family: 'Poppins', sans-serif !important;
+ 
+ 
+}
+ 
+/* .MuiTableRow-root:hover {
+  background-color: #f9f9f9 !important;
+} */
+ 
+.MuiAvatar-root {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 10px !important;
+  background-color: #3f51b5 !important;
+  color: white !important;
+}
+ 
+.MuiTypography-root {
+  right: 12px;
+  display: grid;
+  font-size: 13px !important;
+  font-family: 'Poppins', sans-serif !important;
+  white-space: pre-wrap;
+}
+ 
+.table-actions {
+  display: flex !important;
+  justify-content: space-between;
+  padding: 10px;
+  gap: 3px !important;
+}
+ 
+.table-container th,
+.table-container td {
+  /* width: 120px !important; */
+  text-align: left !important;
+  white-space: pre-wrap;
+  font-family: 'Poppins', sans-serif !important;
+ 
+  /* Ensure text is aligned to the left */
+}
+.table-head {
+  background-color: #CCE3FF !important;
+  padding: 100px;
+  font-weight: 800 !important;
+  font-family: 'Poppins', sans-serif !important;
+  text-transform: none !important;
+  border-bottom: 0.2px solid rgba(62, 60, 60, 0.692)  !important;
+ 
+}
+.table-container th:nth-child(3) {
+  padding: 30px;
+}
+.table-container th:nth-child(2) {
+ padding-left: 10px !important;
+}
+.MuiTableHead-row {
+  width: 100px !important;
+  font-family: 'Poppins', sans-serif !important;
+ 
+}
+.MuiTableBody-root th:nth-child(7) {
+  padding-right: 20px;
+}
+.icon {
+  margin-left: 30px;
+}
+ 
+.project{
+  white-space: pre-wrap !important;
+}
+.MuiSelect-nativeInput {
+ opacity: 1;
+}
+.MuiTableCell-root:nth-child(1) {
+  /* white-space: pre-wrap; */
+  text-align: center;
+  justify-content: space-between;
+  padding-left: 15px !important;
+  padding-right: 30px !important;
+}
+ 
+.no {
+  border-right: none !important;
+}
+ 
+.MuiTableCell-root:nth-child(7) {
+  padding-left: 20px !important;
+}
+ 
+.tab-label {
+  display: flex;
+  align-items: center;
+}
+ 
+.tab-label-number {
+  border: 0.5px solid #c6c4c4 ; /* Customize the border color as needed */
+  border-radius: 42%;
+  padding: 0px 8px 0px ;
+  margin-left: 5px;
+ 
+}
+ 

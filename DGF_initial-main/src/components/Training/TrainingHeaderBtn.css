@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.appBar {
+    background-color: rgba(239, 238, 245, 0.128) !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    border-radius: 10px !important;
+    margin-left: 10px !important; /* Adjust margin to 20px */
+    margin-right: 20px !important; /* Adjust margin to 20px */
+    margin-top: -10px !important;
+     /* Adjust top margin */
+     position: static !important;
+     margin-bottom: 5px !important; /* Adjust bottom margin */
+    width: calc(100% - 10px) !important;
+    font-family: 'Poppins' !important;
+  
+    }
+    
+    .toolbar {
+      display: flex !important;
+      justify-content: space-between !important;
+      padding: 0!important;
+    }
+    
+    .box {
+      display: flex !important;
+      align-items: center !important;
+    }
+    
+    .typography {
+      font-size: 1.5rem;
+      font-family: 'Poppins', sans-serif !important;
+      font-weight: normal !important;
+      margin-right: 25px !important;
+      padding: 5px 10px !important;
+      border-radius: 5px !important;
+      cursor: pointer !important;
+      /* transition: background-color 0.3s, color 0.3s; */
+    }
+    .typography:first-child {
+      margin-left: 0 !important; /* Remove left margin for the first button */
+    }
+    
+    
+    .typography:hover {
+      color: white !important;
+      background-color: #0056b3 !important;
+      border-radius: 20px !important;
+      margin-right: 25px !important;
+      cursor: pointer !important;
+      
+    }
+    
+    .typography.selected {
+      color: white !important;
+      background-color: #0056b3 !important;
+      border-radius: 20px !important;
+    }
+     
+    .button {
+      background-color: #1176c8 !important;
+      color: #fff !important;
+      border-radius: 5px !important;
+      display: block !important;
+      text-transform: none !important; 
+      font-weight: normal !important;
+      box-shadow: none !important;
+      font-family: 'Poppins', sans-serif !important;/* Ensure the text is displayed in the correct case */
+    }
+   
