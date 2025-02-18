@@ -1,8 +1,7 @@
 -- Create database and use it
+
 create database dgf_dummy;
 use dgf_dummy;
-
-
 
 -- Create role table
 CREATE TABLE role (
@@ -19,7 +18,7 @@ INSERT INTO role (role_name) VALUES
     ('Function Owner Role'),
     ('RM Role'),
     ('Tech Function Role'),
-    ('SPOC Role');
+    ('SPOC');
     
 -- Create source table
 CREATE TABLE source (
@@ -35,8 +34,7 @@ INSERT INTO source (source_name) VALUES
     ('Function Owners'),
     ('CapDev'),
     ('COE'),
-    ('DM (Delivery Manager)'),
-    ('Self driven (DM/Employee)');
+    ('DM (Delivery Manager)');
     
 -- Create training_obj table
 CREATE TABLE training_obj (
@@ -82,34 +80,29 @@ INSERT INTO training_obj (training_name, source_id) VALUES
     ('Skillgap', 9),
     ('Softskills', 9),
     ('O3 based (suggested learning, aspirations…)', 9),
-    ('Employee Talk driven', 9),
-    ('DM driven', 10),
-    ('Employee driven', 10);
+    ('Employee Talk driven', 9);
 
 -- Create techstack table
 CREATE TABLE techstack (
     stack_id INT AUTO_INCREMENT PRIMARY KEY,
     stack_name VARCHAR(255) NOT NULL
 );
-INSERT INTO techstack (stack_name) VALUES 
-    ('Scripting (MEAN, MERN, RoR, JS, Vue..)'),
-    ('QA (Manual, Automation, Performance, Security)'),
-    ('Microsoft .Net'),
-    ('Java'),
-    ('Mobile'),
-    ('LCNC platform (Workato, Logi)'),
-    ('UX-UI-HTML'),
-    ('Python'),
-    ('Project Management'),
-    ('PHP (Core PHP, Drupal, IOMAD, Moodle)'),
-    ('SME/BA'),
-    ('DevOps'),
-    ('Data (Database/DBA/DWH/Visualization)'),
-    ('Misc (Reporting tool, PS/Support, Infrastructure)'),
-    ('Scrum Master'),
-    ('AI-ML / Data Science'),
-    ('Infrastructure'),
-    ('Softskills');
+INSERT INTO techstack (stack_name) VALUES
+('Scripting (RoR, JS, Vue..)'),
+('QA (Manual, Automation, Performance, Security)'),
+('Full Stack'),
+('Mobile'),
+('LCNC platform (Workato, Logi)'),
+('UX-UI-HTML'),
+('Project Management'),
+('PHP (Core PHP, Drupal, IOMAD, Moodle)'),
+('SME/BA'),
+('DevOps'),
+('Data (Database/DBA/DWH/Visualization)'),
+('Misc (Reporting tool, PS/Support, Infrastructure)'),
+('AI-ML / Data Science'),
+('Softskills');
+
     
 -- Create primaryskill table
 CREATE TABLE primaryskill (
@@ -118,61 +111,62 @@ CREATE TABLE primaryskill (
     stack_id INT,
     FOREIGN KEY (stack_id) REFERENCES techstack(stack_id)
 );
-INSERT INTO primaryskill (skill_name, stack_id) VALUES 
-    ('AngularJs', 1),
-    ('MERN', 1),
-    ('NodeJs', 1),
-    ('ReactJs', 1),
-    ('ROR', 1),
-    ('TypeScript', 1),
-    ('Vue.Js', 1),
-    ('Performance', 2),
-    ('Security', 2),
-    ('Automation', 2),
-    ('Functional', 2),
-    ('SDET', 2),
-    ('Microsoft .Net', 3),
-    ('Microsoft .Net + Angular', 3),
-    ('Java', 4),
-    ('Android', 5),
-    ('Flutter', 5),
-    ('iOS', 5),
-    ('React Native', 5),
-    ('Xamarine', 5),
-    ('Logi', 6),
-    ('Workato', 6),
-    ('HTML+CSS', 7),
-    ('UI Design', 7),
-    ('UX', 7),
-    ('Python', 8),
-    ('Agile', 9),
-    ('SAFe Agile', 9),
-    ('Project Management Tools (JIRA, Basecamp…)', 9),
-    ('Scrum Master', 9),
-    ('Basic Project Management (Project, People, Conflict, Customer, Planning…)', 9),
-    ('Moodle', 10),
-    ('IOMAD', 10),
-    ('Content Management Systems (WordPress, Drupal…)', 10),
-    ('PHP', 10),
-    ('SME', 11),
-    ('AWS', 12),
-    ('Azure', 12),
-    ('GCP', 12),
-    ('SQL queries', 13),
-    ('DBA', 13),
-    ('Visualization (Power BI, Klera…)', 13),
-    ('Data Warehouse / Data Lake', 13),
-    ('Infrastructure', 14),
-    ('Professional Services', 14),
-    ('Scrum Master', 15),
-    ('AI-ML', 16),
-    ('Data Science', 16),
-    ('ChatGPT', 16),
-    ('NLP', 16),
-    ('Business Communication', 18),
-    ('Time Management', 18),
-    ('Client Interaction', 18),
-    ('Managing teams', 18);
+
+INSERT INTO primaryskill (skill_name, stack_id) VALUES
+('AngularJs', 1),
+('MERN', 3),
+('NodeJs', 1),
+('ReactJs', 1),
+('ROR', 1),
+('TypeScript', 1),
+('Vue.Js', 1),
+('Performance', 2),
+('Security', 2),
+('Automation', 2),
+('Functional', 2),
+('SDET', 2),
+('Microsoft .Net', 3),
+('Java', 3),
+('Android', 4),
+('Flutter', 4),
+('iOS', 4),
+('React Native', 4),
+('Xamarin', 4),
+('Logi', 5),
+('Workato', 5),
+('HTML+CSS', 6),
+('UI Design', 6),
+('UX', 6),
+('Python', 3),
+('Agile', 7),
+('SAFe Agile', 7),
+('Project Management Tools (JIRA, Basecamp…) ', 7),
+('Scrum Master', 7),
+('Basic Project Management (Project, People, Conflict, Customer, Planning…)', 7),
+('Moodle', 8),
+('IOMAD', 8),
+('Content Management Systtems (WordPress, Drupal…) ', 8),
+('PHP', 8),
+('SME', 9),
+('AWS', 10),
+('Azure', 10),
+('GCP', 10),
+('SQL queries', 11),
+('DBA', 11),
+('Visualization (Power BI, Klera…)', 11),
+('Data Warehouse / Data Lake', 11),
+('Infrastructure', 12),
+('Instructure', 12),
+('Professional Services', 12),
+('AI-ML', 13),
+('Data Science', 13),
+('ChatGPT', 13),
+('NLP', 13),
+('Business Communication', 14),
+('Time Management', 14),
+('Client Interaction', 14),
+('Managing teams', 14);
+
     
 -- Create projectname table
 CREATE TABLE projectname (
@@ -202,16 +196,13 @@ CREATE TABLE logintable (
     FOREIGN KEY (role_id) REFERENCES role(role_id)
 );
 INSERT INTO logintable (emp_id, name, email, password, role_id) VALUES
-    ('HS2735', 'Swaroop bidkar', 'swaroop.bidkar@example.com', '1234',  8),
-    ('HS2736', 'Shreyansh barve', 'shreyansh.barve@example.com', '1234',  9),
-    ('HS2733', 'harsh jagtap', 'harsh.jagtap@example.com', '1234',  3),
-    ('HS2731', 'sonia sahu', 'sonia.sahu@example.com', '1234',  2),
-    ('HS2734', 'shruti rawat', 'shruti.rawat@example.com', '1234',  10),
-    ('HS2732', 'sanket tikde', 'sanket.tikde@example.com', '1234',  9),
-    ('HS2737', 'theresa chalis', 'theresa.chalis@example.com', '1234',  8),
-    ('HS1111', 'satyabaji sahu', 'satyabaji.sahu@example.com', '1234',  4),
-    ('HS2222', 'santosh iyer', 'santosh.iyer@example.com', '1234',  4);
+    ('HS1111', 'Satyabaji Sahu', 'Satyabaji.Sahu@example.com',"1234", 4),
+	('HS2222', 'Santosh Iyer', 'Santosh.Iyer@example.com' ,"1234", 4),
+	('HS3333', 'Pawan Shekatkar', 'Pawan.Shekatkar@example.com',"1234", 8),
+	('HS4444', 'Umesh Kanade', 'Umesh.Kanade@example.com',"1234", 5),
+	('HS5555', 'Dhara Masani', 'Dhara.Masani@example.com',"1234", 10);
 
+select * from logintable;
 
  -- Create role_source_assign table
 CREATE TABLE role_source_assign (
@@ -227,26 +218,24 @@ INSERT INTO role_source_assign (role_id, source_id) VALUES
     (2, 1),
     (3, 3),
     (3, 6),
-    (4, 7),
     (5, 8),
     (6, 5),
     (7, 6),
     (8, 2),
     (9, 4),
-    (10, 1),
-    (10, 2),
-	(10, 3),
-    (10, 4),
-    (10, 5),
-    (10, 6),
-    (10, 7),
-    (10, 8),
-    (10, 9),
-    (10, 10);
+    (4, 1),
+    (4, 2),
+	(4, 3),
+    (4, 4),
+    (4, 5),
+    (4, 6),
+    (4, 7),
+    (4, 8),
+    (4, 9);
  
 -- Create the employee table
 CREATE TABLE employee (
-    emp_id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PRIMARY KEY,
+    emp_id VARCHAR(100) PRIMARY KEY,
     emp_name VARCHAR(100),
     emp_email VARCHAR(100)
 );
@@ -258,35 +247,67 @@ INSERT INTO employee (emp_id, emp_name, emp_email) VALUES
 ('HS9114', 'Suraj Sahu', 'Suraj.Sahu@example.com'),
 ('HS9115', 'Shreya Dalal', 'Shreya.Goshal@example.com'),
 ('HS9116', 'Effy Joe', 'Effy.Joe@example.com'),
-('HS9117', 'Sneha Sr', 'Sneha.sr@example.com');
+('HS9117', 'Sneha Sr', 'Sneha.sr@example.com'),
+('HS2735', 'Swaroop bidkar', 'swaroop.bidkar@example.com'),
+('HS2736', 'Shreyansh barve', 'shreyansh.barve@example.com'),
+('HS2733', 'harsh jagtap', 'harsh.jagtap@example.com'),
+('HS2731', 'sonia sahu', 'sonia.sahu@example.com'),
+('HS2734', 'shruti rawat', 'shruti.rawat@example.com'),
+('HS2732', 'sanket tidke', 'sanket.tikde@example.com'),
+('HS2737', 'theresa chalis', 'theresa.chalis@example.com');
 
--- UPDATE employee
 
--- SET emp_id = CASE emp_id
---     WHEN 'HS1111' THEN 'HS9111'
---     WHEN 'HS1112' THEN 'HS9112'
---     WHEN 'HS1113' THEN 'HS9113'
---     WHEN 'HS1114' THEN 'HS9114'
---     WHEN 'HS1115' THEN 'HS9115'
---     WHEN 'HS1116' THEN 'HS9116'
---     WHEN 'HS1117' THEN 'HS9117'
---     ELSE emp_id
--- END
--- WHERE emp_id IN ('HS1111', 'HS1112', 'HS1113', 'HS1114', 'HS1115', 'HS1116', 'HS1117');
-
-INSERT INTO employee (emp_id, emp_name, emp_email) VALUES
-    ('HS2735', 'Swaroop bidkar', 'swaroop.bidkar@example.com'),
-    ('HS2736', 'Shreyansh barve', 'shreyansh.barve@example.com'),
-    ('HS2733', 'harsh jagtap', 'harsh.jagtap@example.com'),
-    ('HS2731', 'sonia sahu', 'sonia.sahu@example.com'),
-    ('HS2734', 'shruti rawat', 'shruti.rawat@example.com'),
-    ('HS2732', 'sanket tidke', 'sanket.tikde@example.com'),
-    ('HS2737', 'theresa chalis', 'theresa.chalis@example.com'),
-    ('HS1111', 'satyabaji sahu', 'satyabaji.sahu@example.com'),
-    ('HS2222', 'santosh iyer', 'santosh.iyer@example.com');
+   
     
     
 select * from employee;
+
+
+CREATE TABLE manager (
+    manager_id VARCHAR(100) PRIMARY KEY,  
+    manager_name VARCHAR(100),  
+    manager_email VARCHAR(100),  
+    role_id INT,  
+    FOREIGN KEY (role_id) REFERENCES role(role_id)  
+);
+
+INSERT INTO manager (manager_id, manager_name, manager_email, role_id) VALUES
+('HS1111', 'Satyabaji Sahu', 'Satyabaji.Sahu@example.com', 4),
+('HS2222', 'Santosh Iyer', 'Santosh.Iyer@example.com', 4),
+('HS3333', 'Pawan Shekatkar', 'Pawan.Shekatkar@example.com', 8),
+('HS4444', 'Umesh Kanade', 'Umesh.Kanade@example.com', 5),
+('HS5555', 'Dhara Masani', 'Dhara.Masani@example.com', 10);
+
+select * from manager;
+
+CREATE TABLE manager_employee_relationship (
+    manager_id VARCHAR(100),                         
+    emp_id VARCHAR(100),
+    PRIMARY KEY (manager_id, emp_id),
+    FOREIGN KEY (manager_id) REFERENCES logintable(emp_id),  
+    FOREIGN KEY (emp_id) REFERENCES employee(emp_id)        
+);
+
+INSERT INTO manager_employee_relationship VALUES
+("HS1111", "HS2731"),
+("HS1111", "HS2732"),
+("HS1111", "HS2733"),
+("HS2222", "HS2734"),
+("HS2222", "HS2735"),
+("HS2222", "HS2736"),
+("HS3333", "HS2733"),
+("HS3333", "HS2737"),
+("HS3333", "HS9111"),
+("HS4444", "HS2734"),
+("HS4444", "HS9112"),
+("HS4444", "HS9113"),
+("HS5555", "HS9114"),
+("HS5555", "HS9115"),
+("HS5555", "HS9116"),
+("HS5555", "HS9117");
+
+select * from manager_employee_relationship;
+
 
     CREATE TABLE employee_level (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -319,21 +340,21 @@ CREATE TABLE newtrainingrequest (
   source INT NOT NULL,
   trainingobj INT,
   requestonbehalfof VARCHAR(255),
-  requesttype LONGTEXT COLLATE utf8mb4_unicode_ci,
+  requesttype LONGTEXT,
   projectid INT,
   expecteddeadline DATE,
   techstack INT,
   primaryskill INT,
-  otherskill LONGTEXT COLLATE utf8mb4_unicode_ci,
-  suggestedcompletioncriteria LONGTEXT COLLATE utf8mb4_unicode_ci,
-  comments LONGTEXT COLLATE utf8mb4_unicode_ci,
+  otherskill LONGTEXT,
+  suggestedcompletioncriteria LONGTEXT,
+  comments LONGTEXT,
   numberofpeople BIGINT DEFAULT NULL,
-  requestedby LONGTEXT COLLATE utf8mb4_unicode_ci,
+  requestedby LONGTEXT,
   requestedbyid VARCHAR(100),
   createddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   modifiedby BIGINT,
   modifieddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  requeststatus VARCHAR(255) DEFAULT 'Approval Requested' COLLATE utf8mb4_unicode_ci,
+  requeststatus VARCHAR(255) DEFAULT 'Approval Requested',
   approvedby BIGINT,
   service_division INT,
   newprospectname VARCHAR(255),
@@ -349,7 +370,7 @@ CREATE TABLE newtrainingrequest (
   FOREIGN KEY (service_division) REFERENCES service_division(id),
   FOREIGN KEY (requestonbehalfof) REFERENCES employee(emp_id),
   FOREIGN KEY (requestedbyid) REFERENCES employee(emp_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='All training Request Data';
+);
 
 select * from newtrainingrequest ;
 
@@ -358,20 +379,20 @@ select * from newtrainingrequest ;
  
 CREATE TABLE emp_newtrainingrequested (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    emp_id VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,  -- Ensure matching charset and collation
+    emp_id VARCHAR(100) NOT NULL,  -- Ensure matching charset and collation
     availablefrom DATE NOT NULL,
     dailyband VARCHAR(100) NOT NULL,
     availableonweekend BOOLEAN NOT NULL,
     requestid INT NOT NULL,
     emailsentstatus BIGINT DEFAULT '0',
     emailsentdate DATE,
-    comment LONGTEXT COLLATE utf8mb4_unicode_ci,
+    comment LONGTEXT,
     status VARCHAR(50) NOT NULL DEFAULT '0',
     createddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Automatically set current timestamp
     PRIMARY KEY (id),
     CONSTRAINT fk_emp_id FOREIGN KEY (emp_id) REFERENCES employee(emp_id),  -- Foreign key constraint
     FOREIGN KEY(requestid) REFERENCES newtrainingrequest(requestid) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='new_training_requested_employee';
+);
 
 
 
@@ -384,7 +405,3 @@ CREATE TABLE `training_request_employee_level` (
 );
 
 select * from training_request_employee_level;
-
-
-
-SHOW CREATE TABLE newtrainingrequest;
