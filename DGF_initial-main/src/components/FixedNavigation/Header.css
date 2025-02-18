@@ -2,24 +2,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
  
 body{
-  background-color: #F6FAFF !important;
+  background-color: #F2F3F7F7 !important;
   /* overflow: hidden; */
   overflow-y: auto;
   font-family: 'Poppins', sans-serif !important;
   font-weight: regular !important;
 }
 .header {
-  margin-top: 30px;
-height: 40px !important;
-  background-color: #F1F2FD !important;
+  margin-top: -8px;
+height: 70px !important;
+  background-color: white !important;
   color:#A8A8A8 !important;
-  box-shadow: none !important;
-  border-radius: 14px;
+  box-shadow: 10px !important;
+  border-radius: 0px;
   margin-right: 40px;
-  margin-left: 260px;
-  padding: 0 !important;
+  margin-left: 214px;
+  padding: 16px !important;
+  padding-left: 10px;
   font-family: 'Poppins', sans-serif !important;
-  width: calc(100% - 275px) !important; /* Adjust width to account for sidebar */
+  width: calc(100% - 206px) !important; /* Adjust width to account for sidebar */
+  
 }
  
 .search {
@@ -30,7 +32,7 @@ height: 40px !important;
   box-shadow: none;
   font-family: 'Poppins', sans-serif !important;
   padding: 5px 10px;
- 
+  
 }
  
 .search-input {
@@ -52,4 +54,3 @@ height: 40px !important;
 .btn{
   color: #616161;
 }
- 

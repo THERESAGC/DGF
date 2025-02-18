@@ -29,6 +29,7 @@ const TrainingContainer = () => {
       marginright: '0',
       maxHeight: '100vh',
       maxWidth: '100%',
+
     }
   };
  

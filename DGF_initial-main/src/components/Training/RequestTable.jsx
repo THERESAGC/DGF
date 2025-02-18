@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, Typography, IconButton, TablePagination, Tabs, Tab, TextField, MenuItem, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import "../Training/RequestTable.css";
- 
+
 // Define the getRoleType function directly in this file
 const getRoleType = (roleId) => {
   if (roleId === 10) {
@@ -16,7 +16,7 @@ const getRoleType = (roleId) => {
     return 'requester';
   }
 };
- 
+
 const data = [
   { id: "123", project: "iAlign", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Learning in Progress" },
   { id: "231", project: "Staffing Nation", learners: 5, completedLearners: 2, objective: "Upskilling", techStack: "React", requestedOn: "Jan 20, 2025", status: "SPOC Approval Awaited" },
@@ -34,42 +34,41 @@ const data = [
   { id: "332", project: "Rejected Project 2", learners: 3, completedLearners: 0, objective: "Upskilling", techStack: "Go", requestedOn: "Jan 22, 2025", status: "Rejected" },
   { id: "333", project: "Hold Project 2", learners: 5, completedLearners: 2, objective: "Upskilling", techStack: "Swift", requestedOn: "Jan 23, 2025", status: "Hold" },
   { id: "001", project: "iAl", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Approval Requested" },
-  { id: "002", project: "Sonia", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Initiate Training" },
-  { id: "002", project: "Sonia", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Initiate Training" },
-  { id: "002", project: "Sonia", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Initiate Training" },
   { id: "002", project: "Sonia", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Initiate Training" }
 ];
- 
+
 const requesterInProgressStatuses = ["SPOC Approval Awaited", "Learning in Progress", "Preparing Learning Plan", "Clarification Awaited"];
 const spocInProgressStatuses = ["Approval Requested", "Preparing Learning Plan", "Learning in Progress", "Clarification Awaited"];
 const capDevInProgressStatuses = ["Initiate Training", "Approval Requested", "Preparing Learning Plan", "Learning in Progress", "Clarification Awaited"];
 const completedStatuses = ["Completed", "Partially Completed", "Completed with Delay"];
 const statuses = ["In Progress", "Completed", "Incomplete", "Rejected", "Hold"];
 const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"];
- 
+
 const RequestTable = ({ roleId }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState("In Progress");
   const [selectedDays, setSelectedDays] = useState("All");
   const rowsPerPage = 5;
- 
+  const tabsRef = useRef(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({});
+
   const role = getRoleType(roleId);
- 
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
- 
+
   const handleStatusChange = (event, newValue) => {
     setSelectedStatus(statuses[newValue]);
     setPage(0);
   };
- 
+
   const handleDaysChange = (event) => {
     setSelectedDays(event.target.value);
     setPage(0);
   };
- 
+
   const getInProgressStatuses = () => {
     if (role === "spoc") {
       return spocInProgressStatuses;
@@ -79,7 +78,7 @@ const RequestTable = ({ roleId }) => {
       return requesterInProgressStatuses;
     }
   };
- 
+
   const filteredData = data.filter(row => {
     if (selectedStatus === "In Progress") {
       return getInProgressStatuses().includes(row.status);
@@ -94,7 +93,7 @@ const RequestTable = ({ roleId }) => {
     }
     return row.status === selectedStatus;
   });
- 
+
   const handleArrowClick = (status) => {
     if (status === "Initiate Training") {
       navigate('/initiate-training');
@@ -103,140 +102,162 @@ const RequestTable = ({ roleId }) => {
       navigate('/spoc-approval');
     }
   }
- 
-  return (
-    <TableContainer component={Paper} className="table-container">
-  <div className="filters">
-    <Tabs value={statuses.indexOf(selectedStatus)} onChange={handleStatusChange} variant="scrollable" scrollButtons="auto">
-      {statuses.map(status => (
-           <Tab
-           key={status}
-           label={
-             <span className="tab-label">
-               {status}
-               <span className="tab-label-number">
-                 {data.filter(row => {
-                   if (status === "In Progress") {
-                     return getInProgressStatuses().includes(row.status);
-                   } else if (status === "Completed") {
-                     return completedStatuses.includes(row.status);
-                   } else if (status === "Incomplete") {
-                     return row.status === "Incomplete";
-                   } else if (status === "Rejected") {
-                     return row.status === "Rejected";
-                   } else if (status === "Hold") {
-                     return row.status === "Hold";
-                   }
-                   return row.status === status;
-                 }).length}
-               </span>
-             </span>
-           }
-         />
-       ))}
-     </Tabs>
-     <TextField
-  select
-  value={selectedDays}
-  onChange={handleDaysChange}
-  variant="outlined"
-  size="small"
-  style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px', marginRight:'-10px' }}
-  InputProps={{
-    style: { fontSize: '0.63rem' } // Decreasing the font size here
-  }}
-  MenuProps={{
-    PaperProps: {
-      style: {
-        maxHeight: 300, // Optional: you can limit the max height of the dropdown
-        width: '100px' // You can adjust this to control the width of the dropdown
+
+  useEffect(() => {
+    if (tabsRef.current) {
+      const selectedTab = tabsRef.current.querySelector(`[aria-selected="true"]`);
+      if (selectedTab) {
+        const { offsetLeft, offsetWidth } = selectedTab;
+        setIndicatorStyle({
+          left: offsetLeft,
+          width: offsetWidth * 0.35, // Set the width to 50% of the tab's width
+          backgroundColor: 'red',
+          borderRadius: '20px',
+          marginLeft: '40px',
+        });
       }
     }
-  }}
->
-{daysOptions.map(option => (
-    <MenuItem key={option} value={option} style={{ fontSize: '0.75rem', padding: '5px 10px' }}>
-      {option}
-    </MenuItem>
-      ))}
-    </TextField>
-  </div>
-  <Table>
-    <TableHead>
-      <TableRow className="table-head">
-        <TableCell>Req No:</TableCell>
-        <TableCell >Project</TableCell>
-        <TableCell>Learners</TableCell>
-        <TableCell>Objective</TableCell>
-        <TableCell>Tech Stack</TableCell>
-        <TableCell>Requested On</TableCell>
-        <TableCell className="no">Status</TableCell>
-        <TableCell > </TableCell> {/* New Column */}
-        <TableCell>Actions</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-        <TableRow key={index}>
-          <TableCell>{row.id}</TableCell>
-          <TableCell className="project">{row.project}</TableCell>
-          <TableCell>
-            <Box display="flex" alignItems="center">
-              {Array.from({ length: Math.min(row.learners, 2) }).map((_, i) => (
-                <Avatar key={i} style={{ marginLeft: i === 1 ? -1.5: 1 }}>{row.learners}</Avatar>
-              ))}
-              {row.learners > 2 && (
-                <Box display="flex" alignItems="center" justifyContent="center" style={{ marginLeft:0, backgroundColor: '#f0f0f0', borderRadius: '50%', width: 20, height: 20 }}>
-                  <Typography variant="body2">+{row.learners - 2}</Typography>
+  }, [selectedStatus]);
+  
+
+  return (
+    <TableContainer component={Paper} className="table-container">
+      <div className="filters">
+        <Tabs
+          value={statuses.indexOf(selectedStatus)}
+          onChange={handleStatusChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          ref={tabsRef}
+          TabIndicatorProps={{ style: indicatorStyle }}
+        >
+          {statuses.map(status => (
+            <Tab
+              key={status}
+              label={
+                <span className={`tab-label ${selectedStatus === status ? 'selected-tab' : ''}`}>
+                  {status}
+                  <span className="tab-label-number">
+                    {data.filter(row => {
+                      if (status === "In Progress") {
+                        return getInProgressStatuses().includes(row.status);
+                      } else if (status === "Completed") {
+                        return completedStatuses.includes(row.status);
+                      } else if (status === "Incomplete") {
+                        return row.status === "Incomplete";
+                      } else if (status === "Rejected") {
+                        return row.status === "Rejected";
+                      } else if (status === "Hold") {
+                        return row.status === "Hold";
+                      }
+                      return row.status === status;
+                    }).length}
+                  </span>
+                </span>
+              }
+            />
+          ))}
+        </Tabs>
+        <TextField
+          select
+          value={selectedDays}
+          onChange={handleDaysChange}
+          variant="outlined"
+          size="small"
+          style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px', marginRight: '-10px' }}
+          InputProps={{
+            style: { fontSize: '0.63rem' } // Decreasing the font size here
+          }}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 300, // Optional: you can limit the max height of the dropdown
+                width: '100px' // You can adjust this to control the width of the dropdown
+              }
+            }
+          }}
+        >
+          {daysOptions.map(option => (
+            <MenuItem key={option} value={option} style={{ fontSize: '0.75rem', padding: '5px 10px' }}>
+              {option}
+            </MenuItem>
+          ))}
+        </TextField>
+      </div>
+      <Table>
+        <TableHead>
+          <TableRow className="table-head">
+            <TableCell>Req No:</TableCell>
+            <TableCell>Project</TableCell>
+            <TableCell>Learners</TableCell>
+            <TableCell>Objective</TableCell>
+            <TableCell>Tech Stack</TableCell>
+            <TableCell>Requested On</TableCell>
+            <TableCell className="no">Status</TableCell>
+            <TableCell> </TableCell> {/* New Column */}
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+            <TableRow key={index}>
+              <TableCell>{row.id}</TableCell>
+              <TableCell className="project">{row.project}</TableCell>
+              <TableCell>
+                <Box display="flex" alignItems="center">
+                  {Array.from({ length: Math.min(row.learners, 2) }).map((_, i) => (
+                    <Avatar key={i} style={{ marginLeft: i === 1 ? -1.5 : 1 }}>{row.learners}</Avatar>
+                  ))}
+                  {row.learners > 2 && (
+                    <Box display="flex" alignItems="center" justifyContent="center" style={{ marginLeft: 0, backgroundColor: '#f0f0f0', borderRadius: '50%', width: 20, height: 20 }}>
+                      <Typography variant="body2">+{row.learners - 2}</Typography>
+                    </Box>
+                  )}
                 </Box>
-              )}
-            </Box>
-          </TableCell>
-          <TableCell>{row.objective}</TableCell>
-          <TableCell>{row.techStack}</TableCell>
-          <TableCell>{row.requestedOn}</TableCell>
-          <TableCell>
-            <Typography color={row.status.includes("Progress") || completedStatuses.includes(row.status) || row.status === "Incomplete" ? "primary" : "textSecondary"}>
-              {row.status}
-            </Typography>
-          </TableCell>
-          <TableCell>
-            {/* New Column for Completion Status */}
-            {row.status === "Learning in Progress" || completedStatuses.includes(row.status) || row.status === "Incomplete" ?
-              `${row.completedLearners}/${row.learners} Completed` : ""}
-          </TableCell>
-          <TableCell>
-            <IconButton onClick={() => handleArrowClick(row.status)}><ArrowCircleRightOutlinedIcon style={{height:"20px"}} /></IconButton>
-            {role === "requester" && (row.status === "SPOC Approval Awaited" || row.status === "Clarification Awaited") && (
-              <IconButton><EditIcon style={{height:"15px"}} /></IconButton>
-            )}
-            {role === "CapDev" && row.status === "Clarification Awaited" && (
-              <IconButton><EditIcon style={{height:"15px"}} /></IconButton>
-            )}
-            {role !== "requester" && role !== "CapDev" && row.status === "Clarification Awaited" && (
-              <IconButton><EditIcon style={{height:"15px"}} /></IconButton>
-            )}
-          </TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-  <TablePagination
-    rowsPerPageOptions={[5]}
-    component="div"
-    count={filteredData.length}
-    rowsPerPage={rowsPerPage}
-    page={page}
-    onPageChange={handleChangePage}
-  />
- 
-</TableContainer>
- 
+              </TableCell>
+              <TableCell>{row.objective}</TableCell>
+              <TableCell>{row.techStack}</TableCell>
+              <TableCell>{row.requestedOn}</TableCell>
+              <TableCell>
+                <Typography className={`status ${row.status.replace(/\s+/g, '-').toLowerCase()}`}>
+                  {row.status}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                {/* New Column for Completion Status */}
+                {row.status === "Learning in Progress" || completedStatuses.includes(row.status) || row.status === "Incomplete" ?
+                  `${row.completedLearners}/${row.learners} Completed` : ""}
+              </TableCell>
+              <TableCell>
+                <IconButton onClick={() => handleArrowClick(row.status)}><ArrowCircleRightOutlinedIcon style={{ height: "20px" }} /></IconButton>
+                {role === "requester" && (row.status === "SPOC Approval Awaited" || row.status === "Clarification Awaited") && (
+                  <IconButton><EditIcon style={{ height: "15px" }} /></IconButton>
+                )}
+                {role === "CapDev" && row.status === "Clarification Awaited" && (
+                  <IconButton><EditIcon style={{ height: "15px" }} /></IconButton>
+                )}
+                {role !== "requester" && role !== "CapDev" && row.status === "Clarification Awaited" && (
+                  <IconButton><EditIcon style={{ height: "15px" }} /></IconButton>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <TablePagination
+        rowsPerPageOptions={[5]}
+        component="div"
+        count={filteredData.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+      />
+    </TableContainer>
   );
 };
- 
+
 RequestTable.propTypes = {
   roleId: PropTypes.number.isRequired,
 };
- 
+
 export default RequestTable;

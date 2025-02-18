@@ -1,12 +1,12 @@
 import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import SchoolIcon from '@mui/icons-material/School';
-import BookIcon from '@mui/icons-material/Book';
-import EventIcon from '@mui/icons-material/Event';
+// import DashboardIcon from '@mui/icons-material/Dashboard';
+// import SchoolIcon from '@mui/icons-material/School';
+// import BookIcon from '@mui/icons-material/Book';
+// import EventIcon from '@mui/icons-material/Event';
 import '../FixedNavigation/Sidebar.css';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
- 
+
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,14 +31,31 @@ const Sidebar = () => {
   return (
     <div className="sidebar" style={{fontFamily: 'Poppins', paddingLeft:0, paddingRight:0}}> {/* Add your font-family */}
       <div className="logo">
-        <img src="src/assets/harbinger-logo.png.webp" alt="Logo" /> {/* Replace with your logo image path */}
+        <img src="src/assets/harbinger-logo.svg" alt="Logo" /> {/* Replace with your logo image path */}
       </div>
       <List  style={{fontFamily: 'Poppins', marginBottom: '30px' , marginLeft:'0'}} >
         {[
-          { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard'},
-          { text: 'Trainings', icon: <SchoolIcon />, path: '/training-container'},
-          { text: 'My Courses', icon: <BookIcon />, path: '/my-courses'},
-          { text: 'Events', icon: <EventIcon />, path: '/my-events'},
+           {
+            text: 'Dashboard',
+            icon: <img src="src/assets/Dashboard.svg" alt="Dashboard" style={{ width: 15, height: 15,paddingLeft : 25}} />,
+            path: '/Dashboard',
+          },
+          
+          {
+            text: 'Trainings',
+            icon: <img src="src/assets/Training.svg" alt="Trainings" style={{ width: 15, height: 15 ,paddingLeft : 25 }} />,
+            path: '/training-container',
+          },
+          {
+            text: 'My Courses',
+            icon: <img src="src/assets/mycourse.svg" alt="My Courses" style={{ width: 15, height: 15 ,paddingLeft : 25}} />,
+            path: '/my-courses',
+          },
+          {
+            text: 'Events',
+            icon: <img src="src/assets/event.svg" alt="Events" style={{ width: 15, height: 15 ,paddingLeft : 25}} />,
+            path: '/my-events',
+          },
         ].map((item, index) => (
           <ListItemButton
             key={index}

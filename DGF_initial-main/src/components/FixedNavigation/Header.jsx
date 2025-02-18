@@ -41,14 +41,14 @@ const Header = () => {
         <div style={{ flexGrow: 1 }} />
  
         {/* Notification Icon */}
-        <IconButton color="inherit" style={{paddingRight:'30px',paddingBottom:"30px", color:'black'}}>
+        <IconButton color="inherit" style={{paddingRight:'30px',paddingBottom:"30px" , color:"black"}}>
           <NotificationsIcon />
         </IconButton>
  
         {/* Profile Image and Dropdown */}
         <div className="profile" onClick={handleMenuOpen}>
           <Avatar alt="User" src="https://storage.googleapis.com/a1aa/image/9QeNTGSOYBwARDeVbphU6jBm60J989tVfBHbOswHzBQ.jpg" /> {/* Replace with your profile image path */}
-          <Typography variant="body1" style={{ marginLeft: '10px', color:'black' }}>
+          <Typography variant="body1" style={{ marginLeft: '10px' , color:'black' }}>
           {user ? toPascalCase(user.name) : 'User'}
           </Typography>
         </div>

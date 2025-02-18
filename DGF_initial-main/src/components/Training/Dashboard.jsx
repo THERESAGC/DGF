@@ -6,37 +6,52 @@ const Dashboard = () => {
   const requestInProgress = {
     labels: ["SPOC Approval Awaiting", "Preparing Plan", "Learning In Progress", "Clarification Awaited"],
     values: [5, 3, 5, 2],
-    colors: ["#F8DC6C", "#54534E", "#1C71FE", "#F26060"],
+    colors: ["#003896", "#088EE7", "#2BB381", "#E25252"],
     hoverColors: ["#66BB6A", "#FFD54F", "#29B6F6", "#66BB6A"]
   };
  
   const completedRequests = {
     labels: ["Completed", "Completed with Delay", "Partially Completed"],
     values: [5, 3, 5],
-    colors: [ "#3F704D", "#00A693", "#F8DC6C"],
+    colors: [ "#003896", "#2BB381", "#E25252"],
     hoverColors: ["#66BB6A", "#FF7043", "#FFA726"]
   };
  
   const incompleteRequests = {
     labels: ["Incomplete"],
     values: [5],
-    colors: [ "#F44336"],
+    colors: [ "#E25252"],
     hoverColors: [ "#E57373"]
   };
  
   const requestsOnHold = {
     labels: ["Request Kept on Hold", "Learnings Kept on Hold"],
     values: [3,2],
-    colors: [  "#FF9800","#F26060"],
+    colors: [  "#003896","#E25252"],
     hoverColors: [  "#FFA726","#A569BD"]
+  };
+  const styles = {
+    container: {
+      padding: "10px",
+    },
+    grid:{
+padding: 0,
+margin: 0,
+justifyContent: 'space-between',
+    }
+    ,
+    gridcotnainer:{
+      padding: 0,
+      flexBasis: '48.5%',
+    },
   };
  
   return (
-    <Container sx={{ mt: 4 }}>
-    <Grid container spacing={3}>
+    <Container style={styles.container} className="dashboard-container">
+    <Grid container spacing={3} className="dashboard-grid" style={styles.grid}>
       {/* First Row: Requests in Progress and Completed Requests */}
-      <Grid item xs={12} md={6}>
-        <GraphComponent
+      <Grid item xs={12} md={6} style={styles.gridcotnainer}>
+        <GraphComponent 
           title="Requests in Progress"
           data={requestInProgress}
           details={[
@@ -47,8 +62,8 @@ const Dashboard = () => {
           ]}
         />
       </Grid>
-      <Grid item xs={12} md={6}>
-        <GraphComponent
+      <Grid item xs={12} md={6} style={styles.gridcotnainer}>
+        <GraphComponent 
           title="Completed Requests"
           data={completedRequests}
           details={[
@@ -60,7 +75,7 @@ const Dashboard = () => {
       </Grid>
  
       {/* Second Row: Incomplete Requests and Requests on Hold */}
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={6} style={styles.gridcotnainer}>
         <GraphComponent
           title="Incomplete Requests"
           data={incompleteRequests}
@@ -69,7 +84,7 @@ const Dashboard = () => {
           ]}
         />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={6} style={styles.gridcotnainer}>
         <GraphComponent
           title="Requests on Hold"
           data={requestsOnHold}

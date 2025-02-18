@@ -1,18 +1,17 @@
 /* src/components/Sidebar.css */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
+ 
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 230px; /* Ensure this matches the header's left value */
+  width: 222px; /* Ensure this matches the header's left value */
   height: 100vh;
   background-color: #CFDCFF;
   padding: 20px;
  
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
-
+ 
 .logo img {
   margin-top: 10px !important;
   width: 100% !important;
@@ -37,16 +36,17 @@ font-family: 'Poppins', sans-serif !important;
  background-color: #F6FAFF !important;
  color: rgb(34, 35, 36) !important;
  font-weight: bolder !important;
-
+ 
 }
 .sidebar-item:hover .MultiListItemIcon {
 background-color: #F6FAFF !important;
 font-weight: bolder !important;
 }
 .sidebar-item.selected {
-  background-color: #F6FAFF !important;
+  background-color: #F2F3F7 !important;
   color: rgb(34, 35, 36) !important;
   font-weight: bolder !important;
+  
 }
  .sidebar-item.selected .MuiListItemIcon-root {
   color: rgb(34, 35, 36) !important;
