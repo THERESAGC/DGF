@@ -1,4 +1,3 @@
-// services/newTrainingRequestService.js
 const db = require('../config/db');
 
 const createNewRequest = ({
@@ -8,10 +7,8 @@ const createNewRequest = ({
     trainingobj,
     projectid,
     newprospectname,
-    numberofpeople,
     expecteddeadline,
     techstack,
-    primaryskill,
     otherskill,
     suggestedcompletioncriteria,
     comments,
@@ -29,16 +26,14 @@ const createNewRequest = ({
                 trainingobj,
                 projectid,
                 newprospectname,
-                numberofpeople,
                 expecteddeadline,
                 techstack,
-                primaryskill,
                 otherskill,
                 suggestedcompletioncriteria,
                 comments,
                 service_division,
                 requestedbyid 
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
 
         const params = [
@@ -48,10 +43,8 @@ const createNewRequest = ({
             trainingobj ?? null,
             projectid,  // projectid is now guaranteed to be set to 999 if null
             newprospectname ?? null,
-            numberofpeople ?? null,
             expecteddeadline ?? null,
             techstack ?? null,
-            primaryskill ?? null,
             otherskill ?? null, 
             suggestedcompletioncriteria ?? null,
             comments ?? null,

@@ -1,4 +1,3 @@
-// app.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors'); 
@@ -18,7 +17,7 @@ const getMaxRequestIdRoutes = require('./routes/getMaxRequestIdRoutes');
 const getAllTrainingRequestsRoutes = require('./routes/getAllTrainingRequestsRoutes');
 const empNewTrainingRequestedRoutes = require('./routes/empNewTrainingRequestedRoutes');
 const trainingRequestPrimarySkillRoutes = require('./routes/trainingRequestPrimarySkillRoutes');
-
+const managerSearchByNameRoutes = require('./routes/managerSearchByNameRoutes'); // Import the manager search by name routes
 
 // Create an instance of the express app
 const app = express();
@@ -46,7 +45,8 @@ app.use('/api/get-max-request-id', getMaxRequestIdRoutes); // New route for max 
 app.use('/api/training-requests', getAllTrainingRequestsRoutes); // Route for training requests
 app.use('/api/empNewTrainingRequested', empNewTrainingRequestedRoutes);
 app.use('/api/trainingRequestPrimarySkills', trainingRequestPrimarySkillRoutes);
-
+app.use('/api/employeeSearchByName', employeeRoutes); // Add the new route for employee search by name
+app.use('/api/managerSearchByName', managerSearchByNameRoutes); // Add the new route for manager search by name
 
 // Error handling middleware (optional but useful for debugging)
 app.use((err, req, res, next) => {
