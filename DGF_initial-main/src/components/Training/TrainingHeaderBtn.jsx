@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../Auth/AuthContext';
 import '../Training/TrainingHeaderBtn.css';
  
 const TrainingHeaderBtn = () => {
   const [selectedButton, setSelectedButton] = useState('My Training Requests');
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext); // Get the user from AuthContext
  
   const handleButtonClick = (button, path) => {
     setSelectedButton(button);
@@ -38,8 +40,9 @@ const TrainingHeaderBtn = () => {
             color="primary"
             className="button"
             onClick={() => navigate('/new-request')}
+            disabled={user.role_id === 10} // Disable the button if role_id is 10
           >
-           New Request
+            New Request
           </Button>
         </Box>
       </Toolbar>

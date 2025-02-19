@@ -21,7 +21,7 @@ height: 70px !important;
   padding-left: 10px;
   font-family: 'Poppins', sans-serif !important;
   width: calc(100% - 206px) !important; /* Adjust width to account for sidebar */
-  
+ 
 }
  
 .search {
@@ -32,7 +32,7 @@ height: 70px !important;
   box-shadow: none;
   font-family: 'Poppins', sans-serif !important;
   padding: 5px 10px;
-  
+ 
 }
  
 .search-input {
@@ -51,6 +51,12 @@ height: 70px !important;
   padding-bottom: 22px;
   cursor: pointer;
 }
+.profile .MuiAvatar-root {
+  width: 30px !important;   /* Increase the avatar size */
+  height: 30px !important;  /* Increase the avatar size */
+ 
+}
 .btn{
   color: #616161;
 }
+ 

@@ -8,7 +8,8 @@ import SpocContainer from './components/SpocContainer';
 import Login from './components/Auth/Login';
 import ProtectedRoute from './components/Auth/ProctectedRoutes.jsx';
 import { AuthProvider } from './components/Auth/AuthContext.jsx';
- 
+import ClarificationAwaitedContainer from './components/ClarificationAwaitedContainer.jsx';
+
 function App() {
   const obj = {
     color: "black",
@@ -25,6 +26,7 @@ function App() {
             <Route path="/new-request" element={<ProtectedRoute element={<FixedComponent><NewRequestContainer /></FixedComponent>} />} />
             <Route path="/initiate-training" element={<ProtectedRoute element={<FixedComponent><InitiateTrainingContainer /></FixedComponent>} />} />
             <Route path='/spoc-approval' element={<ProtectedRoute element={<FixedComponent><SpocContainer /></FixedComponent>} />} />
+            <Route path='/clarification-awaited' element={<ProtectedRoute element={<FixedComponent><ClarificationAwaitedContainer /></FixedComponent>} />} />
           </Routes>
         </Router>
       </div>

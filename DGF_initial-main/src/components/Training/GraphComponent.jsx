@@ -1,10 +1,11 @@
+
 import { Box, Typography } from "@mui/material";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import PropTypes from 'prop-types';
-import './GraphComponent.css';
+// import './GraphComponent.css';
 ChartJS.register(ArcElement, Tooltip, Legend);
-
+ 
 // Create individual Box components for the graph sections
 const GraphHeader = ({ title }) => (
   <Typography
@@ -19,7 +20,11 @@ const GraphHeader = ({ title }) => (
     {title}
   </Typography>
 );
-
+ 
+GraphHeader.propTypes = {
+  title: PropTypes.string.isRequired,
+};
+ 
 const GraphChart = ({ chartData, chartOptions, totalRequests }) => (
   <Box sx={{
     width: '40%',
@@ -50,7 +55,7 @@ const GraphChart = ({ chartData, chartOptions, totalRequests }) => (
     </Box>
   </Box>
 );
-
+ 
 const GraphDetails = ({ details, colors }) => (
   <Box sx={{
     textAlign: 'left',
@@ -73,10 +78,15 @@ const GraphDetails = ({ details, colors }) => (
     })}
   </Box>
 );
-
+ 
+GraphDetails.propTypes = {
+  details: PropTypes.arrayOf(PropTypes.string).isRequired,
+  colors: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+ 
 const GraphComponent = ({ title, data, details }) => {
   const totalRequests = data.values.reduce((a, b) => a + b, 0);
-
+ 
   const chartData = {
     labels: data.labels,
     datasets: [
@@ -88,7 +98,7 @@ const GraphComponent = ({ title, data, details }) => {
       },
     ],
   };
-
+ 
   const chartOptions = {
     cutout: '85%',
     plugins: {
@@ -98,13 +108,13 @@ const GraphComponent = ({ title, data, details }) => {
     },
     maintainAspectRatio: false,
   };
-
+ 
   return (
     <Box className="graph-container" sx={{
       textAlign: "center",
       backgroundColor: "#FFFFFF",
       padding: '10px',
-      
+     
       // marginLeft: '-15px',
       borderRadius: 3,
       height: '150px',
@@ -114,7 +124,7 @@ const GraphComponent = ({ title, data, details }) => {
       // gap : 10,
       // transform: 'translateX(10px)',
       marginBottom: 1,
-    
+   
     }}>
       <GraphHeader title={title} />
       <Box sx={{
@@ -132,7 +142,15 @@ const GraphComponent = ({ title, data, details }) => {
     </Box>
   );
 };
-
+ 
+GraphChart.propTypes = {
+  chartData: PropTypes.object.isRequired,
+  chartOptions: PropTypes.object.isRequired,
+  totalRequests: PropTypes.number.isRequired,
+};
+ 
+ 
+ 
 GraphComponent.propTypes = {
   title: PropTypes.string.isRequired,
   data: PropTypes.shape({
@@ -143,6 +161,6 @@ GraphComponent.propTypes = {
   }).isRequired,
   details: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
-
+ 
 export default GraphComponent;
-
+ 

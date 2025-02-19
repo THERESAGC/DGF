@@ -51,7 +51,7 @@ justifyContent: 'space-between',
     <Grid container spacing={3} className="dashboard-grid" style={styles.grid}>
       {/* First Row: Requests in Progress and Completed Requests */}
       <Grid item xs={12} md={6} style={styles.gridcotnainer}>
-        <GraphComponent 
+        <GraphComponent
           title="Requests in Progress"
           data={requestInProgress}
           details={[
@@ -63,7 +63,7 @@ justifyContent: 'space-between',
         />
       </Grid>
       <Grid item xs={12} md={6} style={styles.gridcotnainer}>
-        <GraphComponent 
+        <GraphComponent
           title="Completed Requests"
           data={completedRequests}
           details={[

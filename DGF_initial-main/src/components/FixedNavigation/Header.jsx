@@ -2,9 +2,10 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, IconButton, InputBase, Menu, MenuItem, Avatar, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+// import NotificationsIcon from '@mui/icons-material/Notifications';
 import AuthContext from '../Auth/AuthContext';
 import './Header.css';
+import { toPascalCase } from '../../utils/stringUtils';
  
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -23,9 +24,7 @@ const Header = () => {
     logout();
     navigate('/login');
   };
-  const toPascalCase = (text) => {
-    return text.replace(/\w+/g, (word) => word[0].toUpperCase() + word.slice(1).toLowerCase());
-  };
+ 
  
   return (
     <AppBar position="static" className="header">
@@ -41,16 +40,18 @@ const Header = () => {
         <div style={{ flexGrow: 1 }} />
  
         {/* Notification Icon */}
-        <IconButton color="inherit" style={{paddingRight:'30px',paddingBottom:"30px" , color:"black"}}>
-          <NotificationsIcon />
-        </IconButton>
+        <IconButton color="inherit" style={{ paddingRight: '30px', paddingBottom: "30px"}}>
+        <img src="src/assets/Notification-icon.svg" alt="Notification" style={{ width: '18px', height: '18px' }} />
+         </IconButton>
+ 
  
         {/* Profile Image and Dropdown */}
         <div className="profile" onClick={handleMenuOpen}>
-          <Avatar alt="User" src="https://storage.googleapis.com/a1aa/image/9QeNTGSOYBwARDeVbphU6jBm60J989tVfBHbOswHzBQ.jpg" /> {/* Replace with your profile image path */}
+          <Avatar   alt="User" src="https://storage.googleapis.com/a1aa/image/9QeNTGSOYBwARDeVbphU6jBm60J989tVfBHbOswHzBQ.jpg" style={{ width: '200px', height: 100 }}/> {/* Replace with your profile image path */}
           <Typography variant="body1" style={{ marginLeft: '10px' , color:'black' }}>
           {user ? toPascalCase(user.name) : 'User'}
           </Typography>
+          <img src="src/assets/arrow-down.svg" alt="Notification" style={{ width: '10px', height: '10px',paddingLeft:"10px" ,fill: "#707070"}} />
         </div>
  
         {/* Dropdown Menu */}

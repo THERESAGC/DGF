@@ -1,4 +1,4 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 .paperbackground {
   background-color: #f9f9f9;
   padding: 20px;
@@ -6,12 +6,17 @@
 .mainHeading {
   font-size: 24px;
   font-weight: bold;
+  margin-top: 20px !important;
+  margin-left: -30px !important;
+}
+.paper{
+  background-color: #F2F3F7;
 }
  
 .subheader {
   font-size: 16px;
   margin-bottom: 10px;
-  padding-left: 10px;
+  /* padding-left: 10px; */
 }
 .simpleHeading {
   font-size: 20px;
@@ -25,9 +30,36 @@
 .table-container {
     padding: 0;
     margin-top: 16px;
+    font-family: 'Poppins', sans-serif !important;
   }
   .tableHeader {
-    font-weight: bold;
+    font-weight: bolder;
+    font-family: 'Poppins', sans-serif !important;
+    /* max-height: 30px !important; */
+  }
+ 
+  .head{
+    font-weight: 500 !important;
+    font-family: 'Poppins', sans-serif !important;
+ 
+ 
+  }
+  .row:nth-child(1){
+    background-color: #CCE3FF;
+    padding: 0;
+    font-weight: bolder !important;
+    font-family: 'Poppins', sans-serif !important;
+    height: 10px !important;
+    font-family: 'Poppins', sans-serif !important;
+ 
+  }
+  .availabledates{
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+  }
+ 
+  .row{
+    max-height: 20px !important;
   }
   /* .table-head {
     background-color: #e3f2fd;
@@ -52,6 +84,7 @@
   }
   .MuiPaper-root {
 padding: auto;
+/* background-color: #F2F3F7; */
   }
   .summary-box {
     margin-top: 16px;
@@ -80,3 +113,10 @@ padding: auto;
   .text{
     width: 245px;
   }
+  .btn{
+    background-color: white;
+    color: blue;
+    box-shadow: none;
+  }
+ 
+ 

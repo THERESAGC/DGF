@@ -15,10 +15,12 @@ const Sidebar = () => {
   useEffect(() => {
     const pathToTab = {
       '/dashboard': 'Dashboard',
-      '/training-container': 'Trainings',
-      '/new-request': 'Trainings', // Highlight Trainings tab for new request path
+      '/training-container': 'Learnings',
+      '/new-request': 'Learnings', // Highlight Trainings tab for new request path
       '/my-courses': 'My Courses',
       '/my-events': 'Events',
+      '/spoc-approval': 'Learnings',
+      '/clarification-awaited': 'Learnings',
     };
     setSelectedTab(pathToTab[location.pathname] || 'Dashboard');
   }, [location.pathname]);
@@ -42,7 +44,7 @@ const Sidebar = () => {
           },
           
           {
-            text: 'Trainings',
+            text: 'Learnings',
             icon: <img src="src/assets/Training.svg" alt="Trainings" style={{ width: 15, height: 15 ,paddingLeft : 25 }} />,
             path: '/training-container',
           },

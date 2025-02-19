@@ -1,32 +1,15 @@
 import { useState } from "react";
-import {
-  Paper,
-  Typography,
-  Grid,
-  Divider,
-  Box,
-  FormControl,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  TextField,
-  Button,
-  Avatar,
-  TablePagination,
-} from "@mui/material";
+import {  Paper,  Typography,  Grid,  Divider,  Box,  FormControl,  Table,  TableBody,  TableCell,  TableContainer,
+  TableHead,  TableRow,  Radio,  RadioGroup,  FormControlLabel,  TextField,  Button,  Avatar,} from "@mui/material";
 import "./SpocApproval.css";
 
 const SpocApproval = () => {
   const [action, setAction] = useState("approve");
   const [comments, setComments] = useState("");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  
+
+
 
   const learners = [
     {
@@ -56,30 +39,21 @@ const SpocApproval = () => {
     // Add more learners as needed
   ];
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   return (
     <>
       <Box justifyContent="space-between">
         <Typography fullWidth
           variant="h5"
-          gutterBottom
-          style={{ fontSize: "12px", fontWeight: "bold",marginBottom: "1rem" }}
+          gutterBottom  className="mainHeading" 
+          style={{ fontWeight: "bold", fontSize: "14px" }}
         >
-          Approval Training Request
+          Approve Learning Request
         </Typography>
-        <Divider style={{ marginBottom: "1rem" }} />
+        <Divider style={{ margin: "1rem 0 ", marginLeft:'-30px', marginRight:'-40px' }} />
       </Box>
    
-        <Grid item xs={12} md={8} lg={6} style={{ height: "100%",marginTop: "5rem" }}>
-          <Paper elevation={1} className="paper" style={{ height: "100%" ,width: "100%" }}>
+          <Paper elevation={1} className="paper" style={{ height: "100%" ,width: "85%" }}>
             <div className="inner-container">
               <Box style={{padding: "10px", marginTop: "1rem"}}>
                 <Grid container spacing={2}>
@@ -209,14 +183,14 @@ const SpocApproval = () => {
               <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
               <Box>
                 <div style={{ maxWidth: "100%", margin: "auto", padding: 20 }}>
-                  <h2 style={{ fontSize: "12px", marginBottom: "1rem" }}>Training Request</h2>
+                  <h2 style={{ fontSize: "12px", marginBottom: "1rem" }}>{learners.length} Learners are allocated to this learning request</h2>
                   <TableContainer
                     component={Paper}
-                    style={{ padding: "16px", marginTop: "16px", maxWidth: "97%" }}
+                    style={{ padding: "16px", marginTop: "16px", maxWidth: "97%"}} elevation={0}
                   >
                     <Table size="small">
                       {learners.length > 0 && (
-                        <TableHead sx={{ backgroundColor: "#e3f2fd" }}>
+                        <TableHead sx={{ backgroundColor: "#CCE3FF" }}>
                           <TableRow>
                             <TableCell
                               style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" }}
@@ -248,10 +222,6 @@ const SpocApproval = () => {
                       )}
                       <TableBody>
                         {learners
-                          .slice(
-                            page * rowsPerPage,
-                            page * rowsPerPage + rowsPerPage
-                          )
                           .map((learner) => (
                             <TableRow key={learner.id}>
                               <TableCell style={{ padding: "8px", fontSize: "12px" }}>
@@ -280,7 +250,7 @@ const SpocApproval = () => {
                           ))}
                       </TableBody>
                     </Table>
-                    <TablePagination
+                    {/* <TablePagination
                       rowsPerPageOptions={[5, 10, 25]}
                       component="div"
                       count={learners.length}
@@ -289,20 +259,20 @@ const SpocApproval = () => {
                       onPageChange={handleChangePage}
                       onRowsPerPageChange={handleChangeRowsPerPage}
                       style={{ fontSize: "12px" }}
-                    />
+                    /> */}
                   </TableContainer>
                   <Box
                     style={{
-                      backgroundColor: "#f0f8ff",
+                      backgroundColor: "#F8FBFF",
                       padding: "16px",
                       borderRadius: "8px",
                       marginTop: "1rem",
                       marginBottom: "1rem"
                     }}
                   >
-                    <h3 style={{ fontSize: "12px", marginBottom: "1rem" }}>
+                    <Typography style={{ fontSize: "12px", marginBottom: "1rem",color:"#4F4949" }}>
                       Take action on this training request
-                    </h3>
+                    </Typography>
                     <FormControl component="fieldset" style={{ marginBottom: "1rem" }}>
                       <RadioGroup
                         row
@@ -313,7 +283,7 @@ const SpocApproval = () => {
                           value="approve"
                           control={<Radio />}
                           label={
-                            <Typography style={{ fontSize: "12px" }}>
+                            <Typography style={{ fontSize: "12px" ,fontWeight: "bold"}}>
                               Approve
                             </Typography>
                           }
@@ -322,7 +292,7 @@ const SpocApproval = () => {
                           value="reject"
                           control={<Radio />}
                           label={
-                            <Typography style={{ fontSize: "12px" }}>
+                            <Typography style={{ fontSize: "12px",fontWeight: "bold" }}>
                               Reject
                             </Typography>
                           }
@@ -331,7 +301,7 @@ const SpocApproval = () => {
                           value="hold"
                           control={<Radio />}
                           label={
-                            <Typography style={{ fontSize: "12px" }}>
+                            <Typography style={{ fontSize: "12px" ,fontWeight: "bold"}}>
                               Hold
                             </Typography>
                           }
@@ -340,7 +310,7 @@ const SpocApproval = () => {
                           value="needClarification"
                           control={<Radio />}
                           label={
-                            <Typography style={{ fontSize: "12px" }}>
+                            <Typography style={{ fontSize: "12px" ,fontWeight: "bold"}}>
                               Need Clarification
                             </Typography>
                           }
@@ -349,22 +319,22 @@ const SpocApproval = () => {
                     </FormControl>
                     <FormControl fullWidth style={{ marginBottom: "1rem" }}>
                       <Typography
-                        style={{ fontSize: "12px", marginTop: "0.5rem" }}
+                        style={{ fontSize: "12px", marginTop: "0.5rem" ,color:"#4F4949"}}
                       >
                         Comments
                       </Typography>
                       <TextField
-                        multiline
-                        rows={3}
-                        fullWidth
-                        variant="outlined"
-                        margin="normal"
-                        value={comments}
-                        onChange={(e) => setComments(e.target.value)}
-                        InputProps={{
-                          style: { fontSize: "12px" },
-                        }}
-                      />
+  multiline
+  rows={4} // Ensure this is set to 4 rows
+  fullWidth
+  variant="outlined"
+  margin="normal"
+  value={comments}
+  onChange={(e) => setComments(e.target.value)}
+  InputProps={{
+    style: { fontSize: '12px', backgroundColor: '#ffffff', padding: '10px', minHeight: '100px' }, // Set minimum height
+  }}
+/>
                     </FormControl>
                   </Box>
                   <Box
@@ -372,7 +342,20 @@ const SpocApproval = () => {
                     justifyContent="flex-end"
                     style={{ marginTop: "4rem" }}
                     gap={2}
-                  >
+                  > <Button
+                  variant="outlined"
+                  style={{ minWidth: "12px", textTransform:'none', color: '#1C71FE', boxShadow: 'none' , border: 'none', }}
+                  onClick={() => navigate("/training-container")} // Add this line
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  style={{ minWidth: "120px",textTransform:'none', borderRadius:'10px ', backgroundColor: '#066DD2', boxShadow: 'none', color: 'white' }}
+                  // onClick={handleSubmit}
+                >
+                  Submit
+                </Button>
                     <Button
                       variant="outlined"
                       style={{
@@ -402,7 +385,7 @@ const SpocApproval = () => {
               </Box>
             </div>
           </Paper>
-        </Grid>
+     
    
     </>
   );

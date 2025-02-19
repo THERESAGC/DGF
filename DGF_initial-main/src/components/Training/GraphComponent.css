@@ -1,9 +1,0 @@
-/*  */
-.graph-container{
-    /* display: flex; */
-    /* flex-direction: column; */
-    justify-content: space-between !important;
-   flex-basis: 40px !important;
-    align-items: center;
-    margin-top: 20px;
-}

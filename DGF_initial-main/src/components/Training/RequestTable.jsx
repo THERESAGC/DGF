@@ -5,18 +5,9 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import "../Training/RequestTable.css";
+import getRoleType from '../../utils/roleUtils';
 
-// Define the getRoleType function directly in this file
-const getRoleType = (roleId) => {
-  if (roleId === 10) {
-    return 'spoc';
-  } else if (roleId === 4) {
-    return 'CapDev';
-  } else {
-    return 'requester';
-  }
-};
-
+ 
 const data = [
   { id: "123", project: "iAlign", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Learning in Progress" },
   { id: "231", project: "Staffing Nation", learners: 5, completedLearners: 2, objective: "Upskilling", techStack: "React", requestedOn: "Jan 20, 2025", status: "SPOC Approval Awaited" },
@@ -36,14 +27,14 @@ const data = [
   { id: "001", project: "iAl", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Approval Requested" },
   { id: "002", project: "Sonia", learners: 5, completedLearners: 3, objective: "Upskilling", techStack: "Accessibility", requestedOn: "Jan 20, 2025", status: "Initiate Training" }
 ];
-
+ 
 const requesterInProgressStatuses = ["SPOC Approval Awaited", "Learning in Progress", "Preparing Learning Plan", "Clarification Awaited"];
 const spocInProgressStatuses = ["Approval Requested", "Preparing Learning Plan", "Learning in Progress", "Clarification Awaited"];
 const capDevInProgressStatuses = ["Initiate Training", "Approval Requested", "Preparing Learning Plan", "Learning in Progress", "Clarification Awaited"];
 const completedStatuses = ["Completed", "Partially Completed", "Completed with Delay"];
 const statuses = ["In Progress", "Completed", "Incomplete", "Rejected", "Hold"];
 const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"];
-
+ 
 const RequestTable = ({ roleId }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
@@ -52,23 +43,23 @@ const RequestTable = ({ roleId }) => {
   const rowsPerPage = 5;
   const tabsRef = useRef(null);
   const [indicatorStyle, setIndicatorStyle] = useState({});
-
+ 
   const role = getRoleType(roleId);
-
+ 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
+ 
   const handleStatusChange = (event, newValue) => {
     setSelectedStatus(statuses[newValue]);
     setPage(0);
   };
-
+ 
   const handleDaysChange = (event) => {
     setSelectedDays(event.target.value);
     setPage(0);
   };
-
+ 
   const getInProgressStatuses = () => {
     if (role === "spoc") {
       return spocInProgressStatuses;
@@ -78,7 +69,7 @@ const RequestTable = ({ roleId }) => {
       return requesterInProgressStatuses;
     }
   };
-
+ 
   const filteredData = data.filter(row => {
     if (selectedStatus === "In Progress") {
       return getInProgressStatuses().includes(row.status);
@@ -93,7 +84,7 @@ const RequestTable = ({ roleId }) => {
     }
     return row.status === selectedStatus;
   });
-
+ 
   const handleArrowClick = (status) => {
     if (status === "Initiate Training") {
       navigate('/initiate-training');
@@ -102,7 +93,7 @@ const RequestTable = ({ roleId }) => {
       navigate('/spoc-approval');
     }
   }
-
+ 
   useEffect(() => {
     if (tabsRef.current) {
       const selectedTab = tabsRef.current.querySelector(`[aria-selected="true"]`);
@@ -118,8 +109,8 @@ const RequestTable = ({ roleId }) => {
       }
     }
   }, [selectedStatus]);
-  
-
+ 
+ 
   return (
     <TableContainer component={Paper} className="table-container">
       <div className="filters">
@@ -251,13 +242,15 @@ const RequestTable = ({ roleId }) => {
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
+        sx={{ display: 'flex', justifyContent: 'flex-start' }}
       />
+     
     </TableContainer>
   );
 };
-
+ 
 RequestTable.propTypes = {
   roleId: PropTypes.number.isRequired,
 };
-
+ 
 export default RequestTable;

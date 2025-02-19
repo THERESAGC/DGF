@@ -1,6 +1,7 @@
 
 import Sidebar from './FixedNavigation/Sidebar'
 import Header from './FixedNavigation/Header'
+import Footer from './FixedNavigation/Footer'
 
 import PropTypes from 'prop-types';
 
@@ -10,6 +11,7 @@ const FixedComponent = ({children}) => {
      <Sidebar />
      <Header />
      <div>{children}</div>
+     <Footer />
     </>
   );
 };
