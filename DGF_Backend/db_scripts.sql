@@ -206,9 +206,10 @@ select * from logintable;
 
  -- Create role_source_assign table
 CREATE TABLE role_source_assign (
+ id INT auto_increment primary key,
     role_id INT,
     source_id INT,
-    PRIMARY KEY (role_id, source_id),
+   --  PRIMARY KEY (role_id, source_id),
     FOREIGN KEY (role_id) REFERENCES role(role_id),
     FOREIGN KEY (source_id) REFERENCES source(source_id)
 );
@@ -281,14 +282,15 @@ INSERT INTO manager (manager_id, manager_name, manager_email, role_id) VALUES
 select * from manager;
 
 CREATE TABLE manager_employee_relationship (
+	id INT auto_increment primary key,
     manager_id VARCHAR(100),                         
     emp_id VARCHAR(100),
-    PRIMARY KEY (manager_id, emp_id),
+   --  PRIMARY KEY (manager_id, emp_id),
     FOREIGN KEY (manager_id) REFERENCES logintable(emp_id),  
     FOREIGN KEY (emp_id) REFERENCES employee(emp_id)        
 );
 
-INSERT INTO manager_employee_relationship VALUES
+INSERT INTO manager_employee_relationship(manager_id, emp_id) VALUES
 ("HS1111", "HS2731"),
 ("HS1111", "HS2732"),
 ("HS1111", "HS2733"),
@@ -397,9 +399,10 @@ CREATE TABLE emp_newtrainingrequested (
 
 
 CREATE TABLE `training_request_employee_level` (
+  `id` INT auto_increment primary key,
   `requestid` INT NOT NULL,
   `employee_level_id` INT NOT NULL,
-  PRIMARY KEY (`requestid`, `employee_level_id`),
+ --  PRIMARY KEY (`requestid`, `employee_level_id`),
   FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest`(`requestid`),
   FOREIGN KEY (`employee_level_id`) REFERENCES `employee_level`(`id`)
 );
