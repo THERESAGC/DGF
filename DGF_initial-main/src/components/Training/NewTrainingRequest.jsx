@@ -267,7 +267,8 @@ const NewTrainingRequest = () => {
 
   const handleEmployeeSearch = (event, value) => {
     if (value.length > 0) {
-      fetch(`http://localhost:8000/api/employee/search?name=${value}`)
+      const managerId = user.emp_id; // Get the manager ID from the session
+      fetch(`http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${managerId}&name=${value}`)
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -291,6 +292,34 @@ const NewTrainingRequest = () => {
         );
     }
   };
+
+  const handleManagerSearch = (event, value) => {
+    if (value.length > 0) {
+      fetch(`http://localhost:8000/api/managerSearchByName/searchManagersByName?name=${value}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setSearchResults(
+              data.map((manager) => ({
+                id: manager.manager_id,
+                name: manager.manager_name,
+                email: manager.manager_email,
+                uniqueKey: `${manager.manager_id}-${Date.now()}`, // Add unique key
+              }))
+            );
+          } else {
+            console.error(
+              "Unexpected response format for manager search by name:",
+              data
+            );
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching managers by name:", error)
+        );
+    }
+  };
+
   const handleEmailSearch = async (email) => {
     try {
       const response = await fetch(
@@ -410,35 +439,67 @@ const NewTrainingRequest = () => {
     setIsFormValid(validateForm());
   };
 
+  const submitPrimarySkills = async (requestId, primarySkillIds) => {
+    const requestBody = {
+      requestid: requestId,
+      primary_skill_ids: primarySkillIds,
+    };
+  
+    console.log("Submitting primary skills to API:", requestBody); // Log the request body
+  
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/trainingRequestPrimarySkills/storePrimarySkills",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+  
+      if (response.ok) {
+        console.log("Primary skills submitted successfully");
+      } else {
+        console.error("Failed to submit primary skills");
+        const errorData = await response.json();
+        console.error("Error details:", errorData); // Log the error details from the server
+        setSnackbarMessage(`Failed to submit primary skills: ${errorData.message}`);
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error("Error submitting primary skills:", error);
+      setSnackbarMessage(`Error submitting primary skills: ${error.message}`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+  
   const handleSubmit = async () => {
     const formattedDate = formData.selectedDate
       ? formData.selectedDate.toISOString().split("T")[0]
       : null;
-
-      const requestBody = {
-        requestid: newRequestId, // Include the newRequestId here
-        requestonbehalfof: user.role_id === 4 ? formData.requestonbehalf : user.emp_id, // Use emp_id for non-CapDev roles
-        requestedbyid: user.emp_id, // Add the current user's ID from the session
-        source: formData.selectedSource,
-        trainingobj: formData.selectedTrainingObjective,
-        projectid: formData.trainingPurpose === "project" ? formData.selectedProject : null,
-        newprospectname: formData.trainingPurpose === "prospect" ? formData.prospectName : null,
-        numberofpeople: formData.numberOfPeople === "" ? null : formData.numberOfPeople, // Set to null if empty string
-        employeelevel: formData.selectedEmployeeLevel,
-        expecteddeadline: formattedDate,
-        techstack: formData.selectedTechStack,
-        primaryskill: formData.selectedPrimarySkill,
-        otherskills: formData.otherSkill,
-        suggestedcompletioncriteria: formData.completionCriteria,
-        comments: formData.comment,
-        servicedivision: formData.selectedServiceDivision, // Include for both project and prospect
-      };
-
-    console.log(
-      "Submitting request body to newtrainingrequest API:",
-      requestBody
-    ); // Log the request body
-
+  
+    const requestBody = {
+      requestid: newRequestId, // Include the newRequestId here
+      requestonbehalfof: user.role_id === 4 ? formData.requestonbehalf : user.emp_id, // Use emp_id for non-CapDev roles
+      requestedbyid: user.emp_id, // Add the current user's ID from the session
+      source: formData.selectedSource,
+      trainingobj: formData.selectedTrainingObjective,
+      projectid: formData.trainingPurpose === "project" ? formData.selectedProject : null,
+      newprospectname: formData.trainingPurpose === "prospect" ? formData.prospectName : null,
+      expecteddeadline: formattedDate,
+      techstack: formData.selectedTechStack,
+      otherskills: formData.otherSkill,
+      suggestedcompletioncriteria: formData.completionCriteria,
+      comments: formData.comment,
+      servicedivision: formData.selectedServiceDivision, // Include for both project and prospect
+    };
+  
+    console.log("Submitting request body to newtrainingrequest API:", requestBody); // Log the request body
+  
     try {
       const response = await fetch(
         "http://localhost:8000/api/newtrainingrequest",
@@ -450,25 +511,22 @@ const NewTrainingRequest = () => {
           body: JSON.stringify(requestBody),
         }
       );
-
+  
       if (response.ok) {
         console.log("New training request submitted successfully");
-        // setSnackbarMessage("New training request submitted successfully");
-        // setSnackbarSeverity("success");
-        // setSnackbarOpen(true);
         setDialogOpen(true);
-
-        // Proceed with the existing API call
+  
+        // Submit primary skills
+        await submitPrimarySkills(newRequestId, formData.selectedPrimarySkill);
+  
+        // Proceed with the existing API call for employee levels
         const employeeLevelRequestBody = {
           requestid: newRequestId, // Use the newRequestId here
           employee_level_ids: formData.selectedEmployeeLevel, // Use selectedEmployeeLevel
         };
-
-        console.log(
-          "Submitting request body to training-request/employee-levels API:",
-          employeeLevelRequestBody
-        ); // Log the request body
-
+  
+        console.log("Submitting request body to training-request/employee-levels API:", employeeLevelRequestBody); // Log the request body
+  
         try {
           const employeeLevelResponse = await fetch(
             "http://localhost:8000/api/training-request/employee-levels",
@@ -480,28 +538,24 @@ const NewTrainingRequest = () => {
               body: JSON.stringify(employeeLevelRequestBody),
             }
           );
-
+  
           if (employeeLevelResponse.ok) {
             console.log("Employee levels submitted successfully");
           } else {
             console.error("Failed to submit employee levels");
             const errorData = await employeeLevelResponse.json();
             console.error("Error details:", errorData); // Log the error details from the server
-            setSnackbarMessage(
-              `Failed to submit employee levels: ${errorData.message}`
-            );
+            setSnackbarMessage(`Failed to submit employee levels: ${errorData.message}`);
             setSnackbarSeverity("error");
             setSnackbarOpen(true);
           }
         } catch (error) {
           console.error("Error submitting employee levels:", error);
-          setSnackbarMessage(
-            `Error submitting employee levels: ${error.message}`
-          );
+          setSnackbarMessage(`Error submitting employee levels: ${error.message}`);
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
-
+  
         // New API call for adding employees if "Add Employees" is selected
         if (formData.employeeDetails === "add") {
           const empNewTrainingRequestBody = formData.employees.map((emp) => ({
@@ -511,15 +565,12 @@ const NewTrainingRequest = () => {
             availableonweekend: emp.weekend === "Yes",
             requestid: newRequestId,
           }));
-
-          console.log(
-            "Submitting request body to empNewTrainingRequested API:",
-            empNewTrainingRequestBody
-          ); // Log the request body
-
+  
+          console.log("Submitting request body to empNewTrainingRequested API:", empNewTrainingRequestBody); // Log the request body
+  
           try {
             const empNewTrainingResponse = await fetch(
-              "http://localhost:8000/api/empNewTrainingRequested/",
+              "http://localhost:8000/api/empNewTrainingRequested",
               {
                 method: "POST",
                 headers: {
@@ -528,19 +579,14 @@ const NewTrainingRequest = () => {
                 body: JSON.stringify(empNewTrainingRequestBody),
               }
             );
-
+  
             if (empNewTrainingResponse.ok) {
               console.log("Employees added successfully");
-              setSnackbarMessage("Employees added successfully");
-              setSnackbarSeverity("success");
-              setSnackbarOpen(true);
             } else {
               console.error("Failed to add employees");
               const errorData = await empNewTrainingResponse.json();
               console.error("Error details:", errorData); // Log the error details from the server
-              setSnackbarMessage(
-                `Failed to add employees: ${errorData.message}`
-              );
+              setSnackbarMessage(`Failed to add employees: ${errorData.message}`);
               setSnackbarSeverity("error");
               setSnackbarOpen(true);
             }
@@ -555,26 +601,21 @@ const NewTrainingRequest = () => {
         console.error("Failed to submit new training request");
         const errorData = await response.json();
         console.error("Error details:", errorData); // Log the error details from the server
-        setSnackbarMessage(
-          `Failed to submit new training request: ${errorData.message}`
-        );
+        setSnackbarMessage(`Failed to submit new training request: ${errorData.message}`);
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error submitting new training request:", error);
-      setSnackbarMessage(
-        `Error submitting new training request: ${error.message}`
-      );
+      setSnackbarMessage(`Error submitting new training request: ${error.message}`);
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    // Redirect to training container
-    window.location.href = "/training-container";
   };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Typography
@@ -650,22 +691,23 @@ const NewTrainingRequest = () => {
             marginBottom="1rem"
             gap={2}
           >
-            <FormControl fullWidth className="formControl">
-<Typography
+
+<FormControl fullWidth className="formControl">
+  <Typography
     className="subheader"
     style={{ display: "inline", marginBottom: "0.5rem", marginLeft: '0rem' }}
->
+  >
     Request on behalf{" "}
-<span className="required" style={{ display: "inline" }}>
+    <span className="required" style={{ display: "inline" }}>
       *
-</span>
-</Typography>
+    </span>
+  </Typography>
   {user.role_id === 4 ? (
-<Autocomplete
+    <Autocomplete
       options={searchResults}
       getOptionLabel={(option) => option.name || ""}
       name="requestonbehalf"
-      onInputChange={handleEmployeeSearch}
+      onInputChange={handleManagerSearch}
       onChange={(event, value) =>
         setFormData({
           ...formData,
@@ -673,7 +715,7 @@ const NewTrainingRequest = () => {
         })
       }
       renderInput={(params) => (
-<TextField
+        <TextField
           {...params}
           variant="outlined"
           style={{
@@ -692,7 +734,7 @@ const NewTrainingRequest = () => {
         />
       )}
       PaperComponent={(props) => (
-<Paper
+        <Paper
           {...props}
           style={{
             maxHeight: 300, // Adjust the max height of the dropdown menu
@@ -702,21 +744,22 @@ const NewTrainingRequest = () => {
         />
       )}
       renderOption={(props, option) => (
-<li
+        <li
           {...props}
           style={{
             fontSize: "12px",
             padding: "4px 4px 4px 6px",
           }}
->
+        >
           {option.name}
-</li>
+        </li>
       )}
     />
   ) : (
-<Typography>{user ? toPascalCase(user.name) : "User"}</Typography>
+    <Typography>{user ? toPascalCase(user.name) : "User"}</Typography>
   )}
 </FormControl>
+
             <FormControl fullWidth className="formControl">
               <Typography
                 className="subheader"
@@ -1232,63 +1275,63 @@ const NewTrainingRequest = () => {
                   gap={2}
                 >
                   <FormControl fullWidth className="formControl">
-                    <Typography
-                      className="subheader"
-                      style={{ display: "inline", marginBottom: "0.5rem" }}
-                    >
-                      Select Employee <span className="required">*</span>
-                    </Typography>
+  <Typography
+    className="subheader"
+    style={{ display: "inline", marginBottom: "0.5rem" }}
+  >
+    Select Employee <span className="required">*</span>
+  </Typography>
 
-                    <Autocomplete
-                      options={searchResults}
-                      getOptionLabel={(option) => option.name || ""}
-                      onInputChange={handleEmployeeSearch}
-                      onChange={(event, value) => setSelectedEmployee(value)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          placeholder="Search Employees"
-                          style={{
-                            height: "20px",
-                            //  width: "250px", // Match the width of the Select component
-                            marginLeft: "2px",
-                            marginRight: "10px",
-                            fontSize: "12px",
-                            fontStyle: "normal",
-                          }}
-                          InputProps={{
-                            ...params.InputProps,
-                            style: { fontSize: "12.5px" },
-                          }}
-                          InputLabelProps={{
-                            style: { fontSize: "12px", opacity: "0.75" }, // Adjust placeholder text size and opacity
-                          }}
-                        />
-                      )}
-                      PaperComponent={(props) => (
-                        <Paper
-                          {...props}
-                          style={{
-                            maxHeight: 300, // Adjust the max height of the dropdown menu
-                            width: 250, // Match the width of the Select component
-                            fontSize: "12px", // Adjust font size inside the dropdown
-                          }}
-                        />
-                      )}
-                      renderOption={(props, option) => (
-                        <li
-                          {...props}
-                          style={{
-                            fontSize: "12px",
-                            padding: "4px 4px 4px 6px",
-                          }}
-                        >
-                          {option.name}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
+  <Autocomplete
+    options={searchResults}
+    getOptionLabel={(option) => option.name || ""}
+    onInputChange={handleEmployeeSearch}
+    onChange={(event, value) => setSelectedEmployee(value)}
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        variant="outlined"
+        placeholder="Search Employees"
+        style={{
+          height: "20px",
+          //  width: "250px", // Match the width of the Select component
+          marginLeft: "2px",
+          marginRight: "10px",
+          fontSize: "12px",
+          fontStyle: "normal",
+        }}
+        InputProps={{
+          ...params.InputProps,
+          style: { fontSize: "12.5px" },
+        }}
+        InputLabelProps={{
+          style: { fontSize: "12px", opacity: "0.75" }, // Adjust placeholder text size and opacity
+        }}
+      />
+    )}
+    PaperComponent={(props) => (
+      <Paper
+        {...props}
+        style={{
+          maxHeight: 300, // Adjust the max height of the dropdown menu
+          width: 250, // Match the width of the Select component
+          fontSize: "12px", // Adjust font size inside the dropdown
+        }}
+      />
+    )}
+    renderOption={(props, option) => (
+      <li
+        {...props}
+        style={{
+          fontSize: "12px",
+          padding: "4px 4px 4px 6px",
+        }}
+      >
+        {option.name}
+      </li>
+    )}
+  />
+</FormControl>
                   <Typography
                     className="subheader"
                     align="center"
