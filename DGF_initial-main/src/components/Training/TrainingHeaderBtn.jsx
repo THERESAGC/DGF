@@ -5,7 +5,7 @@ import AuthContext from '../Auth/AuthContext';
 import '../Training/TrainingHeaderBtn.css';
  
 const TrainingHeaderBtn = () => {
-  const [selectedButton, setSelectedButton] = useState('My Training Requests');
+  const [selectedButton, setSelectedButton] = useState('My Learning Requests');
   const navigate = useNavigate();
   const { user } = useContext(AuthContext); // Get the user from AuthContext
  
@@ -19,8 +19,8 @@ const TrainingHeaderBtn = () => {
       <Toolbar className="toolbar">
         <Box className="box">
           {[
-            { text: 'My Training Requests', path: '/training-container' },
-            { text: 'Training Dashboard', path: '/training-dashboard' },
+            { text: 'My Learning Requests', path: '/training-container' },
+            { text: 'Learning Dashboard', path: '/training-dashboard' },
             { text: 'Reminders', path: '/reminders' },
           ].map((item) => (
             <Typography
