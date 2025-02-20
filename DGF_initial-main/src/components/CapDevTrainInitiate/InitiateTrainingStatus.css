@@ -1,0 +1,22 @@
+.divider-line {
+    border: 0;
+    border-top: 2px solid #D1D1D1; /* You can change this color to suit your design */
+    margin-bottom: 1rem; /* Adds space between the line and the box */
+    width: 85%; /* Matches the width of the content box */
+    color: #616161;
+    margin-left: 15rem; /* This ensures the line aligns with the Paper's margin */
+  }
+/* Target the Paper component using the class provided */
+.training-details-paper {
+    
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+    margin-left: 19rem;
+    width: 85%;
+    border-radius: 4px; /* If you want a specific border radius for rounded corners */
+  }
+  
+  /* Style the horizontal divider line */
+
+  /* .training-container{
+    padding-right: 524px  ;
+  } */
