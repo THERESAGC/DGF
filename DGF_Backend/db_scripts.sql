@@ -206,10 +206,9 @@ select * from logintable;
 
  -- Create role_source_assign table
 CREATE TABLE role_source_assign (
- id INT auto_increment primary key,
     role_id INT,
     source_id INT,
-   --  PRIMARY KEY (role_id, source_id),
+    PRIMARY KEY (role_id, source_id),
     FOREIGN KEY (role_id) REFERENCES role(role_id),
     FOREIGN KEY (source_id) REFERENCES source(source_id)
 );
@@ -282,15 +281,14 @@ INSERT INTO manager (manager_id, manager_name, manager_email, role_id) VALUES
 select * from manager;
 
 CREATE TABLE manager_employee_relationship (
-	id INT auto_increment primary key,
     manager_id VARCHAR(100),                         
     emp_id VARCHAR(100),
-   --  PRIMARY KEY (manager_id, emp_id),
+    PRIMARY KEY (manager_id, emp_id),
     FOREIGN KEY (manager_id) REFERENCES logintable(emp_id),  
     FOREIGN KEY (emp_id) REFERENCES employee(emp_id)        
 );
 
-INSERT INTO manager_employee_relationship(manager_id, emp_id) VALUES
+INSERT INTO manager_employee_relationship VALUES
 ("HS1111", "HS2731"),
 ("HS1111", "HS2732"),
 ("HS1111", "HS2733"),
@@ -346,7 +344,6 @@ CREATE TABLE newtrainingrequest (
   projectid INT,
   expecteddeadline DATE,
   techstack INT,
-  primaryskill INT,
   otherskill LONGTEXT,
   suggestedcompletioncriteria LONGTEXT,
   comments LONGTEXT,
@@ -363,20 +360,39 @@ CREATE TABLE newtrainingrequest (
   request_category TINYINT,
   learningtype BIGINT,
   skilldevelopment BIGINT,
+  AssignedTo VARCHAR(100),
   PRIMARY KEY (requestid),
   FOREIGN KEY (source) REFERENCES source(source_id),
   FOREIGN KEY (trainingobj) REFERENCES training_obj(training_id),
   FOREIGN KEY (projectid) REFERENCES projectname(ProjectID),  -- Modify foreign key to allow NULL
   FOREIGN KEY (techstack) REFERENCES techstack(stack_id),
-  FOREIGN KEY (primaryskill) REFERENCES primaryskill(skill_id),
   FOREIGN KEY (service_division) REFERENCES service_division(id),
-  FOREIGN KEY (requestonbehalfof) REFERENCES employee(emp_id),
-  FOREIGN KEY (requestedbyid) REFERENCES employee(emp_id)
+  FOREIGN KEY (requestonbehalfof) REFERENCES logintable(emp_id),
+  FOREIGN KEY (requestedbyid) REFERENCES logintable(emp_id),
+  FOREIGN KEY (AssignedTo) REFERENCES logintable(emp_id)
 );
 
 select * from newtrainingrequest ;
 
+CREATE TABLE `Mentor_Request_Assign` (
+  `requestid` INT NOT NULL,
+  `mentor_id` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`requestid`, `mentor_id`),
+  FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest`(`requestid`),
+  FOREIGN KEY (`mentor_id`) REFERENCES `employee`(`emp_id`)
+);
 
+
+CREATE TABLE `Request_Primary_Skills` (
+  `requestid` INT NOT NULL,
+  `primaryskill_id` INT NOT NULL,
+  PRIMARY KEY (`requestid`, `primaryskill_id`),
+  FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest`(`requestid`),
+  FOREIGN KEY (`primaryskill_id`) REFERENCES `primaryskill`(`skill_id`)
+);
+
+
+select * from training_request_employee_level;
 
  
 CREATE TABLE emp_newtrainingrequested (
@@ -397,12 +413,10 @@ CREATE TABLE emp_newtrainingrequested (
 );
 
 
-
 CREATE TABLE `training_request_employee_level` (
-  `id` INT auto_increment primary key,
   `requestid` INT NOT NULL,
   `employee_level_id` INT NOT NULL,
- --  PRIMARY KEY (`requestid`, `employee_level_id`),
+  PRIMARY KEY (`requestid`, `employee_level_id`),
   FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest`(`requestid`),
   FOREIGN KEY (`employee_level_id`) REFERENCES `employee_level`(`id`)
 );
