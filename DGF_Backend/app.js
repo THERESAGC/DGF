@@ -1,68 +1,59 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors'); 
+const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const trainingRoutes = require('./routes/trainingObjectivesRoutes');
-const techstackRoutes = require('./routes/techstackRoutes'); // Import the techstack routes
-const primarySkillRoutes = require('./routes/primarySkillRoutes'); // Import the primary skill routes
-const projectRoutes = require('./routes/projectRoutes'); // Import the project routes
-const employeeRoutes = require('./routes/employeeSearchByNameRoutes'); // Import the employee routes
-const employeeSearchByEmailRoutes = require('./routes/employeeSearchByEmailRoutes'); // Import the employee search by email routes
-const serviceDivisionRoutes = require('./routes/serviceDivisionRoutes');  // Import the routes for service division
-const employeeLevelRoutes = require('./routes/employeeLevelRoutes'); // Import the employee level routes
-const newTrainingRequestRoutes = require('./routes/newTrainingRequestRoutes'); // Import the new training request routes
+const techstackRoutes = require('./routes/techstackRoutes');
+const primarySkillRoutes = require('./routes/primarySkillRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const employeeRoutes = require('./routes/employeeSearchByNameRoutes');
+const employeeSearchByEmailRoutes = require('./routes/employeeSearchByEmailRoutes');
+const serviceDivisionRoutes = require('./routes/serviceDivisionRoutes');
+const employeeLevelRoutes = require('./routes/employeeLevelRoutes');
+const newTrainingRequestRoutes = require('./routes/newTrainingRequestRoutes');
 const trainingRequestEmployeeLevelRoutes = require('./routes/trainingRequestEmployeeLevelRoutes');
 const getMaxRequestIdRoutes = require('./routes/getMaxRequestIdRoutes');
 const getAllTrainingRequestsRoutes = require('./routes/getAllTrainingRequestsRoutes');
 const empNewTrainingRequestedRoutes = require('./routes/empNewTrainingRequestedRoutes');
 const trainingRequestPrimarySkillRoutes = require('./routes/trainingRequestPrimarySkillRoutes');
-const managerSearchByNameRoutes = require('./routes/managerSearchByNameRoutes'); // Import the manager search by name routes
-const getEmpNewTrainingRequestedRoutes = require('./routes/getEmpNewTrainingRequestedRoutes'); // Import the new route for getting emp_newtrainingrequested by requestid
-const requestStatusRoutes = require('./routes/requestStatusRoutes'); // Import the request status routes
+const managerSearchByNameRoutes = require('./routes/managerSearchByNameRoutes');
+const getEmpNewTrainingRequestedRoutes = require('./routes/getEmpNewTrainingRequestedRoutes');
+const requestStatusRoutes = require('./routes/requestStatusRoutes');
+const getTrainingRequestDetailsRoutes = require('./routes/getTrainingRequestDetailsRoutes'); // Import the new route
 
-// Create an instance of the express app
 const app = express();
 
-// Middleware to parse incoming JSON requests
-app.use(express.json()); // Built-in Express middleware to parse JSON request bodies
+app.use(express.json());
+app.use(cors());
 
-// Enable CORS for all routes
-app.use(cors()); // Use the cors middleware
-
-// Define routes
 app.use('/api/auth', authRoutes);
-app.use('/api/role', roleRoutes); // Role-related routes
-app.use('/api/training', trainingRoutes); // Training-related routes
-app.use('/api/techstack', techstackRoutes); // Tech stack-related routes
-app.use('/api/primaryskill', primarySkillRoutes); // Primary skill-related routes
-app.use('/api/project', projectRoutes); // Project-related routes
-app.use('/api/employees', employeeRoutes); // Employee-related routes
-app.use('/api/employee-search', employeeSearchByEmailRoutes); // Employee search by email route
+app.use('/api/role', roleRoutes);
+app.use('/api/training', trainingRoutes);
+app.use('/api/techstack', techstackRoutes);
+app.use('/api/primaryskill', primarySkillRoutes);
+app.use('/api/project', projectRoutes);
+app.use('/api/employee', employeeRoutes);
+app.use('/api/employee', employeeSearchByEmailRoutes);
 app.use('/api', serviceDivisionRoutes);
-app.use('/api/employee-level', employeeLevelRoutes); // Employee level routes
-app.use('/api/newtrainingrequest', newTrainingRequestRoutes); // New training request route
+app.use('/api/employee-level', employeeLevelRoutes);
+app.use('/api/newtrainingrequest', newTrainingRequestRoutes);
 app.use('/api/training-request', trainingRequestEmployeeLevelRoutes);
-app.use('/api/get-max-request-id', getMaxRequestIdRoutes); // New route for max request ID
-app.use('/api/training-requests', getAllTrainingRequestsRoutes); // Route for training requests
+app.use('/api/get-max-request-id', getMaxRequestIdRoutes);
+app.use('/api/training-requests', getAllTrainingRequestsRoutes);
 app.use('/api/empNewTrainingRequested', empNewTrainingRequestedRoutes);
 app.use('/api/trainingRequestPrimarySkills', trainingRequestPrimarySkillRoutes);
-app.use('/api/employeeSearchByName', employeeRoutes); // Add the new route for employee search by name
-app.use('/api/managerSearchByName', managerSearchByNameRoutes); // Add the new route for manager search by name
-app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes); // Add the new route for getting emp_newtrainingrequested by requestid
-<<<<<<< HEAD
-app.use('/api/getAllTrainingRequests', getAllTrainingRequestsRoutes); // Add the new route for getting all training requests
-=======
-app.use('/api/request-status', requestStatusRoutes); // Add the new route for updating request status
->>>>>>> d25bc525c4c23b30e5d53e59e497ec551e6eccfb
+app.use('/api/employeeSearchByName', employeeRoutes);
+app.use('/api/managerSearchByName', managerSearchByNameRoutes);
+app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes);
+app.use('/api/request-status', requestStatusRoutes);
+app.use('/api/getAllTrainingRequests', getAllTrainingRequestsRoutes);
+app.use('/api', getTrainingRequestDetailsRoutes); // Add the new route
 
-// Error handling middleware (optional but useful for debugging)
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).json({ message: 'Internal Server Error' });
 });
 
-// Start the server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
