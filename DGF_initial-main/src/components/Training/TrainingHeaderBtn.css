@@ -4,13 +4,13 @@
     color: #000 !important;
     box-shadow: none !important;
     border-radius: 10px !important;
-    margin-left: 10px !important; /* Adjust margin to 20px */
+    margin-left: 4px !important; 
     margin-right: 20px !important; /* Adjust margin to 20px */
     margin-top: -10px !important;
      /* Adjust top margin */
      position: static !important;
      margin-bottom: 5px !important; /* Adjust bottom margin */
-    width: calc(100% - 10px) !important;
+    width: calc(100% - 4px) !important;
     font-family: "Poppins" !important;
     }
     
@@ -18,7 +18,7 @@
       display: flex !important;
       justify-content: space-between !important;
       padding: 0!important;
-      padding-left: 5px !important;
+      padding-left: 0px !important;
     }
     
     .box {
