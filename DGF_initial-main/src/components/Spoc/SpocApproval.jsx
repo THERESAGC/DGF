@@ -1,4 +1,5 @@
 import {  useState } from "react";
+import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
 import { Paper, Typography, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
@@ -43,8 +44,18 @@ const SpocApproval = ({roleId}) => {
         <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px" }}>
           Approve Learning Request
         </Typography>
+        {roleId === 4 && (
+          <Box display="flex" alignItems="flex-start" style={{ marginLeft: 'auto', flexDirection: 'row' }}>
+            <EditIcon
+              style={{ cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' , marginLeft: '4px' }}
+              onClick={() => console.log('Edit icon clicked')}
+            />
+            <span style={{ fontSize: '12px', fontWeight: 'bold', marginLeft: '4px' }}>Edit</span>
+          </Box>
+        )}
+              </Box>
         <Divider style={{ margin: "1rem 0 ", marginLeft: '-30px', marginRight: '-20px' }} />
-      </Box>
+ 
  
       <Paper elevation={1} className="paper" style={{ height: "100%", width: "85%" }}>
         <div className="inner-container">
