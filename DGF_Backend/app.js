@@ -19,6 +19,7 @@ const empNewTrainingRequestedRoutes = require('./routes/empNewTrainingRequestedR
 const trainingRequestPrimarySkillRoutes = require('./routes/trainingRequestPrimarySkillRoutes');
 const managerSearchByNameRoutes = require('./routes/managerSearchByNameRoutes'); // Import the manager search by name routes
 const getEmpNewTrainingRequestedRoutes = require('./routes/getEmpNewTrainingRequestedRoutes'); // Import the new route for getting emp_newtrainingrequested by requestid
+const requestStatusRoutes = require('./routes/requestStatusRoutes'); // Import the request status routes
 
 // Create an instance of the express app
 const app = express();
@@ -36,8 +37,8 @@ app.use('/api/training', trainingRoutes); // Training-related routes
 app.use('/api/techstack', techstackRoutes); // Tech stack-related routes
 app.use('/api/primaryskill', primarySkillRoutes); // Primary skill-related routes
 app.use('/api/project', projectRoutes); // Project-related routes
-app.use('/api/employee', employeeRoutes); // Employee-related routes
-app.use('/api/employee', employeeSearchByEmailRoutes); // Employee search by email route
+app.use('/api/employees', employeeRoutes); // Employee-related routes
+app.use('/api/employee-search', employeeSearchByEmailRoutes); // Employee search by email route
 app.use('/api', serviceDivisionRoutes);
 app.use('/api/employee-level', employeeLevelRoutes); // Employee level routes
 app.use('/api/newtrainingrequest', newTrainingRequestRoutes); // New training request route
@@ -49,7 +50,7 @@ app.use('/api/trainingRequestPrimarySkills', trainingRequestPrimarySkillRoutes);
 app.use('/api/employeeSearchByName', employeeRoutes); // Add the new route for employee search by name
 app.use('/api/managerSearchByName', managerSearchByNameRoutes); // Add the new route for manager search by name
 app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes); // Add the new route for getting emp_newtrainingrequested by requestid
-app.use('/api/employeeSearchByEmail', employeeSearchByEmailRoutes); // Add the new route for employee search by email
+app.use('/api/request-status', requestStatusRoutes); // Add the new route for updating request status
 
 // Error handling middleware (optional but useful for debugging)
 app.use((err, req, res, next) => {
