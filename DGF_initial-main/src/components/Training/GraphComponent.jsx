@@ -1,9 +1,8 @@
-
 import { Box, Typography } from "@mui/material";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import PropTypes from 'prop-types';
-// import './GraphComponent.css';
+ 
 ChartJS.register(ArcElement, Tooltip, Legend);
  
 // Create individual Box components for the graph sections
@@ -27,7 +26,7 @@ GraphHeader.propTypes = {
  
 const GraphChart = ({ chartData, chartOptions, totalRequests }) => (
   <Box sx={{
-    width: '40%',
+    width: '30%',
     height: '100%',
     position: 'relative',
   }}>
@@ -40,7 +39,7 @@ const GraphChart = ({ chartData, chartOptions, totalRequests }) => (
       textAlign: 'center',
     }}>
       <Typography className="numbers" variant="h6" sx={{
-        fontSize: '4rem',
+        fontSize: '1.5rem !important',
         fontWeight: 'bold',
         color: 'black',
       }}>
@@ -55,6 +54,12 @@ const GraphChart = ({ chartData, chartOptions, totalRequests }) => (
     </Box>
   </Box>
 );
+ 
+GraphChart.propTypes = {
+  chartData: PropTypes.object.isRequired,
+  chartOptions: PropTypes.object.isRequired,
+  totalRequests: PropTypes.number.isRequired,
+};
  
 const GraphDetails = ({ details, colors }) => (
   <Box sx={{
@@ -72,7 +77,7 @@ const GraphDetails = ({ details, colors }) => (
           key={index}
           variant="body1"
           sx={{ display: 'inline-flex', marginRight: 3, marginBottom: 1, whiteSpace: 'normal' }}
-          dangerouslySetInnerHTML={{ __html: `<span style="font-weight: bold; font-size: 1.5rem; color: ${colors[index]}">${value}</span><span style="margin-left: 5px; color: #555555; font-size: 0.7rem;">${label}</span>` }}
+          dangerouslySetInnerHTML={{ __html: `<span style="font-weight: bold; font-size: 1.5rem; color: ${colors[index]}">${value}</span><span style="margin-left: 5px;margin-top:7px; color: #555555; font-size: 0.7rem;">${label}</span>` }}
         />
       );
     })}
@@ -114,26 +119,18 @@ const GraphComponent = ({ title, data, details }) => {
       textAlign: "center",
       backgroundColor: "#FFFFFF",
       padding: '10px',
-     
-      // marginLeft: '-15px',
       borderRadius: 3,
       height: '150px',
-      // width: '104%',
-      // paddingRight: '10px',
-      // paddingLeft: '20px',
-      // gap : 10,
-      // transform: 'translateX(10px)',
       marginBottom: 1,
-   
     }}>
       <GraphHeader title={title} />
       <Box sx={{
         display: 'flex',
         alignItems: 'center',
-        height: 'calc(100% - 30px)',
-        marginLeft: '-15px',
+        height: 'calc(100% - 50px)',
+        marginRight: '-60px',
         flexBasis: 'calc(80% - 20px)',
-        padding: '0 15px 20px 15px',
+        padding: '0px 20px 35px 0px',
         gap: 2, // Add gap between graph and details
       }}>
         <GraphChart chartData={chartData} chartOptions={chartOptions} totalRequests={totalRequests} />
@@ -142,14 +139,6 @@ const GraphComponent = ({ title, data, details }) => {
     </Box>
   );
 };
- 
-GraphChart.propTypes = {
-  chartData: PropTypes.object.isRequired,
-  chartOptions: PropTypes.object.isRequired,
-  totalRequests: PropTypes.number.isRequired,
-};
- 
- 
  
 GraphComponent.propTypes = {
   title: PropTypes.string.isRequired,

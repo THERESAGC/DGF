@@ -33,6 +33,7 @@ const Dashboard = () => {
   const styles = {
     container: {
       padding: "10px",
+      overflow: "hidden",
     },
     grid:{
 padding: 0,
