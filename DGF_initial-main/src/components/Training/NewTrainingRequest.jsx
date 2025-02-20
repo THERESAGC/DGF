@@ -267,7 +267,8 @@ const NewTrainingRequest = () => {
 
   const handleEmployeeSearch = (event, value) => {
     if (value.length > 0) {
-      const managerId = user.emp_id; // Get the manager ID from the session
+      const managerId = formData.requestonbehalf;
+      console.log(managerId) // Get the manager ID from the session
       fetch(`http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${managerId}&name=${value}`)
         .then((response) => response.json())
         .then((data) => {

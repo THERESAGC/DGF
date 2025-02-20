@@ -1,14 +1,14 @@
-import { useContext, useState } from "react";
+import {  useState } from "react";
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
 import { Paper, Typography, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
 import "./SpocApproval.css";
-import AuthContext from "../Auth/AuthContext";
+// import AuthContext from "../Auth/AuthContext";
 const SpocApproval = ({roleId}) => {
   const [action, setAction] = useState("approve");
   const [comments, setComments] = useState("");
   const navigate = useNavigate();
-  const {user} = useContext(AuthContext);
+  // const {user} = useContext(AuthContext);
   const learners = [
     {
       id: "HS158",
