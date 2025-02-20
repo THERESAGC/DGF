@@ -1,14 +1,15 @@
 const db = require('../config/db');
 
+// Function to get all training requests
 const getAllTrainingRequests = () => {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM newtrainingrequest'; // SQL query to select all rows
-
-        db.execute(query, [], (err, results) => {
+        const query = 'SELECT * FROM newtrainingrequest';
+        
+        db.query(query, (err, results) => {
             if (err) {
-                reject(err); // Reject if error occurs
+                reject(err);
             } else {
-                resolve(results); // Resolve with the result set (all rows)
+                resolve(results);
             }
         });
     });

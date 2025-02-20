@@ -47,6 +47,7 @@ app.use('/api/empNewTrainingRequested', empNewTrainingRequestedRoutes);
 app.use('/api/trainingRequestPrimarySkills', trainingRequestPrimarySkillRoutes);
 app.use('/api/employeeSearchByName', employeeRoutes); // Add the new route for employee search by name
 app.use('/api/managerSearchByName', managerSearchByNameRoutes); // Add the new route for manager search by name
+app.use('/api/getAllTrainingRequests', getAllTrainingRequestsRoutes); // Add the new route for getting all training requests
 
 // Error handling middleware (optional but useful for debugging)
 app.use((err, req, res, next) => {
