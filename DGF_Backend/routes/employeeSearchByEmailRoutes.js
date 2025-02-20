@@ -1,9 +1,7 @@
-// routes/employeeSearchByEmailRoutes.js
 const express = require('express');
 const router = express.Router();
-const employeeSearchByEmailController = require('../controllers/employeeSearchByEmailController');
+const { searchEmployees } = require('../controllers/employeeSearchByEmailController');
 
-// Route to search employees by email
-router.get('/search-by-email', employeeSearchByEmailController.searchEmployeesByEmail);
+router.get('/searchEmployeesByManagerIdAndEmail', searchEmployees);
 
 module.exports = router;

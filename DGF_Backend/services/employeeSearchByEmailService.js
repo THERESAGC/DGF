@@ -1,17 +1,16 @@
-// services/employeeSearchByEmailService.js
 const db = require('../config/db');
 
-// Function to get employees based on email search
-const searchEmployeesByEmail = (email) => {
+// Function to get employees based on manager ID and email prefix
+const searchEmployeesByManagerIdAndEmail = (managerid, emailPrefix) => {
     return new Promise((resolve, reject) => {
         const query = `
-            SELECT emp_id, emp_name, emp_email
-            FROM employee
-            WHERE emp_email LIKE ?;
+            SELECT e.emp_id, e.emp_name, e.emp_email
+            FROM employee e
+            JOIN manager_employee_relationship mer ON e.emp_id = mer.emp_id
+            WHERE mer.manager_id = ? AND e.emp_email LIKE ?;
         `;
         
-        // Using LIKE query to search for emails that match the provided email (case-insensitive)
-        db.execute(query, [`${email}%`], (err, results) => {
+        db.execute(query, [managerid, `${emailPrefix}%`], (err, results) => {
             if (err) {
                 reject(err);
             } else {
@@ -22,5 +21,5 @@ const searchEmployeesByEmail = (email) => {
 };
 
 module.exports = {
-    searchEmployeesByEmail
+    searchEmployeesByManagerIdAndEmail
 };

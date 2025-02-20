@@ -18,6 +18,7 @@ const getAllTrainingRequestsRoutes = require('./routes/getAllTrainingRequestsRou
 const empNewTrainingRequestedRoutes = require('./routes/empNewTrainingRequestedRoutes');
 const trainingRequestPrimarySkillRoutes = require('./routes/trainingRequestPrimarySkillRoutes');
 const managerSearchByNameRoutes = require('./routes/managerSearchByNameRoutes'); // Import the manager search by name routes
+const getEmpNewTrainingRequestedRoutes = require('./routes/getEmpNewTrainingRequestedRoutes'); // Import the new route for getting emp_newtrainingrequested by requestid
 
 // Create an instance of the express app
 const app = express();
@@ -47,7 +48,8 @@ app.use('/api/empNewTrainingRequested', empNewTrainingRequestedRoutes);
 app.use('/api/trainingRequestPrimarySkills', trainingRequestPrimarySkillRoutes);
 app.use('/api/employeeSearchByName', employeeRoutes); // Add the new route for employee search by name
 app.use('/api/managerSearchByName', managerSearchByNameRoutes); // Add the new route for manager search by name
-app.use('/api/getAllTrainingRequests', getAllTrainingRequestsRoutes); // Add the new route for getting all training requests
+app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes); // Add the new route for getting emp_newtrainingrequested by requestid
+app.use('/api/employeeSearchByEmail', employeeSearchByEmailRoutes); // Add the new route for employee search by email
 
 // Error handling middleware (optional but useful for debugging)
 app.use((err, req, res, next) => {
