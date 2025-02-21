@@ -354,7 +354,7 @@ CREATE TABLE newtrainingrequest (
   modifiedby BIGINT,
   modifieddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   requeststatus VARCHAR(255) DEFAULT 'Approval Requested',
-  approvedby BIGINT,
+  approvedby varchar(255),
   service_division INT,
   newprospectname VARCHAR(255),
   request_category TINYINT,
