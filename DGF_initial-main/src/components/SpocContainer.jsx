@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import SpocApproval from './Spoc/SpocApproval';
 import AuthContext from './Auth/AuthContext'; // Import the AuthContext
- 
+import { useParams } from "react-router-dom"
 const SpocContainer = () => {
   const styles = {
     newSpocContainer: {
@@ -17,7 +17,8 @@ const SpocContainer = () => {
  
   const { user } = useContext(AuthContext);
   const [roleId, setRoleId] = useState(null);
- 
+  const { requestid } = useParams(); 
+
   useEffect(() => {
     if (user) {
       setRoleId(user.role_id); // Assuming role_id is part of the user object
@@ -26,6 +27,7 @@ const SpocContainer = () => {
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         setRoleId(parsedUser.role_id); // Assuming role_id is in localStorage user object
+        
       }
     }
   }, [user]);
@@ -33,7 +35,7 @@ const SpocContainer = () => {
   return (
     <div className="spoc-approval-container" style={styles.newSpocContainer}>
       {/* Pass roleId to SpocApproval */}
-      {roleId !== null && <SpocApproval roleId={roleId} />}
+      {roleId !== null && <SpocApproval roleId={roleId} requestid={requestid}/>}
     </div>
   );
 };

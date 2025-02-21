@@ -267,8 +267,7 @@ const NewTrainingRequest = () => {
 
   const handleEmployeeSearch = (event, value) => {
     if (value.length > 0) {
-      const managerId = formData.requestonbehalf;
-      console.log(managerId) // Get the manager ID from the session
+      const managerId = user.emp_id; // Get the manager ID from the session
       fetch(`http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${managerId}&name=${value}`)
         .then((response) => response.json())
         .then((data) => {
@@ -493,7 +492,7 @@ const NewTrainingRequest = () => {
       newprospectname: formData.trainingPurpose === "prospect" ? formData.prospectName : null,
       expecteddeadline: formattedDate,
       techstack: formData.selectedTechStack,
-      otherskills: formData.otherSkill,
+      otherskill: formData.otherSkill,
       suggestedcompletioncriteria: formData.completionCriteria,
       comments: formData.comment,
       servicedivision: formData.selectedServiceDivision, // Include for both project and prospect
@@ -784,7 +783,7 @@ const NewTrainingRequest = () => {
                   PaperProps: {
                     style: {
                       maxHeight: 300, // Adjust the max height of the dropdown menu
-                      width: 100, // Adjust the width of the dropdown menu
+                      width: 40, // Adjust the width of the dropdown menu
                       fontSize: "12px", // Adjust font size inside the dropdown
                     },
                   },

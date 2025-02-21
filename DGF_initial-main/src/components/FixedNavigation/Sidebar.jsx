@@ -20,7 +20,7 @@ const Sidebar = () => {
       '/my-courses': 'My Courses',
       '/my-events': 'Events',
       '/spoc-approval': 'Learnings',
-      '/clarification-awaited': 'Learnings',
+      '/clarification-requested': 'Learnings',
     };
     setSelectedTab(pathToTab[location.pathname] || 'Dashboard');
   }, [location.pathname]);

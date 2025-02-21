@@ -4,12 +4,11 @@ import FixedComponent from './components/FixedComponent';
 import TrainingContainer from './components/TrainingContainer';
 import NewRequestContainer from './components/NewRequestContainer';
 import InitiateTrainingContainer from './components/InitiateTrainingContainer.jsx';
-import InitiateTrainingStatusContainer from './components/InitiateTrainingContainerStatus.jsx';
 import SpocContainer from './components/SpocContainer';
 import Login from './components/Auth/Login';
 import ProtectedRoute from './components/Auth/ProctectedRoutes.jsx';
 import { AuthProvider } from './components/Auth/AuthContext.jsx';
-import ClarificationAwaitedContainer from './components/ClarificationAwaitedContainer.jsx';
+import ClarificationRequestedContainer from './components/ClarificationRequestedContainer.jsx';
 
 
 function App() {
@@ -27,9 +26,9 @@ function App() {
             <Route path="/training-container" element={<ProtectedRoute element={<FixedComponent><TrainingContainer /></FixedComponent>} />} />
             <Route path="/new-request" element={<ProtectedRoute element={<FixedComponent><NewRequestContainer /></FixedComponent>} />} />
             <Route path="/initiate-training" element={<ProtectedRoute element={<FixedComponent><InitiateTrainingContainer /></FixedComponent>} />} />
-            <Route path='/spoc-approval' element={<ProtectedRoute element={<FixedComponent><SpocContainer /></FixedComponent>} />} />
-            <Route path='/clarification-awaited' element={<ProtectedRoute element={<FixedComponent><ClarificationAwaitedContainer /></FixedComponent>} />} />
-            <Route path='/initiate-training-status' element={<ProtectedRoute element={<FixedComponent><InitiateTrainingStatusContainer /></FixedComponent>} />} />
+            <Route path='/spoc-approval/:requestid' element={<ProtectedRoute element={<FixedComponent><SpocContainer /></FixedComponent>} />} />
+            
+            <Route path='/clarification-requested' element={<ProtectedRoute element={<FixedComponent><ClarificationRequestedContainer /></FixedComponent>} />} />
           </Routes>
         </Router>
       </div>

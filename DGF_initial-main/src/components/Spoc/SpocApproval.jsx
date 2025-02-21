@@ -1,61 +1,95 @@
-import {  useState } from "react";
-import EditIcon from '@mui/icons-material/Edit';
+import {  useState ,useEffect,useContext} from "react";
 import PropTypes from 'prop-types';
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useParams } from "react-router-dom";
 import { Paper, Typography, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
 import "./SpocApproval.css";
-// import AuthContext from "../Auth/AuthContext";
+import AuthContext from "../Auth/AuthContext";
+import formatDate from "../../utils/dateUtils";
+import removeHtmlTags from "../../utils/htmlUtils";
+
 const SpocApproval = ({roleId}) => {
   const [action, setAction] = useState("approve");
   const [comments, setComments] = useState("");
   const navigate = useNavigate();
-  // const {user} = useContext(AuthContext);
-  const learners = [
-    {
-      id: "HS158",
-      name: "Jonathan Hart",
-      availableFrom: "15th Jan, 2025",
-      bandwidth: "4hrs",
-      weekend: "No",
-      image: "https://randomuser.me/api/portraits/men/1.jpg",
-    },
-    {
-      id: "HS333",
-      name: "Joel Davis",
-      availableFrom: "15th Jan, 2025",
-      bandwidth: "4hrs",
-      weekend: "No",
-      image: "https://randomuser.me/api/portraits/men/4.jpg",
-    },
-    {
-      id: "HS455",
-      name: "Alan Patel",
-      availableFrom: "15th Jan, 2025",
-      bandwidth: "4hrs",
-      weekend: "No",
-      image: "https://randomuser.me/api/portraits/men/3.jpg",
-    },
-    // Add more learners as needed
-  ];
- 
+  const [learners, setLearners] = useState([]); // State to hold the fetched learners
+  const { requestid } = useParams(); 
+  const { user } = useContext(AuthContext); // Get the user from AuthContext
+  const [requestDetails, setRequestDetails] = useState(null); // Store request details
+
+  
+  useEffect(() => {
+    // Fetch  learner data from the API when the component is mounted
+    fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/${requestid}`)
+      .then(response => response.json())
+      .then(learnerdata => {
+        setLearners(learnerdata); // Store fetched data into the learners state
+        console.log("Learners Data:", learnerdata); // Log the fetched data
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error); // Log any errors during the fetch
+      });
+  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
+
+  useEffect(() => {
+    console.log("Request ID in Spoc Approval Loading Time",requestid)
+    if (requestid) {
+      fetch(`http://localhost:8000/api/training-request/${requestid}`)
+        .then(response => response.json())
+        .then(data => {
+          setRequestDetails(data);console.log('Request Details:', data);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  }, [requestid]);
+  useEffect(() => {
+    console.log('Requests State Updated:', requestDetails); // This will log after state change
+  }, [requestDetails]); // This hook will trigger every time the requests state is updated
+  
+
+
+
+  const handleSubmit = async () => {
+   
+    const requestData = {
+      requestId:  requestDetails?.requestid,  
+      status: "approve",  
+      roleId: roleId,  
+      approverId: user.emp_id
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/api/request-status/update-status", {
+        method: "POST", // Set the request method to POST
+        headers: {
+          "Content-Type": "application/json", // Specify that the body content is JSON
+        },
+        body: JSON.stringify(requestData), // Convert the request body to JSON
+         // Log the request data
+      });
+      console.log("Request Data:", requestData);
+      const data = await response.json(); // Parse the JSON response
+      if (response.ok) {
+        console.log("API call successful:", data); // Handle the success response
+        alert("Status updated successfully!");
+      } else {
+        console.error("Error in API call:", data); // Handle errors
+        alert("Error updating status.");
+      }
+    } catch (error) {
+      console.error("Error:", error); // Handle any other errors
+      alert("An error occurred while updating status.");
+    }
+  };
+
+
   return (
     <>
       <Box justifyContent="space-between">
         <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px" }}>
           Approve Learning Request
         </Typography>
-        {roleId === 4 && (
-          <Box display="flex" alignItems="flex-start" style={{ marginLeft: 'auto', flexDirection: 'row' }}>
-            <EditIcon
-              style={{ cursor: 'pointer', width: '20px', height: '20px', fontSize: '12px' , marginLeft: '4px' }}
-              onClick={() => console.log('Edit icon clicked')}
-            />
-            <span style={{ fontSize: '12px', fontWeight: 'bold', marginLeft: '4px' }}>Edit</span>
-          </Box>
-        )}
-              </Box>
         <Divider style={{ margin: "1rem 0 ", marginLeft: '-30px', marginRight: '-20px' }} />
- 
+      </Box>
  
       <Paper elevation={1} className="paper" style={{ height: "100%", width: "85%" }}>
         <div className="inner-container">
@@ -67,7 +101,7 @@ const SpocApproval = ({roleId}) => {
                     Request ID/No:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    #1234
+                  #{requestDetails?.requestid}
                   </Typography>
                 </FormControl>
               </Grid>
@@ -77,7 +111,7 @@ const SpocApproval = ({roleId}) => {
                     Request By:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    Joe Maison
+                  {requestDetails?.requestedby}
                   </Typography>
                 </FormControl>
               </Grid>
@@ -87,7 +121,7 @@ const SpocApproval = ({roleId}) => {
                     Project:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    #Wallmart
+                   {requestDetails?.newprospectname || requestDetails?.project}             
                   </Typography>
                 </FormControl>
               </Grid>
@@ -99,7 +133,7 @@ const SpocApproval = ({roleId}) => {
                     Service Division:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    Tech Services
+                  {requestDetails?.service_division}
                   </Typography>
                 </FormControl>
               </Grid>
@@ -109,17 +143,17 @@ const SpocApproval = ({roleId}) => {
                     Expected Completion:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    31st Jan 2025
+                    {formatDate(requestDetails?.expecteddeadline)  }                  
                   </Typography>
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">
-                    Techstack / Area:
+                    Techstack / Compentancy:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    Front-end
+                    {requestDetails?.techstack}
                   </Typography>
                 </FormControl>
               </Grid>
@@ -128,11 +162,21 @@ const SpocApproval = ({roleId}) => {
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">
-                    Primary Skills / Compentencies:
+                    Primary Skills :
                   </Typography>
                   <Typography className="typography-value-upper">
-                    Programming Knowledge
+                  {/* {requestDetails?.primarySkills?.join(', ')} */}
+                  {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
+        <ul style={{ paddingLeft: '20px' }}>
+          {requestDetails?.primarySkills.map((skill, index) => (
+            <li key={index}>{skill}</li>
+          ))}
+        </ul>
+      ) : (
+        <Typography className="typography-value-upper">No skills available</Typography>
+      )}
                   </Typography>
+
                 </FormControl>
               </Grid>
             </Grid>
@@ -146,7 +190,7 @@ const SpocApproval = ({roleId}) => {
                     Other Skill Information in Details:
                   </Typography>
                   <Typography className="typography-value-upper">
-                    Tech Services
+                   { removeHtmlTags(requestDetails?.otherskill)}
                   </Typography>
                 </FormControl>
               </Grid>
@@ -155,10 +199,11 @@ const SpocApproval = ({roleId}) => {
                   <Typography className="typography-label-upper">
                     Completion Criteria:
                   </Typography>
-                  <Typography className="typography-value-upper" style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eum nihil alias consequatur modi corrupti, rem tenetur corporis molestias aperiam, quasi quibusdam
-                    soluta assumenda, deleniti aliquam sequi rerum
-                  </Typography>
+                  <Typography  className="typography-value-upper"
+  style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
+    {removeHtmlTags(requestDetails?.suggestedcompletioncriteria)}
+    </Typography>
+
                 </FormControl>
               </Grid>
             </Grid>
@@ -168,16 +213,11 @@ const SpocApproval = ({roleId}) => {
                   <Typography className="typography-label-upper">
                     Comments:
                   </Typography>
-                  <Typography className="typography-value-upper" style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing
-                    elit. Ab, officiis aliquid asperiores explicabo odit
-                    illum mollitia eligendi sequi ullam nisi praesentium
-                    quod, impedit voluptates facilis architecto similique
-                    debitis quae error sint corporis ad reiciendis? Beatae
-                    commodi eveniet corporis, recusandae eos, dolore
-                    dignissimos eum necessitatibus repellat facilis
-                    impedit perspiciatis quidem aliquam!
+                  <Typography  className="typography-value-upper"  style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
+                    {removeHtmlTags(requestDetails?.comments)}
                   </Typography>
+ 
+
                 </FormControl>
               </Grid>
             </Grid>
@@ -222,30 +262,38 @@ const SpocApproval = ({roleId}) => {
                       </TableRow>
                     </TableHead>
                   )}
-                  <TableBody>
-                    {learners.map((learner) => (
-                      <TableRow key={learner.id}>
-                        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-                          {learner.id}
-                        </TableCell>
-                        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Avatar src={learner.image} />
-                            {learner.name}
-                          </Box>
-                        </TableCell>
-                        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-                          {learner.availableFrom}
-                        </TableCell>
-                        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-                          {learner.bandwidth}
-                        </TableCell>
-                        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-                          {learner.weekend}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                 <TableBody>
+      {learners.length > 0 ? (
+        learners.map((learner) => (
+          <TableRow key={learner.id}>
+            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+              {learner.emp_id}
+            </TableCell>
+            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+              <Box display="flex" alignItems="center" gap={1}>
+                <Avatar src={learner.image} />
+                {learner.name}
+              </Box>
+            </TableCell>
+            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+              {formatDate(learner.availablefrom)}
+            </TableCell>
+            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+              {learner.dailyband}
+            </TableCell>
+            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+              {learner.availableonweekend ===1?"Yes":"No"}
+            </TableCell>
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell colSpan={5} style={{ textAlign: "center" }}>
+            No learners found
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
                 </Table>
               </TableContainer>
               <Box
@@ -334,7 +382,7 @@ const SpocApproval = ({roleId}) => {
                 <Button
                   variant="contained"
                   style={{ minWidth: "120px", textTransform: 'none', borderRadius: '10px ', backgroundColor: '#066DD2', boxShadow: 'none', color: 'white' }}
-                  // onClick={handleSubmit}
+                  onClick={handleSubmit}
                 >
                   Submit
                 </Button>
