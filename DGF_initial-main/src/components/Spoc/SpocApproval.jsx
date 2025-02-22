@@ -52,7 +52,7 @@ const SpocApproval = ({roleId}) => {
    
     const requestData = {
       requestId:  requestDetails?.requestid,  
-      status: "approve",  
+      status: action,  
       roleId: roleId,  
       approverId: user.emp_id
     };

@@ -8,16 +8,14 @@ const updateRequestStatus = (requestId, status, roleId, approverId) => {
             case 'approve':
                 if (roleId === 10) {
                     requestStatus = 'spoc approved';
-                } else if (roleId === 4) {
-                    requestStatus = 'capdev approved';
                 } else {
-                    requestStatus = 'approved';
+                    requestStatus = 'capdev approved';
                 }
                 break;
             case 'reject':
                 requestStatus = 'rejected';
                 break;
-            case 'suspend learning':
+            case 'hold': //for suspended learning
                 requestStatus = 'learning suspended';
                 break;
             case 'need clarification':

@@ -357,9 +357,9 @@ const RequestTable = ({ roleId }) => {
     case "approval requested":
       return { text: ["SPOC Approval ", "Awaited"], color: "red" };
     case "spoc approved":
-      return { text: ["Approved"], color: "red" };
+      return { text: ["SPOC Approved"], color: "red" };
     case "capdev approved":
-      return { text: ["Approved"], color: "red" };
+      return { text: ["CapDev Approved"], color: "red" };
     case "initiate learning":
       return { text: ["Preparing","Learning Plan"], color: "red" };
     case "learning initiated":
