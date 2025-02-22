@@ -20,6 +20,7 @@ const managerSearchByNameRoutes = require('./routes/managerSearchByNameRoutes');
 const getEmpNewTrainingRequestedRoutes = require('./routes/getEmpNewTrainingRequestedRoutes');
 const requestStatusRoutes = require('./routes/requestStatusRoutes');
 const getTrainingRequestDetailsRoutes = require('./routes/getTrainingRequestDetailsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes'); // Import the new route
 
 const app = express();
 
@@ -48,7 +49,7 @@ app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes);
 app.use('/api/request-status', requestStatusRoutes);
 app.use('/api/getAllTrainingRequests', getAllTrainingRequestsRoutes);
 app.use('/api', getTrainingRequestDetailsRoutes);
-app.use('/api/employeeSearchByEmail', employeeSearchByEmailRoutes); // Add the new route
+app.use('/api/notifications', notificationRoutes); // Add the new route
 
 app.use((err, req, res, next) => {
     console.error(err);

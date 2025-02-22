@@ -17,6 +17,7 @@ const createNewRequest = ({
 }) => {
     return new Promise((resolve, reject) => {
         // If projectid is null, set it to 999
+        projectid = projectid ?? 999;
 
         const query = `
             INSERT INTO newtrainingrequest (
@@ -52,11 +53,25 @@ const createNewRequest = ({
             requestedbyid ?? null  // Add requestedbyid to params
         ];
 
+        // Insert into newtrainingrequest first
         db.execute(query, params, (err, results) => {
             if (err) {
-                reject(err);
+                reject(err); // Reject if there's an error in inserting newtrainingrequest
             } else {
-                resolve(results); // Return the result of the insert
+                // If successful, now insert into notifications
+                const notificationQuery = `
+                    INSERT INTO notifications (emp_id, requestid, is_read)
+                    SELECT emp_id, ?, FALSE FROM logintable;
+                `;
+                const notificationParams = [requestid]; // Only need requestid for this query
+
+                db.execute(notificationQuery, notificationParams, (err, notificationResults) => {
+                    if (err) {
+                        reject(err); // Reject if there's an error in inserting into notifications
+                    } else {
+                        resolve({ newTrainingRequest: results, notification: notificationResults }); // Return both results
+                    }
+                });
             }
         });
     });
