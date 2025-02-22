@@ -365,6 +365,9 @@ const RequestTable = ({ roleId }) => {
     case "learning initiated":
       return { text: ["Learning In","Progress"], color: "red" };
     // New conditional mapping for CapDev or Spoc roles
+    case "learning suspended":
+      return { text: ["Learning Suspended"], color: "red" };
+
     case "spoc approval awaited":
       if (role === "CapDev" || role === "Spoc") {
         return { text: ["Approval Requested"], color: "red" };  // Display as "Approval Requested"
@@ -394,8 +397,8 @@ const filteredData = Array.isArray(requests) ? requests.filter(row => {
     return row.requeststatus && row.requeststatus.toLowerCase() === "incomplete";
   } else if (selectedStatus === "Rejected") {
     return row.requeststatus && row.requeststatus.toLowerCase() === "rejected";
-  } else if (selectedStatus === "Hold") {
-    return row.requeststatus && row.requeststatus.toLowerCase() === "hold";
+  } else if (selectedStatus === "Suspended") {
+    return row.requeststatus && row.requeststatus.toLowerCase() === "learning suspended";
   }
   return row.requeststatus && row.requeststatus.toLowerCase() === selectedStatus.toLowerCase();
 }) : [];
@@ -636,14 +639,18 @@ const handleEditClick = (status,requestId) => {
 
       </Table>
       <TablePagination
-        rowsPerPageOptions={[5]}
-        component="div"
-        count={filteredData.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        sx={{ display: 'flex', justifyContent: 'flex-start' }}
-      />
+  rowsPerPageOptions={[5]}
+  component="div"
+  count={filteredData.length}
+  rowsPerPage={rowsPerPage}
+  page={page}
+  onPageChange={handleChangePage}
+  sx={{ display: 'flex', justifyContent: 'space-between' }}
+  classes={{
+    displayedRows: 'custom-displayed-rows',
+    actions: 'custom-pagination-actions',
+  }}
+/>
     </TableContainer>
   );
 };
@@ -653,6 +660,7 @@ RequestTable.propTypes = {
 };
 
 export default RequestTable;
+
 
 
 
