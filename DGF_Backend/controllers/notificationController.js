@@ -16,19 +16,20 @@ const showNotifications = async (req, res) => {
 };
 
 const markAsRead = async (req, res) => {
-    const { notificationId } = req.body;
+    const { notificationId, empId } = req.body;  // Make sure empId is passed for specific user
 
-    if (!notificationId) {
-        return res.status(400).json({ error: 'Notification ID is required' });
+    if (!notificationId || !empId) {
+        return res.status(400).json({ error: 'Notification ID and employee ID are required' });
     }
 
     try {
-        await markNotificationAsRead(notificationId);
+        await markNotificationAsRead(empId, notificationId);  // Mark as read only for the specific user
         res.status(200).json({ message: 'Notification marked as read' });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while marking the notification as read', details: error.message });
     }
 };
+
 
 module.exports = {
     showNotifications,

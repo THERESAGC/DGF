@@ -1,7 +1,9 @@
 const express = require('express');
-const router = express.Router();
-const { getEmpNewTrainingRequested } = require('../controllers/getEmpNewTrainingRequestedController');
+const { insertTrainingRequest, removeEmployeeFromTrainingRequest } = require('../controllers/empNewTrainingRequestedController');
 
-router.get('/getEmpNewTrainingRequested/:requestid', getEmpNewTrainingRequested);
+const router = express.Router();
+
+router.post('/insert-training-request', insertTrainingRequest);
+router.delete('/remove-employee', removeEmployeeFromTrainingRequest);
 
 module.exports = router;

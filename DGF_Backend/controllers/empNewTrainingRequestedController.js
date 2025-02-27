@@ -1,37 +1,38 @@
-const empNewTrainingRequestedService = require('../services/empNewTrainingRequestedService');
+const { insertEmpNewTrainingRequested, deleteEmployeeFromTrainingRequest } = require('../services/empNewTrainingRequestedService');
 
-exports.createEmpNewTrainingRequested = async (req, res) => {
-    const data = req.body;  // Expect an array of records
+// Controller to handle inserting a new training request
+const insertTrainingRequest = async (req, res) => {
+    const { emp_id, availablefrom, dailyband, availableonweekend, requestid } = req.body;
 
-    // Validate incoming data
-    if (!Array.isArray(data) || data.some(item => !item.emp_id || !item.availablefrom || !item.dailyband || item.availableonweekend === undefined || !item.requestid)) {
-        return res.status(400).json({ message: 'All fields are required for each record.' });
+    if (!emp_id || !availablefrom || !dailyband || !availableonweekend || !requestid) {
+        return res.status(400).json({ error: 'All fields are required' });
     }
 
     try {
-        // Initialize an array to store the result for each employee
-        const results = [];
-
-        // Loop through each record and insert it
-        for (const record of data) {
-            try {
-                const result = await empNewTrainingRequestedService.insertEmpNewTrainingRequested(
-                    record.emp_id,
-                    record.availablefrom,
-                    record.dailyband,
-                    record.availableonweekend,
-                    record.requestid
-                );
-                results.push({ emp_id: record.emp_id, success: true, message: 'Data inserted successfully', result });
-            } catch (err) {
-                results.push({ emp_id: record.emp_id, success: false, message: 'Error inserting data', error: err.message });
-            }
-        }
-
-        // Respond with the results for all records
-        res.status(201).json({ message: 'Bulk data insertion results', data: results });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal Server Error' });
+        await insertEmpNewTrainingRequested(emp_id, availablefrom, dailyband, availableonweekend, requestid);
+        res.status(200).json({ message: 'Training request inserted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while inserting the training request', details: error.message });
     }
+};
+
+// Controller to handle deleting an employee from a training request
+const removeEmployeeFromTrainingRequest = async (req, res) => {
+    const { empId, requestId } = req.body;
+
+    if (!empId || !requestId) {
+        return res.status(400).json({ error: 'Employee ID and request ID are required' });
+    }
+
+    try {
+        await deleteEmployeeFromTrainingRequest(empId, requestId);
+        res.status(200).json({ message: 'Employee removed from training request' });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while removing the employee', details: error.message });
+    }
+};
+
+module.exports = {
+    insertTrainingRequest,
+    removeEmployeeFromTrainingRequest,
 };
