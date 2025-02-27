@@ -4,7 +4,7 @@ const db = require('../config/db');
 const searchEmployeesByManagerIdAndEmail = (managerid, emailPrefix) => {
     return new Promise((resolve, reject) => {
         const query = `
-            SELECT e.emp_id, e.emp_name, e.emp_email
+            SELECT e.emp_id, e.emp_name, e.emp_email, e.profile_image
             FROM employee e
             JOIN manager_employee_relationship mer ON e.emp_id = mer.emp_id
             WHERE mer.manager_id = ? AND e.emp_email LIKE ?;
