@@ -27,6 +27,11 @@ const getTrainingRequestDetailsRoutes = require('./routes/getTrainingRequestDeta
 const notificationRoutes = require('./routes/notificationRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const empdetailsforcommentsRoutes = require('./routes/getEmpDetailsCommentRoutes');
+const empDeleteTrainingRequestedRoutes = require('./routes/empDeleteTrainingRequestedRoutes');
+const emailRoutes = require('./routes/emailRoutes'); // Add this line
+const employeeDesignationRoutes = require('./routes/employeeDesignationRoutes'); // Add this line
+const employeeWithoutManagerRoutes = require('./routes/employeeWithoutManagerRoutes');
+
 
 const app = express();
 const server = http.createServer(app);
@@ -59,9 +64,7 @@ app.use('/api/primaryskill', primarySkillRoutes);
 // Project routes
 app.use('/api/project', projectRoutes);
 
-// // Employee search by name routes
-// app.use('/api/employee', employeeRoutes);
-
+// Employee search by name routes
 app.use('/api/employeeSearchByName', employeeRoutes);
 
 // Employee search by email routes
@@ -100,9 +103,6 @@ app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes);
 // Request status routes
 app.use('/api/request-status', requestStatusRoutes);
 
-// Get all training requests routes (duplicate, consider removing one)
-app.use('/api/getAllTrainingRequests', getAllTrainingRequestsRoutes);
-
 // Training request details routes
 app.use('/api', getTrainingRequestDetailsRoutes);
 
@@ -114,6 +114,17 @@ app.use('/api/comments', commentRoutes);
 
 // Employee details for comments routes
 app.use('/api/getempdetails', empdetailsforcommentsRoutes);
+
+// Employee delete training requested routes
+app.use('/api/empDeleteTrainingRequested', empDeleteTrainingRequestedRoutes);
+
+// Email routes
+app.use('/api/email', emailRoutes); // Add this line
+
+// Employee designation routes
+app.use('/api/employeeDesignation', employeeDesignationRoutes); // Add this line
+
+app.use('/api/employees', employeeWithoutManagerRoutes);
 
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {

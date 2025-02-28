@@ -18,7 +18,7 @@ const updateRequestStatus = (requestId, status, roleId, approverId) => {
             case 'hold': //for suspended learning
                 requestStatus = 'learning suspended';
                 break;
-            case 'need clarification':
+            case 'needClarification':
                 requestStatus = 'clarification requested';
                 break;
             default:
