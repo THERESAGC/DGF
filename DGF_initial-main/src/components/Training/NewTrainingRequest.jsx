@@ -57,7 +57,8 @@ const NewTrainingRequest = () => {
     requestonbehalf: "",
     prospectName: "",
     selectedServiceDivision: "",
-  });
+    searchQuery: "",
+});
  
   const role = getRoleType(user.role_id);
   const [searchResults, setSearchResults] = useState([]);
@@ -226,10 +227,10 @@ const NewTrainingRequest = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setIsFormValid(validateForm());
   };
-  const handleDateChange = (newValue) => {
-    setFormData({ ...formData, selectedDate: newValue });
-    setIsFormValid(validateForm());
-  };
+  // const handleDateChange = (newValue) => {
+  //   setFormData({ ...formData, selectedDate: newValue });
+  //   setIsFormValid(validateForm());
+  // };
  
   const handleSourceChange = (e) => {
     const selectedSource = e.target.value;
@@ -293,35 +294,54 @@ const NewTrainingRequest = () => {
       })
       .catch((error) => console.error("Error fetching projects:", error));
   }, []);
+
+  useEffect(() => {
+    if (user.role_id !== 4) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        requestonbehalf: user.emp_id,
+      }));
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        requestonbehalf: user.emp_id, // Set the default value for CapDev role as well
+      }));
+    }
+  }, [user]);
  
-const handleEmployeeSearch = (event, value) => {
-  if (value.length > 0) {
-    const managerId = formData.requestonbehalf;
-    fetch(`http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${managerId}&name=${value}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setSearchResults(
-            data.map((emp) => ({
-              id: emp.emp_id,
-              name: emp.emp_name,
-              email: emp.emp_email,
-              profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`, // Convert image data to base64
-              uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
-            }))
-          );
-        } else {
-          console.error(
-            "Unexpected response format for employee search by name:",
-            data
-          );
-        }
-      })
-      .catch((error) =>
-        console.error("Error fetching employees by name:", error)
-      );
-  }
-};
+  const handleEmployeeSearch = (event, value) => {
+    if (value.length > 0) {
+      const apiUrl =
+        formData.employeeDetails === "add"
+          ? `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
+          :`http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
+          
+  
+      fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setSearchResults(
+              data.map((emp) => ({
+                id: emp.emp_id,
+                name: emp.emp_name,
+                email: emp.emp_email,
+                profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`, // Convert image data to base64
+                uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
+              }))
+            );
+          } else {
+            console.error(
+              "Unexpected response format for employee search by name:",
+              data
+            );
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching employees by name:", error)
+        );
+    }
+  };
  
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
@@ -390,58 +410,111 @@ const handleEmployeeSearch = (event, value) => {
     }
     return null;
   };
- 
-  const addEmployee = async () => {
+
+  const addEmployeesByLevel = async () => {
     const newEmployees = [];
-    const invalidEmails = [];
- 
-    // Add selected employee from "Select Employee" field
-    if (
-      selectedEmployee &&
-      !formData.employees.some((emp) => emp.id === selectedEmployee.id)
-    ) {
-      newEmployees.push({
-        ...selectedEmployee,
-        availableFrom: "",
-        bandwidth: "",
-        weekend: "",
-      });
-      setSelectedEmployee(null); // Clear the selected employee after adding
-    }
- 
-    // Process comma-separated emails
-    if (formData.emails.trim() !== "") {
-      const emailList = formData.emails.split(",").map((email) => email.trim());
-      const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
- 
-      for (const email of uniqueEmails) {
-        const employee = await handleEmailSearch(email);
-        if (employee) {
-          // Check if the employee is already in the list
-          if (!formData.employees.some((emp) => emp.id === employee.id)) {
-            newEmployees.push(employee);
-          }
+  
+    // Fetch employees based on selected employee levels if "Place an Open Request" is selected
+    if (formData.selectedEmployeeLevel.length > 0) {
+      const levelIds = formData.selectedEmployeeLevel.join(",");
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationIds=${levelIds}`
+        );
+        const data = await response.json();
+        if (response.ok) {
+          const fetchedEmployees = data.map((emp) => ({
+            id: emp.emp_id,
+            name: emp.emp_name,
+            email: emp.emp_email,
+            availableFrom: "",
+            bandwidth: "",
+            weekend: "",
+            profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`, // Convert image data to base64
+            uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
+          }));
+  
+          // Filter out employees that are already in the list
+          const uniqueEmployees = fetchedEmployees.filter(
+            (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.id)
+          );
+  
+          newEmployees.push(...uniqueEmployees);
         } else {
-          invalidEmails.push(email);
+          console.error("Failed to fetch employees by designation:", data.message);
+          setSnackbarMessage(`Failed to fetch employees: ${data.message}`);
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
         }
-      }
-      if (invalidEmails.length > 0) {
-        setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
+      } catch (error) {
+        console.error("Error fetching employees by designation:", error);
+        setSnackbarMessage(`Error fetching employees: ${error.message}`);
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       }
     }
- 
+  
     setFormData((prevFormData) => ({
       ...prevFormData,
       employees: [...prevFormData.employees, ...newEmployees],
       showTable: true,
       showSummary: true,
-      emails: "", // Clear the email input field
-      invalidEmails: invalidEmails, // Store invalid emails
     }));
     setIsFormValid(validateForm());
   };
+
+const addEmployee = async () => {
+  const newEmployees = [];
+  const invalidEmails = [];
+
+  // Add selected employee from "Select Employee" field
+  if (
+    selectedEmployee &&
+    !formData.employees.some((emp) => emp.id === selectedEmployee.id)
+  ) {
+    newEmployees.push({
+      ...selectedEmployee,
+      availableFrom: "",
+      bandwidth: "",
+      weekend: "",
+    });
+    setSelectedEmployee(null); // Clear the selected employee after adding
+  }
+
+  // Process comma-separated emails
+  if (formData.emails.trim() !== "") {
+    const emailList = formData.emails.split(",").map((email) => email.trim());
+    const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
+
+    for (const email of uniqueEmails) {
+      const employee = await handleEmailSearch(email);
+      if (employee) {
+        // Check if the employee is already in the list
+        if (!formData.employees.some((emp) => emp.id === employee.id)) {
+          newEmployees.push(employee);
+        }
+      } else {
+        invalidEmails.push(email);
+      }
+    }
+    if (invalidEmails.length > 0) {
+      setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  }
+
+  setFormData((prevFormData) => ({
+    ...prevFormData,
+    employees: [...prevFormData.employees, ...newEmployees],
+    showTable: true,
+    showSummary: true,
+    emails: "", // Clear the email input field
+    invalidEmails: invalidEmails, // Store invalid emails
+  }));
+  setIsFormValid(validateForm());
+};
+
   const removeEmployee = (id) => {
     setFormData({
       ...formData,
@@ -515,7 +588,7 @@ const handleEmployeeSearch = (event, value) => {
     const formattedDate = formData.selectedDate instanceof Date && !isNaN(formData.selectedDate)
       ? formData.selectedDate.toISOString().split("T")[0]
       : null;
- 
+  
     const requestBody = {
       requestid: newRequestId, // Include the newRequestId here
       requestonbehalfof: user.role_id === 4 ? formData.requestonbehalf : user.emp_id, // Use emp_id for non-CapDev roles
@@ -531,9 +604,9 @@ const handleEmployeeSearch = (event, value) => {
       comments: formData.comment,
       servicedivision: formData.selectedServiceDivision, // Include for both project and prospect
     };
- 
+  
     console.log("Submitting request body to newtrainingrequest API:", requestBody); // Log the request body
- 
+  
     try {
       const response = await fetch(
         "http://localhost:8000/api/newtrainingrequest",
@@ -545,22 +618,22 @@ const handleEmployeeSearch = (event, value) => {
           body: JSON.stringify(requestBody),
         }
       );
- 
+  
       if (response.ok) {
         console.log("New training request submitted successfully");
         setDialogOpen(true);
- 
+  
         // Submit primary skills
         await submitPrimarySkills(newRequestId, formData.selectedPrimarySkill);
- 
+  
         // Proceed with the existing API call for employee levels
         const employeeLevelRequestBody = {
           requestid: newRequestId, // Use the newRequestId here
           employee_level_ids: formData.selectedEmployeeLevel, // Use selectedEmployeeLevel
         };
- 
+  
         console.log("Submitting request body to training-request/employee-levels API:", employeeLevelRequestBody); // Log the request body
- 
+  
         try {
           const employeeLevelResponse = await fetch(
             "http://localhost:8000/api/training-request/employee-levels",
@@ -572,7 +645,7 @@ const handleEmployeeSearch = (event, value) => {
               body: JSON.stringify(employeeLevelRequestBody),
             }
           );
- 
+  
           if (employeeLevelResponse.ok) {
             console.log("Employee levels submitted successfully");
           } else {
@@ -589,7 +662,7 @@ const handleEmployeeSearch = (event, value) => {
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
- 
+  
         // New API call for adding employees if "Add Employees" is selected
         if (formData.employeeDetails === "add") {
           const empNewTrainingRequestBody = formData.employees.map((emp) => ({
@@ -599,12 +672,12 @@ const handleEmployeeSearch = (event, value) => {
             availableonweekend: emp.weekend === "Yes",
             requestid: newRequestId,
           }));
- 
+  
           console.log("Submitting request body to empNewTrainingRequested API:", empNewTrainingRequestBody); // Log the request body
- 
+  
           try {
             const empNewTrainingResponse = await fetch(
-              "http://localhost:8000/api/empNewTrainingRequested",
+              "http://localhost:8000/api/empNewTrainingRequested/insertTrainingRequest",
               {
                 method: "POST",
                 headers: {
@@ -613,7 +686,7 @@ const handleEmployeeSearch = (event, value) => {
                 body: JSON.stringify(empNewTrainingRequestBody),
               }
             );
- 
+  
             if (empNewTrainingResponse.ok) {
               console.log("Employees added successfully");
             } else {
@@ -645,6 +718,7 @@ const handleEmployeeSearch = (event, value) => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
+  
     // try {
     //   // Make the API request to submit the training request and trigger email sending
     //   const response = await fetch("http://localhost:8000/api/submitTrainingRequest", {
@@ -792,6 +866,7 @@ const handleEmployeeSearch = (event, value) => {
                 requestonbehalf: value ? value.id : "",
               })
             }
+            value={searchResults.find((option) => option.id === formData.requestonbehalf) || null} // Set default value
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -1498,7 +1573,7 @@ const handleEmployeeSearch = (event, value) => {
   </RadioGroup>
   )}
 </FormControl>
-{role === "CapDev" && (
+{/* {formData.employeeDetails === "open" && role === "CapDev" && (
   <FormControl fullWidth className="formControl">
     <Typography className="subheader">
       Employee Level <span className="required">*</span>
@@ -1519,7 +1594,7 @@ const handleEmployeeSearch = (event, value) => {
       ))}
     </Select>
   </FormControl>
-)}
+)} */}
 <Grid container spacing={5}>
   {/* Employee Select Section */}
   <Grid item size={4}>
@@ -1562,7 +1637,7 @@ const handleEmployeeSearch = (event, value) => {
   </Grid>
 
   {/* OR Section */}
-  <Grid item >
+  <Grid item>
     <Typography className="subheader" align="center" 
     style={{  marginTop: "32px",
              marginLeft: "-35px",
@@ -1573,24 +1648,26 @@ const handleEmployeeSearch = (event, value) => {
   </Grid>
 
   {/* Email Input Section */}
-  <Grid item size={4}>
-    <FormControl fullWidth style={{marginLeft: "-36px",}} >
-      <Typography className="subheader" style={{ display: "inline",marginBottom: "0.5rem",  color: "#4F4949" }}>
-        Enter comma(,) separated email ids{" "}
-        <span className="required">*</span>
-      </Typography>
-      <TextField
-        variant="outlined"
-        name="emails"
-        placeholder="Enter Email by , separated"
-        value={formData.emails}
-        onChange={handleChange}
-        InputProps={{
-          style: { fontSize: "12.5px", marginLeft: "0px" },
-        }}
-      />
-    </FormControl>
-  </Grid>
+  {formData.employeeDetails === "add" && (
+    <Grid item size={4}>
+      <FormControl fullWidth style={{marginLeft: "-36px",}} >
+        <Typography className="subheader" style={{ display: "inline",marginBottom: "0.5rem",  color: "#4F4949" }}>
+          Enter comma(,) separated email ids{" "}
+          <span className="required">*</span>
+        </Typography>
+        <TextField
+          variant="outlined"
+          name="emails"
+          placeholder="Enter Email by , separated"
+          value={formData.emails}
+          onChange={handleChange}
+          InputProps={{
+            style: { fontSize: "12.5px", marginLeft: "0px" },
+          }}
+        />
+      </FormControl>
+    </Grid>
+  )}
 
   {/* Add Employee Button */}
   <Grid item >
@@ -1616,219 +1693,287 @@ const handleEmployeeSearch = (event, value) => {
     </Box>
   </Grid>
 
+  {/* Employee Level Section */}
+  {formData.employeeDetails === "open" && role === "CapDev" && (
+    <Grid item size={4}>
+      <FormControl fullWidth className="formControl">
+        <Typography className="subheader">
+          Employee Level <span className="required">*</span>
+        </Typography>
+        <Select
+          variant="outlined"
+          name="employeeLevel"
+          value={formData.selectedEmployeeLevel}
+          onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
+          style={{ height: "30px", fontSize: "12px" }}
+          multiple // Allow multiple selections
+        >
+          <MenuItem value=""><em>Select Employee Level</em></MenuItem>
+          {formData.employeeLevels.map(level => (
+            <MenuItem key={level.id} value={level.id}>
+              {level.job_title}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Grid>
+  )}
+
+  {/* Add Employees by Level Button */}
+  {formData.employeeDetails === "open" && role === "CapDev" && (
+    <Grid item>
+      <Box display="flex" justifyContent="flex-end" marginTop="1.7rem">
+        <Button
+          className="btn"
+          variant="contained"
+          onClick={addEmployeesByLevel}
+          sx={{
+            height: "31px",
+            fontSize: "21px",
+            fontWeight: "500",
+            minWidth: "40px",
+            backgroundColor: "white",
+            color: "#1C71FE",
+            boxShadow: "none",
+            border: "0.5px solid #1C71FE",
+            marginLeft: "10px",
+          }}
+        >
+          Add by Level
+        </Button>
+      </Box>
+    </Grid>
+  )}
   {/* Table for Employees */}
   {formData.showTable && (
-  <Grid item size={12}>
-    <TableContainer component={Paper} className="tableContainer">
-      <Table size="smaller">
-        <TableHead className="head">
-          <TableRow style={{ height: "10px", backgroundColor: '#CCE3FF' }}>
-            <TableCell className="tableHeader" >Employee ID</TableCell>
-            <TableCell className="tableHeader">Name</TableCell>
-            <TableCell className="tableHeader">Available From</TableCell>
-            <TableCell className="tableHeader">Daily Bandwidth</TableCell>
-            <TableCell className="tableHeader">Available on Weekend?</TableCell>
-            <TableCell className="tableHeader">Actions</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell>
-              <TextField
-                className="availabledates"
-                type="date"
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    availableFrom: e.target.value,
-                  })
-                }
-                sx={{
-                  fontSize: "10px",
-                  fontFamily: "Poppins",
-                  letterSpacing: "-0.5px", // Reduce letter spacing
-                  padding: "5px",
-                }}
-              />
-            </TableCell>
-            <TableCell>
-              <Select
-                value={formData.updateAllBandwidth || ""}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    updateAllBandwidth: e.target.value,
-                  })
-                }
-                size="small"
-                sx={{
-                  fontSize: "10px", // Decrease font size
-                  fontFamily: "Poppins", // Apply Poppins font family
-                  letterSpacing: "-0.5px", // Reduce letter spacing
-                  padding: "5px", // Adjust padding inside Select component
-                }}
-              >
-                <MenuItem value="">Select</MenuItem>
-                <MenuItem value="2 Hours">2 Hours</MenuItem>
-                <MenuItem value="4 Hours">4 Hours</MenuItem>
-                <MenuItem value="6 Hours">6 Hours</MenuItem>
-                <MenuItem value="Full Day">Full Day</MenuItem>
-              </Select>
-            </TableCell>
-            <TableCell>
-              <RadioGroup
-                row
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    updateAllWeekend: e.target.value,
-                  })
-                }
-              >
-                <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
-              </RadioGroup>
-            </TableCell>
-            <TableCell>
-              <Button
-                variant="contained"
-                style={{ textTransform: "none", padding: "5px" }}
-                onClick={() =>
-                  updateAllEmployees({
-                    availableFrom: formData.availableFrom,
-                    bandwidth: formData.updateAllBandwidth,
-                    weekend: formData.updateAllWeekend,
-                  })
-                }
-                size="small"
-              >
-                Update All
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {formData.employees
-            .slice(
-              formData.page * formData.rowsPerPage,
-              formData.page * formData.rowsPerPage + formData.rowsPerPage
-            )
-            .map((employee) => (
-              <TableRow key={employee.uniqueKey}>
-                <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Avatar src={employee.profileImage} />
-                    {employee.id}
-                  </Box>
-                </TableCell>
-                <TableCell>{employee.name}</TableCell>
-                <TableCell>
-                  <TextField
-                    type="date"
-                    value={employee.availableFrom}
-                    onChange={(e) =>
-                      updateEmployee(employee.id, "availableFrom", e.target.value)
-                    }
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={employee.bandwidth}
-                    onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
-                    size="small"
-                    sx={{
-                      fontSize: "10px",
-                      fontFamily: "Poppins",
-                      letterSpacing: "-0.5px",
-                      padding: "5px",
-                    }}
-                  >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="2 Hours">2 Hours</MenuItem>
-                    <MenuItem value="4 Hours">4 Hours</MenuItem>
-                    <MenuItem value="6 Hours">6 Hours</MenuItem>
-                    <MenuItem value="Full Day">Full Day</MenuItem>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <RadioGroup
-                    row
-                    value={employee.weekend}
-                    onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
-                  >
-                    <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                    <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
-                  </RadioGroup>
-                </TableCell>
-                <TableCell>
-                  <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
-                    <CloseIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={formData.employees.length}
-        rowsPerPage={formData.rowsPerPage}
-        page={formData.page}
-        onPageChange={(e, newPage) => setFormData({ ...formData, page: newPage })}
-        onRowsPerPageChange={(e) =>
-          setFormData({
-            ...formData,
-            rowsPerPage: parseInt(e.target.value, 10),
-            page: 0,
-          })
-        }
-      />
-    </TableContainer>
-  </Grid>
-)}
+    <Grid item size={12}>
+      
+      <TableContainer component={Paper} className="tableContainer">
+        <Table size="smaller">
+          <TableHead className="head">
+            <TableRow style={{ height: "10px", backgroundColor: '#CCE3FF' }}>
+              <TableCell className="tableHeader">Employee ID</TableCell>
+              <TableCell className="tableHeader">Name</TableCell>
+              <TableCell className="tableHeader">Available From</TableCell>
+              <TableCell className="tableHeader">Daily Bandwidth</TableCell>
+              <TableCell className="tableHeader">Available on Weekend?</TableCell>
+              <TableCell className="tableHeader">Actions</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell></TableCell>
+              
+              <TableCell>
+                <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
+        <TextField
+          variant="outlined"
+          placeholder="Search Employees"
+          value={formData.searchQuery}
+          onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
+          style={{ fontSize: "12px", width: "200px" }}
+          InputProps={{
+            style: { fontSize: "12.5px" },
+          }}
+        />
+      </Box>
+              </TableCell>
+              <TableCell>
+                <TextField
+                  className="availabledates"
+                  type="date"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      availableFrom: e.target.value,
+                    })
+                  }
+                  sx={{
+                    fontSize: "10px",
+                    fontFamily: "Poppins",
+                    letterSpacing: "-0.5px", // Reduce letter spacing
+                    padding: "5px",
+                  }}
+                />
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={formData.updateAllBandwidth || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      updateAllBandwidth: e.target.value,
+                    })
+                  }
+                  size="small"
+                  sx={{
+                    fontSize: "10px", // Decrease font size
+                    fontFamily: "Poppins", // Apply Poppins font family
+                    letterSpacing: "-0.5px", // Reduce letter spacing
+                    padding: "5px", // Adjust padding inside Select component
+                  }}
+                >
+                  <MenuItem value="">Select</MenuItem>
+                  <MenuItem value="2 Hours">2 Hours</MenuItem>
+                  <MenuItem value="4 Hours">4 Hours</MenuItem>
+                  <MenuItem value="6 Hours">6 Hours</MenuItem>
+                  <MenuItem value="Full Day">Full Day</MenuItem>
+                </Select>
+              </TableCell>
+              <TableCell>
+                <RadioGroup
+                  row
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      updateAllWeekend: e.target.value,
+                    })
+                  }
+                >
+                  <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
+                  <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+                </RadioGroup>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="contained"
+                  style={{ textTransform: "none", padding: "5px" }}
+                  onClick={() =>
+                    updateAllEmployees({
+                      availableFrom: formData.availableFrom,
+                      bandwidth: formData.updateAllBandwidth,
+                      weekend: formData.updateAllWeekend,
+                    })
+                  }
+                  size="small"
+                >
+                  Update All
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {formData.employees
+              .filter((employee) =>
+                employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase())
+              )
+              .slice(
+                formData.page * formData.rowsPerPage,
+                formData.page * formData.rowsPerPage + formData.rowsPerPage
+              )
+              .map((employee) => (
+                <TableRow key={employee.uniqueKey}>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Avatar src={employee.profileImage} />
+                      {employee.id}
+                    </Box>
+                  </TableCell>
+                  <TableCell>{employee.name}</TableCell>
+                  <TableCell>
+                    <TextField
+                      type="date"
+                      value={employee.availableFrom}
+                      onChange={(e) =>
+                        updateEmployee(employee.id, "availableFrom", e.target.value)
+                      }
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={employee.bandwidth}
+                      onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
+                      size="small"
+                      sx={{
+                        fontSize: "10px",
+                        fontFamily: "Poppins",
+                        letterSpacing: "-0.5px",
+                        padding: "5px",
+                      }}
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      <MenuItem value="2 Hours">2 Hours</MenuItem>
+                      <MenuItem value="4 Hours">4 Hours</MenuItem>
+                      <MenuItem value="6 Hours">6 Hours</MenuItem>
+                      <MenuItem value="Full Day">Full Day</MenuItem>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <RadioGroup
+                      row
+                      value={employee.weekend}
+                      onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
+                    >
+                      <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
+                      <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+                    </RadioGroup>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
+                      <CloseIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={formData.employees.length}
+          rowsPerPage={formData.rowsPerPage}
+          page={formData.page}
+          onPageChange={(e, newPage) => setFormData({ ...formData, page: newPage })}
+          onRowsPerPageChange={(e) =>
+            setFormData({
+              ...formData,
+              rowsPerPage: parseInt(e.target.value, 10),
+              page: 0,
+            })
+          }
+        />
+      </TableContainer>
+    </Grid>
+  )}
 
-{/* No Employees Message */}
-{!formData.showTable && (
-  <Grid item size={12}>
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      style={{
-        width: "100%",
-        height: "300px",
-        border: "1px",
-        backgroundColor: "#F5F5F5",
-        marginBottom: "-44px",
-      }}
-    >
-      <Typography>
-        <div style={{ fontSize: "14px", color: "#000000", textAlign: "center" }}>
-          No employees added.
-        </div>
-        <div style={{ fontSize: "10px", color: "#000000" }}>
-          Select employees for the learning request.
-        </div>
+  {/* No Employees Message */}
+  {!formData.showTable && (
+    <Grid item size={12}>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        style={{
+          width: "100%",
+          height: "300px",
+          border: "1px",
+          backgroundColor: "#F5F5F5",
+          marginBottom: "-44px",
+        }}
+      >
+        <Typography>
+          <div style={{ fontSize: "14px", color: "#000000", textAlign: "center" }}>
+            No employees added.
+          </div>
+          <div style={{ fontSize: "10px", color: "#000000" }}>
+            Select employees for the learning request.
+          </div>
+        </Typography>
+      </Box>
+    </Grid>
+  )}
+
+  {/* Summary */}
+  {formData.showSummary && (
+    <Grid item xs={12}>
+      <Typography style={{marginTop:"-30px"}}>
+        Total employees selected: {formData.employees.length}
+        {formData.invalidEmails.length > 0 && (
+          <span> (Invalid emails: {formData.invalidEmails.length})</span>
+        )}
       </Typography>
-    </Box>
-  </Grid>
-)}
-
-{/* Summary */}
-{formData.showSummary && (
-  <Grid item xs={12}>
-    <Typography style={{marginTop:"-30px"}}>
-      Total employees selected: {formData.employees.length}
-      {formData.invalidEmails.length > 0 && (
-        <span> (Invalid emails: {formData.invalidEmails.length})</span>
-      )}
-    </Typography>
-  </Grid>
-)}
+    </Grid>
+  )}
 </Grid>
-
           <Box className="buttonGroup  ButtonBox">
             <Button
               variant="outlined"
