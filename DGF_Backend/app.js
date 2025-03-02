@@ -32,6 +32,7 @@ const emailRoutes = require('./routes/emailRoutes'); // Add this line
 const employeeDesignationRoutes = require('./routes/employeeDesignationRoutes'); // Add this line
 const employeeWithoutManagerRoutes = require('./routes/employeeWithoutManagerRoutes');
 const emailSearchWithoutManagerIdRoutes = require('./routes/emailSearchWithoutManagerIdRoutes'); // Add this line
+const empUpdateTrainingRequestedRoutes = require('./routes/empUpdateTrainingRequestedRoutes'); // Add this line
 
 const app = express();
 const server = http.createServer(app);
@@ -128,6 +129,9 @@ app.use('/api/employees', employeeWithoutManagerRoutes);
 
 // Email search without manager ID routes
 app.use('/api/emailSearchWithoutManagerId', emailSearchWithoutManagerIdRoutes); // Add this line
+
+// Update training request routes
+app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); // Add this line
 
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {

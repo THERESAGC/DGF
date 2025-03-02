@@ -8,6 +8,7 @@ const getTrainingRequestDetails = (requestid) => {
                 s.source_name AS source,
                 tobj.training_name AS trainingobj,
                 e1.name AS requestonbehalfof,
+                ntr.requestedbyid,
                 ntr.requesttype,
                 p.ProjectName AS project,
                 ntr.expecteddeadline,
