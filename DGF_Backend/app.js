@@ -132,7 +132,6 @@ app.use('/api/emailSearchWithoutManagerId', emailSearchWithoutManagerIdRoutes); 
 
 // Update training request routes
 app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); // Add this line
-
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');
