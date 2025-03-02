@@ -1636,16 +1636,13 @@ const addEmployee = async () => {
     </FormControl>
   </Grid>
 
-  {/* OR Section */}
-  <Grid item>
-    <Typography className="subheader" align="center" 
-    style={{  marginTop: "32px",
-             marginLeft: "-35px",
-             color: "#4F4949",
-             fontSize: "12px" }}>
-      OR
-    </Typography>
-  </Grid>
+  {formData.employeeDetails === "add" && (
+          <Grid item>
+            <Typography className="subheader" align="center" style={{ marginTop: "32px", marginLeft: "-35px", color: "#4F4949", fontSize: "12px" }}>
+              OR
+            </Typography>
+          </Grid>
+        )}
 
   {/* Email Input Section */}
   {formData.employeeDetails === "add" && (
@@ -1671,7 +1668,7 @@ const addEmployee = async () => {
 
   {/* Add Employee Button */}
   <Grid item >
-    <Box display="flex" justifyContent="flex-end" marginTop="1.7rem" style={{marginLeft: "-56px"}}>
+    <Box display="flex" justifyContent="flex-end" marginTop="1.7rem" style={{marginLeft: "-32px"}}>
       <Button
         className="btn"
         variant="contained"
@@ -1693,11 +1690,19 @@ const addEmployee = async () => {
     </Box>
   </Grid>
 
+  {formData.employeeDetails === "open" && (
+          <Grid item>
+            <Typography className="subheader" align="center" style={{ marginTop: "32px", marginLeft: "-35px", color: "#4F4949", fontSize: "12px" }}>
+              OR
+            </Typography>
+          </Grid>
+        )}
+
   {/* Employee Level Section */}
   {formData.employeeDetails === "open" && role === "CapDev" && (
     <Grid item size={4}>
-      <FormControl fullWidth className="formControl">
-        <Typography className="subheader">
+      <FormControl fullWidth className="formControl" style={{marginLeft: "-35px"}}>
+        <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949"  }}>
           Employee Level <span className="required">*</span>
         </Typography>
         <Select
@@ -1721,7 +1726,7 @@ const addEmployee = async () => {
 
   {/* Add Employees by Level Button */}
   {formData.employeeDetails === "open" && role === "CapDev" && (
-    <Grid item>
+    <Grid item style={{marginLeft: "-56px"}}>
       <Box display="flex" justifyContent="flex-end" marginTop="1.7rem">
         <Button
           className="btn"
@@ -1739,7 +1744,7 @@ const addEmployee = async () => {
             marginLeft: "10px",
           }}
         >
-          Add by Level
+          +
         </Button>
       </Box>
     </Grid>

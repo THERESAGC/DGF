@@ -1,4 +1,5 @@
 import {  useState ,useEffect,useContext} from "react";
+import axios from 'axios';
 import PropTypes from 'prop-types';
 import { useNavigate ,useParams } from "react-router-dom";
 import { Paper, Typography, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
@@ -6,82 +7,177 @@ import "./SpocApproval.css";
 import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
 import removeHtmlTags from "../../utils/htmlUtils";
-
+import { arrayBufferToBase64 } from '../../utils/ImgConveter';
+import { io } from "socket.io-client";  
+import { ChatContext } from '../context/ChatContext'; // Import ChatContext
+ 
 const SpocApproval = ({roleId}) => {
-  const [action, setAction] = useState("approve");
-  const [comments, setComments] = useState("");
-  const navigate = useNavigate();
-  const [learners, setLearners] = useState([]); // State to hold the fetched learners
-  const { requestid } = useParams(); 
-  const { user } = useContext(AuthContext); // Get the user from AuthContext
-  const [requestDetails, setRequestDetails] = useState(null); // Store request details
-
-  
-  useEffect(() => {
-    // Fetch  learner data from the API when the component is mounted
-    fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/${requestid}`)
-      .then(response => response.json())
-      .then(learnerdata => {
-        setLearners(learnerdata); // Store fetched data into the learners state
-        console.log("Learners Data:", learnerdata); // Log the fetched data
-      })
-      .catch(error => {
-        console.error("Error fetching data:", error); // Log any errors during the fetch
-      });
-  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
-
-  useEffect(() => {
-    console.log("Request ID in Spoc Approval Loading Time",requestid)
-    if (requestid) {
-      fetch(`http://localhost:8000/api/training-request/${requestid}`)
-        .then(response => response.json())
-        .then(data => {
-          setRequestDetails(data);console.log('Request Details:', data);
-        })
-        .catch(error => console.error('Error fetching data:', error));
-    }
-  }, [requestid]);
-  useEffect(() => {
-    console.log('Requests State Updated:', requestDetails); // This will log after state change
-  }, [requestDetails]); // This hook will trigger every time the requests state is updated
-  
-
-
-
-  const handleSubmit = async () => {
-   
-    const requestData = {
-      requestId:  requestDetails?.requestid,  
-      status: action,  
-      roleId: roleId,  
-      approverId: user.emp_id
-    };
-
+const [learners, setLearners] = useState([]);
+const [action, setAction] = useState("approve");
+const navigate = useNavigate();
+const { requestid } = useParams();
+const { user } = useContext(AuthContext);
+const { messages, sendMessage, newMessage, setNewMessage } = useContext(ChatContext);
+const [comments, setComments] = useState([]);
+const [userProfiles, setUserProfiles] = useState({});
+const [latestCommentId, setLatestCommentId] = useState(null);
+const [requestDetails, setRequestDetails] = useState(null);
+ 
+const [socket, setSocket] = useState(null);
+ 
+useEffect(() => {
+  const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/request-status/update-status", {
-        method: "POST", // Set the request method to POST
-        headers: {
-          "Content-Type": "application/json", // Specify that the body content is JSON
-        },
-        body: JSON.stringify(requestData), // Convert the request body to JSON
-         // Log the request data
+      const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestid}`);
+      const requestdata = await requestResponse.json();
+      setRequestDetails(requestdata);
+      console.log('Request Details:', requestdata);
+
+      const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestid}`);
+      const learnerdata = await learnerResponse.json();
+      
+      const updatedLearners = learnerdata.map((learner) => {
+        if (learner.profile_image && learner.profile_image.data) {
+          const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`;
+          return { ...learner, profile_image: base64Flag };
+        }
+        return learner;
       });
-      console.log("Request Data:", requestData);
-      const data = await response.json(); // Parse the JSON response
-      if (response.ok) {
-        console.log("API call successful:", data); // Handle the success response
-        alert("Status updated successfully!");
-      } else {
-        console.error("Error in API call:", data); // Handle errors
-        alert("Error updating status.");
+
+      setLearners(updatedLearners);
+      console.log('Learners Data:', updatedLearners);
+
+      const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
+      const commentsdata = await commentsResponse.json();
+      setComments(commentsdata);
+      console.log('Fetched Comments:', commentsdata);
+
+      if (commentsdata.length > 0) {
+        const latestComment = commentsdata.reduce((latest, comment) =>
+          new Date(comment.created_date) > new Date(latest.created_date) ? comment : latest
+        );
+        setLatestCommentId(latestComment.comment_id);
       }
+
+      const userIds = new Set();
+      commentsdata.forEach(comment => {
+        if (comment.created_by) userIds.add(comment.created_by);
+      });
+
+      const profiles = {};
+      for (let userId of userIds) {
+        const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
+        const userData = await userResponse.json();
+        console.log(`User Data for ${userId}:`, userData);
+        if (userData && userData.length > 0) {
+          if (userData[0]?.profile_image?.data) {
+            const base64Image = `data:image/jpeg;base64,${arrayBufferToBase64(userData[0].profile_image.data)}`;
+            userData[0].profile_image = base64Image;
+          }
+          profiles[userId] = userData[0];
+        } else {
+          profiles[userId] = { emp_name: 'Unknown', profile_image: '/default-avatar.png' };
+        }
+      }
+      setUserProfiles(profiles);
     } catch (error) {
-      console.error("Error:", error); // Handle any other errors
-      alert("An error occurred while updating status.");
+      console.error('Error fetching data:', error);
     }
   };
 
-
+  fetchData();
+}, [requestid]);
+ 
+const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+ 
+useEffect(() => {
+  const updatedLearners = learners.map(learner => {
+    if (learner.profile_image && learner.profile_image.data) {
+      const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`;
+      if (learner.profile_image !== base64Flag) {
+        return { ...learner, profile_image: base64Flag };
+      }
+    }
+    return learner;
+  });
+  setLearners(updatedLearners);
+}, [learners.length]);
+ 
+useEffect(() => {
+  const socketConnection = io("http://localhost:8000");
+  setSocket(socketConnection);
+ 
+  return () => {
+    socketConnection.disconnect();
+  };
+}, []);
+ 
+const handleSubmit = async () => {
+  if (action === "Need Clarification" && !newMessage.trim()) {
+    alert("Comment text is empty!");
+    return;
+  }
+ 
+  const requestData = {
+    requestId: requestDetails?.requestid,
+    status: action,
+    roleId: roleId,
+    approverId: user.emp_id,
+  };
+ 
+  const commentdata = {
+    requestid: requestDetails?.requestid,
+    comment_text: newMessage,
+    parent_comment_id: latestCommentId || null,
+    created_by: user.emp_id,
+    requestStatus: "Approval Requested",
+  };
+ 
+  try {
+    const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    });
+ 
+    const statusData = await statusResponse.json();
+    if (statusResponse.ok) {
+      console.log("API call successful:", statusData);
+      alert("Status updated successfully!");
+    } else {
+      console.error("Error in API call:", statusData);
+      alert("Error updating status.");
+    }
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("An error occurred while updating status.");
+  }
+ 
+  if (action === "needClarification" && newMessage.trim()) {
+    try {
+      const commentResponse = await fetch("http://localhost:8000/api/comments/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(commentdata),
+      });
+      console.log(commentResponse);
+      if (commentResponse.ok) {
+        console.log("Comment Added Successfully");
+        setNewMessage('');
+      } else {
+        console.error("Error adding comment:", await commentResponse.json());
+      }
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+  }
+};
+ 
+ 
   return (
     <>
       <Box justifyContent="space-between">
@@ -121,7 +217,7 @@ const SpocApproval = ({roleId}) => {
                     Project:
                   </Typography>
                   <Typography className="typography-value-upper">
-                   {requestDetails?.newprospectname || requestDetails?.project}             
+                   {requestDetails?.newprospectname || requestDetails?.project}            
                   </Typography>
                 </FormControl>
               </Grid>
@@ -150,7 +246,7 @@ const SpocApproval = ({roleId}) => {
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">
-                    Techstack / Compentancy:
+                    Techstack / Area:
                   </Typography>
                   <Typography className="typography-value-upper">
                     {requestDetails?.techstack}
@@ -176,7 +272,7 @@ const SpocApproval = ({roleId}) => {
         <Typography className="typography-value-upper">No skills available</Typography>
       )}
                   </Typography>
-
+ 
                 </FormControl>
               </Grid>
             </Grid>
@@ -203,7 +299,7 @@ const SpocApproval = ({roleId}) => {
   style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
     {removeHtmlTags(requestDetails?.suggestedcompletioncriteria)}
     </Typography>
-
+ 
                 </FormControl>
               </Grid>
             </Grid>
@@ -217,7 +313,7 @@ const SpocApproval = ({roleId}) => {
                     {removeHtmlTags(requestDetails?.comments)}
                   </Typography>
  
-
+ 
                 </FormControl>
               </Grid>
             </Grid>
@@ -225,7 +321,7 @@ const SpocApproval = ({roleId}) => {
           <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
           <Box>
             <div style={{ maxWidth: "100%", margin: "auto", padding: 20 }}>
-              <h2 style={{ fontSize: "12px", marginBottom: "1rem" }}>{learners.length} Learners are allocated to this learning request</h2>
+              <h2 style={{ fontSize: "12px", marginBottom: "1rem" }}>{learners.length} Learner(s) are allocated to this learning request</h2>
               <TableContainer
                 component={Paper}
                 style={{ padding: "16px", marginTop: "16px", maxWidth: "97%" }} elevation={0}
@@ -262,38 +358,38 @@ const SpocApproval = ({roleId}) => {
                       </TableRow>
                     </TableHead>
                   )}
-                 <TableBody>
-      {learners.length > 0 ? (
-        learners.map((learner) => (
-          <TableRow key={learner.id}>
-            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-              {learner.emp_id}
-            </TableCell>
-            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-              <Box display="flex" alignItems="center" gap={1}>
-                <Avatar src={learner.image} />
-                {learner.name}
-              </Box>
-            </TableCell>
-            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-              {formatDate(learner.availablefrom)}
-            </TableCell>
-            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-              {learner.dailyband}
-            </TableCell>
-            <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-              {learner.availableonweekend ===1?"Yes":"No"}
-            </TableCell>
-          </TableRow>
-        ))
-      ) : (
-        <TableRow>
-          <TableCell colSpan={5} style={{ textAlign: "center" }}>
-            No learners found
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
+                <TableBody>
+  {learners.length > 0 ? (
+    learners.map((learner) => (
+      <TableRow key={learner.emp_id}>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.emp_id}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Avatar alt="User" src={learner.profile_image} /> {/* Use the base64-encoded image */}
+            {learner.emp_name}
+          </Box>
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {formatDate(learner.availablefrom)}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.dailyband}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.availableonweekend === 1 ? "Yes" : "No"}
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} style={{ textAlign: "center" }}>
+        No learners found
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
                 </Table>
               </TableContainer>
               <Box
@@ -305,6 +401,41 @@ const SpocApproval = ({roleId}) => {
                   marginBottom: "1rem"
                 }}
               >
+<Box
+  display="flex"
+  flexDirection="column"
+  gap={2}
+  paddingLeft={5}
+  style={{ height: '400px', overflowY: 'auto' }} // Add this line
+>
+  {sortedComments.length > 0 ? (
+    sortedComments.map((comment) => {
+      console.log('Rendering Comment:', comment); // Add this line to log each comment being rendered
+      return (
+        <div key={comment.comment_id} className="user-profile" style={{ marginBottom: '16px' }}>
+          <div className="avatar-name" style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+            <Avatar
+              alt="User"
+              src={userProfiles[comment.created_by]?.profile_image || '/default-avatar.png'}
+              style={{ marginRight: '8px' }}
+            />
+            <Typography className="typography-value-upper">
+              {userProfiles[comment.created_by]?.emp_name || 'Unknown'}
+            </Typography>
+          </div>
+          <Typography className="typography-value-upper" style={{ marginBottom: '8px' }}>
+            {comment.comment_text}
+          </Typography>
+          <Typography className="typography-label-upper" style={{ fontSize: '0.85rem' }}>
+            {new Date(comment.created_date).toLocaleString()}
+          </Typography>
+        </div>
+      );
+    })
+  ) : (
+    <Typography>No comments available.</Typography>
+  )}
+</Box>
                 <Typography style={{ fontSize: "12px", marginBottom: "1rem", color: "#4F4949" }}>
                   Take action on this training request
                 </Typography>
@@ -358,8 +489,8 @@ const SpocApproval = ({roleId}) => {
                     fullWidth
                     variant="outlined"
                     margin="normal"
-                    value={comments}
-                    onChange={(e) => setComments(e.target.value)}
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
                     InputProps={{
                       style: { fontSize: '12px', backgroundColor: '#ffffff', padding: '10px', minHeight: '100px' }, // Set minimum height
                     }}
@@ -400,3 +531,4 @@ SpocApproval.propTypes = {
 };
  
 export default SpocApproval;
+ 

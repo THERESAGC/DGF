@@ -9,8 +9,8 @@ import Login from './components/Auth/Login';
 import ProtectedRoute from './components/Auth/ProctectedRoutes.jsx';
 import { AuthProvider } from './components/Auth/AuthContext.jsx';
 import ClarificationRequestedContainer from './components/ClarificationRequestedContainer.jsx';
-
-
+import { ChatProvider } from './components/context/ChatContext.jsx';
+ 
 function App() {
   const obj = {
     color: "black",
@@ -20,6 +20,7 @@ function App() {
     <AuthProvider>
       <div style={obj} className='App'>
         <Router>
+          <ChatProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<ProtectedRoute element={<FixedComponent><TrainingContainer /></FixedComponent>} />} />
@@ -27,9 +28,9 @@ function App() {
             <Route path="/new-request" element={<ProtectedRoute element={<FixedComponent><NewRequestContainer /></FixedComponent>} />} />
             <Route path="/initiate-training" element={<ProtectedRoute element={<FixedComponent><InitiateTrainingContainer /></FixedComponent>} />} />
             <Route path='/spoc-approval/:requestid' element={<ProtectedRoute element={<FixedComponent><SpocContainer /></FixedComponent>} />} />
-            
-            <Route path='/clarification-requested' element={<ProtectedRoute element={<FixedComponent><ClarificationRequestedContainer /></FixedComponent>} />} />
+            <Route path='/clarification-requested/:requestid' element={<ProtectedRoute element={<FixedComponent><ClarificationRequestedContainer /></FixedComponent>} />} />
           </Routes>
+          </ChatProvider>
         </Router>
       </div>
     </AuthProvider>
@@ -37,3 +38,4 @@ function App() {
 }
  
 export default App;
+ 
