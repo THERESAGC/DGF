@@ -13,6 +13,8 @@ import { ChatProvider } from './components/context/ChatContext.jsx';
 import LearningInitiatedDetails from './components/CapDevTrainInitiate/LearningInitiatedDetails.jsx';
 import InitiateLearningDetails from './components/CapDevTrainInitiate/InitiateLearningDetails.jsx';
 import RequestInfoContainer from './components/RequestInfoContainer.jsx';
+import DashboardContainer from './components/DashboardContainer.jsx'
+
 
 function App() {
   const obj = {
@@ -34,7 +36,8 @@ function App() {
             <Route path='/clarification-requested/:requestid' element={<ProtectedRoute element={<FixedComponent><ClarificationRequestedContainer /></FixedComponent>} />} />
             <Route path='/learning-initiated-details/:requestId' element={<ProtectedRoute element={<FixedComponent><LearningInitiatedDetails /></FixedComponent>} />} />
             <Route path='/initiate-learning-details/:requestId' element={<ProtectedRoute element={<FixedComponent><InitiateLearningDetails /></FixedComponent>} />} />
-            <Route path='/requester-information/:requestId' element={<ProtectedRoute element={<FixedComponent><RequestInfoContainer /></FixedComponent>} />} />  
+            <Route path='/requester-information/:requestId' element={<ProtectedRoute element={<FixedComponent><RequestInfoContainer /></FixedComponent>} />} /> 
+            <Route path='/dashboardgraph' element={<ProtectedRoute element={<FixedComponent><DashboardContainer  /></FixedComponent>} />} /> 
           </Routes>
           </ChatProvider>
         </Router>

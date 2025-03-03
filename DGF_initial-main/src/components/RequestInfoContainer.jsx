@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useContext } from "react";
 import RequesterInformation from './Training/Requesterinformation';
 import AuthContext from './Auth/AuthContext'; // Import the AuthContext
@@ -9,7 +8,6 @@ const RequestInfoContainer = () => {
       minHeight: '100vh',
       padding: '10px 30px',
       boxSizing: 'border-box',
-      marginLeft: '240px',
       maxHeight: '100vh',
       maxWidth: '100%',
       position: 'relative',
@@ -36,7 +34,7 @@ const RequestInfoContainer = () => {
   return (
     <div className="spoc-approval-container" style={styles.newSpocContainer}>
       {/* Pass roleId to SpocApproval */}
-      {console.log(requestId,"container")};
+      {/* {console.log(requestId,"container")}; */}
       {roleId !== null && <RequesterInformation roleId={roleId} requestId={requestId}/>}
      
       

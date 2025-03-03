@@ -6,7 +6,7 @@ import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import '../FixedNavigation/Sidebar.css';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
+ 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const Sidebar = () => {
  
   useEffect(() => {
     const pathToTab = {
-      '/dashboard': 'Dashboard',
+     '/dashboardgraph': 'Dashboard',
       '/training-container': 'Learnings',
       '/new-request': 'Learnings', // Highlight Trainings tab for new request path
       '/my-courses': 'My Courses',
@@ -40,9 +40,9 @@ const Sidebar = () => {
            {
             text: 'Dashboard',
             icon: <img src="src/assets/Dashboard.svg" alt="Dashboard" style={{ width: 15, height: 15,paddingLeft : 25}} />,
-            path: '/Dashboard',
+            path: '/dashboardgraph',
           },
-          
+         
           {
             text: 'Learnings',
             icon: <img src="src/assets/Training.svg" alt="Trainings" style={{ width: 15, height: 15 ,paddingLeft : 25 }} />,

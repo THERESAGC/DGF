@@ -8,17 +8,15 @@ import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
 import removeHtmlTags from "../../utils/htmlUtils";
 import { arrayBufferToBase64 } from '../../utils/ImgConveter';
-import { io } from "socket.io-client";  
-import { ChatContext } from '../Context/ChatContext'; // Import ChatContext
+import { io } from "socket.io-client"; 
+import { ChatContext } from '../context/ChatContext'; 
 
 const Requesterinformation = ({roleId}) => {
   
 const [learners, setLearners] = useState([]);
-const [action, setAction] = useState("approve");
 const navigate = useNavigate();
 const { requestId } = useParams();
 const { user } = useContext(AuthContext);
-const { messages, sendMessage, newMessage, setNewMessage } = useContext(ChatContext);
 const [comments, setComments] = useState([]);
 const [userProfiles, setUserProfiles] = useState({});
 const [latestCommentId, setLatestCommentId] = useState(null);
@@ -97,91 +95,17 @@ useEffect(() => {
   setLearners(updatedLearners);
 }, [learners.length]);
 
-useEffect(() => {
-  const socketConnection = io("http://localhost:8000");
-  setSocket(socketConnection);
-
-  return () => {
-    socketConnection.disconnect();
-  };
-}, []);
-
-const handleSubmit = async () => {
-  if (action === "Need Clarification" && !newMessage.trim()) {
-    alert("Comment text is empty!");
-    return;
-  }
-
-  const requestData = {
-    requestId: requestDetails?.requestid,
-    status: action,
-    roleId: roleId,
-    approverId: user.emp_id,
-  };
-
-  const commentdata = {
-    requestid: requestDetails?.requestid,
-    comment_text: newMessage,
-    parent_comment_id: latestCommentId || null,
-    created_by: user.emp_id,
-    requestStatus: "capdev approved",
-  };
-
-  try {
-    const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestData),
-    });
-
-    const statusData = await statusResponse.json();
-    if (statusResponse.ok) {
-      console.log("API call successful:", statusData);
-      alert("Status updated successfully!");
-    } else {
-      console.error("Error in API call:", statusData);
-      alert("Error updating status.");
-    }
-  } catch (error) {
-    console.error("Error updating status:", error);
-    alert("An error occurred while updating status.");
-  }
-
-  if (action === "need clarification" && newMessage.trim()) {
-    try {
-      const commentResponse = await fetch("http://localhost:8000/api/comments/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(commentdata),
-      });
-      console.log(commentResponse);
-      if (commentResponse.ok) {
-        console.log("Comment Added Successfully");
-        setNewMessage('');
-      } else {
-        console.error("Error adding comment:", await commentResponse.json());
-      }
-    } catch (err) {
-      console.error("Error adding comment:", err);
-    }
-  }
-};
-
 
   return (
     <>
-      <Box justifyContent="space-between" className="Details">
+      <Box justifyContent="space-between" >
         <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px",paddingLeft: "80px"}}>
           Learning Details
         </Typography>
         <Divider style={{ margin: "1rem 0 ",width:"95%", marginLeft: '30px', marginRight: '-20px',color:"red"}} />
       </Box>
  
-      <Paper elevation={1} className="paper" style={{ height: "100%", width: "120%" }}>
+      <Paper elevation={1} className="paper" style={{ height: "100%", width: "95%" }}>
         <div className="inner-container">
           <Box style={{ padding: "10px", marginTop: "1rem" }}>
             <Grid container spacing={2}>

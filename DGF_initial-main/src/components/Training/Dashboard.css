@@ -1,0 +1,8 @@
+.dashboard-container{
+    min-width: 100%;
+   
+}
+   
+.details:nth-of-type(4) {
+    margin-left: 20px; /* Adjust the value as needed */
+  }

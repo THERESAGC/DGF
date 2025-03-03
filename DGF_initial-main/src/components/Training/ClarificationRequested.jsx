@@ -13,6 +13,7 @@ import removeHtmlTags from "../../utils/htmlUtils";
 import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { ChatContext } from '../context/ChatContext'; // Import ChatContext
 import MuiAlert from '@mui/material/Alert';
+import { _toLeftRightCenter } from 'chart.js/helpers';
 
 // Define the Alert component for Snackbar
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -487,6 +488,7 @@ const hasChanges = (employee, dbEmployee) => {
     variant="h5"
     gutterBottom
     className="mainHeading"
+  
     style={{ fontWeight: "600", fontSize: "14px"}}
   >
     Learning Request

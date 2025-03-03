@@ -25,7 +25,7 @@
   
   .grid-container {
     width:auto;
-    height: 100%; /* Ensure the container takes full height */
+    height: 100%; 
   }
   
   .paper {
@@ -38,7 +38,6 @@
     height: 100%; /* Make sure Paper takes full height */
     display: flex;
     flex-direction: column;
-    margin-left: -220px;
   }
   
   .form-control {
@@ -78,7 +77,3 @@
   .typography-value-upper {
     font-size: 12px !important;
     font-weight: 600 !important;  }
-
-.Details{
-  margin-left: -250px;
-}

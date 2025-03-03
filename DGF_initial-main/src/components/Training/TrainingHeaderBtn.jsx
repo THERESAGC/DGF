@@ -20,7 +20,7 @@ const TrainingHeaderBtn = () => {
         <Box className="box">
           {[
             { text: 'My Learning Requests', path: '/training-container' },
-            { text: 'Learning Dashboard', path: '/training-dashboard' },
+            // { text: 'Learning Dashboard', path: '/training-dashboard' },
             { text: 'Reminders', path: '/reminders' },
           ].map((item) => (
             <Typography

@@ -16,7 +16,7 @@ const ClarificationRequestedContainer = () => {
     boxSizing: 'border-box',
     // overflowY: 'auto',
     // width: 'calc(100% - 240px)', /* Adjust width to account for sidebar */
-    marginLeft: '240px',
+    // marginLeft: '240px',
     marginRight: '40px',
     maxHeight: '100vh',
     maxWidth: '100%'

@@ -914,7 +914,7 @@ const addEmployee = async () => {
   </Grid>
 
   {/* Source */}
-  <Grid item size={4} style={{ order: role === "CapDev" ? 2 : 0 }}>
+  <Grid item size={4}>
     <FormControl fullWidth style={{ marginLeft: "0px" }}>
       <Typography
         className="subheader"
@@ -2053,7 +2053,7 @@ const addEmployee = async () => {
           />
           Request generated successfully with  request number : 
           <strong style={{ fontSize: "18px", color: "#333" }}>
-            {newRequestId}
+            #LR {newRequestId}
           </strong>
           .
           <IconButton

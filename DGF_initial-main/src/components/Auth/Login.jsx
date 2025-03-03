@@ -15,7 +15,7 @@ const Login = () => {
       const response = await axios.post('http://localhost:8000/api/auth/login', { email, password });
       if (response.data.message === "Login successful") {
         login(response.data.user);
-        navigate('/training-container');
+        navigate('/dashboardgraph');
       } else {
         alert('Login failed');
       }

@@ -1,13 +1,10 @@
-import { useContext, useEffect, useState } from 'react';
-// import Dashboard from "./Training/Dashboard";
-import RequestTable from "./Training/RequestTable";
-import TrainingHeaderBtn from "./Training/TrainingHeaderBtn";
-import AuthContext from './Auth/AuthContext';
+import { useState, useEffect, useContext } from 'react';
+import AuthContext from './Auth/AuthContext'; // Adjust the path as necessary
+import Dashboard from "./Training/Dashboard";
  
-const TrainingContainer = () => {
-  const { user } = useContext(AuthContext);
+const DashboardContainer = () => {
   const [roleId, setRoleId] = useState(null);
- 
+  const { user } = useContext(AuthContext);
   useEffect(() => {
     if (user) {
       setRoleId(user.role_id);
@@ -19,27 +16,24 @@ const TrainingContainer = () => {
       }
     }
   }, [user]);
- 
   const styles = {
     mainContent: {
       flex: 'auto',
       boxSizing: 'border-box',
       padding: '10px 10px 0 0',
-      // marginLeft: '240px',
       marginright: '0',
       maxHeight: '100vh',
       maxWidth: '100%',
-
     }
   };
  
   return (
     <div style={styles.mainContent}>
-      <TrainingHeaderBtn />
-      {roleId && <RequestTable roleId={roleId} />}
-      {/* <Dashboard /> */}
+      {/* <TrainingHeaderBtn /> */}
+      {roleId &&   <Dashboard roleId={roleId} />}
     </div>
   );
 };
  
-export default TrainingContainer;
+ 
+export default DashboardContainer;
