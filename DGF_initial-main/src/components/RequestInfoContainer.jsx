@@ -1,14 +1,15 @@
+
 import { useState, useEffect, useContext } from "react";
-import SpocApproval from './Spoc/SpocApproval';
+import RequesterInformation from './Training/Requesterinformation';
 import AuthContext from './Auth/AuthContext'; // Import the AuthContext
 import { useParams } from "react-router-dom"
-const SpocContainer = () => {
+const RequestInfoContainer = () => {
   const styles = {
     newSpocContainer: {
       minHeight: '100vh',
       padding: '10px 30px',
       boxSizing: 'border-box',
-      // marginLeft: '240px',
+      marginLeft: '240px',
       maxHeight: '100vh',
       maxWidth: '100%',
       position: 'relative',
@@ -17,8 +18,8 @@ const SpocContainer = () => {
  
   const { user } = useContext(AuthContext);
   const [roleId, setRoleId] = useState(null);
-  const { requestid } = useParams(); 
-
+  const { requestId } = useParams();
+ 
   useEffect(() => {
     if (user) {
       setRoleId(user.role_id); // Assuming role_id is part of the user object
@@ -27,7 +28,7 @@ const SpocContainer = () => {
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         setRoleId(parsedUser.role_id); // Assuming role_id is in localStorage user object
-        
+       
       }
     }
   }, [user]);
@@ -35,9 +36,12 @@ const SpocContainer = () => {
   return (
     <div className="spoc-approval-container" style={styles.newSpocContainer}>
       {/* Pass roleId to SpocApproval */}
-      {roleId !== null && <SpocApproval roleId={roleId} requestid={requestid}/>}
+      {console.log(requestId,"container")};
+      {roleId !== null && <RequesterInformation roleId={roleId} requestId={requestId}/>}
+     
+      
     </div>
   );
 };
  
-export default SpocContainer;
+export default RequestInfoContainer;

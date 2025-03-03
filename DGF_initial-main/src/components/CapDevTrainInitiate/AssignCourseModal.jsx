@@ -1,370 +1,360 @@
-// import { useState } from "react";
-// import PropTypes from 'prop-types';
-// import {
-//   Dialog,
-//   DialogTitle,
-//   DialogContent,
-//   DialogActions,
-//   Button,
-//   TextField,
-//   IconButton,
-//   Select,
-//   MenuItem,
-//   FormControl,
-//   InputLabel,
-//   FormControlLabel,
-//   Radio,
-//   Box,
-//   Typography
-// } from "@mui/material";
-// import DeleteIcon from "@mui/icons-material/Delete";
-// import "./AssignCourseModal.css"; // Import the CSS file
+import React, { useState, useEffect } from 'react';
+import { 
+  Modal, Box, Typography, TextField, Paper, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow, Button, FormControl, InputLabel, 
+  Select, MenuItem, IconButton, InputAdornment, TextareaAutosize, CircularProgress, RadioGroup, FormControlLabel, Radio, Autocomplete
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-// const AssignCourseModal = ({ open, onClose }) => {
-//   const [courses, setCourses] = useState([
-//     { name: "AWS", completionDate: "", courseType: "" },
-//     { name: "Communication", completionDate: "", courseType: "" }
-//   ]);
-//   const [selectedCourse, setSelectedCourse] = useState("");
-//   const [showDetails, setShowDetails] = useState(false);
+const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [availableCourses, setAvailableCourses] = useState([]);
+  const [courseTypes, setCourseTypes] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [specialComments, setSpecialComments] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const learningTypeOptions = ['Full Stack', 'Upskill', 'Cross Skill'];
+  const [learningType, setLearningType] = useState('');
+  const [mentors, setMentors] = useState([]);
+  const [mentorLoading, setMentorLoading] = useState(false);
 
-//   const handleCourseChange = (index, field, value) => {
-//     const updatedCourses = [...courses];
-//     updatedCourses[index][field] = value;
-//     setCourses(updatedCourses);
-//   };
+  useEffect(() => {
+    const fetchCourseTypes = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/course-types/types');
+        const data = await response.json();
+        setCourseTypes(data);
+      } catch (error) {
+        console.error('Error fetching course types:', error);
+      }
+    };
+    fetchCourseTypes();
+  }, []);
 
-//   const handleDeleteCourse = (index) => {
-//     setCourses(courses.filter((_, i) => i !== index));
-//   };
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        if (searchQuery.trim()) {
+          setLoading(true);
+          console.log('Search Query:', searchQuery); // Log the search query
+          const response = await fetch(
+            `http://localhost:8000/api/courses/search?query=${encodeURIComponent(searchQuery)}`
+          );
+          const data = await response.json();
+          console.log('Fetched Courses:', data); // Log the fetched courses
+          setAvailableCourses(data);
+        } else {
+          setAvailableCourses([]); // Clear the courses if search query is empty
+        }
+      } catch (error) {
+        console.error('Error searching courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   const handleSelectCourse = (event) => {
-//     setSelectedCourse(event.target.value);
-//     setShowDetails(true);
-//   };
+    const timer = setTimeout(fetchCourses, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-//   return (
-//     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" PaperProps={{ style: { width: '924px', height: '724px' } }}>
-//       <DialogTitle>Assign Course to Learners</DialogTitle>
-//       <DialogContent>
-//         <FormControl fullWidth>
-//           <InputLabel required>Select Course</InputLabel>
-//           <Select
-//             value={selectedCourse}
-//             onChange={handleSelectCourse}
-//             displayEmpty
-//             renderValue={(selected) => {
-//               if (!selected) {
-//                 return <em>Search Course</em>;
-//               }
-//               return selected;
-//             }}
-//           >
-//             <MenuItem disabled value="">
-//               <em>Search Course</em>
-//             </MenuItem>
-//             {courses.map((course, index) => (
-//               <MenuItem key={index} value={course.name}>
-//                 {course.name}
-//               </MenuItem>
-//             ))}
-//           </Select>
-//         </FormControl>
-//         {!showDetails && (
-//           <Box sx={{ width: '812px', height: '138px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #ccc', borderRadius: '4px', marginTop: '20px' }}>
-//             <Typography variant="body1">Selected Courses will be listed here</Typography>
-//           </Box>
-//         )}
-//         {showDetails && (
-//           <>
-//             {courses.map((course, index) => (
-//               <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "10px", alignItems: "center" }}>
-//                 <TextField
-//                   label="Course Name"
-//                   value={course.name}
-//                   disabled
-//                   fullWidth
-//                 />
-//                 <TextField
-//                   label="Completion Date"
-//                   type="date"
-//                   InputLabelProps={{ shrink: true }}
-//                   value={course.completionDate}
-//                   onChange={(e) => handleCourseChange(index, "completionDate", e.target.value)}
-//                   fullWidth
-//                 />
-//                 <FormControl fullWidth>
-//                   <InputLabel>Course Type</InputLabel>
-//                   <Select
-//                     value={course.courseType}
-//                     onChange={(e) => handleCourseChange(index, "courseType", e.target.value)}
-//                   >
-//                     {["Udemy", "Sprinkle Zone", "YouTube", "Third Party"].map((type) => (
-//                       <MenuItem key={type} value={type}>
-//                         <FormControlLabel value={type} control={<Radio />} label={type} />
-//                       </MenuItem>
-//                     ))}
-//                   </Select>
-//                 </FormControl>
-//                 <IconButton onClick={() => handleDeleteCourse(index)}>
-//                   <DeleteIcon />
-//                 </IconButton>
-//               </div>
-//             ))}
-//             <TextField label="Add Note" multiline rows={3} fullWidth sx={{ width: '812px', height: '110px' }} />
-//           </>
-//         )}
-//       </DialogContent>
-//       <DialogActions>
-//         <Button onClick={onClose} color="secondary">
-//           Cancel
-//         </Button>
-//         <Button variant="contained" color="primary">
-//           Assign
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   );
-// };
-
-// AssignCourseModal.propTypes = {
-//   open: PropTypes.bool.isRequired,
-//   onClose: PropTypes.func.isRequired,
-// };
-
-// export default AssignCourseModal;
-
-import { useState } from "react";
-import PropTypes from "prop-types";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  IconButton,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Box,
-  Typography,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import "./AssignCourseModal.css"; // Import the CSS file
-
-const AssignCourseModal = ({ open, onClose }) => {
-  const [courses, setCourses] = useState([
-    { name: "AWS", completionDate: "", courseType: "" },
-    { name: "Communication", completionDate: "", courseType: "" },
-  ]);
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
-
-  const handleCourseChange = (index, field, value) => {
-    const updatedCourses = [...courses];
-    updatedCourses[index][field] = value;
-    setCourses(updatedCourses);
+  const handleAddCourse = (course) => {
+    if (!courses.some(c => c.course_id === course.course_id)) {
+      setCourses(prev => [
+        ...prev,
+        {
+          course_id: course.course_id,
+          name: course.course_name,
+          mentor: '',
+          coursetype: '',
+          completionDate: '',
+          learning_type: learningType
+        }
+      ]);
+    }
   };
 
-  const handleDeleteCourse = (index) => {
-    setCourses(courses.filter((_, i) => i !== index));
+  const handleAssign = async () => {
+    try {
+      setSubmitting(true);
+      for (const employeeId of employeeIds) {
+        for (const course of courses) {
+          const payload = {
+            requestid: requestId,
+            employee_id: employeeId,
+            mentor_id: course.mentor,
+            course_id: course.course_id,
+            coursetype_id: course.coursetype,
+            completion_date: course.completionDate,
+            comments: specialComments,
+            learning_type: learningType,
+          };
+
+          console.log('Payload:', payload); // Log the payload to verify its content
+
+          await fetch('http://localhost:8000/api/assign-courses/assign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error assigning courses:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleSelectCourse = (event) => {
-    setSelectedCourse(event.target.value);
-    setShowDetails(true);
+  const handleMentorSearch = async (query) => {
+    try {
+      setMentorLoading(true);
+      const response = await fetch(`http://localhost:8000/api/employees/searchWithoutManager?name=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      setMentors(data);
+    } catch (error) {
+      console.error('Error fetching mentors:', error);
+    } finally {
+      setMentorLoading(false);
+    }
   };
 
   return (
-    <div className="assign-course-modal-container">
-      {" "}
-      {/* Main container */}
-      <Dialog
-        open={open}
-        onClose={onClose}
-        fullWidth
-        maxWidth="md"
-        PaperProps={{ style: { width: "924px", height: "724px" } }}
-      >
-        <div className="dialog-title-container">
-          {" "}
-          {/* Dialog Title wrapper */}
-          <DialogTitle>Assign Course to Learners</DialogTitle>
-        </div>
+    <Modal open={open} onClose={onClose}>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 800,
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 2,
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+        <Typography variant="h6" sx={{ mb: 3 }}>
+          Assign Course to {employeeIds.length > 1 ? `${employeeIds.length} Employees` : 'Employee'}
+        </Typography>
 
-        <DialogContent>
-          <div className="form-control-container">
-            {" "}
-            {/* Form control wrapper */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+          <Box sx={{ width: '48%' }}>
+            <Typography component="label" htmlFor="select-course" sx={{ mb: 1, display: 'block' }}>
+              Select Course
+            </Typography>
+            <Autocomplete
+              freeSolo
+              options={availableCourses}
+              getOptionLabel={(option) => option.course_name}
+              onInputChange={(event, newInputValue) => {
+                setSearchQuery(newInputValue);
+              }}
+              noOptionsText="No courses found"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  fullWidth
+                  placeholder="Search courses..."
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+              onChange={(event, value) => {
+                if (value) {
+                  handleAddCourse(value);
+                }
+              }}
+            />
+            {loading && <CircularProgress size={24} sx={{ mt: 1 }} />}
+          </Box>
+
+          <Box sx={{ width: '48%' }}>
             <FormControl fullWidth>
-              <InputLabel className="select-course-label" required shrink>
-                Select Course
-              </InputLabel>
-              <Select
-                value={selectedCourse}
-                onChange={handleSelectCourse}
-                displayEmpty
-                renderValue={(selected) => {
-                  if (!selected) {
-                    return <em>Search Course</em>;
-                  }
-                  return selected;
-                }}
-                className="select-course-input"
+              <Typography component="label" htmlFor="learning-type" sx={{ mb: 1, display: 'block' }}>
+                Learning Type
+              </Typography>
+              <RadioGroup
+                row
+                name="learning-type"
+                value={learningType}
+                onChange={(e) => setLearningType(e.target.value)}
               >
-                <MenuItem disabled value="">
-                  <em>Search Course</em>
-                </MenuItem>
-                {courses.map((course, index) => (
-                  <MenuItem key={index} value={course.name}>
-                    {course.name}
-                  </MenuItem>
+                {learningTypeOptions.map((type) => (
+                  <FormControlLabel
+                    key={type}
+                    value={type}
+                    control={<Radio />}
+                    label={type}
+                  />
                 ))}
-              </Select>
+              </RadioGroup>
             </FormControl>
-          </div>
+          </Box>
+        </Box>
 
-          <div className="course-details-container">
-            {" "}
-            {/* Course details wrapper */}
-            {!showDetails && (
-              <Box
-                sx={{
-                  width: "812px",
-                  height: "138px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  marginTop: "20px",
-                }}
-              >
-                <Typography variant="body1">
-                  Selected Courses will be listed here
-                </Typography>
-              </Box>
-            )}
-            {showDetails && (
-              <div className="course-list-container">
-                {" "}
-                {/* List of courses wrapper */}
-                {courses.map((course, index) => (
-                  <div key={index} className="course-item">
-                    {" "}
-                    {/* Individual course wrapper */}
-                    <TextField
-                      label="Course Name"
-                      value={course.name}
-                      disabled
-                      fullWidth
-                    />
-                    <TextField
-                      label="Completion Date"
-                      type="date"
-                      InputLabelProps={{ shrink: true }}
-                      value={course.completionDate}
-                      onChange={(e) =>
-                        handleCourseChange(
-                          index,
-                          "completionDate",
-                          e.target.value
-                        )
-                      }
-                      fullWidth
-                    />
-                    <div className="course-type-select">
-                      {/* Course type selection wrapper */}
-                      <FormControl fullWidth className="cd-form-control">
-                        <InputLabel className="courses-input" shrink>
-                          Course Type
-                        </InputLabel>
-
-                        {/* Select component for course type */}
-                        <Select
-                          value={course.courseType}
-                          onChange={(e) =>
-                            handleCourseChange(
-                              index,
-                              "courseType",
-                              e.target.value
-                            )
+        {courses.length === 0 ? (
+          <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="body1" color="text.secondary">
+              No courses selected
+            </Typography>
+          </Box>
+        ) : (
+          <TableContainer component={Paper} sx={{ mb: 3 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Course Name</TableCell>
+                  <TableCell>Mentor</TableCell>
+                  <TableCell>Completion Date</TableCell>
+                  <TableCell>Course Type</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {courses.map((course) => (
+                  <TableRow key={course.course_id}>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell>
+                      <Autocomplete
+                        freeSolo
+                        options={mentors}
+                        getOptionLabel={(option) => option.emp_name}
+                        onInputChange={(event, newInputValue) => {
+                          handleMentorSearch(newInputValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            fullWidth
+                            placeholder="Search mentors..."
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon />
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        )}
+                        onChange={(event, value) => {
+                          if (value) {
+                            setCourses(prev => 
+                              prev.map(c => 
+                                c.course_id === course.course_id 
+                                  ? { ...c, mentor: value.emp_id } 
+                                  : c
+                              )
+                            );
                           }
-                          label="Course Type"
-                          MenuProps={{
-                            PaperProps: { style: { maxHeight: 250 } }, // Restrict dropdown height
-                          }}
+                        }}
+                      />
+                      {mentorLoading && <CircularProgress size={24} sx={{ mt: 1 }} />}
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        type="date"
+                        size="small"
+                        fullWidth
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CalendarTodayIcon fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        value={course.completionDate}
+                        onChange={(e) => setCourses(prev =>
+                          prev.map(c => 
+                            c.course_id === course.course_id 
+                              ? { ...c, completionDate: e.target.value } 
+                              : c
+                          )
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormControl fullWidth size="small">
+                        <Select
+                          value={course.coursetype}
+                          onChange={(e) => setCourses(prev => 
+                            prev.map(c => 
+                              c.course_id === course.course_id 
+                                ? { ...c, coursetype: e.target.value } 
+                                : c
+                            )
+                          )}
                         >
-                          {/* Mapping through course types */}
-                          {[
-                            "Udemy",
-                            "Sprinkle Zone",
-                            "YouTube",
-                            "Third Party",
-                          ].map((type) => (
-                            <MenuItem key={type} value={type}>
-                              {type} {/* Displaying the course type */}
+                          <MenuItem value="">Select Type</MenuItem>
+                          {courseTypes.map(type => (
+                            <MenuItem key={type.type_id} value={type.type_id}>
+                              {type.type_name}
                             </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
-                    </div>
-                    <IconButton
-                      onClick={() => handleDeleteCourse(index)}
-                      className="delete-course-button"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </div>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton 
+                        onClick={() => setCourses(prev => 
+                          prev.filter(c => c.course_id !== course.course_id)
+                        )}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </div>
-            )}
-          </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
 
-          <div className="note-container">
-            {" "}
-            {/* Note input wrapper */}
-            <TextField
-              label="Add Note"
-              multiline
-              rows={3}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ width: "812px", height: "110px" }}
-            />
-          </div>
-        </DialogContent>
+        <Box sx={{ mb: 3 }}>
+          <Typography gutterBottom>Special Comments</Typography>
+          <TextareaAutosize
+            minRows={3}
+            style={{ 
+              width: '100%', 
+              padding: '8px', 
+              border: '1px solid #ddd', 
+              borderRadius: '4px' 
+            }}
+            value={specialComments}
+            onChange={(e) => setSpecialComments(e.target.value)}
+          />
+        </Box>
 
-        <div className="dialog-actions-container">
-          {" "}
-          {/* Dialog actions wrapper */}
-          <DialogActions>
-            <Button
-              onClick={onClose}
-              color="secondary"
-              className="cancel-button"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              className="assign-button"
-            >
-              Assign
-            </Button>
-          </DialogActions>
-        </div>
-      </Dialog>
-    </div>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+          <Button 
+            variant="outlined" 
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={handleAssign}
+            disabled={submitting || courses.length === 0}
+          >
+            {submitting ? <CircularProgress size={24} /> : 'Assign'}
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
   );
-};
-
-AssignCourseModal.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
 };
 
 export default AssignCourseModal;

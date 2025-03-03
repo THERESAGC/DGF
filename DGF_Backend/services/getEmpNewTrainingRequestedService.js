@@ -16,6 +16,7 @@ const getEmpNewTrainingRequestedByRequestId = (requestid) => {
                 en.comment,
                 en.status,
                 en.createddate,
+                en.courses_assigned,
                 e.profile_image
             FROM emp_newtrainingrequested en
             JOIN employee e ON en.emp_id = e.emp_id

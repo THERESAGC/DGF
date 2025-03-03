@@ -33,6 +33,11 @@ const employeeDesignationRoutes = require('./routes/employeeDesignationRoutes');
 const employeeWithoutManagerRoutes = require('./routes/employeeWithoutManagerRoutes');
 const emailSearchWithoutManagerIdRoutes = require('./routes/emailSearchWithoutManagerIdRoutes'); // Add this line
 const empUpdateTrainingRequestedRoutes = require('./routes/empUpdateTrainingRequestedRoutes'); // Add this line
+const courseSearchRoutes = require('./routes/courseSearchRoutes');
+const courseTypeRoutes = require('./routes/courseTypeRoutes');
+const assignCourseRoutes = require('./routes/assignCourseRoutes');
+const getAssignedCoursesRoutes = require('./routes/getassignedCoursesRoutes');
+const courseStatusRoutes = require('./routes/courseStatusRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -132,6 +137,16 @@ app.use('/api/emailSearchWithoutManagerId', emailSearchWithoutManagerIdRoutes); 
 
 // Update training request routes
 app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); // Add this line
+
+//capdev courses Assign and status update routes
+
+app.use('/api/courses', courseSearchRoutes);
+app.use('/api/course-types', courseTypeRoutes);
+app.use('/api/assign-courses', assignCourseRoutes);
+app.use('/api/assigned-courses', getAssignedCoursesRoutes);
+app.use('/api/course-status', courseStatusRoutes);
+
+
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');

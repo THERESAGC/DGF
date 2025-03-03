@@ -1,0 +1,5 @@
+.learning-details-wrapper {
+    height: 100%;
+    overflow-y: auto; /* Ensure scroll if the content overflows */
+    padding: 20px;
+}

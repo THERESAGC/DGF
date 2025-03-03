@@ -2,9 +2,7 @@
  
 .table-container {
   margin: 10px !important; /*Set margin of 20px from each side */
-  width: calc(
-    100% - 40px
-  ) !important; /* Adjust width to account for the margins */
+  width: 100% !important; /* Adjust width to account for the margins */
   margin-top: -5px !important; /* Adjust top margin */
   overflow: hidden !important; /* Prevent scrolling */
   display: flex !important;
@@ -55,7 +53,7 @@
 }
  
 .MuiTab-root {
-  max-width: 102% !important;
+  max-width: 100% !important;
   min-width: 20px !important;
   font-size: 14px !important;
   text-transform: none !important;

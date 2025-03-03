@@ -237,7 +237,8 @@ const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => 
       "capdev approved",
       "initiate learning",
       "learning initiated",
-      "clarification requested"
+      "clarification requested",
+      "learning in progress"
     ];
     return inProgressStatuses.includes(status); // Returns true if status is part of "In Progress"
   } else if (selectedStatus === "Completed") {
@@ -293,10 +294,19 @@ useEffect(() => {
 const handleEditClick = (status,requestId) => {
   console.log('Status:', status);
   console.log('Request ID:', requestId);
+
+  if (status === 'Learning In progress') {
+    navigate(`/learning-initiated-details/${requestId}`);
+  }
   if (status === 'Approval Requested') {
     navigate(`/spoc-approval/${requestId}`);
   }
+  if (status === 'spoc approved' || status === 'capdev approved') {
+    navigate(`/initiate-learning-details/${requestId}`);
+  }
 }
+
+
   // Handle message click
   const handleMessageClick = (status, requestId) => {
     console.log('Status:', status);  // Check status value
@@ -327,247 +337,268 @@ const handleEditClick = (status,requestId) => {
 
 
 
-
   return (
-      <TableContainer component={Paper} className="table-container">
-        <div className="filters">
-        <Tabs
-    value={statuses.indexOf(selectedStatus)}
-    onChange={handleStatusChange}
-    variant="scrollable"
-    scrollButtons="auto"
-    ref={tabsRef}
-    TabIndicatorProps={{ style: indicatorStyle }}
-  >
-    {statuses.map(status => {
-      // Calculate the count of filtered data for the current status
-      const count = requests.filter(row => {
-        const statusInRow = row.requeststatus ? row.requeststatus.toLowerCase().trim() : "";
-        if (status === "In Progress") {
-          const inProgressStatuses = [
-            "approval requested",
-            "spoc approved",
-            "capdev approved",
-            "initiate learning",
-            "learning initiated","clarification requested"
-          ];
-          return inProgressStatuses.includes(statusInRow);
-        } else if (status === "Completed") {
-          const completeStatuses = [
-            "completed",
-            "completed with delay",
-            "partially completed"   ];
-          return completeStatuses.includes(statusInRow);
-       
-        } else if (status === "Incomplete") {
-          return statusInRow === "incomplete";
-        } else if (status === "Rejected") {
-          return statusInRow === "rejected";
-        } else if (status === "Suspended") {
-          return statusInRow === "learning suspended";
-        }
-        return statusInRow === status.toLowerCase().trim();
-      }).length;
-
-      return (
-        <Tab
-          key={status}
-          label={
-            <span className={`tab-label ${selectedStatus === status ? 'selected-tab' : ''}`}>
-              {status}
-              <span className="tab-label-number">
-                {count} {/* Display the count */}
-              </span>
-            </span>
-          }
-        />
-      );
-    })}
-  </Tabs>
-
-  <TextField
-  select
-  value={selectedDays}
-  onChange={handleDaysChange}
-  variant="outlined"
-  size="small"
-  style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px', marginRight: '-10px' }}
-  InputProps={{
-    style: { fontSize: '0.63rem' } // Decreasing the font size here
-  }}
-  MenuProps={{
-    PaperProps: {
-      style: {
-        maxHeight: 300, // Optional: you can limit the max height of the dropdown
-        width: '100px' // You can adjust this to control the width of the dropdown
-      }
-    }
-  }}
+    <TableContainer component={Paper} className="table-container">
+      <div className="filters">
+      <Tabs
+  value={statuses.indexOf(selectedStatus)}
+  onChange={handleStatusChange}
+  variant="scrollable"
+  scrollButtons="auto"
+  ref={tabsRef}
+  TabIndicatorProps={{ style: indicatorStyle }}
 >
-  {daysOptions.map(option => (
-    <MenuItem key={option} value={option} style={{ fontSize: '0.75rem', padding: '5px 10px' }}>
-      {option}
-    </MenuItem>
-  ))}
-</TextField>
-        </div>
-        <Table>
-          <TableHead>
-            <TableRow className="table-head">{console.log('All Requests:', requests)}
-              <TableCell>Req No:</TableCell>
-              <TableCell>Project</TableCell>
-              <TableCell>Learners</TableCell>
-              <TableCell>Objective</TableCell>
-              <TableCell>Tech Stack</TableCell>
-              <TableCell>Requested On</TableCell>
-              <TableCell className="no">Status</TableCell>
-              <TableCell></TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-    {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-      const { text, color } = mapStatusToDisplayText(row.requeststatus); 
-      // const { learnerImages, totalLearners } = learnersData[row.requestid] || { learnerImages: [], totalLearners: 0 }; // Map status to custom text and color
-      return (
-        <TableRow key={index}>
-          <TableCell>#{row.requestid}</TableCell> {/* Assuming requestid is the unique identifier */}
+  {statuses.map(status => {
+    // Calculate the count of filtered data for the current status
+    const count = requests.filter(row => {
+      const statusInRow = row.requeststatus ? row.requeststatus.toLowerCase().trim() : "";
+      if (status === "In Progress") {
+        const inProgressStatuses = [
+          "approval requested",
+          "spoc approved",
+          "capdev approved",
+          "initiate learning",
+          "learning initiated","clarification requested"
+        ];
+        return inProgressStatuses.includes(statusInRow);
+      } else if (status === "Completed") {
+        const completeStatuses = [
+          "completed",
+          "completed with delay",
+          "partially completed"   ];
+        return completeStatuses.includes(statusInRow);
+     
+      } else if (status === "Incomplete") {
+        return statusInRow === "incomplete";
+      } else if (status === "Rejected") {
+        return statusInRow === "rejected";
+      } else if (status === "Suspended") {
+        return statusInRow === "learning suspended";
+      }
+      return statusInRow === status.toLowerCase().trim();
+    }).length;
 
-          {/* Display the project name or new prospect name */}
-          <TableCell  style={{ 
-      
-      wordWrap: "break-word",  // Ensure long words break and wrap
-      whiteSpace: "normal",    // Allow text to wrap
-        textAlign:"justify"      // Adjust the max width of the cell as needed
-    }}>{row.newprospectname || row.project_name}</TableCell>  {/* Passing projectid and newprospectname */}
+    return (
+      <Tab
+        key={status}
+        label={
+          <span className={`tab-label ${selectedStatus === status ? 'selected-tab' : ''}`}>
+            {status}
+            <span className="tab-label-number">
+              {count} {/* Display the count */}
+            </span>
+          </span>
+        }
+      />
+    );
+  })}
+</Tabs>
 
-<TableCell>
-  <Box display="flex" alignItems="center">
-    {(learnersData[row.requestid]?.rawData || []).slice(0, 2).map((learner, i) => {
-      const imageUrl = learner.profile_image ? learner.profile_image : "/path/to/default/avatar.jpg";  // Fallback if no image available
-      return (
-        <Avatar
-          key={i}
-          src={imageUrl}
-          alt={`Learner ${i + 1}`}
-          style={{
-            marginLeft: i === 1 ? -1.5 : 1,
+        <TextField
+          select
+          value={selectedDays}
+          onChange={handleDaysChange}
+          variant="outlined"
+          size="small"
+          style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px', marginRight: '-10px' }}
+          InputProps={{
+            style: { fontSize: '0.63rem' } // Decreasing the font size here
           }}
-        />
-      );
-    })}
-    {(learnersData[row.requestid]?.totalLearners || 0) > 2 && (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        style={{
-          backgroundColor: '#f0f0f0',
-          borderRadius: '50%',
-          width: 20,
-          height: 20,
-        }}
-      >
-        <Typography variant="body2">+{learnersData[row.requestid].totalLearners - 2}</Typography>
-      </Box>
-    )}
-  </Box>
-</TableCell>
-
-
-  <TableCell
-    style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{row.trainingobj_name || "No Objective"}</TableCell>
-          <TableCell  style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{row.techstack_name || "No Tech Stack"}</TableCell>
-          <TableCell  style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{formatDate(row.createddate) || "No Date"}</TableCell>
-
-          <TableCell 
-            style={{ 
-              color: color, 
-              // wordWrap: "break-word",  // Enable word wrapping
-              whiteSpace: "normal",    // Allow text to wrap
-              maxWidth: "150px",       // Adjust the max width of the cell
-            }}
-          >
-            {text}
-          </TableCell> {/* Display the mapped text with color */}
-
-          <TableCell>
-  {!excludedStatuses.includes(row.requeststatus?.toLowerCase()) && (
-    `${row.completedLearners !== undefined && row.completedLearners !== null ? row.completedLearners : 0}/${row.learners !== undefined && row.learners !== null ? row.learners : 0} Completed`
-  )}
-</TableCell>
-          <TableCell>
-    <IconButton onClick={() => handleArrowClick(row.status)}>
-      <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
-    </IconButton>
-
-    {/* Edit icon conditionally rendered based on the role and status */}
-    {/* {role === "requester" && (row.status === "SPOC Approval Awaited") && (
-      <IconButton onClick={() => handleArrowClick("SPOC Approval Awaited")}>
-        <EditIcon style={{ height: "15px" }} />
-      </IconButton>
-    )} */}
-
-    {/* New condition for CapDev and Spoc roles with "SPOC Approval Awaited" status */}
-    {(role === "CapDev" || role === "spoc") && row.requeststatus && row.requeststatus.toLowerCase() === "approval requested" && (
-    <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
-      <EditIcon style={{ height: "15px" }} />
-    </IconButton>
-  )}
-  
-
-    {/* Other conditions */}
-    {(role === "requester" )&& row.requeststatus && row.requeststatus.toLowerCase() ===  "clarification requested" && (
-      <IconButton onClick={() => handleMessageClick(row.requeststatus, row.requestid)}>
-        <Badge
-          badgeContent={"1 new"}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          sx={{
-            '& .MuiBadge-badge': {
-              fontSize: '8px',
-              height: '12px',
-              minWidth: '12px',
-              padding: '0 4px',
-              backgroundColor: '#FFDAB9',
-              color: 'black',
-              border: '1px solid #707070',
-              top: '5px',
-              right: '-5px',
-            },
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 300, // Optional: you can limit the max height of the dropdown
+                width: '100px' // You can adjust this to control the width of the dropdown
+              }
+            }
           }}
         >
-          <ChatBubbleOutlineIcon />
-        </Badge>
-      </IconButton>
-    )}
-  </TableCell>
+          {daysOptions.map(option => (
+            <MenuItem key={option} value={option} style={{ fontSize: '0.75rem', padding: '5px 10px' }}>
+              {option}
+            </MenuItem>
+          ))}
+        </TextField>
+      </div>
+      <Table>
+        <TableHead>
+          <TableRow className="table-head">{console.log('All Requests:', requests)}
+            <TableCell>Req No:</TableCell>
+            <TableCell>Project</TableCell>
+            <TableCell>Learners</TableCell>
+            <TableCell>Objective</TableCell>
+            <TableCell>Tech Stack</TableCell>
+            <TableCell>Requested On</TableCell>
+            <TableCell className="no">Status</TableCell>
+            <TableCell></TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+  {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+    const { text, color } = mapStatusToDisplayText(row.requeststatus);
+    // const { learnerImages, totalLearners } = learnersData[row.requestid] || { learnerImages: [], totalLearners: 0 }; // Map status to custom text and color
+    return (
+      <TableRow key={index}>
+        <TableCell>#{row.requestid}</TableCell> {/* Assuming requestid is the unique identifier */}
+
+        {/* Display the project name or new prospect name */}
+        <TableCell  style={{
+   
+    wordWrap: "break-word",  // Ensure long words break and wrap
+    whiteSpace: "normal",    // Allow text to wrap
+      textAlign:"justify"      // Adjust the max width of the cell as needed
+  }}>{row.newprospectname || row.project_name}</TableCell>  {/* Passing projectid and newprospectname */}
+
+<TableCell>
+<Box display="flex" alignItems="center">
+  {(learnersData[row.requestid]?.rawData || []).slice(0, 2).map((learner, i) => {
+    const imageUrl = learner.profile_image ? learner.profile_image : "/path/to/default/avatar.jpg";  // Fallback if no image available
+    return (
+      <Avatar
+        key={i}
+        src={imageUrl}
+        alt={`Learner ${i + 1}`}
+        style={{
+          marginLeft: i === 1 ? -1.5 : 1,
+        }}
+      />
+    );
+  })}
+  {(learnersData[row.requestid]?.totalLearners || 0) > 2 && (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      style={{
+        backgroundColor: '#f0f0f0',
+        borderRadius: '50%',
+        width: 20,
+        height: 20,
+      }}
+    >
+      <Typography variant="body2">+{learnersData[row.requestid].totalLearners - 2}</Typography>
+    </Box>
+  )}
+</Box>
+</TableCell>
 
 
-        </TableRow>
-      );
-    })}
-  </TableBody>
+<TableCell
+  style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{row.trainingobj_name || "No Objective"}</TableCell>
+        <TableCell  style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{row.techstack_name || "No Tech Stack"}</TableCell>
+        <TableCell  style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{formatDate(row.createddate) || "No Date"}</TableCell>
 
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[5]}
-          component="div"
-          count={filteredData.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          sx={{ display: 'flex', justifyContent: 'flex-start' }}
-        />
-      </TableContainer>
-  );
+        <TableCell
+          style={{
+            color: color,
+            // wordWrap: "break-word",  // Enable word wrapping
+            whiteSpace: "normal",    // Allow text to wrap
+            maxWidth: "150px",       // Adjust the max width of the cell
+          }}
+        >
+          {text}
+        </TableCell> {/* Display the mapped text with color */}
+
+        <TableCell>
+{!excludedStatuses.includes(row.requeststatus?.toLowerCase()) && (
+  `${row.completedLearners !== undefined && row.completedLearners !== null ? row.completedLearners : 0}/${row.learners !== undefined && row.learners !== null ? row.learners : 0} Completed`
+)}
+</TableCell>
+        <TableCell>
+        {(role === "CapDev" || role === "spoc") && row.requeststatus && row.requeststatus.toLowerCase() === "approval requested" && (
+  <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+  </IconButton>
+        )}
+
+{(role === "CapDev") && row.requeststatus && row.requeststatus.toLowerCase() === "spoc approved" && (
+  <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+  </IconButton>
+        )}
+
+        
+{(role === "CapDev") && row.requeststatus && row.requeststatus.toLowerCase() === "capdev approved" && (
+  <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+  </IconButton>
+        )}
+
+{(role === "CapDev") && row.requeststatus && row.requeststatus.toLowerCase() === "learning in progress" && (
+  <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+  </IconButton>
+        )}
+
+  {/* Edit icon conditionally rendered based on the role and status */}
+  {/* {role === "requester" && (row.status === "SPOC Approval Awaited") && (
+    <IconButton onClick={() => handleArrowClick("SPOC Approval Awaited")}>
+      <EditIcon style={{ height: "15px" }} />
+    </IconButton>
+  )} */}
+
+  {/* New condition for CapDev and Spoc roles with "SPOC Approval Awaited" status */}
+  {/* {(role === "CapDev" || role === "spoc") && row.requeststatus && row.requeststatus.toLowerCase() === "approval requested" && (
+  <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+    <EditIcon style={{ height: "15px" }} />
+  </IconButton>
+)} */}
+
+
+  {/* Other conditions */}
+  {(role === "requester" )&& row.requeststatus && row.requeststatus.toLowerCase() ===  "clarification requested" && (
+    <IconButton onClick={() => handleMessageClick(row.requeststatus, row.requestid)}>
+      <Badge
+        badgeContent={"1 new"}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        sx={{
+          '& .MuiBadge-badge': {
+            fontSize: '8px',
+            height: '12px',
+            minWidth: '12px',
+            padding: '0 4px',
+            backgroundColor: '#FFDAB9',
+            color: 'black',
+            border: '1px solid #707070',
+            top: '5px',
+            right: '-5px',
+          },
+        }}
+      >
+        <ChatBubbleOutlineIcon />
+      </Badge>
+    </IconButton>
+  )}
+</TableCell>
+
+
+      </TableRow>
+    );
+  })}
+</TableBody>
+
+      </Table>
+      <TablePagination
+        rowsPerPageOptions={[5]}
+        component="div"
+        count={filteredData.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        sx={{ display: 'flex', justifyContent: 'flex-start' }}
+      />
+    </TableContainer>
+);
 };
 
 RequestTable.propTypes = {
-  roleId: PropTypes.number.isRequired,
-  onStatusCountChange: PropTypes.func.isRequired,
+roleId: PropTypes.number.isRequired,
+onStatusCountChange: PropTypes.func.isRequired,
 };
 
 export default RequestTable;
+

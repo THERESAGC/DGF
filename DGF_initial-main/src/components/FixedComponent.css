@@ -1,0 +1,66 @@
+/* Ensure no extra space at the top */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Prevent scrolling on the page itself */
+  }
+  
+  /* Wrapper for the entire layout */
+  .fixed-layout {
+    display: flex;
+    height: 100vh;  /* Full height */
+    width: 100vw;  /* Full width */
+  }
+  
+  /* Sidebar - Fixed on the left */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 200px; /* Sidebar width */
+    height: 100vh; /* Full height of the viewport */
+    background-color: #CFDCFF; /* Sidebar background color */
+    padding: 20px;
+    z-index: 1; /* Ensures sidebar stays above the content */
+  }
+  
+  /* Main content container (accounts for sidebar width) */
+  .main-container {
+    margin-left: 200px; /* Pushes the content to the right, accounting for the sidebar width */
+    width: calc(100% - 200px); /* Adjust width dynamically */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;  /* Full height */
+  }
+  
+  /* Content wrapper (for the page content) */
+  .content-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;  /* Allows scrolling inside the content area */
+    padding: 10px;
+    box-sizing: border-box;  /* Ensures padding doesn't overflow */
+    /* margin-bottom: 60px;  */
+  }
+  
+  /* Header (sticky at the top inside the main container) */
+  .header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 999;  /* Ensures the header stays above content */
+    padding: 20px;
+  }
+  
+  /* Footer (fixed at the bottom of the viewport) */
+  .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 99999;  /* Ensures footer stays at the bottom */
+    /* padding: 20px; */
+  }
+  
