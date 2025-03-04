@@ -31,6 +31,7 @@ const RequestTable = ({ roleId }) => {
   const [learnersData, setLearnersData] = useState({}); // store learner images and count by request id
   const [sortOrder, setSortOrder] = useState('asc'); // Default to ascending order
   const [filteredRequests, setFilteredRequests] = useState([]);
+  const [completionStatus, setCompletionStatus] = useState({});
  
  
 /*-------------------------------------*/
@@ -62,6 +63,26 @@ const fetchLearnerData = useCallback((requestId) => {
     .catch(error => console.error('Error fetching learner data:', error));
 }, []);
  
+
+
+// Fetch completion data
+const fetchCompletionData = useCallback((requestId) => {
+  fetch(`http://localhost:8000/api/employee-completion-status/${requestId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.length) {
+        const { totalEmployees, completedEmployees } = data[0];
+        setCompletionStatus(prevState => ({
+          ...prevState,
+          [requestId]: { totalEmployees, completedEmployees }
+        }));
+      }
+    })
+    .catch(error => console.error('Error fetching completion data:', error));
+}, []);
+
+
+
 // Convert learner profile image to base64 when raw data changes
 useEffect(() => {
   console.log('Learners Data Before Update:', learnersData);
@@ -266,6 +287,7 @@ useEffect(() => {
   // Fetch learner data for each request ID when requests change
   requests.forEach(request => {
     fetchLearnerData(request.requestid);
+    fetchCompletionData(request.requestid);
   });
 }, [requests]);
  
@@ -295,7 +317,7 @@ useEffect(() => {
       navigate(`/requester-information/${requestId}`)
     }
    
-    if (status == 'Learning In progress'){
+    if (status == 'Learning In Progress'){
       navigate(`/requester-information/${requestId}`)
     }
 
@@ -312,7 +334,7 @@ const handleEditClick = (status,requestId) => {
   console.log('Status:', status);
   console.log('Request ID:', requestId);
  
-  if (status === 'Learning In progress') {
+  if (status === 'Learning In Progress') {
     navigate(`/learning-initiated-details/${requestId}`);
   }
   if (status === 'Approval Requested') {
@@ -524,11 +546,14 @@ const handleEditClick = (status,requestId) => {
 
 
  
-<TableCell>
-{!excludedStatuses.includes(row.requeststatus?.toLowerCase()) && (
-  `${row.completedLearners !== undefined && row.completedLearners !== null ? row.completedLearners : 0}/${row.learners !== undefined && row.learners !== null ? row.learners : 0} Completed`
-)}
+        <TableCell>
+  {completionStatus[row.requestid] && (
+    `${completionStatus[row.requestid].completedEmployees || 0}/${completionStatus[row.requestid].totalEmployees || 0} Completed`
+  )}
 </TableCell>
+ 
+
+
 
 
 <TableCell>Satyabaji Sahu</TableCell>

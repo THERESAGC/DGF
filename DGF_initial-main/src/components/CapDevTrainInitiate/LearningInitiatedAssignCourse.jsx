@@ -178,7 +178,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                       <TableRow key={index}>
                         <TableCell sx={{ paddingRight: "16px" }}>{course.mentor_name}</TableCell>
                         <TableCell sx={{ paddingLeft: "16px" }}>
-                          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 1}}>
                             <Typography variant="body2" sx={{
                               whiteSpace: "nowrap",
                               overflow: "hidden",
@@ -189,7 +189,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                               {course.course_name || "N/A"}
                             </Typography>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Box sx={{ width: "70%", maxWidth: "200px" }}>
+                              <Box sx={{ width: "70%", maxWidth: "100px"}}>
                                 <LinearProgress
                                   variant="determinate"
                                   value={course.progress || 0}

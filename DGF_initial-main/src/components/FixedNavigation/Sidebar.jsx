@@ -68,7 +68,18 @@ const Sidebar = () => {
             onClick={() => handleTabClick(item.text, item.path)}
             style={selectedTab === item.text ? { fontWeight: 'bolder', color: '#000000' } : {}}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
+           <ListItemIcon>
+        <img
+          src={item.icon.props.src}
+          alt={item.icon.props.alt}
+          style={{
+            width: 15,
+            height: 15,
+            paddingLeft: 25,
+            filter: selectedTab === item.text ? 'invert(38%) sepia(60%) saturate(1800%) hue-rotate(350deg) brightness(95%) contrast(100%)' : '', // Adjusted filter for #FA5864
+          }}
+        />
+      </ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItemButton>
         ))}

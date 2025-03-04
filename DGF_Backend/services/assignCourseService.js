@@ -77,7 +77,7 @@ const assignCourse = (assignmentData) => {
                   // Update overall request status in newtrainingrequest to "Learning In progress"
                   const updateRequestQuery = `
                     UPDATE newtrainingrequest
-                    SET requeststatus = 'Learning In progress'
+                    SET requeststatus = 'Learning In Progress'
                     WHERE requestid = ?;
                   `;
 

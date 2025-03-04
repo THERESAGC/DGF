@@ -49,7 +49,7 @@
   font-family: 'Poppins', sans-serif !important;
   border-bottom: 0.2px solid #ccc; /* Border for filter section */
   position: relative;
-  margin-right: 15px;
+  margin-right: 2px;
 }
  
 .MuiTab-root {
@@ -204,7 +204,7 @@
  
   background-color: #FA5864 !important;
   border-radius: 20px !important;
- height: 2.5px !important;
+ height: 2px !important;
 }
 .MuiTableCell-root{
   border-bottom: none !important;

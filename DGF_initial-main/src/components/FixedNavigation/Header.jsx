@@ -105,8 +105,8 @@ const Header = () => {
       <Toolbar>
         {/* Search Bar */}
         <div className="search">
-          <SearchIcon className='icon' style={{ paddingBottom: "20px" }} />
-          <InputBase placeholder="Search courses" className="search-input" style={{ fontSize: 'smaller', marginbottom:" 0",marginleft:" 0",paddingleft: "6px" }} />
+          <SearchIcon className='icon' style={{ marginBottom: "27px",paddingBottom:"3px" }} />
+          <InputBase placeholder="Search courses" className="search-input" style={{ fontSize: 'smaller', marginbottom:" 0",marginLeft:" 0",paddingleft: "6px" }} />
           <IconButton type="submit" aria-label="search"></IconButton>
         </div>
  
@@ -114,7 +114,7 @@ const Header = () => {
         <div style={{ flexGrow: 1 }} />
  
         {/* Notification Icon */}
-        <IconButton color="inherit" style={{ marginRight:'30px' }} onClick={handleNotificationMenuOpen}>
+        <IconButton color="inherit" style={{ marginRight:'30px' , marginBottom:'20px' }} onClick={handleNotificationMenuOpen}>
           <Badge badgeContent={unreadCount}  sx={{
       '& .MuiBadge-badge': {
         backgroundColor: '#FE1F1F',
@@ -128,7 +128,7 @@ const Header = () => {
       },
     }} >
 
-            <img src={NotificationIcon} alt="Notification" style={{ width: '18px', height: '18px', paddingBottom:'15px' }} />
+            <img src={NotificationIcon} alt="Notification" style={{ width: '18px', height: '18px'}} />
           </Badge>
         </IconButton>
  

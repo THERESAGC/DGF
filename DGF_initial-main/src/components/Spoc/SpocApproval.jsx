@@ -406,7 +406,7 @@ const handleSubmit = async () => {
   flexDirection="column"
   gap={2}
   paddingLeft={5}
-  style={{ height: '400px', overflowY: 'auto' }} // Add this line
+  style={{ height: '150px', overflowY: 'auto' }} // Add this line
 >
   {sortedComments.length > 0 ? (
     sortedComments.map((comment) => {
