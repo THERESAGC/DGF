@@ -8,7 +8,7 @@ const styles = {
     // justifyContent: 'center',
     // alignItems: 'flex-start',
     // minHeight: '100vh',
-    padding: '10px 30px',
+    padding: '10px 12px',
     position: 'relative',
     boxSizing: 'border-box',
     // overflowY: 'auto',

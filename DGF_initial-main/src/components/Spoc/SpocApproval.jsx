@@ -181,13 +181,13 @@ const handleSubmit = async () => {
   return (
     <>
       <Box justifyContent="space-between">
-        <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px" }}>
+        <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px", paddingLeft:"34px" }}>
           Approve Learning Request
         </Typography>
-        <Divider style={{ margin: "1rem 0 ", marginLeft: '-30px', marginRight: '-20px' }} />
+        <Divider style={{ margin: "1rem -20px 1rem 0 "}} />
       </Box>
  
-      <Paper elevation={1} className="paper" style={{ height: "100%", width: "85%" }}>
+      <Paper elevation={1} className="paper" style={{ height: "100%", width: "96%" }}>
         <div className="inner-container">
           <Box style={{ padding: "10px", marginTop: "1rem" }}>
             <Grid container spacing={2}>
@@ -447,7 +447,7 @@ const handleSubmit = async () => {
                   >
                     <FormControlLabel
                       value="approve"
-                      control={<Radio />}
+                      control={<Radio color=""/>}
                       label={
                         <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
                           Approve
@@ -456,7 +456,7 @@ const handleSubmit = async () => {
                     />
                     <FormControlLabel
                       value="reject"
-                      control={<Radio />}
+                      control={<Radio color=""/>}
                       label={
                         <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
                           Reject
@@ -468,7 +468,7 @@ const handleSubmit = async () => {
                     )}
                     <FormControlLabel
                       value="needClarification"
-                      control={<Radio />}
+                      control={<Radio color=""/>}
                       label={
                         <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
                           Need Clarification

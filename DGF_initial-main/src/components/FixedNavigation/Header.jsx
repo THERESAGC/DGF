@@ -105,7 +105,7 @@ const Header = () => {
       <Toolbar>
         {/* Search Bar */}
         <div className="search">
-          <SearchIcon className='icon' style={{ marginBottom: "27px",paddingBottom:"3px" }} />
+          <SearchIcon className='icon' style={{ marginBottom: "28px",paddingBottom:"3px" }} />
           <InputBase placeholder="Search courses" className="search-input" style={{ fontSize: 'smaller', marginbottom:" 0",marginLeft:" 0",paddingleft: "6px" }} />
           <IconButton type="submit" aria-label="search"></IconButton>
         </div>

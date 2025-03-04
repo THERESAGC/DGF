@@ -3,8 +3,7 @@ import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { useState, useRef, useEffect ,useContext, useCallback} from "react";
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
-import {Avatar, Box,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TablePagination, Tabs, Tab, TextField, MenuItem, Typography } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+import {Avatar, Box,Table, Popover, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TablePagination, Tabs, Tab, TextField, MenuItem, Typography } from "@mui/material";
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import "../Training/RequestTable.css";
 import getRoleType from '../../utils/roleUtils';
@@ -13,8 +12,7 @@ import Badge from '@mui/material/Badge';
 import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
 const statuses = ["In Progress", "Completed", "Incomplete", "Rejected", "Suspended"];
-const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"];
- 
+const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"]; 
  
  
 const RequestTable = ({ roleId }) => {
@@ -32,7 +30,12 @@ const RequestTable = ({ roleId }) => {
   const [sortOrder, setSortOrder] = useState('asc'); // Default to ascending order
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [completionStatus, setCompletionStatus] = useState({});
- 
+  const [assignedToOptions, setAssignedToOptions] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null); // To control popover visibility
+  const [selectedRequestId, setSelectedRequestId] = useState(null); // Track the requestId of the row clicked
+  const [loading, setLoading] = useState(true);
+  const [assignedToData, setAssignedToData] = useState({});
+  const [employeeNames, setEmployeeNames] = useState({});
  
 /*-------------------------------------*/
 const excludedStatuses = [
@@ -278,7 +281,113 @@ const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => 
   }
   return status === selectedStatus.toLowerCase().trim(); // Return the status if it matches the selected one
 });
- 
+
+
+
+useEffect(() => {
+  if (user) {
+    fetch('http://localhost:8000/api/training-requests')
+      .then((response) => response.json())
+      .then((data) => {
+        setRequests(data);
+        const initialAssignedData = data.reduce((acc, request) => {
+          if (request.assignedToId && request.assignedToName) {
+            acc[request.requestid] = {
+              assignedToId: request.assignedToId,
+              assignedToName: request.assignedToName,
+            };
+          }
+          return acc;
+        }, {});
+        setAssignedToData(initialAssignedData);
+
+        fetch('http://localhost:8000/api/emp/getEmpsforCapdev')
+          .then((response) => response.json())
+          .then((empData) => {
+            const formattedData = empData.map((member) => ({
+              value: member.emp_id,
+              label: member.name,
+            }));
+            setAssignedToOptions(formattedData);
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.error('Error fetching employee options:', error);
+            setLoading(false);
+          });
+      })
+      .catch((error) => console.error('Error fetching request data:', error));
+  }
+}, [user]);
+
+// Open the popover when clicking on the table cell
+const handleClick = (event, requestId) => {
+  setSelectedRequestId(requestId);
+  setAnchorEl(event.currentTarget);
+};
+
+// Close the popover
+const handleClose = () => {
+  setAnchorEl(null);
+};
+
+// Update the assigned employee in the backend
+const updateRequestWithAssignedTo = (emp_id, requestid) => {
+  return fetch('http://localhost:8000/api/getemp/updateAssignedTo', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ requestid, emp_id }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('Request updated successfully:', data);
+    })
+    .catch((error) => {
+      console.error('Error updating request:', error);
+    });
+};
+// Handle the selection of employee from the popover
+const handleEmployeeSelect = (employeeId, requestId) => {
+  setAssignedToData((prevData) => ({
+    ...prevData,
+    [requestId]: {
+      assignedToId: employeeId,
+      assignedToName: assignedToOptions.find((opt) => opt.value === employeeId).label,
+    },
+  }));
+
+  handleClose(); // Close the popover after selection
+
+  // Send the updated assigned employee to the backend
+  updateRequestWithAssignedTo(employeeId, requestId).then(() => {
+    // Refetch the data after updating the assignment
+    fetch('http://localhost:8000/api/training-requests')
+      .then((response) => response.json())
+      .then((data) => {
+        setRequests(data);
+        const initialAssignedData = data.reduce((acc, request) => {
+          if (request.assignedToId && request.assignedToName) {
+            acc[request.requestid] = {
+              assignedToId: request.assignedToId,
+              assignedToName: request.assignedToName,
+            };
+          }
+          return acc;
+        }, {});
+        setAssignedToData(initialAssignedData);
+      })
+      .catch((error) => console.error('Error fetching request data:', error));
+  });
+};
+
+useEffect(() => {
+  // This effect will run whenever the `requests` state changes
+  console.log('Requests state updated:', requests);
+}, [requests]);
+
+
  
 console.log('Filtered Data for Status:', selectedStatus, filteredData.length);
 console.log('Filtered Data:', filteredData); // Check what's inside filteredData
@@ -556,7 +665,44 @@ const handleEditClick = (status,requestId) => {
 
 
 
-<TableCell>Satyabaji Sahu</TableCell>
+<TableCell onClick={(event) => handleClick(event, row.requestid)}>
+                  {row.assignedto_name}
+                </TableCell>
+                <Popover
+      open={Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      PaperProps={{
+        style: { width: '112px', boxShadow: 'none',  border: '1px solid #ccc',
+         padding: '0px', marginTop: '-10px',  }
+      }}
+    >
+      <div style={{ padding: '10px' }}>
+        {assignedToOptions.map((option) => (
+          <div
+            key={option.value}
+            style={{
+              // padding: '8px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              borderBottom: '1px solid #ccc',
+ 
+            }}
+            onClick={() => handleEmployeeSelect(option.value,selectedRequestId)}
+          >
+            {option.label}
+          </div>
+        ))}
+      </div>
+    </Popover>
 
 
 
@@ -663,4 +809,3 @@ onStatusCountChange: PropTypes.func.isRequired,
 };
  
 export default RequestTable;
- 

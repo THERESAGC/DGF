@@ -1365,6 +1365,7 @@ emp_id: emp.id,
     width: "160px",
     '& input': {
       fontSize: '14px',
+      color:'#787878'
     }
   }}
 />

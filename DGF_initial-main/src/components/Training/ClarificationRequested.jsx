@@ -481,15 +481,15 @@ const hasChanges = (employee, dbEmployee) => {
  
   }}
 >
-  <IconButton style={{ color: "black", marginRight: "1rem"  , marginBottom: "-1rem",}}>
+  <IconButton style={{ color: "black", marginRight: "1rem"  , marginBottom: "-30px",}}>
     <ArrowBackIosNewIcon />
-  </IconButton></Box  ><Box style={{marginLeft: "-34rem"}}>  
+  </IconButton></Box  ><Box style={{marginRight: "87%"}}>  
   <Typography
     variant="h5"
     gutterBottom
     className="mainHeading"
   
-    style={{ fontWeight: "600", fontSize: "14px"}}
+    style={{ margin:"1rem -38px 1 rem -24px"}}
   >
     Learning Request
   </Typography>
@@ -692,7 +692,7 @@ const hasChanges = (employee, dbEmployee) => {
 </Grid>
   {/* {console.log(formData.employees.length) } */}
   {formData.showTable && formData.employees.length > 0 ? (
-  <Grid item size={12}>
+  <Grid item size={12} style={{marginTop:"15px"}}>
     <TableContainer component={Paper} className="tableContainer">
       <Table size="small">
         <TableHead className="head">
@@ -721,6 +721,12 @@ const hasChanges = (employee, dbEmployee) => {
                   value={employee.availableFrom ? employee.availableFrom.split("T")[0] : ""}
                   onChange={(e) => updateEmployee(employee.emp_id, "availableFrom", e.target.value)}
                   size="small"
+                  sx={{
+                    '& input': {
+                     fontSize: '14px',
+                     color: '#787878',
+                   }
+                  }}
                 />
               </TableCell>
               <TableCell>
@@ -728,6 +734,8 @@ const hasChanges = (employee, dbEmployee) => {
                   value={employee.bandwidth || ""}
                   onChange={(e) => updateEmployee(employee.emp_id, "bandwidth", e.target.value)}
                   size="small"
+                  sx={{ fontSize: '14px',
+                    color: '#787878'}}
                 >
                   <MenuItem value="">Select</MenuItem>
                   <MenuItem value="2 Hours">2 Hours</MenuItem>
@@ -742,8 +750,8 @@ const hasChanges = (employee, dbEmployee) => {
   value={employee.weekend === 1 ? "Yes" : "No"}
   onChange={(e) => updateEmployee(employee.emp_id, "weekend", e.target.value === "Yes" ? 1 : 0)}
 >
-  <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-  <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+  <FormControlLabel value="Yes" control={<Radio size="small" color='' />} label="Yes" />
+  <FormControlLabel value="No" control={<Radio size="small" color=''/>} label="No" />
 </RadioGroup>
               </TableCell>
               <TableCell>

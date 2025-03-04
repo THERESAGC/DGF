@@ -99,10 +99,10 @@ useEffect(() => {
   return (
     <>
       <Box justifyContent="space-between" >
-        <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px",paddingLeft: "80px"}}>
+        <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px",paddingLeft: "32px"}}>
           Learning Details
         </Typography>
-        <Divider style={{ margin: "1rem 0 ",width:"95%", marginLeft: '30px', marginRight: '-20px',color:"red"}} />
+        <Divider style={{ margin: "1rem 5px 1rem 2px ",width:"101%"}} />
       </Box>
  
       <Paper elevation={1} className="paper" style={{ height: "100%", width: "95%" }}>

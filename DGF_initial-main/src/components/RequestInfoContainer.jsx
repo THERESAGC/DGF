@@ -6,11 +6,12 @@ const RequestInfoContainer = () => {
   const styles = {
     newSpocContainer: {
       minHeight: '100vh',
-      padding: '10px 30px',
+      padding: '10px 15px',
       boxSizing: 'border-box',
       maxHeight: '100vh',
       maxWidth: '100%',
       position: 'relative',
+      marginLeft: '-16px'
     }
   };
  

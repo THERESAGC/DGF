@@ -119,4 +119,12 @@ padding: auto;
     box-shadow: none;
   }
  
- 
+  .ql-formats{
+    svg
+    {path, line
+      {stroke:#9EA0A3 !important;}
+    rect{
+      fill:#9EA0A3 !important;
+    }  
+    }
+  }

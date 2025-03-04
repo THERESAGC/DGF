@@ -40,7 +40,9 @@ const getAssignedCoursesRoutes = require('./routes/getassignedCoursesRoutes');
 const courseStatusRoutes = require('./routes/courseStatusRoutes');
 const learnerRoutes = require('./routes/learnerRoutes'); // Add this line
 const orgLevelLearnerRoutes = require('./routes/orgLevelLearnerRoutes'); // Add this line
-const getEmpLearningCompletionRoutes = require('./routes/getEmpLearningCompletionRoutes')
+const getEmpLearningCompletionRoutes = require('./routes/getEmpLearningCompletionRoutes');
+const getEmpsforCapdev = require('./routes/getEmployeesBasedOnRoleRoutes');
+const getsetEmpBasedOnIdRoutes = require('./routes/getsetEmpBasedOnIdRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -143,6 +145,12 @@ app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); //
 
 // Learner routes
 app.use('/api/learners', learnerRoutes); // Add this line
+
+//Get Cpadev employees
+app.use('/api/emp',getEmpsforCapdev );
+ 
+//getempbyid and setassignedto routes
+app.use('/api/getemp', getsetEmpBasedOnIdRoutes);
  
 //orglevellearner
 app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line

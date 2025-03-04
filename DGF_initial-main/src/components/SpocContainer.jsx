@@ -6,7 +6,7 @@ const SpocContainer = () => {
   const styles = {
     newSpocContainer: {
       minHeight: '100vh',
-      padding: '10px 30px',
+      padding: '10px 42px 0 0',
       boxSizing: 'border-box',
       // marginLeft: '240px',
       maxHeight: '100vh',
