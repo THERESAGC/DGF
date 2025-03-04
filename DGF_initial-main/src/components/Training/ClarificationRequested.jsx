@@ -481,7 +481,7 @@ const hasChanges = (employee, dbEmployee) => {
  
   }}
 >
-  <IconButton style={{ color: "black", marginRight: "1rem"  , marginBottom: "-30px",}}>
+  <IconButton style={{ color: "black", marginRight: "1rem"  ,marginBottom:"-17px", marginLeft: "-33px",}}>
     <ArrowBackIosNewIcon />
   </IconButton></Box  ><Box style={{marginRight: "87%"}}>  
   <Typography
@@ -496,7 +496,7 @@ const hasChanges = (employee, dbEmployee) => {
 </Box>
       </Box>
       <Divider
-        style={{ margin: "1rem 0 ", marginLeft: "-30px", marginRight: "-40px" }}
+        style={{ margin: "1rem -36px 1rem -24px" }}
       />
       <Paper elevation={1} className="paper" style={{ height: "100%", width: "100%",marginLeft:"-1.5rem" }}>
         <div className="inner-container">
