@@ -3,6 +3,6 @@ const { getOrgLevelLearnerDataController } = require('../controllers/orgLevelLea
 
 const router = express.Router();
 
-router.get('/orgLevelLearnerData', getOrgLevelLearnerDataController);
+router.get('/getOrgLevelLearnerData/:emp_id', getOrgLevelLearnerDataController);
 
 module.exports = router;

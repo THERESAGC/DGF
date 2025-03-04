@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-const getLearnersService = () => {
+const getLearnersService = (emp_id) => {
     return new Promise((resolve, reject) => {
         const query = `
             SELECT 
@@ -32,6 +32,7 @@ const getLearnersService = () => {
             WHERE 
                 newtrainingrequest.requeststatus NOT IN ('rejected', 'completed', 'partially completed')
                 AND newtrainingrequest.org_level = 0
+                AND emp_newtrainingrequested.emp_id = ?
             GROUP BY 
                 emp_newtrainingrequested.emp_id, 
                 emp_newtrainingrequested.requestid, 
@@ -39,11 +40,55 @@ const getLearnersService = () => {
                 emp_newtrainingrequested.createddate;
         `;
 
-        db.execute(query, [], (err, results) => {
+        const totalRequestsQuery = `
+            SELECT COUNT(DISTINCT requestid) AS total_requests
+            FROM emp_newtrainingrequested 
+            WHERE emp_id = ? 
+            AND requestid IN (
+                SELECT requestid 
+                FROM newtrainingrequest 
+                WHERE requeststatus NOT IN ('rejected', 'completed', 'partially completed') 
+                AND org_level = 0
+            );
+        `;
+
+        const totalPrimarySkillsQuery = `
+            SELECT COUNT(primaryskill_id) AS total_primary_skills
+            FROM request_primary_skills 
+            WHERE requestid IN (
+                SELECT requestid 
+                FROM emp_newtrainingrequested 
+                WHERE emp_id = ? 
+                AND requestid IN (
+                    SELECT requestid 
+                    FROM newtrainingrequest 
+                    WHERE requeststatus NOT IN ('rejected', 'completed', 'partially completed') 
+                    AND org_level = 0
+                )
+            );
+        `;
+
+        db.execute(totalRequestsQuery, [emp_id], (err, totalRequestsResults) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(results);
+                db.execute(totalPrimarySkillsQuery, [emp_id], (err, totalPrimarySkillsResults) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        db.execute(query, [emp_id], (err, results) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve({
+                                    total_requests: totalRequestsResults[0].total_requests,
+                                    total_primary_skills: totalPrimarySkillsResults[0].total_primary_skills,
+                                    requests: results
+                                });
+                            }
+                        });
+                    }
+                });
             }
         });
     });
