@@ -35,16 +35,17 @@ const TrainingHeaderBtn = () => {
           ))}
         </Box>
         <Box className="box">
-          <Button
-            variant="contained"
-            color="primary"
-            className="button"
-            onClick={() => navigate('/new-request')}
-            disabled={user.role_id === 10} // Disable the button if role_id is 10
-          >
-            New Request
-          </Button>
-        </Box>
+  {user.role_id !== 10 && (
+    <Button
+      variant="contained"
+      color="primary"
+      className="button"
+      onClick={() => navigate('/new-request')}
+    >
+      New Request
+    </Button>
+  )}
+</Box>
       </Toolbar>
     </AppBar>
   );
