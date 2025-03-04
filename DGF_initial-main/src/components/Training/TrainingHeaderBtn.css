@@ -24,14 +24,14 @@
     .box {
       display: flex !important;
       align-items: center !important;
-     
+     margin-right: -40px;
 
     }
     
     .typography {
       font-size: 1.5rem;
       font-weight: 500 !important;
-      margin-right: 25px !important;
+      margin-right: 6px !important;
       padding: 5px 10px !important;
       border-radius: 5px !important;
       cursor: pointer !important;
@@ -46,7 +46,7 @@
       /* color: white !important; */
       color: #0056b3 !important;
       border-radius: 20px !important;
-      margin-right: 25px !important;
+      /* margin-right: 25px !important; */
       cursor: pointer !important;
       
     }
@@ -64,7 +64,7 @@
       left: 55px;
       width: 30%; /* Adjust the length of the underline (e.g., 50% of the text width) */
       height: 2px; /* Set the thickness of the underline */
-      background-color: red; /* Set the color of the underline */
+      background-color: #FA5864; /* Set the color of the underline */
       border-radius: 20px; /* Adjust the radius of the underline */
     }
     

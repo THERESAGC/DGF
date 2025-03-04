@@ -290,6 +290,19 @@ useEffect(() => {
     if (status === "clarification requested") {
       navigate(`/requester-information/${requestId}`);
     }
+
+    if (status == 'Approval Requested'){
+      navigate(`/requester-information/${requestId}`)
+    }
+   
+    if (status == 'Learning In progress'){
+      navigate(`/requester-information/${requestId}`)
+    }
+
+    if (status == 'Completed'){
+      navigate(`/requester-information/${requestId}`)
+    }
+
     // if (status === 'Approval Requested') {
     //   navigate(`/spoc-approval`);
     // }
@@ -311,6 +324,7 @@ const handleEditClick = (status,requestId) => {
   if (status == 'clarification requested'){
     navigate(`/requester-information/${requestId}`)
   }
+ 
 }
  
  
@@ -407,7 +421,7 @@ const handleEditClick = (status,requestId) => {
           onChange={handleDaysChange}
           variant="outlined"
           size="small"
-          style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px', marginRight: '-10px' }}
+          style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px' }}
           InputProps={{
             style: { fontSize: '0.63rem' } // Decreasing the font size here
           }}
@@ -438,6 +452,7 @@ const handleEditClick = (status,requestId) => {
             <TableCell>Requested On</TableCell>
             <TableCell className="no">Status</TableCell>
             <TableCell></TableCell>
+            <TableCell>Assigned To</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -506,12 +521,20 @@ const handleEditClick = (status,requestId) => {
         >
           {text}
         </TableCell> {/* Display the mapped text with color */}
+
+
  
-        <TableCell>
+<TableCell>
 {!excludedStatuses.includes(row.requeststatus?.toLowerCase()) && (
   `${row.completedLearners !== undefined && row.completedLearners !== null ? row.completedLearners : 0}/${row.learners !== undefined && row.learners !== null ? row.learners : 0} Completed`
 )}
 </TableCell>
+
+
+<TableCell>Satyabaji Sahu</TableCell>
+
+
+
         <TableCell>
         {(role === "CapDev" || role === "spoc") && row.requeststatus && row.requeststatus.toLowerCase() === "approval requested" && (
   <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>

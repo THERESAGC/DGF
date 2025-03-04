@@ -38,6 +38,8 @@ const courseTypeRoutes = require('./routes/courseTypeRoutes');
 const assignCourseRoutes = require('./routes/assignCourseRoutes');
 const getAssignedCoursesRoutes = require('./routes/getassignedCoursesRoutes');
 const courseStatusRoutes = require('./routes/courseStatusRoutes');
+const learnerRoutes = require('./routes/learnerRoutes'); // Add this line
+const orgLevelLearnerRoutes = require('./routes/orgLevelLearnerRoutes'); // Add this line
 
 const app = express();
 const server = http.createServer(app);
@@ -137,6 +139,12 @@ app.use('/api/emailSearchWithoutManagerId', emailSearchWithoutManagerIdRoutes); 
 
 // Update training request routes
 app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); // Add this line
+
+// Learner routes
+app.use('/api/learners', learnerRoutes); // Add this line
+ 
+//orglevellearner
+app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
 
 //capdev courses Assign and status update routes
 

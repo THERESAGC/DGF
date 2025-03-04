@@ -1,27 +1,27 @@
-//servces/courseStatusService.js
+//services/courseStatusService.js
 
 const db = require('../config/db');
 
 const updateCourseStatus = async (assignmentId, newStatus) => {
   const allowedStatuses = ['Completed', 'Incomplete', 'Learning Suspended', 'Completed with Delay'];
+  const MIN_MAJORITY_RATIO = 0.5;
 
-   // Validate newStatus
-   if (!allowedStatuses.includes(newStatus)) {
-    throw new Error('Invalid status');
+  if (!allowedStatuses.includes(newStatus)) {
+    throw new Error(`Invalid status: ${newStatus}. Allowed values: ${allowedStatuses.join(', ')}`);
   }
-  
+
   let connection;
   try {
     connection = await db.promise().getConnection();
     await connection.beginTransaction();
 
-    // 1. Update course status
+    // Update course status
     const [updateResult] = await connection.query(
       `UPDATE assigned_courses SET status = ? WHERE assignment_id = ?`,
       [newStatus, assignmentId]
     );
 
-    // 2. Get request context
+    // Get request context
     const [assignment] = await connection.query(
       `SELECT employee_id, requestid FROM assigned_courses WHERE assignment_id = ?`,
       [assignmentId]
@@ -29,7 +29,7 @@ const updateCourseStatus = async (assignmentId, newStatus) => {
     
     const { employee_id, requestid } = assignment[0];
 
-    // 3. Update employee status if needed
+    // Update employee status if all courses match
     const [courses] = await connection.query(
       `SELECT status FROM assigned_courses 
        WHERE employee_id = ? AND requestid = ?`,
@@ -45,10 +45,10 @@ const updateCourseStatus = async (assignmentId, newStatus) => {
       );
     }
 
-    // 4. Update request status if needed
+    // Calculate request status
     const [employees] = await connection.query(
       `SELECT status FROM emp_newtrainingrequested 
-       WHERE requestid = ? AND status IS NOT NULL`,
+       WHERE requestid = ?`,
       [requestid]
     );
 
@@ -57,20 +57,30 @@ const updateCourseStatus = async (assignmentId, newStatus) => {
       return acc;
     }, {});
 
-    let majorityStatus;
+    let majorityStatus = null;
     const totalEmployees = employees.length;
+    
+    // Find first status with strict majority
     for (const [status, count] of Object.entries(statusCounts)) {
-      if (count > totalEmployees / 2) {
+      if (count > totalEmployees * MIN_MAJORITY_RATIO) {
         majorityStatus = status;
         break;
       }
     }
 
+    // Update request status
     if (majorityStatus) {
       await connection.query(
         `UPDATE newtrainingrequest SET requeststatus = ? 
          WHERE requestid = ?`,
         [majorityStatus, requestid]
+      );
+    } else {
+      // Reset to Learning In Progress if no majority
+      await connection.query(
+        `UPDATE newtrainingrequest SET requeststatus = 'Learning In Progress' 
+         WHERE requestid = ?`,
+        [requestid]
       );
     }
 
@@ -81,7 +91,7 @@ const updateCourseStatus = async (assignmentId, newStatus) => {
       updated: {
         course: updateResult.affectedRows,
         employee: allSameStatus ? 1 : 0,
-        request: majorityStatus ? 1 : 0
+        request: 1 // Always update request status
       }
     };
   } catch (error) {

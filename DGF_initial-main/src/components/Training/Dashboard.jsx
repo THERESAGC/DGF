@@ -15,7 +15,7 @@ const Dashboard = ({ roleId }) => {
     needclarification: 0,
     completed: 0,
     completedwithdelay: 0,
-    partiallycompleted: 0,
+    // partiallycompleted: 0,
     incomplete: 0,
     rejected: 0,
     learningsuspended: 0,
@@ -47,7 +47,7 @@ const Dashboard = ({ roleId }) => {
       needclarification: 0,
       completed: 0,
       completedwithdelay: 0,
-      partiallycompleted: 0,
+      // partiallycompleted: 0,
       incomplete: 0,
       rejected: 0,
       learningsuspended: 0,
@@ -65,9 +65,11 @@ const Dashboard = ({ roleId }) => {
         counts.completed++;
       } else if (status === "completed with delay") {
         counts.completedwithdelay++;
-      } else if (status === "partially completed") {
-        counts.partiallycompleted++;
-      } else if (status === "incomplete") {
+      } 
+      // else if (status === "partially completed") {
+      //   counts.partiallycompleted++;
+      // } 
+      else if (status === "incomplete") {
         counts.incomplete++;
       } else if (status === "rejected") {
         counts.rejected++;
@@ -82,17 +84,17 @@ const Dashboard = ({ roleId }) => {
   }, [requests]);
  
   const requestInProgress = {
-    labels: ["SPOC Approval Awaiting", "Preparing Plan", "Learning In Progress", "Clarification Awaited"],
+    labels: ["SPOC Approval Awaited", "Preparing Plan", "Learning In Progress", "Clarification Awaited"],
     values: [statusCounts.approvalrequested, statusCounts.preparinglearningplan, statusCounts.learninginitiated, statusCounts.needclarification],
     colors: ["#003896", "#088EE7", "#2BB381", "#E25252"],
     hoverColors: ["#66BB6A", "#FFD54F", "#29B6F6", "#66BB6A"]
   };
  
   const completedRequests = {
-    labels: ["Completed", "Completed with Delay", "Partially Completed"],
-    values: [statusCounts.completed, statusCounts.completedwithdelay, statusCounts.partiallycompleted],
-    colors: ["#003896", "#2BB381", "#E25252"],
-    hoverColors: ["#66BB6A", "#FF7043", "#FFA726"]
+    labels: ["Completed", "Completed with Delay"],
+    values: [statusCounts.completed, statusCounts.completedwithdelay],
+    colors: ["#003896", "#2BB381"],
+    hoverColors: ["#66BB6A", "#FF7043"]
   };
  
   const incompleteRequests = {
@@ -136,11 +138,11 @@ const Dashboard = ({ roleId }) => {
         <Grid item xs={12} md={6} style={styles.gridcotnainer}>
           <GraphComponent
             className="graph-component"
-            title="Requests in Progress"
+            title="In Progress"
             data={requestInProgress}
             details={[
-              `SPOC Approval<br />Awaiting: ${statusCounts.approvalrequested}`,
-              `Preparing <br /> Learning Plan: ${statusCounts.preparinglearningplan}`,
+              `SPOC Approval<br />Awaited: ${statusCounts.approvalrequested}`,
+              `Learning Plan<br />  Awaited: ${statusCounts.preparinglearningplan}`,
               `Learning<br /> In Progress: ${statusCounts.learninginitiated}`,
               `<span className='clarification-awaiting'>Clarification <br />Awaited: ${statusCounts.needclarification}</span>`
             ]}
@@ -148,12 +150,12 @@ const Dashboard = ({ roleId }) => {
         </Grid>
         <Grid item xs={12} md={6} style={styles.gridcotnainer}>
           <GraphComponent
-            title="Completed Requests"
+            title="Completed "
             data={completedRequests}
             details={[
               `Completed: ${statusCounts.completed}`,
               `Completed <br />with Delay: ${statusCounts.completedwithdelay}`,
-              `Partially <br />Completed: ${statusCounts.partiallycompleted}`
+              // `Partially <br />Completed: ${statusCounts.partiallycompleted}`
             ]}
           />
         </Grid>
@@ -161,14 +163,14 @@ const Dashboard = ({ roleId }) => {
         {/* Second Row: Incomplete Requests and Requests on Hold */}
         <Grid item xs={12} md={6} style={styles.gridcotnainer}>
           <GraphComponent
-            title="Incomplete Requests"
+            title="Incomplete "
             data={incompleteRequests}
             details={[`Incomplete: ${statusCounts.incomplete}`]}
           />
         </Grid>
         <Grid item xs={12} md={6} style={styles.gridcotnainer}>
           <GraphComponent
-            title="Requests on Hold"
+            title="Suspended "
             data={requestsOnHold}
             details={[
               `Rejected <br />Requests: ${statusCounts.rejected}`,

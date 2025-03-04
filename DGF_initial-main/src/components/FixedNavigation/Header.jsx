@@ -7,6 +7,9 @@ import './Header.css';
 import { toPascalCase } from '../../utils/stringUtils';
 import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import axios from 'axios';
+
+import NotificationIcon from '../../assets/Notification-icon.svg';
+import ArrowDownIcon from '../../assets/arrow-down.svg';
  
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -124,7 +127,8 @@ const Header = () => {
         borderRadius: '50%',
       },
     }} >
-            <img src="src/assets/Notification-icon.svg" alt="Notification" style={{ width: '18px', height: '18px', paddingBottom:'15px' }} />
+
+            <img src={NotificationIcon} alt="Notification" style={{ width: '18px', height: '18px', paddingBottom:'15px' }} />
           </Badge>
         </IconButton>
  
@@ -213,8 +217,10 @@ const Header = () => {
           <Typography variant="body1" style={{ marginLeft: '10px', color: 'black' }}>
             {user ? toPascalCase(user.name) : 'User'}
           </Typography>
-          <img src="src/assets/arrow-down.svg" alt="Notification" style={{ width: '10px', height: '10px', paddingLeft: "10px", fill: "#707070" }} />
+
+          <img src={ArrowDownIcon} alt="Notification" style={{ width: '10px', height: '10px', paddingLeft: "10px", fill: "#707070" }} />
         </div>
+
  
         {/* Dropdown Menu */}
         <Menu

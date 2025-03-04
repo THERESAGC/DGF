@@ -110,7 +110,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                 </TableHead>
                 <TableBody>
                   <TableRow>
-                    <TableCell>#231</TableCell>
+                    <TableCell>#{row.requestid}</TableCell>
                     <TableCell>Staffing Nation</TableCell>
                     <TableCell>Upselling</TableCell>
                     <TableCell>React</TableCell>

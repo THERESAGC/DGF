@@ -132,14 +132,16 @@
   /* Ensure text is aligned to the left */
 }
 .table-head {
-  background: linear-gradient(to bottom, transparent 90%,  #418cfc 100%) !important; /* Color at the end */
+  background: white !important; /* Color at the end */
   padding: 100px;
   font-weight: 800 !important;
   font-family: 'Poppins', sans-serif !important;
   text-transform: none !important;
-  border-bottom: 0.2px solid rgba(62, 60, 60, 0.692) !important;
+  border-bottom: 2px solid #8fbef8 !important;
 }
- 
+ .table-head th{
+  font-weight: bold !important;
+ }
  
 .MuiTableHead-row {
   width: 100px !important;
@@ -192,14 +194,18 @@
  
 .tab-label-number::after {
   content: ")";
+  margin-left: -3px;
 }
  
-/* .MuiTabs-indicator {
+.MuiTabs-indicator {
  
-  left: 40px !important;
-  width: 8%!important;
+  /* left: 40px !important;
+  width: 8%!important; */
  
-  background-color: red !important;
+  background-color: #FA5864 !important;
   border-radius: 20px !important;
- 
-} */
+ height: 2.5px !important;
+}
+.MuiTableCell-root{
+  border-bottom: none !important;
+}

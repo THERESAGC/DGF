@@ -27,12 +27,13 @@ height: 70px !important;
 .search {
   display: flex;
   align-items: center;
+  width: 30%;
   /* background-color: rgba(230, 224, 245, 0.463) !important; */
- 
+ height: auto;
   box-shadow: none;
   font-family: 'Poppins', sans-serif !important;
   padding: 5px 10px;
- 
+ margin-left: -30px;
 }
  
 .search-input {
@@ -59,4 +60,7 @@ height: 70px !important;
 .btn{
   color: #616161;
 }
- 
+
+.icon{
+  border-bottom: 1px solid rgba(0, 0, 0, 0.16);
+}
