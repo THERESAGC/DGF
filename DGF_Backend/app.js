@@ -40,6 +40,7 @@ const getAssignedCoursesRoutes = require('./routes/getassignedCoursesRoutes');
 const courseStatusRoutes = require('./routes/courseStatusRoutes');
 const learnerRoutes = require('./routes/learnerRoutes'); // Add this line
 const orgLevelLearnerRoutes = require('./routes/orgLevelLearnerRoutes'); // Add this line
+const getEmpLearningCompletionRoutes = require('./routes/getEmpLearningCompletionRoutes')
 
 const app = express();
 const server = http.createServer(app);
@@ -145,6 +146,8 @@ app.use('/api/learners', learnerRoutes); // Add this line
  
 //orglevellearner
 app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
+
+app.use('/api/employee-completion-status', getEmpLearningCompletionRoutes);
 
 //capdev courses Assign and status update routes
 
