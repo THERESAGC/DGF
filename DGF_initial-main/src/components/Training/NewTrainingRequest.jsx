@@ -907,6 +907,32 @@ const NewTrainingRequest = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
+    try {
+      // Make the API request to submit the training request and trigger email sending
+      const response = await fetch("http://localhost:8000/api/email/submitTrainingRequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        setSnackbarMessage("Training request submitted and emails sent successfully.");
+        setSnackbarSeverity("success");
+      } else {
+        const errorData = await response.json();
+        setSnackbarMessage(`Error: ${errorData.error}`);
+        setSnackbarSeverity("error");
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      setSnackbarMessage(`Error: ${error.message}`);
+      setSnackbarSeverity("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
  
   const handleCloseDialog = () => {

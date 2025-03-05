@@ -151,14 +151,14 @@ const handleSubmit = async () => {
     alert("Comment text is empty!");
     return;
   }
- 
+
   const requestData = {
     requestId: requestDetails?.requestid,
     status: action,
     roleId: roleId,
     approverId: user.emp_id,
   };
- 
+
   const commentdata = {
     requestid: requestDetails?.requestid,
     comment_text: newMessage,
@@ -166,8 +166,9 @@ const handleSubmit = async () => {
     created_by: user.emp_id,
     requestStatus: "Approval Requested",
   };
- 
+
   try {
+    // Step 1: Update the request status
     const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
       method: "POST",
       headers: {
@@ -175,22 +176,20 @@ const handleSubmit = async () => {
       },
       body: JSON.stringify(requestData),
     });
- 
+
     const statusData = await statusResponse.json();
     if (statusResponse.ok) {
       console.log("API call successful:", statusData);
       alert("Status updated successfully!");
     } else {
       console.error("Error in API call:", statusData);
+      console.log(statusData)
       alert("Error updating status.");
+      return; // Exit early if status update fails
     }
-  } catch (error) {
-    console.error("Error updating status:", error);
-    alert("An error occurred while updating status.");
-  }
- 
-  if (action === "needClarification" && newMessage.trim()) {
-    try {
+
+    // Step 2: If status is "Need Clarification" and there is a comment, add the comment
+    if (action === "needClarification" && newMessage.trim()) {
       const commentResponse = await fetch("http://localhost:8000/api/comments/", {
         method: "POST",
         headers: {
@@ -198,16 +197,50 @@ const handleSubmit = async () => {
         },
         body: JSON.stringify(commentdata),
       });
-      console.log(commentResponse);
+
       if (commentResponse.ok) {
         console.log("Comment Added Successfully");
         setNewMessage('');
       } else {
         console.error("Error adding comment:", await commentResponse.json());
       }
-    } catch (err) {
-      console.error("Error adding comment:", err);
     }
+
+    // Step 3: Send an email after updating status and adding a comment if necessary
+    try {
+      const emailResponse = await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          commentdata,
+          action: action, // "approve", "reject", "suspend", or "clarify"
+          requestid: requestDetails?.requestid,
+          requestedby: requestDetails?.requestedby,
+          requestedbyid: "swaroop.bidkar@harbingergroup.com"
+          // requestedbyid: user.email, // Assuming user.email is the requester's email
+          // internalTeamEmail: internalTeamEmail, // Email of the internal team
+          // ccEmail: ccEmail, // CC email (optional)
+        }),
+      });
+
+      const emailData = await emailResponse.json();
+      if (emailResponse.ok) {
+        console.log("Email Sent Successfully");
+        alert("Action completed and email sent.");
+      } else {
+        console.error("Error sending email:", emailData);
+        alert("Error sending email.");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert("An error occurred while sending the email.");
+    }
+
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("An error occurred while updating status.");
   }
 };
  
