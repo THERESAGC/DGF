@@ -2,7 +2,7 @@ import {  useState ,useEffect,useContext} from "react";
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { useNavigate ,useParams } from "react-router-dom";
-import { Paper, Typography, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
+import { Paper, Typography, Menu,MenuItem,Pagination,IconButton, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
 import "./SpocApproval.css";
 import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
@@ -10,6 +10,7 @@ import removeHtmlTags from "../../utils/htmlUtils";
 import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { io } from "socket.io-client";  
 import { ChatContext } from '../context/ChatContext'; // Import ChatContext
+import MoreVertIcon from '@mui/icons-material/MoreVert';
  
 const SpocApproval = ({roleId}) => {
 const [learners, setLearners] = useState([]);
@@ -22,9 +23,12 @@ const [comments, setComments] = useState([]);
 const [userProfiles, setUserProfiles] = useState({});
 const [latestCommentId, setLatestCommentId] = useState(null);
 const [requestDetails, setRequestDetails] = useState(null);
- 
+const itemsPerPage = 5;
+const [page, setPage] = useState(1);
 const [socket, setSocket] = useState(null);
- 
+const [sortedLearners, setSortedLearners] = useState(learners); // State to hold sorted learners
+const [anchorEl, setAnchorEl] = useState(null); // For menu anchor
+
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -46,7 +50,7 @@ useEffect(() => {
 
       setLearners(updatedLearners);
       console.log('Learners Data:', updatedLearners);
-
+      setSortedLearners(updatedLearners); // Initialize sorted learners with fetched learners
       const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
       const commentsdata = await commentsResponse.json();
       setComments(commentsdata);
@@ -88,6 +92,12 @@ useEffect(() => {
   fetchData();
 }, [requestid]);
  
+const totalPages = Math.ceil(learners.length / itemsPerPage);
+const currentItems = learners.slice(
+  (page - 1) * itemsPerPage,
+  page * itemsPerPage
+);
+
 const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
  
 useEffect(() => {
@@ -111,7 +121,31 @@ useEffect(() => {
     socketConnection.disconnect();
   };
 }, []);
+
+const handleClick = (event) => {
+  setAnchorEl(event.currentTarget);
+};
  
+const handleClose = () => {
+  setAnchorEl(null);
+};
+ 
+const handleSort = (order) => {
+ 
+  const sortedData = [...learners].sort((a, b) => {
+    const nameA = a.emp_name.toUpperCase(); // Ensure case-insensitive comparison
+    const nameB = b.emp_name.toUpperCase();
+   
+    if (nameA < nameB) return order === 'asc' ? -1 : 1;
+    if (nameA > nameB) return order === 'asc' ? 1 : -1;
+    return 0;
+  });
+ 
+  setSortedLearners(sortedData); // Update the sorted learners state
+  setSortOrder(order); // Store the order (optional for future use)
+  handleClose(); // Close the menu after sorting
+};
+
 const handleSubmit = async () => {
   if (action === "Need Clarification" && !newMessage.trim()) {
     alert("Comment text is empty!");
@@ -335,11 +369,16 @@ const handleSubmit = async () => {
                         >
                           Employee ID
                         </TableCell>
-                        <TableCell
-                          style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" }}
-                        >
-                          Name
-                        </TableCell>
+                        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+  <Box display="flex" justifyContent="space-between" alignItems="center">
+    <Typography style={{ flex: 1, textAlign: 'center',fontWeight: "550" }}>
+      Name
+    </Typography>
+    <IconButton onClick={handleClick} size="small">
+      <MoreVertIcon />
+    </IconButton>
+  </Box>
+</TableCell>
                         <TableCell
                           style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" }}
                         >
@@ -359,8 +398,8 @@ const handleSubmit = async () => {
                     </TableHead>
                   )}
                 <TableBody>
-  {learners.length > 0 ? (
-    learners.map((learner) => (
+  {sortedLearners.length > 0 ? (
+    sortedLearners.map((learner) => (
       <TableRow key={learner.emp_id}>
         <TableCell style={{ padding: "8px", fontSize: "12px" }}>
           {learner.emp_id}
@@ -391,7 +430,52 @@ const handleSubmit = async () => {
   )}
 </TableBody>
                 </Table>
+
+                {/* Menu for sorting */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+      >
+        <MenuItem onClick={() => handleSort('asc')} sx={{ fontSize: '12px'  }}>Sort Ascending</MenuItem>
+        <MenuItem onClick={() => handleSort('desc')}sx={{ fontSize: '12px' }}> Sort Descending</MenuItem>
+      </Menu>
+
               </TableContainer>
+
+
+              <Box sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mt: 2,
+                          alignItems: "center"
+                        }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Showing {currentItems.length} of {learners.length} records
+                          </Typography>
+                          <Pagination
+                            count={totalPages}
+                            page={page}
+                            onChange={(e, value) => setPage(value)}
+                            shape="rounded"
+                            color="primary"
+                            sx={{
+                              '& .MuiPaginationItem-root.Mui-selected': {
+                                color: 'red', // Change text color for selected page
+                                fontWeight: 'bold', // Optional: Change font weight,
+                                backgroundColor: 'transparent', // Optional: Remove background color
+                              },
+                              '& .MuiPaginationItem-root': {
+                                margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
+                              },
+                            }}
+                          />
+                        </Box>
+
               <Box
                 style={{
                   backgroundColor: "#F8FBFF",

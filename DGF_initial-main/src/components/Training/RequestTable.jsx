@@ -3,7 +3,7 @@ import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { useState, useRef, useEffect ,useContext, useCallback} from "react";
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
-import {Avatar, Box,Table, Popover, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TablePagination, Tabs, Tab, TextField, MenuItem, Typography } from "@mui/material";
+import {Avatar, Box,Table, Popover, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Pagination, Tabs, Tab, TextField, MenuItem, Typography } from "@mui/material";
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import "../Training/RequestTable.css";
 import getRoleType from '../../utils/roleUtils';
@@ -17,7 +17,7 @@ const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"];
  
 const RequestTable = ({ roleId }) => {
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
+
   const [selectedStatus, setSelectedStatus] = useState("In Progress");
   const [selectedDays, setSelectedDays] = useState("Last 30 days");
   const rowsPerPage = 5;
@@ -36,7 +36,9 @@ const RequestTable = ({ roleId }) => {
   const [loading, setLoading] = useState(true);
   const [assignedToData, setAssignedToData] = useState({});
   const [employeeNames, setEmployeeNames] = useState({});
+  const [page, setPage] = useState(1);
  
+  const [Datafiltered, setFilteredData] = useState([]);
 /*-------------------------------------*/
 const excludedStatuses = [
   "rejected",
@@ -121,10 +123,6 @@ useEffect(() => {
   }
 }, [learnersData]);
  
-  // Handle pagination
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
  
   // Handle status tab change
   const handleStatusChange = (event, newValue) => {
@@ -282,7 +280,60 @@ const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => 
   return status === selectedStatus.toLowerCase().trim(); // Return the status if it matches the selected one
 });
 
-
+    // Function to filter data based on selected status
+    useEffect(() => {
+      // Apply filtering based on selectedStatus (e.g., "In Progress", etc.)
+      const filtered = requests.filter((row) => {
+        const status = row.requeststatus ? row.requeststatus.toLowerCase().trim() : "";
+        if (selectedStatus === "In Progress") {
+          const inProgressStatuses = [
+            "approval requested",
+            "spoc approved",
+            "capdev approved",
+            "initiate learning",
+            "learning initiated",
+            "clarification requested"
+          ];
+          return inProgressStatuses.includes(status);
+        } else if (selectedStatus === "Completed") {
+          return ["completed", "completed with delay"].includes(status);
+        }else if (selectedStatus === "Incomplete") {
+          return status === "incomplete"; // Filter for "incomplete"
+        } else if (selectedStatus === "Rejected") {
+          return status === "rejected"; // Filter for "rejected"
+        } else if (selectedStatus === "Suspended") {
+          return status === "learning suspended"; // Filter for "learning suspended"
+        }
+        return status === selectedStatus.toLowerCase().trim();
+      });
+      setFilteredData(filtered); // Set filtered data
+      setPage(1);
+    }, [requests, selectedStatus]);
+ 
+ 
+      // Adjust page if filtered data length changes
+  useEffect(() => {
+    if (filteredData.length === 0 || (page - 1) * rowsPerPage >= filteredData.length) {
+      setPage(1); // Reset to page 1 if there are no results or current page exceeds data
+    }
+  }, [filteredData, page]);
+ 
+    // Calculate total pages based on filtered data
+    const totalPages = Math.ceil(Datafiltered.length / rowsPerPage);
+ 
+    // Ensure that page does not exceed totalPages
+    useEffect(() => {
+      if (page > totalPages) {
+        setPage(totalPages);
+      }
+    }, [totalPages, page]);
+ 
+    // Pagination Logic
+    const currentItems = Datafiltered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+ 
+    const handlePageChange = (e, value) => {
+      setPage(value);
+    };
 
 useEffect(() => {
   if (user) {
@@ -588,10 +639,10 @@ const handleEditClick = (status,requestId) => {
           </TableRow>
         </TableHead>
         <TableBody>
-  {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-    const { text, color } = mapStatusToDisplayText(row.requeststatus);
-    // const { learnerImages, totalLearners } = learnersData[row.requestid] || { learnerImages: [], totalLearners: 0 }; // Map status to custom text and color
-    return (
+        {filteredData.length > 0 ? (
+              currentItems.map((row, index) => {
+        const { text, color } = mapStatusToDisplayText(row.requeststatus);
+        return (
       <TableRow key={index}>
         <TableCell>#{row.requestid}</TableCell> {/* Assuming requestid is the unique identifier */}
  
@@ -665,9 +716,15 @@ const handleEditClick = (status,requestId) => {
 
 
 
-<TableCell onClick={(event) => handleClick(event, row.requestid)}>
-                  {row.assignedto_name}
-                </TableCell>
+{(row.requeststatus && ["spoc approved", "capdev approved", "learning initiated", "completed", "incomplete", "completed with delay"].includes(row.requeststatus.toLowerCase())) ? (
+  <TableCell onClick={(event) => handleClick(event, row.requestid)}>
+    {row.assignedto_name}
+  </TableCell>
+) : (
+  <TableCell></TableCell> // Placeholder cell to maintain column alignment
+)}
+
+{(row.requeststatus && ["spoc approved", "capdev approved", "initiate learning", "learning initiated", "learning in progress"].includes(row.requeststatus.toLowerCase())) && (
                 <Popover
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
@@ -703,10 +760,11 @@ const handleEditClick = (status,requestId) => {
         ))}
       </div>
     </Popover>
-
-
-
+)}
         <TableCell>
+
+
+
         {(role === "CapDev" || role === "spoc") && row.requeststatus && row.requeststatus.toLowerCase() === "approval requested" && (
   <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
     <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
@@ -784,22 +842,39 @@ const handleEditClick = (status,requestId) => {
 </TableCell>
  
  
-      </TableRow>
-    );
-  })}
+      </TableRow>)
+              }) 
+            ) : (
+                <TableRow>
+                  <TableCell colSpan={5} style={{ textAlign: 'center' }}>No data available</TableCell>
+                </TableRow>
+              )}
 </TableBody>
  
       </Table>
-      <TablePagination
-        rowsPerPageOptions={[5]}
-        component="div"
-        count={filteredData.length}
-        rowsPerPage={rowsPerPage}
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2, alignItems: "center" }}>
+      <Typography variant="body2" color="text.secondary">
+        Showing {currentItems.length} of {Datafiltered.length} records
+      </Typography>
+      <Pagination
+        count={totalPages}
         page={page}
-        onPageChange={handleChangePage}
-        sx={{ display: 'flex', justifyContent: 'flex-start' }}
+        onChange={handlePageChange}
+        shape="rounded"
+        color="primary"
+        sx={{
+          '& .MuiPaginationItem-root.Mui-selected': {
+            color: 'red', // Change text color for selected page
+            fontWeight: 'bold', // Optional: Change font weight,
+            backgroundColor: 'transparent', // Optional: Remove background color
+          },
+          '& .MuiPaginationItem-root': {
+            margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
+          },
+        }}
       />
-    </TableContainer>
+    </Box>
+</TableContainer>
 );
 };
  

@@ -1,7 +1,7 @@
 // components/CapDevInitiateLearningAssignCourse.jsx
 import { useState, useEffect } from "react";
-import { 
-  Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, 
+import {
+  Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, Paper, Checkbox, Avatar, IconButton, Pagination, PaginationItem,
   CircularProgress
 } from "@mui/material";
@@ -53,20 +53,23 @@ const ExpandedSection = styled(Box)(({ theme }) => ({
  
 function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse }) {
   const rowBackgroundColor = isExpanded ? "#F1F2FD" : "white";
+  const hasActiveLearning = row.total_requests === 1 || row.total_requests === 2;
   
   return (
     <>
-      <TableRow sx={{ 
-        "& > *": { borderBottom: "none" }, 
-        backgroundColor: rowBackgroundColor 
+      <TableRow sx={{
+        "& > *": { borderBottom: "none" },
+        backgroundColor: rowBackgroundColor
       }}>
         <TableCell padding="checkbox">
-          <IconButton onClick={() => onToggleExpand(row.emp_id)}>
-            {isExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </IconButton>
+          {hasActiveLearning && (
+            <IconButton onClick={() => onToggleExpand(row.emp_id)}>
+              {isExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+            </IconButton>
+          )}
         </TableCell>
         <TableCell padding="checkbox">
-          <Checkbox 
+          <Checkbox
             checked={isSelected}
             onChange={onSelect}
             color="primary"
@@ -75,8 +78,19 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Avatar alt={row.emp_name} src={row.profile_image} />
-            <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography>{row.emp_name}</Typography>
+              {hasActiveLearning && (
+                <Typography variant="caption" sx={{
+                  backgroundColor: '#FFF3E0',
+                  color: '#EF6C00',
+                  borderRadius: '4px',
+                  padding: '2px 8px',
+                  fontSize: '0.75rem'
+                }}>
+                  {row.total_requests} Learning{row.total_requests !== 1 ? 's' : ''} in Progress
+                </Typography>
+              )}
             </Box>
           </Box>
         </TableCell>
@@ -93,7 +107,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           </HeaderButton>
         </TableCell>
       </TableRow>
-      {isExpanded && (
+      {isExpanded && hasActiveLearning && (
         <TableRow sx={{ backgroundColor: "#F1F2FD" }}>
           <TableCell colSpan={9} padding="0">
             <ExpandedSection>
@@ -109,14 +123,22 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>#{row.requestid}</TableCell>
-                    <TableCell>Staffing Nation</TableCell>
-                    <TableCell>Upselling</TableCell>
-                    <TableCell>React</TableCell>
-                    <TableCell>Jan 20, 2025</TableCell>
-                    <TableCell>Mary Grace</TableCell>
-                  </TableRow>
+                  {row.requests?.map((request, index) => (
+                    <TableRow key={index}>
+                      <TableCell>#{request.requestid}</TableCell>
+                      <TableCell>Staffing Nation</TableCell>
+                      <TableCell>Upselling</TableCell>
+                      <TableCell>{request.tech_stacks}</TableCell>
+                      <TableCell>
+                        {new Date(request.createddate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </TableCell>
+                      <TableCell>Mary Grace</TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </ExpandedSection>
@@ -143,25 +165,42 @@ function CourseTracker() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`
+`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`
         );
         const data = await response.json();
-        const updatedLearners = data.map((learner) => {
-          if (learner.profile_image && learner.profile_image.data) {
-            const base64Image = `data:image/jpeg;base64,${arrayBufferToBase64(
-              learner.profile_image.data
-            )}`;
-            return { ...learner, profile_image: base64Image };
-          }
-          return learner;
-        });
-        setLearners(updatedLearners);
+        
+        const learnersWithDetails = await Promise.all(
+data.map(async (learner) => {
+            try {
+              const detailsResponse = await fetch(
+`http://localhost:8000/api/learners/getLearners/${learner.emp_id}`
+              );
+              const detailsData = await detailsResponse.json();
+              
+              return {
+                ...learner,
+                profile_image: learner.profile_image?.data
+? `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`
+                  : null,
+                requests: detailsData.requests || [],
+                total_requests: detailsData.total_requests || 0,
+                total_primary_skills: detailsData.total_primary_skills || 0,
+              };
+            } catch (error) {
+              console.error(`Error fetching details for ${learner.emp_id}:`, error);
+              return learner;
+            }
+          })
+        );
+ 
+        setLearners(learnersWithDetails);
       } catch (error) {
         console.error("Error fetching learners:", error);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchLearners();
   }, [requestId]);
  
@@ -180,12 +219,12 @@ function CourseTracker() {
   };
  
   return (
-    <Box sx={{ 
-      backgroundColor: "#FFFFFF", 
-      borderRadius: "16px", 
-      padding: 3, 
+    <Box sx={{
+      backgroundColor: "#FFFFFF",
+      borderRadius: "16px",
+      padding: 3,
       boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)",
-      position: 'relative' 
+      position: 'relative'
     }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h6" fontWeight="bold">
@@ -193,7 +232,7 @@ function CourseTracker() {
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
           <HeaderButton>Send Reminder</HeaderButton>
-          <HeaderButton 
+          <HeaderButton
             onClick={() => setShowAssignModal(true)}
             disabled={selectedEmployees.length === 0}
           >
@@ -224,7 +263,7 @@ function CourseTracker() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {learners.map((row) => (
+{learners.map((row) => (
                   <Row
                     key={row.emp_id}
                     row={row}
@@ -275,4 +314,3 @@ function CourseTracker() {
 }
  
 export default CourseTracker;
- 

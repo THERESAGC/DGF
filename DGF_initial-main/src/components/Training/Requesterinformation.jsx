@@ -95,7 +95,6 @@ useEffect(() => {
   setLearners(updatedLearners);
 }, [learners.length]);
 
-
   return (
     <>
       <Box justifyContent="space-between" >

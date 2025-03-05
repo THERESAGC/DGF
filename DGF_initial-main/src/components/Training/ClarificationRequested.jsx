@@ -1,6 +1,6 @@
  
 import React from 'react';
-import { Paper, Typography, Grid, Divider, Box, FormControl, TableCell, TableContainer, Table, TableHead, TableRow, TableBody, Avatar, Button, RadioGroup, FormControlLabel, Radio, TextField, Autocomplete, MenuItem, Select, TablePagination, Snackbar } from "@mui/material";
+import { Paper, Typography, Grid, Divider,Pagination, Box, FormControl, TableCell, TableContainer, Table, TableHead, TableRow, TableBody, Avatar, Button, RadioGroup, FormControlLabel, Radio, TextField, Autocomplete, MenuItem, Select, TablePagination, Snackbar } from "@mui/material";
 import { useState, useEffect ,useContext} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import IconButton from '@mui/material/IconButton'; // Correct import for IconButton
@@ -36,6 +36,9 @@ const ClarificationRequested = ({roleId}) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [previousEmployeesInDB, setpreviousEmployeesInDB] = useState([]);
+  const itemsPerPage = 5;
+  const [page, setPage] = useState(1);
+ 
  
  
   const [formData, setFormData] = useState({
@@ -123,7 +126,14 @@ const ClarificationRequested = ({roleId}) => {
   
     fetchData();
   }, [requestid]);
+
+  const totalPages = Math.ceil(learners.length / itemsPerPage);
+  const currentItems = formData.employees.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
  
+
 const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
  
 useEffect(() => {
@@ -764,6 +774,36 @@ const hasChanges = (employee, dbEmployee) => {
         </TableBody>
       </Table>
     </TableContainer>
+
+    <Box sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              mt: 2,
+                              alignItems: "center"
+                            }}>
+                              <Typography variant="body2" color="text.secondary">
+                                Showing {currentItems.length} of {formData.employees.length} records
+                              </Typography>
+                              <Pagination
+                                count={totalPages}
+                                page={page}
+                                onChange={(e, value) => setPage(value)}
+                                shape="rounded"
+                                color="primary"
+                                sx={{
+                                  '& .MuiPaginationItem-root.Mui-selected': {
+                                    color: 'red', // Change text color for selected page
+                                    fontWeight: 'bold', // Optional: Change font weight,
+                                    backgroundColor: 'transparent', // Optional: Remove background color
+                                  },
+                                  '& .MuiPaginationItem-root': {
+                                    margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
+                                  },
+                                }}
+                              />
+                            </Box>
+
+
   </Grid>
 ) : (
   <p>No employees available</p>

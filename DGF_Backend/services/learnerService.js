@@ -1,73 +1,86 @@
 const db = require('../config/db');
-
+ 
 const getLearnersService = (emp_id) => {
     return new Promise((resolve, reject) => {
         const query = `
-            SELECT 
-                emp_newtrainingrequested.emp_id, 
-                emp_newtrainingrequested.requestid, 
-                newtrainingrequest.requeststatus AS status, 
-                emp_newtrainingrequested.createddate,
-                COUNT(request_primary_skills.primaryskill_id) AS primary_skills_count,
-                GROUP_CONCAT(DISTINCT primaryskill.skill_name) AS primary_skills,
-                GROUP_CONCAT(DISTINCT techstack.stack_name) AS tech_stacks
-            FROM 
-                emp_newtrainingrequested
-            LEFT JOIN 
-                request_primary_skills 
-            ON 
-                emp_newtrainingrequested.requestid = request_primary_skills.requestid
-            LEFT JOIN
-                newtrainingrequest
-            ON
-                emp_newtrainingrequested.requestid = newtrainingrequest.requestid
-            LEFT JOIN
-                primaryskill
-            ON
-                request_primary_skills.primaryskill_id = primaryskill.skill_id
-            LEFT JOIN
-                techstack
-            ON
-                primaryskill.stack_id = techstack.stack_id
-            WHERE 
-                newtrainingrequest.requeststatus NOT IN ('rejected', 'completed', 'partially completed')
-                AND newtrainingrequest.org_level = 0
-                AND emp_newtrainingrequested.emp_id = ?
-            GROUP BY 
-                emp_newtrainingrequested.emp_id, 
-                emp_newtrainingrequested.requestid, 
-                newtrainingrequest.requeststatus,
-                emp_newtrainingrequested.createddate;
+SELECT
+    emp_newtrainingrequested.emp_id,
+    emp_newtrainingrequested.requestid,
+    newtrainingrequest.requeststatus AS status,
+    emp_newtrainingrequested.createddate,
+    COUNT(request_primary_skills.primaryskill_id) AS primary_skills_count,
+    GROUP_CONCAT(DISTINCT primaryskill.skill_name) AS primary_skills,
+    GROUP_CONCAT(DISTINCT techstack.stack_name) AS tech_stacks,
+    training_obj.training_name AS training_objective,  -- Fetch training objective name
+    requested_by.name AS requestedby_name  -- Fetch requestedby name
+FROM
+    emp_newtrainingrequested
+LEFT JOIN
+    request_primary_skills
+ON
+    emp_newtrainingrequested.requestid = request_primary_skills.requestid
+LEFT JOIN
+    newtrainingrequest
+ON
+    emp_newtrainingrequested.requestid = newtrainingrequest.requestid
+LEFT JOIN
+    primaryskill
+ON
+    request_primary_skills.primaryskill_id = primaryskill.skill_id
+LEFT JOIN
+    techstack
+ON
+    primaryskill.stack_id = techstack.stack_id
+LEFT JOIN
+    training_obj
+ON
+    newtrainingrequest.trainingobj = training_obj.training_id  -- Join to get the training objective
+LEFT JOIN
+    logintable AS requested_by
+ON
+    newtrainingrequest.requestedbyid = requested_by.emp_id  -- Join to get requestedby name
+WHERE
+    newtrainingrequest.requeststatus NOT IN ('rejected', 'Completed', 'Completed with Delay', 'Incomplete', 'Learning Suspended')
+    AND newtrainingrequest.org_level = 0
+    AND emp_newtrainingrequested.emp_id = ?
+GROUP BY
+    emp_newtrainingrequested.emp_id,
+    emp_newtrainingrequested.requestid,
+    newtrainingrequest.requeststatus,
+    emp_newtrainingrequested.createddate,
+    training_obj.training_name,
+    requested_by.name;
+ 
         `;
-
+ 
         const totalRequestsQuery = `
             SELECT COUNT(DISTINCT requestid) AS total_requests
-            FROM emp_newtrainingrequested 
-            WHERE emp_id = ? 
+            FROM emp_newtrainingrequested
+            WHERE emp_id = ?
             AND requestid IN (
-                SELECT requestid 
-                FROM newtrainingrequest 
-                WHERE requeststatus NOT IN ('rejected', 'completed', 'partially completed') 
+                SELECT requestid
+                FROM newtrainingrequest
+                WHERE requeststatus NOT IN ('rejected', 'Completed', 'Completed with Delay', 'Incomplete', 'Learning Suspended')
                 AND org_level = 0
             );
         `;
-
+ 
         const totalPrimarySkillsQuery = `
             SELECT COUNT(primaryskill_id) AS total_primary_skills
-            FROM request_primary_skills 
+            FROM request_primary_skills
             WHERE requestid IN (
-                SELECT requestid 
-                FROM emp_newtrainingrequested 
-                WHERE emp_id = ? 
+                SELECT requestid
+                FROM emp_newtrainingrequested
+                WHERE emp_id = ?
                 AND requestid IN (
-                    SELECT requestid 
-                    FROM newtrainingrequest 
-                    WHERE requeststatus NOT IN ('rejected', 'completed', 'partially completed') 
+                    SELECT requestid
+                    FROM newtrainingrequest
+                    WHERE requeststatus NOT IN ('rejected', 'Completed', 'Completed with Delay', 'Incomplete', 'Learning Suspended')
                     AND org_level = 0
                 )
             );
         `;
-
+ 
         db.execute(totalRequestsQuery, [emp_id], (err, totalRequestsResults) => {
             if (err) {
                 reject(err);
@@ -93,7 +106,7 @@ const getLearnersService = (emp_id) => {
         });
     });
 };
-
+ 
 module.exports = {
     getLearnersService
 };

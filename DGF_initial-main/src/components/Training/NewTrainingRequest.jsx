@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {  Paper,  Typography,  Select,  MenuItem,  FormControl,  RadioGroup,  TextField,  FormControlLabel,
   Radio,  Button,  Box,  Divider,  TableCell,  TableContainer,  TableBody,  TableHead,  TableRow,
@@ -18,8 +18,17 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { toPascalCase } from "../../utils/stringUtils";
 import getRoleType from '../../utils/roleUtils';
 import { arrayBufferToBase64 } from "../../utils/ImgConveter";
-
 import Grid from "@mui/material/Grid2";
+
+
+
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  CircularProgress,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const CustomRadio = styled(Radio)({
   "& .MuiSvgIcon-root": { fontSize: 16 },
@@ -35,6 +44,7 @@ const NewTrainingRequest = () => {
     trainingPurpose: "prospect",
     employeeDetails: "add",
     selectedDate: null,
+    availableFromDate: null,
     emails: "",
     employees: [],
     invalidEmails: [],
@@ -82,18 +92,15 @@ const NewTrainingRequest = () => {
       formData.otherSkill,
       formData.completionCriteria,
     ];
-    // const dateValid = new Date(formData.selectedDate) > new Date();
-    // if(!dateValid) {
-    //   return false;
+ 
     if (formData.trainingPurpose === "prospect") {
-      const nameValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-_/&]{5,}$/.test(formData.prospectName);
-      if (!nameValid) return false;
-    }else if (formData.trainingPurpose === "project") {
+      requiredFields.push(formData.prospectName, formData.selectedServiceDivision);
+    } else if (formData.trainingPurpose === "project") {
       requiredFields.push(formData.selectedProject, formData.selectedServiceDivision);
     }
  
     if (formData.employeeDetails === "open" && role === "CapDev") {
-      requiredFields.push(formData.numberOfPeople, formData.selectedEmployeeLevel);
+      requiredFields.push(formData.selectedEmployeeLevel);
     }
  
     if (formData.employeeDetails === "add") {
@@ -120,16 +127,28 @@ const NewTrainingRequest = () => {
   //   setIsFormValid(validateForm());
   // }, [formData, formData.employees, formData.otherSkill, formData.completionCriteria]);
  
-  const handleOtherSkillChange = (value) => {
-    const sanitizedValue = value === '<p><br></p>' ? '' : value;
-    setFormData({ ...formData, otherSkill: sanitizedValue });
-    setIsFormValid(validateForm());
-  };
  
-  const handleCompletionCriteriaChange = (value) => {
-    const sanitizedValue = value === '<p><br></p>' ? '' : value;
-    setFormData({ ...formData, completionCriteria: sanitizedValue });
-    setIsFormValid(validateForm());
+  const handleExpectedDateChange = (e) => {
+    const selectedDate = e.target.value;
+    if (new Date(selectedDate) >= new Date()) {
+      setFormData({ ...formData, selectedDate });
+      setIsFormValid(validateForm());
+    } else {
+      setSnackbarMessage("Please select a future date");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+  const availableFromDateChange = (e) => {
+    const availableFromDate = (e.target.value);
+    if(new Date(availableFromDate) >= new Date()){
+      setFormData({ ...formData, availableFromDate });
+      setIsFormValid(validateForm());
+    }else{    
+      setSnackbarMessage("Please select a future date");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
   };
  
   useEffect(() => {
@@ -231,22 +250,20 @@ const NewTrainingRequest = () => {
  
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-  if (name === "prospectName") {
-    const nameValid = /^[a-zA-Z][a-zA-Z0-9\s\-_/&]{4,}$/.test(value);
-    setFormData({
-      ...formData,
-      [name]: value,
-      prospectNameError: !nameValid && value !== "",
-      prospectNameErrorMessage: !nameValid && value!=="" ? "Invalid Prospect Name. Must start with an alphabet, allow alphanumeric characters, and be greater than 4 characters." : "",
-    });
-  } else {
-    setFormData({ ...formData, [name]: value });
-  }
-
-  setIsFormValid(validateForm());
-    // setFormData({ ...formData, [e.target.name]: e.target.value });
-    // setIsFormValid(validateForm());
+  
+    if (name === "prospectName") {
+      const nameValid = /^[a-zA-Z][a-zA-Z0-9\s\-_/&]{4,}$/.test(value);
+      setFormData({
+        ...formData,
+        [name]: value,
+        prospectNameError: !nameValid && value !== "",
+        prospectNameErrorMessage: !nameValid && value !== "" ? "Invalid Prospect Name. Must start with an alphabet, allow alphanumeric characters, and be greater than 4 characters." : "",
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  
+    setIsFormValid(validateForm());
   };
   // const handleDateChange = (newValue) => {
   //   setFormData({ ...formData, selectedDate: newValue });
@@ -275,7 +292,53 @@ const NewTrainingRequest = () => {
         console.error("Error fetching training objectives:", error)
       );
   };
- 
+  const handleOtherSkillChange = (value) => {
+    const sanitizedValue = value === '<p><br></p>' ? '' : value;
+   
+    const wordCount = sanitizedValue.split(/\s+/).filter((word) => word.length > 0).length;  
+    if (wordCount <= 1000) {
+      setFormData((prevData) => ({
+        ...prevData,
+        otherSkill: value,
+      }));
+    } else {
+      alert('Maximum word limit of 1000 words exceeded');
+    }
+    setFormData({ ...formData, otherSkill: sanitizedValue });
+    setIsFormValid(validateForm());
+  };
+   
+  const handleCompletionCriteriaChange = (value) => {
+    const sanitizedValue = value === '<p><br></p>' ? '' : value;
+    const wordCount = sanitizedValue.split(/\s+/).filter((word) => word.length > 0).length;  
+    if (wordCount <= 1000) {
+      setFormData((prevData) => ({
+        ...prevData,
+        completionCriteria: value,
+      }));
+    } else {
+      alert('Maximum word limit of 1000 words exceeded');
+    }
+    setFormData({ ...formData, completionCriteria: sanitizedValue });
+    setIsFormValid(validateForm());
+  };
+   
+  const handleCommentsChange = (value) => {
+    const sanitizedValue = value === '<p><br></p>' ? '' : value;
+    const wordCount = sanitizedValue.split(/\s+/).filter((word) => word.length > 0).length;  
+    if (wordCount <= 350) {
+      setFormData((prevData) => ({
+        ...prevData,
+        comment: value,
+      }));
+    } else {
+      alert('Maximum word limit of 350 words exceeded');
+    }
+    setFormData({ ...formData, comment: sanitizedValue });
+    setIsFormValid(validateForm());
+  };
+   
+   
     const handleTrainingObjectiveChange = (e) => {
       const selectedTrainingObjective = e.target.value;
       setFormData({ ...formData, selectedTrainingObjective });
@@ -333,44 +396,55 @@ const NewTrainingRequest = () => {
   }, [user]);
  
   
+
+
+
+  
   const handleEmployeeSearch = (event, value) => {
     if (value.length > 0) {
       let apiUrl;
-  
-      // Construct the API URL based on the conditions
       if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
         apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`;
       } else {
         apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`;
       }
   
-      // Fetch the employee data from the API
       fetch(apiUrl)
         .then((response) => response.json())
-        .then((data) => {
+        .then(async (data) => {
           if (Array.isArray(data)) {
+            const employeesWithSkills = await Promise.all(
+              data.map(async (emp) => {
+                try {
+                  const learnerResponse = await fetch(
+                    `http://localhost:8000/api/learners/getLearners/${emp.emp_id}`
+                  );
+                  const learnerData = await learnerResponse.json();
+                  return {
+                    ...emp,
+                    totalPrimarySkills: learnerData.total_primary_skills || 0,
+                  };
+                } catch (error) {
+                  console.error("Error fetching learner data:", error);
+                  return { ...emp, totalPrimarySkills: 0 };
+                }
+              })
+            );
             setSearchResults(
-              data.map((emp) => ({
+              employeesWithSkills.map((emp) => ({
                 id: emp.emp_id,
                 name: emp.emp_name,
                 email: emp.emp_email,
-                profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`, // Convert image data to base64
-                uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
+                profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
+                uniqueKey: `${emp.emp_id}-${Date.now()}`,
+                totalPrimarySkills: emp.totalPrimarySkills,
               }))
-            );
-          } else {
-            console.error(
-              "Unexpected response format for employee search by name:",
-              data
             );
           }
         })
-        .catch((error) =>
-          console.error("Error fetching employees by name:", error)
-        );
+        .catch((error) => console.error("Error fetching employees:", error));
     }
   };
- 
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
       fetch(`http://localhost:8000/api/managerSearchByName/searchManagersByName?name=${value}`)
@@ -497,65 +571,136 @@ const NewTrainingRequest = () => {
     setIsFormValid(validateForm());
   };
 
-  const addEmployee = async () => {
-    const newEmployees = [];
-    const invalidEmails = [];
+  // const addEmployee = async () => {
+  //   const newEmployees = [];
+  //   const invalidEmails = [];
   
-    // Add selected employee from "Select Employee" field
-    if (
-      selectedEmployee &&
-      !formData.employees.some((emp) => emp.id === selectedEmployee.id)
-    ) {
+  //   // Add selected employee from "Select Employee" field
+  //   if (
+  //     selectedEmployee &&
+  //     !formData.employees.some((emp) => emp.id === selectedEmployee.id)
+  //   ) {
+  //     newEmployees.push({
+  //       ...selectedEmployee,
+  //       availableFrom: "",
+  //       bandwidth: "",
+  //       weekend: "",
+  //     });
+  //     setSelectedEmployee(null); // Clear the selected employee after adding
+  //   }
+  
+  //   // Process comma-separated emails
+  //   if (formData.emails.trim() !== "") {
+  //     const emailList = formData.emails.split(",").map((email) => email.trim());
+  //     const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
+  
+  //     for (const email of uniqueEmails) {
+  //       const employee = await handleEmailSearch(email);
+  //       if (employee) {
+  //         // Check if the employee is already in the list
+  //         if (!formData.employees.some((emp) => emp.id === employee.id)) {
+  //           newEmployees.push(employee);
+  //         }
+  //       } else {
+  //         invalidEmails.push(email);
+  //       }
+  //     }
+  //     if (invalidEmails.length > 0) {
+  //       setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
+  //       setSnackbarSeverity("error");
+  //       setSnackbarOpen(true);
+  //     }
+  //   }
+  
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     employees: [...prevFormData.employees, ...newEmployees],
+  //     showTable: true,
+  //     showSummary: true,
+  //     emails: "", // Clear the email input field
+  //     invalidEmails: invalidEmails, // Store invalid emails
+  //   }));
+  //   setIsFormValid(validateForm());
+  // };
+  
+  const addEmployee = async () => {
+  const newEmployees = [];
+  const invalidEmails = [];
+
+  // Add selected employee from "Select Employee" field
+  if (selectedEmployee && !formData.employees.some(emp => emp.id === selectedEmployee.id)) {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/learners/getLearners/${selectedEmployee.id}`
+      );
+      const data = await response.json();
+      
       newEmployees.push({
         ...selectedEmployee,
         availableFrom: "",
         bandwidth: "",
         weekend: "",
+        total_requests: data.total_requests || 0,
+        requests: data.requests || []
       });
-      setSelectedEmployee(null); // Clear the selected employee after adding
+    } catch (error) {
+      console.error("Error fetching employee requests:", error);
+      newEmployees.push(selectedEmployee);
     }
-  
-    // Process comma-separated emails
-    if (formData.emails.trim() !== "") {
-      const emailList = formData.emails.split(",").map((email) => email.trim());
-      const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
-  
-      for (const email of uniqueEmails) {
-        const employee = await handleEmailSearch(email);
-        if (employee) {
-          // Check if the employee is already in the list
-          if (!formData.employees.some((emp) => emp.id === employee.id)) {
-            newEmployees.push(employee);
-          }
-        } else {
-          invalidEmails.push(email);
+    setSelectedEmployee(null);
+  }
+
+  // Process comma-separated emails
+  if (formData.emails.trim() !== "") {
+    const emailList = formData.emails.split(",").map((email) => email.trim());
+    const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
+
+    for (const email of uniqueEmails) {
+      const employee = await handleEmailSearch(email);
+      if (employee) {
+        try {
+          const response = await fetch(
+            `http://localhost:8000/api/learners/getLearners/${employee.id}`
+          );
+          const data = await response.json();
+          
+          newEmployees.push({
+            ...employee,
+            availableFrom: "",
+            bandwidth: "",
+            weekend: "",
+            total_requests: data.total_requests || 0,
+            requests: data.requests || []
+          });
+        } catch (error) {
+          console.error("Error fetching employee requests:", error);
+          newEmployees.push(employee);
         }
-      }
-      if (invalidEmails.length > 0) {
-        setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
+      } else {
+        invalidEmails.push(email);
       }
     }
-  
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      employees: [...prevFormData.employees, ...newEmployees],
-      showTable: newEmployees.length > 0? true : prevFormData.showTable,
-      showSummary: true,
-      emails: "", // Clear the email input field
-      invalidEmails: invalidEmails, // Store invalid emails
-    }));
-    setIsFormValid(validateForm());
-  };
-  
+    if (invalidEmails.length > 0) {
+      setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  }
+
+  setFormData(prev => ({
+    ...prev,
+    employees: [...prev.employees, ...newEmployees],
+    showTable: newEmployees.length > 0,
+    showSummary: true,
+    emails: ""
+  }));
+  setIsFormValid(validateForm());
+};
  
   const removeEmployee = (id) => {
-    const newEmployees = formData.employees.filter((emp) => emp.id !== id);
     setFormData({
       ...formData,
-      employees: newEmployees,
-      showTable: newEmployees.length > 0,
+      employees: formData.employees.filter((emp) => emp.id !== id),
     });
     setIsFormValid(validateForm());
   };
@@ -577,15 +722,16 @@ const NewTrainingRequest = () => {
       ...prevFormData,
       employees: prevFormData.employees.map((emp) => ({
         ...emp,
-      ...updates
+      ...updates,
   
       })),
-
     }));
     setTimeout(() => {
-      setIsFormValid(validateForm());
-    }, 0);
+    setIsFormValid(validateForm());
+  },0);
   };
+
+
   const submitPrimarySkills = async (requestId, primarySkillIds) => {
     const requestBody = {
       requestid: requestId,
@@ -624,141 +770,144 @@ const NewTrainingRequest = () => {
     }
   };
  
- const handleSubmit = async () => {
-  const formattedDate = formData.selectedDate instanceof Date && !isNaN(formData.selectedDate)
-    ? formData.selectedDate.toISOString().split("T")[0]
-    : formData.selectedDate;
- 
-  const requestBody = {
-    requestid: newRequestId, // Include the newRequestId here
-    requestonbehalfof: user.role_id === 4 ? formData.requestonbehalf : user.emp_id, // Use emp_id for non-CapDev roles
-    requestedbyid: user.emp_id, // Add the current user's ID from the session
-    source: formData.selectedSource,
-    trainingobj: formData.selectedTrainingObjective,
-    projectid: formData.trainingPurpose === "project" ? formData.selectedProject : null,
-    newprospectname: formData.trainingPurpose === "prospect" ? formData.prospectName : null,
-    expecteddeadline: formattedDate,
-    techstack: formData.selectedTechStack,
-    otherskill: formData.otherSkill,
-    suggestedcompletioncriteria: formData.completionCriteria,
-    comments: formData.comment,
-    servicedivision: formData.selectedServiceDivision, // Include for both project and prospect
-  };
- 
-  console.log("Submitting request body to newtrainingrequest API:", requestBody); // Log the request body
- 
-  try {
-    const response = await fetch(
-"http://localhost:8000/api/newtrainingrequest",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      }
-    );
- 
-    if (response.ok) {
-      console.log("New training request submitted successfully");
-      setDialogOpen(true);
- 
-      // Submit primary skills
-      await submitPrimarySkills(newRequestId, formData.selectedPrimarySkill);
- 
-      // Proceed with the existing API call for employee levels
-      const employeeLevelRequestBody = {
-        requestid: newRequestId, // Use the newRequestId here
-        employee_level_ids: formData.selectedEmployeeLevel.filter(id => id !== undefined), // Use selectedEmployeeLevel
-      };
- 
-      console.log("Submitting request body to training-request/employee-levels API:", employeeLevelRequestBody); // Log the request body
- 
-      try {
-        const employeeLevelResponse = await fetch(
-"http://localhost:8000/api/training-request/employee-levels",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(employeeLevelRequestBody),
-          }
-        );
- 
-        if (employeeLevelResponse.ok) {
-          console.log("Employee levels submitted successfully");
-        } else {
-          console.error("Failed to submit employee levels");
-          const errorData = await employeeLevelResponse.json();
-          console.error("Error details:", errorData); // Log the error details from the server
-          setSnackbarMessage(`Failed to submit employee levels: ${errorData.message}`);
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
+  const handleSubmit = async () => {
+    const formattedDate = formData.selectedDate
+      ? new Date(formData.selectedDate).toISOString().split("T")[0]
+      : null;
+  
+    const requestBody = {
+      requestid: newRequestId, // Include the newRequestId here
+      requestonbehalfof: user.role_id === 4 ? formData.requestonbehalf : user.emp_id, // Use emp_id for non-CapDev roles
+      requestedbyid: user.emp_id, // Add the current user's ID from the session
+      source: formData.selectedSource,
+      trainingobj: formData.selectedTrainingObjective,
+      projectid: formData.trainingPurpose === "project" ? formData.selectedProject : null,
+      newprospectname: formData.trainingPurpose === "prospect" ? formData.prospectName : null,
+      expecteddeadline: formattedDate,
+      techstack: formData.selectedTechStack,
+      otherskill: formData.otherSkill,
+      suggestedcompletioncriteria: formData.completionCriteria,
+      comments: formData.comment,
+      servicedivision: formData.selectedServiceDivision,
+      org_level: formData.employeeDetails === "open" ? 1 : 0, // Set org_level based on employeeDetails
+    };
+  
+    console.log("Submitting request body to newtrainingrequest API:", requestBody); // Log the request body
+  
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/newtrainingrequest",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
         }
-      } catch (error) {
-        console.error("Error submitting employee levels:", error);
-        setSnackbarMessage(`Error submitting employee levels: ${error.message}`);
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-      }
- 
-      // New API call for adding employees if "Add Employees" is selected
-      if (formData.employeeDetails === "add") {
-        const empNewTrainingRequestBody = formData.employees.map((emp) => ({
-emp_id: emp.id,
-          availablefrom: emp.availableFrom? new Date(emp.availableFrom).toISOString().split('T')[0]:null, // Ensure this field is not undefined
-          dailyband: emp.bandwidth || null, // Ensure this field is not undefined
-          availableonweekend: emp.weekend === "Yes", // Convert to boolean
-          requestid: newRequestId,
-        }));
- 
-        console.log("Submitting request body to empNewTrainingRequested API:", empNewTrainingRequestBody); // Log the request body
- 
-        try {
-          const empNewTrainingResponse = await fetch(
-"http://localhost:8000/api/empNewTrainingRequested/insertTrainingRequest",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(empNewTrainingRequestBody),
+      );
+  
+      if (response.ok) {
+        console.log("New training request submitted successfully");
+        setDialogOpen(true);
+  
+        // Submit primary skills
+        await submitPrimarySkills(newRequestId, formData.selectedPrimarySkill);
+  
+        // Proceed with the existing API call for employee levels
+        if (formData.employeeDetails === "open" && formData.selectedEmployeeLevel.length > 0) {
+          const employeeLevelRequestBody = {
+            requestid: newRequestId, // Use the newRequestId here
+            employee_level_ids: formData.selectedEmployeeLevel.filter(id => id !== undefined), // Use selectedEmployeeLevel
+          };
+  
+          console.log("Submitting request body to training-request/employee-levels API:", employeeLevelRequestBody); // Log the request body
+  
+          try {
+            const employeeLevelResponse = await fetch(
+              "http://localhost:8000/api/training-request/employee-levels",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(employeeLevelRequestBody),
+              }
+            );
+  
+            if (employeeLevelResponse.ok) {
+              console.log("Employee levels submitted successfully");
+            } else {
+              console.error("Failed to submit employee levels");
+              const errorData = await employeeLevelResponse.json();
+              console.error("Error details:", errorData); // Log the error details from the server
+              setSnackbarMessage(`Failed to submit employee levels: ${errorData.message}`);
+              setSnackbarSeverity("error");
+              setSnackbarOpen(true);
             }
-          );
- 
-          if (empNewTrainingResponse.ok) {
-            console.log("Employees added successfully");
-          } else {
-            console.error("Failed to add employees");
-            const errorData = await empNewTrainingResponse.json();
-            console.error("Error details:", errorData); // Log the error details from the server
-            setSnackbarMessage(`Failed to add employees: ${errorData.message}`);
+          } catch (error) {
+            console.error("Error submitting employee levels:", error);
+            setSnackbarMessage(`Error submitting employee levels: ${error.message}`);
             setSnackbarSeverity("error");
             setSnackbarOpen(true);
           }
-        } catch (error) {
-          console.error("Error adding employees:", error);
-          setSnackbarMessage(`Error adding employees: ${error.message}`);
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
         }
+  
+        // New API call for adding employees if "Add Employees" is selected
+        if (formData.employeeDetails === "add" || formData.employeeDetails === "open") {
+          const empNewTrainingRequestBody = formData.employees.map((emp) => ({
+            emp_id: emp.id,
+            availablefrom: emp.availableFrom ? new Date(emp.availableFrom).toISOString().split('T')[0] : null, // Ensure this field is not undefined
+            dailyband: emp.bandwidth || null, // Ensure this field is not undefined
+            availableonweekend: emp.weekend === "Yes", // Convert to boolean
+            requestid: newRequestId,
+          }));
+  
+          console.log("Submitting request body to empNewTrainingRequested API:", empNewTrainingRequestBody); // Log the request body
+  
+          try {
+            const empNewTrainingResponse = await fetch(
+              "http://localhost:8000/api/empNewTrainingRequested/insertTrainingRequest",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(empNewTrainingRequestBody),
+              }
+            );
+  
+            if (empNewTrainingResponse.ok) {
+              console.log("Employees added successfully");
+            } else {
+              console.error("Failed to add employees");
+              const errorData = await empNewTrainingResponse.json();
+              console.error("Error details:", errorData); // Log the error details from the server
+              setSnackbarMessage(`Failed to add employees: ${errorData.message}`);
+              setSnackbarSeverity("error");
+              setSnackbarOpen(true);
+            }
+          } catch (error) {
+            console.error("Error adding employees:", error);
+            setSnackbarMessage(`Error adding employees: ${error.message}`);
+            setSnackbarSeverity("error");
+            setSnackbarOpen(true);
+          }
+        }
+      } else {
+        console.error("Failed to submit new training request");
+        const errorData = await response.json();
+        console.error("Error details:", errorData); // Log the error details from the server
+        setSnackbarMessage(`Failed to submit new training request: ${errorData.message}`);
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
       }
-    } else {
-      console.error("Failed to submit new training request");
-      const errorData = await response.json();
-      console.error("Error details:", errorData); // Log the error details from the server
-      setSnackbarMessage(`Failed to submit new training request: ${errorData.message}`);
+    } catch (error) {
+      console.error("Error submitting new training request:", error);
+      setSnackbarMessage(`Error submitting new training request: ${error.message}`);
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
-  } catch (error) {
-    console.error("Error submitting new training request:", error);
-    setSnackbarMessage(`Error submitting new training request: ${error.message}`);
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  }
-};
+  };
  
   const handleCloseDialog = () => {
     setDialogOpen(false);
@@ -1121,11 +1270,9 @@ emp_id: emp.id,
                     value={formData.prospectName}
                     onChange={handleChange}
                     error={formData.prospectNameError}
-
                     InputProps={{
                       style: { fontSize: "12px" },
                     }}
-              
                   />
                   </Tooltip>
                 </FormControl>
@@ -1345,15 +1492,7 @@ emp_id: emp.id,
   className="availabledates"
   type="date"
   value={formData.selectedDate}
-  onChange={(e) => {
-    const selecteddate = new Date(e.target.value);
-    if(selecteddate >= new Date()){
-    setFormData({
-      ...formData,
-      selecteddate: e.target.value,
-    });
-  }
-  }}
+  onChange={handleExpectedDateChange}
   inputProps={{
     min: new Date().toISOString().split("T")[0], // Set the minimum date to today
   }}
@@ -1365,7 +1504,6 @@ emp_id: emp.id,
     width: "160px",
     '& input': {
       fontSize: '14px',
-      color:'#787878'
     }
   }}
 />
@@ -1480,7 +1618,7 @@ emp_id: emp.id,
   {/* Other Skills Field */}
   <Grid item size={4}>
     <FormControl fullWidth >
-      <Typography className="subheader" style={{display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
+      <Typography className="subheader" style={{display: "inline", marginBottom: "0.5rem", color: "#4F4949", maxWidth:'400px' }}>
         Provide other skills information in detail{" "}
         <span className="required">*</span>
       </Typography>
@@ -1496,6 +1634,7 @@ emp_id: emp.id,
           fontStyle: "normal",
           fontFamily: "Poppins",
           marginTop: "0.5rem",
+          maxWidth: "400px",
         }}
       />
     </FormControl>
@@ -1504,7 +1643,7 @@ emp_id: emp.id,
   {/* Completion Criteria Field */}
   <Grid item size={4}>
     <FormControl fullWidth >
-      <Typography className="subheader" style={{display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
+      <Typography className="subheader" style={{display: "inline", marginBottom: "0.5rem", color: "#4F4949", maxWidth:'400px' }}>
         Suggest completion criteria <span className="required">*</span>
       </Typography>
       <ReactQuill
@@ -1516,7 +1655,7 @@ emp_id: emp.id,
         placeholder="Suggest Completion criteria should be less than 1000 words"
         style={{
           height: "138px",
-          width: "100%",
+          maxWidth: "400px",
           marginTop: "0.5rem",
           fontStyle: "normal",
           fontFamily: "Poppins",
@@ -1533,14 +1672,14 @@ emp_id: emp.id,
       </Typography>
       <ReactQuill
         value={formData.comment}
-        onChange={(value) => setFormData({ ...formData, comment: value })}
+        onChange={handleCommentsChange}
         modules={{
           toolbar: [["bold", "italic", "underline"]],
         }}
         placeholder="Comments should be less than 350 words"
         style={{
           height: "138px",
-          width: "100%",
+          maxWidth: "400px",
           marginTop: "0.5rem",
         }}
       />
@@ -1632,37 +1771,72 @@ emp_id: emp.id,
       <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
         Select Employee <span className="required">*</span>
       </Typography>
-
+ 
       <Autocomplete
-        options={searchResults}
-        getOptionLabel={(option) => option.name || ""}
-        onInputChange={handleEmployeeSearch}
-        onChange={(event, value) => setSelectedEmployee(value)}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            placeholder="Search Employees"
-            style={{ fontSize: "12px" }}
-            InputProps={{
-              ...params.InputProps,
-              style: { fontSize: "12.5px" },
-            }}
-            InputLabelProps={{
-              style: { fontSize: "12px", opacity: "0.75" },
-            }}
-          />
-        )}
-        PaperComponent={(props) => (
-          <Paper {...props} style={{ maxHeight: 300, width: 250, fontSize: "12px" }} />
-        )}
-        renderOption={(props, option) => (
-          <li {...props} style={{ fontSize: "12px", padding: "4px 6px", display: "flex", alignItems: "center" }}>
-            <Avatar src={option.profileImage} alt={option.name} style={{ marginRight: "8px" }} />
-            {option.name}
-          </li>
-        )}
-      />
+  options={searchResults}
+  getOptionLabel={(option) => option.name || ""}
+  getOptionDisabled={(option) => option.totalPrimarySkills >= 3}
+  onInputChange={handleEmployeeSearch}
+  onChange={(event, value) => {
+    if (value && value.totalPrimarySkills < 3) {
+      setSelectedEmployee(value);
+    }
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      placeholder="Search Employees"
+      helperText="Employees with 3+ ongoing learnings cannot be selected"
+      InputProps={{
+        ...params.InputProps,
+        style: { fontSize: "12.5px" },
+      }}
+    />
+  )}
+  renderOption={(props, option) => (
+    <li
+      {...props}
+      style={{
+        opacity: option.totalPrimarySkills >= 3 ? 0.5 : 1,
+        pointerEvents: option.totalPrimarySkills >= 3 ? 'none' : 'auto',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '8px',
+        fontSize: '12px'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
+        <span>{option.name}</span>
+      </div>
+      
+      {option.totalPrimarySkills > 0 && (
+        <span style={{
+          backgroundColor:
+            option.totalPrimarySkills >= 3 ? '#ffebee' :
+            option.totalPrimarySkills === 1 ? '#fbfbd3' : '#fbfbd3',
+          borderRadius: '12px',
+          padding: '4px 8px',
+          fontSize: '10px',
+          color: option.totalPrimarySkills >= 3 ? '#c62828' : '#000000'
+        }}>
+          {option.totalPrimarySkills} learnings
+        </span>
+      )}
+    </li>
+  )}
+  PaperComponent={(props) => (
+    <Paper
+      {...props}
+      style={{
+        maxHeight: 300,
+        fontSize: '12px'
+      }}
+    />
+  )}
+/>
     </FormControl>
   </Grid>
 
@@ -1815,16 +1989,8 @@ emp_id: emp.id,
               <TextField
   className="availabledates"
   type="date"
-  value={formData.selectedDate}
-  onChange={(e) => {
-    const selecteddate = new Date(e.target.value);
-    if(selecteddate >= new Date()){ 
-    setFormData({
-      ...formData,
-      selectedDate: e.target.value,
-    });
-  }}
-  }
+  value={formData.availableFromDate}
+  onChange={availableFromDateChange}
   inputProps={{
     min: new Date().toISOString().split("T")[0], // Set the minimum date to today
   }}
@@ -1886,7 +2052,7 @@ emp_id: emp.id,
                   style={{ textTransform: "none", padding: "5px" }}
                   onClick={() =>
                     updateAllEmployees({
-                     availableFrom: formData.selectedDate,
+                     availableFrom: formData.availableFromDate,
                       bandwidth: formData.updateAllBandwidth,
                       weekend: formData.updateAllWeekend,
                     })
@@ -1898,88 +2064,145 @@ emp_id: emp.id,
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {formData.employees
-              .filter((employee) =>
-                employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase())
-              )
-              .slice(
-                formData.page * formData.rowsPerPage,
-                formData.page * formData.rowsPerPage + formData.rowsPerPage
-              )
-              .map((employee) => (
-                <TableRow key={employee.uniqueKey}>
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Avatar src={employee.profileImage} />
-                      {employee.id}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{employee.name}</TableCell>
-                  <TableCell>
-                    <TextField
-                      type="date"
-                      value={employee.availableFrom || ""}
-                    onChange={(e) => {
-                      const selecteddate = new Date(e.target.value);
-                      if (selecteddate >= new Date()) {
-                        updateEmployee(employee.id, "availableFrom", e.target.value);
-                      }
-                    }}
-                      size="small"
-                      inputProps={{
-                        min: new Date().toISOString().split("T")[0],
-                      }}
-                      sx={{
-                        fontSize: "10px",
-                        fontFamily: "Poppins",
-                        letterSpacing: "-0.5px",
-                        padding: "5px",
-                        width: "160px",
-                        '& input': {
-                          fontSize: '14px',
-                        }
-                      }}
-            
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={employee.bandwidth}
-                      onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
-                      size="small"
-                      sx={{
-                        fontSize: "10px",
-                        fontFamily: "Poppins",
-                        letterSpacing: "-0.5px",
-                        padding: "5px",
-                      }}
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      <MenuItem value="2 Hours">2 Hours</MenuItem>
-                      <MenuItem value="4 Hours">4 Hours</MenuItem>
-                      <MenuItem value="6 Hours">6 Hours</MenuItem>
-                      <MenuItem value="Full Day">Full Day</MenuItem>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <RadioGroup
-                      row
-                      value={employee.weekend}
-                      onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
-                    >
-                      <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                      <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
-                    </RadioGroup>
-                  </TableCell>
-                  <TableCell>
-                    <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
-                      <CloseIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
+<TableBody>
+  {formData.employees
+    .filter((employee) =>
+      employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase())
+    )
+    .slice(
+      formData.page * formData.rowsPerPage,
+      formData.page * formData.rowsPerPage + formData.rowsPerPage
+    )
+    .map((employee) => (
+      <React.Fragment key={employee.uniqueKey}>
+        <TableRow>
+          <TableCell>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Avatar src={employee.profileImage} />
+              {employee.id}
+            </Box>
+          </TableCell>
+          <TableCell>{employee.name}</TableCell>
+          <TableCell>
+            <TextField
+              type="date"
+              value={employee.availableFrom || ""}
+              onChange={(e) =>
+                updateEmployee(employee.id, "availableFrom", e.target.value)
+              }
+              size="small"
+              inputProps={{
+                min: new Date().toISOString().split("T")[0],
+              }}
+              sx={{
+                fontSize: "10px",
+                fontFamily: "Poppins",
+                letterSpacing: "-0.5px",
+                padding: "5px",
+                width: "160px",
+                '& input': {
+                  fontSize: '14px',
+                }
+              }}
+            />
+          </TableCell>
+          <TableCell>
+            <Select
+              value={employee.bandwidth}
+              onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
+              size="small"
+              sx={{
+                fontSize: "10px",
+                fontFamily: "Poppins",
+                letterSpacing: "-0.5px",
+                padding: "5px",
+              }}
+            >
+              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="2 Hours">2 Hours</MenuItem>
+              <MenuItem value="4 Hours">4 Hours</MenuItem>
+              <MenuItem value="6 Hours">6 Hours</MenuItem>
+              <MenuItem value="Full Day">Full Day</MenuItem>
+            </Select>
+          </TableCell>
+          <TableCell>
+            <RadioGroup
+              row
+              value={employee.weekend}
+              onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
+            >
+              <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
+              <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+            </RadioGroup>
+          </TableCell>
+          <TableCell>
+            <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>View Learning Details</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {employee.requests ? (
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Req No</TableCell>
+                        <TableCell>Project</TableCell>
+                        <TableCell>Objective</TableCell>
+                        <TableCell>Tech Stack</TableCell>
+                        <TableCell>Requested On</TableCell>
+                        <TableCell>Status</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {employee.requests.map((request) => (
+                        <TableRow key={request.requestid}>
+                          <TableCell>#{request.requestid}</TableCell>
+                          <TableCell>Staffing Nation</TableCell>
+                          <TableCell>Upselling</TableCell>
+                          <TableCell>{request.tech_stacks}</TableCell>
+                          <TableCell>
+                            {new Date(request.createddate).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <Typography
+                              sx={{
+                                color: request.status === "completed" ? "#4CAF50" : "#B33A3A",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {request.status}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {employee.requests.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} align="center">
+                            No previous requests found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                    <CircularProgress size={24} />
+                  </Box>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
+    ))}
+</TableBody>
         </Table>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
