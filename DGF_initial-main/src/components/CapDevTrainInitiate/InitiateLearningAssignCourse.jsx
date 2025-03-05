@@ -123,22 +123,23 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.requests?.map((request, index) => (
-                    <TableRow key={index}>
-                      <TableCell>#{request.requestid}</TableCell>
-                      <TableCell>Staffing Nation</TableCell>
-                      <TableCell>Upselling</TableCell>
-                      <TableCell>{request.tech_stacks}</TableCell>
-                      <TableCell>
-                        {new Date(request.createddate).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </TableCell>
-                      <TableCell>Mary Grace</TableCell>
-                    </TableRow>
-                  ))}
+                {row.requests?.map((request, index) => (
+  <TableRow key={index}>
+    <TableCell>#{request.requestid}</TableCell>
+    <TableCell>{request.project_name}</TableCell>
+    <TableCell>{request.training_objective}</TableCell>
+    <TableCell>{request.tech_stacks}</TableCell>
+    <TableCell>
+      {new Date(request.createddate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })}
+    </TableCell>
+    <TableCell>{request.requested_by || 'N/A'}</TableCell>
+  </TableRow>
+))}
+ 
                 </TableBody>
               </Table>
             </ExpandedSection>

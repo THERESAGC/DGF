@@ -222,7 +222,8 @@ const mapStatusToDisplayText = (status) => {
           return{ text: ["Partially Completed"], color: "#9F5603"}; //Partially Completed" status is handled
     case "completed":
           return{ text: ["Completed"], color: "#2BB381"}; //Completed" status is handled
-         
+    case "learning in progress":
+          return { text: ["Learning In", "Progress"], color: "#06819E" };     
       default:
       return { text: [status], color: "black" };
   }
@@ -266,8 +267,7 @@ const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => 
   } else if (selectedStatus === "Completed") {
     const completeStatuses = [
       "completed",
-      "completed with delay",
-      "partially completed"
+      "completed with delay"
     ];
     return completeStatuses.includes(status); // Filter for "completed"
   } else if (selectedStatus === "Incomplete") {
@@ -292,7 +292,7 @@ const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => 
             "capdev approved",
             "initiate learning",
             "learning initiated",
-            "clarification requested"
+            "clarification requested","learning in progress"
           ];
           return inProgressStatuses.includes(status);
         } else if (selectedStatus === "Completed") {

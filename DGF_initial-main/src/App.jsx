@@ -14,7 +14,7 @@ import LearningInitiatedDetails from './components/CapDevTrainInitiate/LearningI
 import InitiateLearningDetails from './components/CapDevTrainInitiate/InitiateLearningDetails.jsx';
 import RequestInfoContainer from './components/RequestInfoContainer.jsx';
 import DashboardContainer from './components/DashboardContainer.jsx'
-import AdminTable from './components/Admin/AdminTable.jsx';
+import AdminContainer from './components/Admin/AdminContainer.jsx';
             
 
 function App() {
@@ -39,7 +39,7 @@ function App() {
             <Route path='/initiate-learning-details/:requestId' element={<ProtectedRoute element={<FixedComponent><InitiateLearningDetails /></FixedComponent>} />} />
             <Route path='/requester-information/:requestId' element={<ProtectedRoute element={<FixedComponent><RequestInfoContainer /></FixedComponent>} />} /> 
             <Route path='/dashboardgraph' element={<ProtectedRoute element={<FixedComponent><DashboardContainer  /></FixedComponent>} />} /> 
-            <Route path='/admin-table' element={<ProtectedRoute element={<FixedComponent><AdminTable /></FixedComponent>} />} />
+            <Route path='/admin-container' element={<ProtectedRoute element={<FixedComponent><AdminContainer /></FixedComponent>} />} />
           </Routes>
           </ChatProvider>
         </Router>

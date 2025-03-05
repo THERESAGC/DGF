@@ -13,7 +13,8 @@ const GraphHeader = ({ title }) => (
       mb: 1,
       fontWeight: 'bold',
       textAlign: 'left',
-      whiteSpace: 'normal'
+      whiteSpace: 'normal',
+      marginLeft: '10px',
     }}
   >
     {title}
@@ -72,12 +73,13 @@ const GraphDetails = ({ details, colors }) => (
   }}>
     {details.map((detail, index) => {
       const [label, value] = detail.split(': ');
+      const isFourthChild = index === 3;
       return (
-        <Typography
+        <Typography className="details"
           key={index}
           variant="body1"
           sx={{ display: 'inline-flex', marginRight: 3, marginBottom: 1, whiteSpace: 'normal' }}
-          dangerouslySetInnerHTML={{ __html: `<span style="font-weight: bold; font-size: 1.5rem; color: ${colors[index]}">${value}</span><span style="margin-left: 5px;margin-top:7px; color: #555555; font-size: 0.7rem;">${label}</span>` }}
+          dangerouslySetInnerHTML={{ __html: `<span style="font-weight: bold; font-size: 1.5rem; color: ${colors[index]}; ${isFourthChild? 'padding-left: 4px;':''}">${value}</span><span style="margin-left: 5px;margin-top:7px; color: #555555; font-size: 0.7rem;">${label}</span>` }}
         />
       );
     })}

@@ -1,10 +1,13 @@
 // routes/emailRoutes.js
 const express = require("express");
-const { handleSubmit } = require("../controllers/emailController"); // Import the email controller
+const { handleSubmit } = require("../controllers/emailController"); // Import the existing submit function
+const { handleAction } = require("../controllers/actionEmailController"); // Import the new action handler
 const router = express.Router();
 
-// Define the POST route for submitting a training request and sending emails
+// Route for submitting a training request
 router.post("/submitTrainingRequest", handleSubmit);
 
-module.exports = router;
+// Route for approving, rejecting, suspending, or clarifying a training request
+router.post("/approveRejectSuspendClarify", handleAction);
 
+module.exports = router;

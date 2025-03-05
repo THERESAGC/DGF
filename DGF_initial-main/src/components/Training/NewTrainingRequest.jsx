@@ -907,7 +907,36 @@ const NewTrainingRequest = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
+
+    try {
+      // Make the API request to submit the training request and trigger email sending
+      const response = await fetch("http://localhost:8000/api/email/submitTrainingRequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
+      });
+ 
+      if (response.ok) {
+        setSnackbarMessage("Training request submitted and emails sent successfully.");
+        setSnackbarSeverity("success");
+      } else {
+        const errorData = await response.json();
+        setSnackbarMessage(`Error: ${errorData.error}`);
+        setSnackbarSeverity("error");
+      }
+    } catch (error) {
+      console.error("Error submitting request:", error);
+      setSnackbarMessage(`Error: ${error.message}`);
+      setSnackbarSeverity("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+
   };
+
  
   const handleCloseDialog = () => {
     setDialogOpen(false);
@@ -1764,7 +1793,7 @@ const NewTrainingRequest = () => {
     </Select>
   </FormControl>
 )} */}
-<Grid container spacing={5}>
+<Grid container spacing={5} style={{gap: "10px"}}>
   {/* Employee Select Section */}
   <Grid item size={4}>
     <FormControl fullWidth>
@@ -1842,7 +1871,7 @@ const NewTrainingRequest = () => {
 
   {formData.employeeDetails === "add" && (
           <Grid item>
-            <Typography className="subheader" align="center" style={{ marginTop: "32px", marginLeft: "-35px", color: "#4F4949", fontSize: "12px" }}>
+            <Typography className="subheader" align="center" style={{ marginTop: "32px", color: "#4F4949", fontSize: "12px" }}>
               OR
             </Typography>
           </Grid>
@@ -1851,7 +1880,7 @@ const NewTrainingRequest = () => {
   {/* Email Input Section */}
   {formData.employeeDetails === "add" && (
     <Grid item size={4}>
-      <FormControl fullWidth style={{marginLeft: "-36px",}} >
+      <FormControl fullWidth >
         <Typography className="subheader" style={{ display: "inline",marginBottom: "0.5rem",  color: "#4F4949" }}>
           Enter comma(,) separated email ids{" "}
           <span className="required">*</span>
@@ -1863,7 +1892,7 @@ const NewTrainingRequest = () => {
           value={formData.emails}
           onChange={handleChange}
           InputProps={{
-            style: { fontSize: "12.5px", marginLeft: "0px" },
+            style: { fontSize: "12.5px" },
           }}
         />
       </FormControl>
@@ -1872,7 +1901,7 @@ const NewTrainingRequest = () => {
 
   {/* Add Employee Button */}
   <Grid item >
-    <Box display="flex" justifyContent="flex-end" marginTop="1.7rem" style={{marginLeft: "-32px"}}>
+    <Box display="flex" justifyContent="flex-end" marginTop="1.7rem" >
       <Button
         className="btn"
         variant="contained"
@@ -1896,7 +1925,7 @@ const NewTrainingRequest = () => {
 
   {formData.employeeDetails === "open" && (
           <Grid item>
-            <Typography className="subheader" align="center" style={{ marginTop: "32px", marginLeft: "-35px", color: "#4F4949", fontSize: "12px" }}>
+            <Typography className="subheader" align="center" style={{ marginTop: "32px", color: "#4F4949", fontSize: "12px" }}>
               OR
             </Typography>
           </Grid>
@@ -1905,7 +1934,7 @@ const NewTrainingRequest = () => {
   {/* Employee Level Section */}
   {formData.employeeDetails === "open" && role === "CapDev" && (
     <Grid item size={4}>
-      <FormControl fullWidth className="formControl" style={{marginLeft: "-35px"}}>
+      <FormControl fullWidth className="formControl">
         <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949"  }}>
           Employee Level <span className="required">*</span>
         </Typography>
@@ -1930,7 +1959,7 @@ const NewTrainingRequest = () => {
 
   {/* Add Employees by Level Button */}
   {formData.employeeDetails === "open" && role === "CapDev" && (
-    <Grid item style={{marginLeft: "-56px"}}>
+    <Grid item >
       <Box display="flex" justifyContent="flex-end" marginTop="1.7rem">
         <Button
           className="btn"
@@ -1955,116 +1984,112 @@ const NewTrainingRequest = () => {
   )}
   {/* Table for Employees */}
   {formData.showTable && (
-    <Grid item size={12}>
-      
-      <TableContainer component={Paper} className="tableContainer">
-        <Table size="smaller">
-          <TableHead className="head">
-            <TableRow style={{ height: "10px", backgroundColor: '#CCE3FF' }}>
-              <TableCell className="tableHeader">Employee ID</TableCell>
-              <TableCell className="tableHeader">Name</TableCell>
-              <TableCell className="tableHeader">Available From</TableCell>
-              <TableCell className="tableHeader">Daily Bandwidth</TableCell>
-              <TableCell className="tableHeader">Available on Weekend?</TableCell>
-              <TableCell className="tableHeader">Actions</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell></TableCell>
-              
-              <TableCell>
-                <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
-        <TextField
-          variant="outlined"
-          placeholder="Search Employees"
-          value={formData.searchQuery}
-          onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
-          style={{ fontSize: "12px", width: "200px" }}
-          InputProps={{
-            style: { fontSize: "12.5px" },
-          }}
-        />
-      </Box>
-              </TableCell>
-              <TableCell>
-              <TextField
-  className="availabledates"
-  type="date"
-  value={formData.availableFromDate}
-  onChange={availableFromDateChange}
-  inputProps={{
-    min: new Date().toISOString().split("T")[0], // Set the minimum date to today
-  }}
-  sx={{
-    fontSize: "10px",
-    fontFamily: "Poppins",
-    letterSpacing: "-0.5px", // Reduce letter spacing
-    padding: "5px",
-    width: "160px",
-    '& input': {
-      fontSize: '14px',
-    }
-  }}
- 
- 
-/>
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={formData.updateAllBandwidth || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      updateAllBandwidth: e.target.value,
-                    })
-                  }
-                  size="small"
-                  sx={{
-                    fontSize: "10px", // Decrease font size
-                    fontFamily: "Poppins", // Apply Poppins font family
-                    letterSpacing: "-0.5px", // Reduce letter spacing
-                    padding: "5px", // Adjust padding inside Select component
+  <Grid item size={12}>
+    <TableContainer component={Paper} className="tableContainer">
+      <Table size="smaller">
+        <TableHead className="head">
+          <TableRow style={{ height: "10px", backgroundColor: '#CCE3FF' }}>
+            <TableCell className="tableHeader">Employee ID</TableCell>
+            <TableCell className="tableHeader">Name</TableCell>
+            <TableCell className="tableHeader">Available From</TableCell>
+            <TableCell className="tableHeader">Daily Bandwidth</TableCell>
+            <TableCell className="tableHeader">Available on Weekend?</TableCell>
+            <TableCell className="tableHeader">Actions</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell>
+              <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
+                <TextField
+                  variant="outlined"
+                  placeholder="Search Employees"
+                  value={formData.searchQuery}
+                  onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
+                  style={{ fontSize: "12px", width: "200px" }}
+                  InputProps={{
+                    style: { fontSize: "12.5px" },
                   }}
-                >
-                  <MenuItem value="">Select</MenuItem>
-                  <MenuItem value="2 Hours">2 Hours</MenuItem>
-                  <MenuItem value="4 Hours">4 Hours</MenuItem>
-                  <MenuItem value="6 Hours">6 Hours</MenuItem>
-                  <MenuItem value="Full Day">Full Day</MenuItem>
-                </Select>
-              </TableCell>
-              <TableCell>
-                <RadioGroup
-                  row
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      updateAllWeekend: e.target.value,
-                    })
+                />
+              </Box>
+            </TableCell>
+            <TableCell>
+              <TextField
+                className="availabledates"
+                type="date"
+                value={formData.availableFromDate}
+                onChange={availableFromDateChange}
+                inputProps={{
+                  min: new Date().toISOString().split("T")[0], // Set the minimum date to today
+                }}
+                sx={{
+                  fontSize: "10px",
+                  fontFamily: "Poppins",
+                  letterSpacing: "-0.5px", // Reduce letter spacing
+                  padding: "5px",
+                  width: "160px",
+                  '& input': {
+                    fontSize: '14px',
                   }
-                >
-                  <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                  <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
-                </RadioGroup>
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="contained"
-                  style={{ textTransform: "none", padding: "5px" }}
-                  onClick={() =>
-                    updateAllEmployees({
-                     availableFrom: formData.availableFromDate,
-                      bandwidth: formData.updateAllBandwidth,
-                      weekend: formData.updateAllWeekend,
-                    })
-                  }
-                  size="small"
-                >
-                  Update All
-                </Button>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-<TableBody>
+                }}
+              />
+            </TableCell>
+            <TableCell>
+              <Select
+                value={formData.updateAllBandwidth || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    updateAllBandwidth: e.target.value,
+                  })
+                }
+                size="small"
+                sx={{
+                  fontSize: "10px", // Decrease font size
+                  fontFamily: "Poppins", // Apply Poppins font family
+                  letterSpacing: "-0.5px", // Reduce letter spacing
+                  padding: "5px", // Adjust padding inside Select component
+                }}
+              >
+                <MenuItem value="">Select</MenuItem>
+                <MenuItem value="2 Hours">2 Hours</MenuItem>
+                <MenuItem value="4 Hours">4 Hours</MenuItem>
+                <MenuItem value="6 Hours">6 Hours</MenuItem>
+                <MenuItem value="Full Day">Full Day</MenuItem>
+              </Select>
+            </TableCell>
+            <TableCell>
+              <RadioGroup
+                row
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    updateAllWeekend: e.target.value,
+                  })
+                }
+              >
+                <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
+                <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+              </RadioGroup>
+            </TableCell>
+            <TableCell>
+              <Button
+                variant="contained"
+                style={{ textTransform: "none", padding: "5px" }}
+                onClick={() =>
+                  updateAllEmployees({
+                    availableFrom: formData.availableFromDate,
+                    bandwidth: formData.updateAllBandwidth,
+                    weekend: formData.updateAllWeekend,
+                  })
+                }
+                size="small"
+              >
+                Update All
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
   {formData.employees
     .filter((employee) =>
       employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase())
@@ -2082,7 +2107,55 @@ const NewTrainingRequest = () => {
               {employee.id}
             </Box>
           </TableCell>
-          <TableCell>{employee.name}</TableCell>
+          <TableCell>
+            {employee.name}
+            {employee.total_requests > 0 && (
+              <Accordion >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls={`panel-${employee.id}-content`}
+                  id={`panel-${employee.id}-header`}
+    
+                >
+                  <Typography variant="body2" color="textSecondary"  style={{ width: '160px', height: '19px', fontSize: '12px' }}>
+                    {employee.total_requests} learning{employee.total_requests > 1 ? 's' : ''} in progress
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Table size="small" aria-label="details">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Req No:</TableCell>
+                        <TableCell>Project</TableCell>
+                        <TableCell>Objective</TableCell>
+                        <TableCell>Tech Stack</TableCell>
+                        <TableCell>Requested on</TableCell>
+                        <TableCell>Assigned by</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {employee.requests?.map((request, index) => (
+                        <TableRow key={index}>
+                          <TableCell>#{request.requestid}</TableCell>
+                          <TableCell>{request.project_name}</TableCell>
+                          <TableCell>{request.training_objective}</TableCell>
+                          <TableCell>{request.tech_stacks}</TableCell>
+                          <TableCell>
+                            {new Date(request.createddate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </TableCell>
+                          <TableCell>{request.requested_by || 'N/A'}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </AccordionDetails>
+              </Accordion>
+            )}
+          </TableCell>
           <TableCell>
             <TextField
               type="date"
@@ -2141,87 +2214,28 @@ const NewTrainingRequest = () => {
             </IconButton>
           </TableCell>
         </TableRow>
-        <TableRow>
-          <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography>View Learning Details</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {employee.requests ? (
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Req No</TableCell>
-                        <TableCell>Project</TableCell>
-                        <TableCell>Objective</TableCell>
-                        <TableCell>Tech Stack</TableCell>
-                        <TableCell>Requested On</TableCell>
-                        <TableCell>Status</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {employee.requests.map((request) => (
-                        <TableRow key={request.requestid}>
-                          <TableCell>#{request.requestid}</TableCell>
-                          <TableCell>Staffing Nation</TableCell>
-                          <TableCell>Upselling</TableCell>
-                          <TableCell>{request.tech_stacks}</TableCell>
-                          <TableCell>
-                            {new Date(request.createddate).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <Typography
-                              sx={{
-                                color: request.status === "completed" ? "#4CAF50" : "#B33A3A",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {request.status}
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {employee.requests.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={6} align="center">
-                            No previous requests found
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                    <CircularProgress size={24} />
-                  </Box>
-                )}
-              </AccordionDetails>
-            </Accordion>
-          </TableCell>
-        </TableRow>
       </React.Fragment>
     ))}
 </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={formData.employees.length}
-          rowsPerPage={formData.rowsPerPage}
-          page={formData.page}
-          onPageChange={(e, newPage) => setFormData({ ...formData, page: newPage })}
-          onRowsPerPageChange={(e) =>
-            setFormData({
-              ...formData,
-              rowsPerPage: parseInt(e.target.value, 10),
-              page: 0,
-            })
-          }
-        />
-      </TableContainer>
-    </Grid>
-  )}
+      </Table>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={formData.employees.length}
+        rowsPerPage={formData.rowsPerPage}
+        page={formData.page}
+        onPageChange={(e, newPage) => setFormData({ ...formData, page: newPage })}
+        onRowsPerPageChange={(e) =>
+          setFormData({
+            ...formData,
+            rowsPerPage: parseInt(e.target.value, 10),
+            page: 0,
+          })
+        }
+      />
+    </TableContainer>
+  </Grid>
+)}
 
   {/* No Employees Message */}
   {!formData.showTable && (

@@ -43,6 +43,7 @@ const orgLevelLearnerRoutes = require('./routes/orgLevelLearnerRoutes'); // Add 
 const getEmpLearningCompletionRoutes = require('./routes/getEmpLearningCompletionRoutes');
 const getEmpsforCapdev = require('./routes/getEmployeesBasedOnRoleRoutes');
 const getsetEmpBasedOnIdRoutes = require('./routes/getsetEmpBasedOnIdRoutes');
+const loginRoutes = require('./routes/loginRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -111,6 +112,8 @@ app.use('/api/managerSearchByName', managerSearchByNameRoutes);
 // Get employee new training requested routes
 app.use('/api/getEmpNewTrainingRequested', getEmpNewTrainingRequestedRoutes);
 
+
+
 // Request status routes
 app.use('/api/request-status', requestStatusRoutes);
 
@@ -157,6 +160,7 @@ app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
 
 app.use('/api/employee-completion-status', getEmpLearningCompletionRoutes);
 
+app.use('/api', loginRoutes)
 //capdev courses Assign and status update routes
 
 app.use('/api/courses', courseSearchRoutes);

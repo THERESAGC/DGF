@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 // import Dashboard from "./Training/Dashboard";
-import RequestTable from "./Training/RequestTable";
-import TrainingHeaderBtn from "./Training/TrainingHeaderBtn";
-import AuthContext from './Auth/AuthContext';
+// import RequestTable from "./Training/RequestTable";
+// import TrainingHeaderBtn from "../Training/TrainingHeaderBtn";
+import AdminSetting from './AdminSetting';
+import AuthContext from '../Auth/AuthContext';
+import AdminHeaderBtn from './AdminHeaderBtn';
  
-const TrainingContainer = () => {
+const AdminContainer = () => {
   const { user } = useContext(AuthContext);
   const [roleId, setRoleId] = useState(null);
  
@@ -29,17 +31,17 @@ const TrainingContainer = () => {
       marginright: '0',
       maxHeight: '100vh',
       maxWidth: '100%',
-      marginBottom:"50px"
+
     }
   };
  
   return (
     <div style={styles.mainContent}>
-      <TrainingHeaderBtn />
-      {roleId && <RequestTable roleId={roleId} />}
+      <AdminHeaderBtn />
+      {roleId && <AdminSetting roleId={roleId} />}
       {/* <Dashboard /> */}
     </div>
   );
 };
  
-export default TrainingContainer;
+export default AdminContainer;

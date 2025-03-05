@@ -11,34 +11,32 @@ SELECT
     COUNT(request_primary_skills.primaryskill_id) AS primary_skills_count,
     GROUP_CONCAT(DISTINCT primaryskill.skill_name) AS primary_skills,
     GROUP_CONCAT(DISTINCT techstack.stack_name) AS tech_stacks,
-    training_obj.training_name AS training_objective,  -- Fetch training objective name
-    requested_by.name AS requestedby_name  -- Fetch requestedby name
+    training_obj.training_name AS training_objective, -- To fetch the training objective name
+    logintable.name AS requested_by, -- Assuming logintable has the employee name as emp_name
+    projectname.ProjectName AS project_name -- To fetch the project name
 FROM
     emp_newtrainingrequested
 LEFT JOIN
     request_primary_skills
-ON
-    emp_newtrainingrequested.requestid = request_primary_skills.requestid
+    ON emp_newtrainingrequested.requestid = request_primary_skills.requestid
 LEFT JOIN
     newtrainingrequest
-ON
-    emp_newtrainingrequested.requestid = newtrainingrequest.requestid
+    ON emp_newtrainingrequested.requestid = newtrainingrequest.requestid
+LEFT JOIN
+    logintable
+    ON logintable.emp_id = newtrainingrequest.requestonbehalfof -- Fix: Added logintable to join on employee ID
 LEFT JOIN
     primaryskill
-ON
-    request_primary_skills.primaryskill_id = primaryskill.skill_id
+    ON request_primary_skills.primaryskill_id = primaryskill.skill_id
 LEFT JOIN
     techstack
-ON
-    primaryskill.stack_id = techstack.stack_id
+    ON primaryskill.stack_id = techstack.stack_id
 LEFT JOIN
     training_obj
-ON
-    newtrainingrequest.trainingobj = training_obj.training_id  -- Join to get the training objective
+    ON newtrainingrequest.trainingobj = training_obj.training_id -- Join with training_obj for training objective name
 LEFT JOIN
-    logintable AS requested_by
-ON
-    newtrainingrequest.requestedbyid = requested_by.emp_id  -- Join to get requestedby name
+    projectname
+    ON newtrainingrequest.projectid = projectname.ProjectID -- Join with projectname to get the project name
 WHERE
     newtrainingrequest.requeststatus NOT IN ('rejected', 'Completed', 'Completed with Delay', 'Incomplete', 'Learning Suspended')
     AND newtrainingrequest.org_level = 0
@@ -49,7 +47,9 @@ GROUP BY
     newtrainingrequest.requeststatus,
     emp_newtrainingrequested.createddate,
     training_obj.training_name,
-    requested_by.name;
+    logintable.name, -- Changed newtrainingrequest.requestedby to logintable.emp_name
+    projectname.ProjectName;
+ 
  
         `;
  

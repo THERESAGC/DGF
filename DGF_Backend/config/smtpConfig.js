@@ -1,14 +1,4 @@
-// config/smtpConfig.js
-// module.exports.smtpConfig = {
-//     service: 'Office365', // Using Office365
-//     auth: {
-//       user: 'Swaroop.Bidkar@harbingergroup.com',  // Replace with your email
-//       pass: '',          // Replace with your email password or app password
-//     },
-//     tls: {
-//       ciphers: 'SSLv3', // Make sure the correct ciphers are used
-//     },
-//   };
+
   
   const smtpConfig = {
     host: "smtp.office365.com", // Office365 SMTP server

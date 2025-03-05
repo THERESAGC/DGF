@@ -8,6 +8,7 @@ import TrainingIcon from '../../assets/Training.svg';
 import MyCourseIcon from '../../assets/mycourse.svg';
 import EventIcon from '../../assets/event.svg';
 import Logo from '../../assets/harbinger-logo.svg';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import '../FixedNavigation/Sidebar.css';
 
@@ -25,6 +26,8 @@ const Sidebar = () => {
       '/my-events': 'Events',
       '/spoc-approval': 'Learnings',
       '/clarification-requested': 'Learnings',
+      '/admin-container': 'Settings',
+
     };
     setSelectedTab(pathToTab[location.pathname] || 'Dashboard');
   }, [location.pathname]);
@@ -60,6 +63,11 @@ const Sidebar = () => {
             text: 'Events',
             icon: <img src={EventIcon} alt="Events" style={{ width: 15, height: 15, paddingLeft: 25 }} />,
             path: '/my-events',
+          },
+          {
+            text: 'Settings',
+            icon: <SettingsIcon style={{ width: 15, height: 15, paddingLeft: 25 }} />,
+            path: '/admin-container',
           },
         ].map((item, index) => (
           <ListItemButton
