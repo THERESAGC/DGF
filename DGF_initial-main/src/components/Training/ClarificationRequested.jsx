@@ -1,6 +1,6 @@
  
 import React from 'react';
-import { Paper, Typography, Grid, Divider,Pagination, Box, FormControl, TableCell, TableContainer, Table, TableHead, TableRow, TableBody, Avatar, Button, RadioGroup, FormControlLabel, Radio, TextField, Autocomplete, MenuItem, Select, TablePagination, Snackbar } from "@mui/material";
+import { Paper, Typography, Grid, Divider,Pagination, Box, FormControl, TableCell, TableContainer, Table, TableHead, TableRow, TableBody, Avatar, Button, RadioGroup, FormControlLabel, Radio, TextField, Autocomplete, MenuItem, Select, TablePagination, Snackbar, Dialog, DialogTitle} from "@mui/material";
 import { useState, useEffect ,useContext} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import IconButton from '@mui/material/IconButton'; // Correct import for IconButton
@@ -14,6 +14,7 @@ import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { ChatContext } from '../context/ChatContext'; // Import ChatContext
 import MuiAlert from '@mui/material/Alert';
 import { _toLeftRightCenter } from 'chart.js/helpers';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 // Define the Alert component for Snackbar
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -38,8 +39,7 @@ const ClarificationRequested = ({roleId}) => {
   const [previousEmployeesInDB, setpreviousEmployeesInDB] = useState([]);
   const itemsPerPage = 5;
   const [page, setPage] = useState(1);
- 
- 
+ const[statusDialogOpen, setStatusDialogOpen] = useState(false);
  
   const [formData, setFormData] = useState({
     emails: "",
@@ -207,7 +207,7 @@ const addEmployee = async () => {
     if (invalidEmails.length > 0) {
       setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
       setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+     statusDialogOpen(true);
     }
   }
  
@@ -445,7 +445,10 @@ const handleSubmit = async () => {
     setSnackbarMessage("Employee records updated successfully");
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
-
+    const handleCloseStatusDialog = () => {
+      setStatusDialogOpen(false);
+      navigate("/training-container");
+    };
     // Optionally reset form state or clear formData
     setFormData({
       employees: [],
@@ -455,7 +458,7 @@ const handleSubmit = async () => {
       invalidEmails: [],
     });
 
-    
+    setStatusDialogOpen(true);
     // // Restart the page
     // setTimeout(() => {
     //   window.location.reload();
@@ -478,7 +481,10 @@ const hasChanges = (employee, dbEmployee) => {
     employee.weekend !== dbEmployee.weekend
   );
  
+  
+
 };
+
   return (
     <>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -493,7 +499,9 @@ const hasChanges = (employee, dbEmployee) => {
 >
   <IconButton style={{ color: "black", marginRight: "1rem"  ,marginBottom:"-17px", marginLeft: "-33px",}}>
     <ArrowBackIosNewIcon />
-  </IconButton></Box  ><Box style={{marginRight: "87%"}}>  
+  </IconButton>
+  </Box>
+  <Box style={{marginRight: "87%"}}>  
   <Typography
     variant="h5"
     gutterBottom
@@ -909,7 +917,7 @@ const hasChanges = (employee, dbEmployee) => {
         </div>
       </Paper>
 
-      <Snackbar
+      {/* <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
@@ -917,7 +925,42 @@ const hasChanges = (employee, dbEmployee) => {
         <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
+
+<Dialog
+  open={statusDialogOpen}
+  onClose={handleCloseStatusDialog}
+  maxWidth="xs"
+  fullWidth
+  PaperProps={{
+    style: {
+      padding: "10px",
+      borderRadius: "8px",
+      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    },
+  }}
+><DialogTitle
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      fontSize: "24px",
+    }}
+  >
+    <CheckCircleIcon style={{ color: "green", fontSize: "3rem" }} />
+    Request Updated Successfully!
+    <IconButton
+      onClick={handleCloseStatusDialog}
+      style={{
+        position: "absolute",
+        right: "10px",
+        top: "10px",
+        padding: "0",
+      }}>
+         <CloseIcon style={{ fontSize: "1.5rem" }} />
+        </IconButton>
+        </DialogTitle>
+        </Dialog>
     </>
   );
 };

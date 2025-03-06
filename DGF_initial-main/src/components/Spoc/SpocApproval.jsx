@@ -2,7 +2,7 @@ import {  useState ,useEffect,useContext} from "react";
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { useNavigate ,useParams } from "react-router-dom";
-import { Paper, Typography, Menu,MenuItem,Pagination,IconButton, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar } from "@mui/material";
+import { Paper, Typography, Menu,MenuItem,Pagination,IconButton, Grid, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Radio, RadioGroup, FormControlLabel, TextField, Button, Avatar, Dialog, DialogTitle } from "@mui/material";
 import "./SpocApproval.css";
 import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
@@ -11,6 +11,9 @@ import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { io } from "socket.io-client";  
 import { ChatContext } from '../context/ChatContext'; // Import ChatContext
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CloseIcon from '@mui/icons-material/Close';
+import { set } from "date-fns";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
  
 const SpocApproval = ({roleId}) => {
 const [learners, setLearners] = useState([]);
@@ -28,6 +31,7 @@ const [page, setPage] = useState(1);
 const [socket, setSocket] = useState(null);
 const [sortedLearners, setSortedLearners] = useState(learners); // State to hold sorted learners
 const [anchorEl, setAnchorEl] = useState(null); // For menu anchor
+const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
 useEffect(() => {
   const fetchData = async () => {
@@ -180,11 +184,11 @@ const handleSubmit = async () => {
     const statusData = await statusResponse.json();
     if (statusResponse.ok) {
       console.log("API call successful:", statusData);
-      alert("Status updated successfully!");
+      setStatusDialogOpen(true);
     } else {
       console.error("Error in API call:", statusData);
       console.log(statusData)
-      alert("Error updating status.");
+      setStatusDialogOpen(false);
       return; // Exit early if status update fails
     }
  
@@ -243,7 +247,10 @@ const handleSubmit = async () => {
     // alert("An error occurred while updating status.");
   }
 };
- 
+const handleCloseStatusDialog = () => {
+  setStatusDialogOpen(false);
+  navigate("/training-container");
+}
  
   return (
     <>
@@ -639,6 +646,40 @@ const handleSubmit = async () => {
           </Box>
         </div>
       </Paper>
+      <Dialog
+  open={statusDialogOpen}
+  onClose={handleCloseStatusDialog}
+  maxWidth="xs"
+  fullWidth
+  PaperProps={{
+    style: {
+      padding: "10px",
+      borderRadius: "8px",
+      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    },
+  }}
+><DialogTitle
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      fontSize: "24px",
+    }}
+  >
+    <CheckCircleIcon style={{ color: "green", fontSize: "3rem" }} />
+    Status updated successfully!
+    <IconButton
+      onClick={handleCloseStatusDialog}
+      style={{
+        position: "absolute",
+        right: "10px",
+        top: "10px",
+        padding: "0",
+      }}>
+         <CloseIcon style={{ fontSize: "1.5rem" }} />
+        </IconButton>
+        </DialogTitle>
+        </Dialog>
     </>
   );
 };
