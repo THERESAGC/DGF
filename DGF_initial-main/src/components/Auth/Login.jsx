@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import axios from 'axios';
 import AuthContext from './AuthContext';
-import logo from '../../assets/harbinger-logo.svg'; // Adjust the path to your logo
+import logo from '../../assets/harbinger-logo.svg'; 
  
 const Login = () => {
   const [email, setEmail] = useState('');

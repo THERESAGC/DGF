@@ -1,6 +1,5 @@
- 
 import React from 'react';
-import { Paper, Typography, Grid, Divider,Pagination, Box, FormControl, TableCell, TableContainer, Table, TableHead, TableRow, TableBody, Avatar, Button, RadioGroup, FormControlLabel, Radio, TextField, Autocomplete, MenuItem, Select, TablePagination, Snackbar, Dialog, DialogTitle} from "@mui/material";
+import { Paper, Typography, Grid, Divider,Pagination, Box, FormControl, TableCell, TableContainer, Table, TableHead, TableRow, TableBody, Avatar, Button, RadioGroup, FormControlLabel, Radio, TextField, Autocomplete, MenuItem, Select, Snackbar, Dialog, DialogTitle} from "@mui/material";
 import { useState, useEffect ,useContext} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import IconButton from '@mui/material/IconButton'; // Correct import for IconButton
@@ -13,15 +12,15 @@ import removeHtmlTags from "../../utils/htmlUtils";
 import { arrayBufferToBase64 } from '../../utils/ImgConveter';
 import { ChatContext } from '../context/ChatContext'; // Import ChatContext
 import MuiAlert from '@mui/material/Alert';
-import { _toLeftRightCenter } from 'chart.js/helpers';
+// import { _toLeftRightCenter } from 'chart.js/helpers';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
+ 
 // Define the Alert component for Snackbar
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
  
-const ClarificationRequested = ({roleId}) => {
+const ClarificationRequested = () => {
   const [learners, setLearners] = useState([]); // State to hold the fetched learners data
   const navigate = useNavigate();
   const { requestid } = useParams();
@@ -40,6 +39,9 @@ const ClarificationRequested = ({roleId}) => {
   const itemsPerPage = 5;
   const [page, setPage] = useState(1);
  const[statusDialogOpen, setStatusDialogOpen] = useState(false);
+ const handleCloseStatusDialog = () => {
+  setStatusDialogOpen(false);
+};
  
   const [formData, setFormData] = useState({
     emails: "",
@@ -61,11 +63,11 @@ const ClarificationRequested = ({roleId}) => {
         const requestdata = await requestResponse.json();
         setRequestDetails(requestdata);
         console.log('Request Details:', requestdata);
-  
+ 
         const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestid}`);
         const learnerdata = await learnerResponse.json();
         setpreviousEmployeesInDB(learnerdata);
-  
+ 
         const updatedLearners = learnerdata.map((learner) => {
           if (learner.profile_image && learner.profile_image.data) {
             const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`;
@@ -73,28 +75,28 @@ const ClarificationRequested = ({roleId}) => {
           }
           return learner;
         });
-  
+ 
         console.log("Learners data:", updatedLearners);  // Check if learners are fetched
-  
+ 
         setLearners(updatedLearners);
-  
+ 
         const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
         const commentsdata = await commentsResponse.json();
         setComments(commentsdata);
         console.log('Fetched Comments:', commentsdata); // Add this line to log fetched comments
-  
+ 
         if (commentsdata.length > 0) {
           const latestComment = commentsdata.reduce((latest, comment) =>
             new Date(comment.created_date) > new Date(latest.created_date) ? comment : latest
           );
           setLatestCommentId(latestComment.comment_id);
         }
-  
+ 
         const userIds = new Set();
         commentsdata.forEach(comment => {
           if (comment.created_by) userIds.add(comment.created_by);
         });
-  
+ 
         const profiles = {};
         for (let userId of userIds) {
           const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
@@ -111,29 +113,29 @@ const ClarificationRequested = ({roleId}) => {
           }
         }
         setUserProfiles(profiles);
-  
+ 
         // Update formData with learners
         setFormData((prevFormData) => ({
           ...prevFormData,
           employees: updatedLearners,
           showTable: true,
         }));
-  
+ 
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-  
+ 
     fetchData();
   }, [requestid]);
-
+ 
   const totalPages = Math.ceil(learners.length / itemsPerPage);
   const currentItems = formData.employees.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
  
-
+ 
 const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
  
 useEffect(() => {
@@ -250,7 +252,7 @@ const deleteEmployeeinDB = async (emp_id) => {
     console.error("Failed to delete employee.");
   }
 };
-
+ 
 const removeEmployee = (emp_id) => {
   deleteEmployeeinDB(emp_id); // Call the function to delete the employee from the database
   setFormData((prevData) => {
@@ -303,7 +305,7 @@ const handleEmailSearch = async (email) => {
 const handleEmployeeSearch = (event, value) => {
   if (value.length > 0) {
     const apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${requestDetails.requestedbyid}&name=${value}`;
-
+ 
     fetch(apiUrl)
       .then((response) => response.json())
       .then((data) => {
@@ -352,7 +354,7 @@ const addEmployeeinDB = async (employee) => {
     console.error("Error details:", errorData);
   }
 };
-
+ 
 const updateEmployeeinDB = async (employee) => {
   const requestBody = [{
     emp_id: employee.emp_id,
@@ -375,13 +377,14 @@ const updateEmployeeinDB = async (employee) => {
     console.error("Error details:", errorData);
   }
 };
-
+ 
+ 
 const handleSubmit = async () => {
   /**********************Comments Websocket logic***********************/
   if (newMessage.trim()) {
     sendMessage(newMessage, requestDetails?.requestid, user.emp_id, "Approval Requested");
   }
-
+ 
   const commentdata = {
     requestid: requestDetails?.requestid,
     comment_text: newMessage,
@@ -389,7 +392,7 @@ const handleSubmit = async () => {
     parent_comment_id: latestCommentId,
     requeststatus: "Approval Requested"
   };
-
+ 
   if (latestCommentId) {
     try {
       const response = await fetch("http://localhost:8000/api/comments/", {
@@ -399,7 +402,7 @@ const handleSubmit = async () => {
         },
         body: JSON.stringify(commentdata),
       });
-
+ 
       if (response.ok) {
         console.log("Comment Added Successfully");
         setNewMessage('');
@@ -410,17 +413,17 @@ const handleSubmit = async () => {
       console.error('Error adding comment:', err);
     }
   }
-
+ 
   /*************Employee addition removal logic********** */
-
+ 
   try {
     const currentEmployeeIds = formData.employees.map((emp) => emp.emp_id);
-
+ 
     // 1. Detect new employees
     const newEmployees = formData.employees.filter(
       (emp) => !previousEmployeesInDB.some((dbEmp) => dbEmp.emp_id === emp.emp_id)
     );
-
+ 
     // 2. Detect employees that need updating
     const employeesToUpdate = formData.employees.filter(
       (emp) =>
@@ -428,27 +431,24 @@ const handleSubmit = async () => {
           (dbEmp) => dbEmp.emp_id === emp.emp_id && hasChanges(emp, dbEmp)
         )
     );
-
+ 
     // 3. Detect removed employees
     const employeesToDelete = previousEmployeesInDB.filter(
       (dbEmp) => !currentEmployeeIds.includes(dbEmp.emp_id)
     );
-
+ 
     // Perform API calls to add, update, or delete employees
     await Promise.all([
       ...newEmployees.map((emp) => addEmployeeinDB(emp)),
       ...employeesToUpdate.map((emp) => updateEmployeeinDB(emp)),
       ...employeesToDelete.map((emp) => deleteEmployeeinDB(emp.emp_id)),
     ]);
-
+ 
     // After successful operation, show success message
     setSnackbarMessage("Employee records updated successfully");
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
-    const handleCloseStatusDialog = () => {
-      setStatusDialogOpen(false);
-      navigate("/training-container");
-    };
+ 
     // Optionally reset form state or clear formData
     setFormData({
       employees: [],
@@ -457,14 +457,14 @@ const handleSubmit = async () => {
       emails: "",
       invalidEmails: [],
     });
-
+ 
     setStatusDialogOpen(true);
     // // Restart the page
     // setTimeout(() => {
     //   window.location.reload();
     // }); // Adjust the delay as needed
-
-
+ 
+ 
   } catch (error) {
     console.error("Error submitting employee data:", error);
     setSnackbarMessage("An error occurred while updating employee records.");
@@ -481,10 +481,10 @@ const hasChanges = (employee, dbEmployee) => {
     employee.weekend !== dbEmployee.weekend
   );
  
-  
-
+ 
+ 
 };
-
+ 
   return (
     <>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -506,7 +506,7 @@ const hasChanges = (employee, dbEmployee) => {
     variant="h5"
     gutterBottom
     className="mainHeading"
-  
+ 
     style={{ margin:"1rem -38px 1 rem -24px"}}
   >
     Learning Request
@@ -656,14 +656,14 @@ const hasChanges = (employee, dbEmployee) => {
       />
     </FormControl>
   </Grid>
-
+ 
   {/* OR Section */}
   <Grid item size={1} style={{ marginTop: "52px",marginLeft: "-30px" }}>
     <Typography className="subheader" align="center" style={{ display: "inline", marginTop: "32px", color: "#4F4949", fontSize: "12px" }}>
       OR
     </Typography>
   </Grid>
-
+ 
   {/* Email Input Section */}
   <Grid item size={3.5} >
     <FormControl fullWidth style={{ marginLeft: "-36px", marginTop: "24px" }}>
@@ -683,7 +683,7 @@ const hasChanges = (employee, dbEmployee) => {
       />
     </FormControl>
   </Grid>
-
+ 
   {/* Add Employee Button */}
   <Grid item size={4}>
     <Box display="flex" justifyContent="flex-end" marginTop="1.7rem" style={{ marginLeft: "-56px", marginTop: "50px" }}>
@@ -782,7 +782,7 @@ const hasChanges = (employee, dbEmployee) => {
         </TableBody>
       </Table>
     </TableContainer>
-
+ 
     <Box sx={{
                               display: "flex",
                               justifyContent: "space-between",
@@ -810,8 +810,8 @@ const hasChanges = (employee, dbEmployee) => {
                                 }}
                               />
                             </Box>
-
-
+ 
+ 
   </Grid>
 ) : (
   <p>No employees available</p>
@@ -916,7 +916,7 @@ const hasChanges = (employee, dbEmployee) => {
           </Box>
         </div>
       </Paper>
-
+ 
       {/* <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -926,7 +926,7 @@ const hasChanges = (employee, dbEmployee) => {
           {snackbarMessage}
         </Alert>
       </Snackbar> */}
-
+ 
 <Dialog
   open={statusDialogOpen}
   onClose={handleCloseStatusDialog}
@@ -966,5 +966,3 @@ const hasChanges = (employee, dbEmployee) => {
 };
  
 export default ClarificationRequested;
- 
- 
