@@ -17,9 +17,11 @@ const getEmpNewTrainingRequestedByRequestId = (requestid) => {
                 en.status,
                 en.createddate,
                 en.courses_assigned,
-                e.profile_image
+                e.profile_image,
+                ntr.org_level AS request_org_level
             FROM emp_newtrainingrequested en
             JOIN employee e ON en.emp_id = e.emp_id
+            JOIN newtrainingrequest ntr ON en.requestid = ntr.requestid
             WHERE en.requestid = ?;
         `;
         
@@ -27,7 +29,20 @@ const getEmpNewTrainingRequestedByRequestId = (requestid) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(results);
+                // Extract the org_level from the first row (since it's the same for all rows)
+                const requestOrgLevel = results.length > 0 ? results[0].request_org_level : null;
+
+                // Remove the org_level from each row to avoid redundancy
+                const employees = results.map(row => {
+                    const { request_org_level, ...rest } = row;
+                    return rest;
+                });
+
+                // Return the employees and the org_level separately
+                resolve({
+                    employees,
+                    request_org_level: requestOrgLevel
+                });
             }
         });
     });
