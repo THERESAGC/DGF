@@ -63,9 +63,11 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
       }}>
         <TableCell padding="checkbox">
           {hasActiveLearning && (
+            
             <IconButton onClick={() => onToggleExpand(row.emp_id)}>
               {isExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </IconButton>
+
           )}
         </TableCell>
         <TableCell padding="checkbox">

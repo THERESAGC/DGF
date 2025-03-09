@@ -39,7 +39,7 @@ const RequestTable = ({ roleId }) => {
   const [page, setPage] = useState(1);
  
   const [Datafiltered, setFilteredData] = useState([]);
-/*-------------------------------------*/
+
 const excludedStatuses = [
   "rejected",
   "approval requested",
@@ -57,8 +57,7 @@ const fetchLearnerData = useCallback((requestId) => {
       if (data && data.length) {
         const learnerImages = data.slice(0, 2).map(learner => learner.imageUrl); // Get first 2 learners' images
         const totalLearners = data.length; // Get total count of learners
-       
-        // Use prevState to update the learnersData
+
         setLearnersData(prevState => ({
           ...prevState, // Spread the previous state to avoid overwriting it
           [requestId]: { learnerImages, totalLearners, rawData: data }
@@ -312,28 +311,30 @@ const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => 
  
  
       // Adjust page if filtered data length changes
-  useEffect(() => {
-    if (filteredData.length === 0 || (page - 1) * rowsPerPage >= filteredData.length) {
-      setPage(1); // Reset to page 1 if there are no results or current page exceeds data
-    }
-  }, [filteredData, page]);
- 
-    // Calculate total pages based on filtered data
-    const totalPages = Math.ceil(Datafiltered.length / rowsPerPage);
- 
-    // Ensure that page does not exceed totalPages
-    useEffect(() => {
-      if (page > totalPages) {
-        setPage(totalPages);
-      }
-    }, [totalPages, page]);
- 
-    // Pagination Logic
-    const currentItems = Datafiltered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
- 
-    const handlePageChange = (e, value) => {
-      setPage(value);
-    };
+      useEffect(() => {
+        if (filteredData.length === 0 || (page - 1) * rowsPerPage >= filteredData.length) {
+          setPage(1); // Reset to page 1 if there are no results or current page exceeds data
+        }
+      }, [filteredData]);
+     
+      // Calculate total pages based on filtered data
+      const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+     
+      // Ensure that page does not exceed totalPages
+      useEffect(() => {
+        if (page > totalPages) {
+          setPage(totalPages);
+        }
+      }, [totalPages]);
+     
+      // Pagination Logic
+      const currentItems = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+     
+      const handlePageChange = (e, value) => {
+        setPage(value);
+      };
+     
+     
 
 useEffect(() => {
   if (user) {

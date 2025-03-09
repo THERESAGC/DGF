@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import {
@@ -136,11 +134,7 @@ const NewTrainingRequest = () => {
     return requiredFields.every((field) => field !== "" && field !== null)
   }
 
-  // useEffect(() => {
-  //   setIsFormValid(validateForm());
-  // }, [formData, formData.employees, formData.otherSkill, formData.completionCriteria]);
 
-  // Add these styled components at the top of the file
   const ExpandedSection = styled(Box)(({ theme }) => ({
     padding: "0 220px 16px 20px",
   }))
@@ -412,48 +406,63 @@ const NewTrainingRequest = () => {
   }, [user])
 
   const handleEmployeeSearch = (event, value) => {
-    if (value.length > 0) {
-      let apiUrl
-      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-        apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
-      } else {
-        apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
-      }
-
-      fetch(apiUrl)
-        .then((response) => response.json())
-        .then(async (data) => {
-          if (Array.isArray(data)) {
-            const employeesWithSkills = await Promise.all(
-              data.map(async (emp) => {
-                try {
-                  const learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
-                  const learnerData = await learnerResponse.json()
-                  return {
-                    ...emp,
-                    totalPrimarySkills: learnerData.total_primary_skills || 0,
+      if (value.length > 0) {
+        let apiUrl
+        if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+  apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
+        } else {
+  apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
+        }
+   
+        fetch(apiUrl)
+          .then((response) => response.json())
+          .then(async (data) => {
+            if (Array.isArray(data)) {
+              const employeesWithSkills = await Promise.all(
+  data.map(async (emp) => {
+                  try {
+                    let learnerResponse
+                    let learnerData
+   
+                    if (formData.employeeDetails === "open") {
+                      learnerResponse = await fetch(
+  `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
+                      )
+                      learnerData = await learnerResponse.json()
+                      return {
+                        ...emp,
+                        totalPrimarySkills: learnerData.total_requests || 0,
+                      }
+                    } else {
+  learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
+                      learnerData = await learnerResponse.json()
+                      return {
+                        ...emp,
+                        totalPrimarySkills: learnerData.total_primary_skills || 0,
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Error fetching learner data:", error)
+                    return { ...emp, totalPrimarySkills: 0 }
                   }
-                } catch (error) {
-                  console.error("Error fetching learner data:", error)
-                  return { ...emp, totalPrimarySkills: 0 }
-                }
-              }),
-            )
-            setSearchResults(
-              employeesWithSkills.map((emp) => ({
-                id: emp.emp_id,
-                name: emp.emp_name,
-                email: emp.emp_email,
-                profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
-                uniqueKey: `${emp.emp_id}-${Date.now()}`,
-                totalPrimarySkills: emp.totalPrimarySkills,
-              })),
-            )
-          }
-        })
-        .catch((error) => console.error("Error fetching employees:", error))
+                }),
+              )
+              setSearchResults(
+  employeesWithSkills.map((emp) => ({
+                  id: emp.emp_id,
+                  name: emp.emp_name,
+                  email: emp.emp_email,
+  profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
+  uniqueKey: `${emp.emp_id}-${Date.now()}`,
+                  totalPrimarySkills: emp.totalPrimarySkills,
+                })),
+              )
+            }
+          })
+          .catch((error) => console.error("Error fetching employees:", error))
+      }
     }
-  }
+
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
       fetch(`http://localhost:8000/api/managerSearchByName/searchManagersByName?name=${value}`)
@@ -571,57 +580,7 @@ const NewTrainingRequest = () => {
     setIsFormValid(validateForm())
   }
 
-  // const addEmployee = async () => {
-  //   const newEmployees = [];
-  //   const invalidEmails = [];
-
-  //   // Add selected employee from "Select Employee" field
-  //   if (
-  //     selectedEmployee &&
-  //     !formData.employees.some((emp) => emp.id === selectedEmployee.id)
-  //   ) {
-  //     newEmployees.push({
-  //       ...selectedEmployee,
-  //       availableFrom: "",
-  //       bandwidth: "",
-  //       weekend: "",
-  //     });
-  //     setSelectedEmployee(null); // Clear the selected employee after adding
-  //   }
-
-  //   // Process comma-separated emails
-  //   if (formData.emails.trim() !== "") {
-  //     const emailList = formData.emails.split(",").map((email) => email.trim());
-  //     const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
-
-  //     for (const email of uniqueEmails) {
-  //       const employee = await handleEmailSearch(email);
-  //       if (employee) {
-  //         // Check if the employee is already in the list
-  //         if (!formData.employees.some((emp) => emp.id === employee.id)) {
-  //           newEmployees.push(employee);
-  //         }
-  //       } else {
-  //         invalidEmails.push(email);
-  //       }
-  //     }
-  //     if (invalidEmails.length > 0) {
-  //       setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
-  //       setSnackbarSeverity("error");
-  //       setSnackbarOpen(true);
-  //     }
-  //   }
-
-  //   setFormData((prevFormData) => ({
-  //     ...prevFormData,
-  //     employees: [...prevFormData.employees, ...newEmployees],
-  //     showTable: true,
-  //     showSummary: true,
-  //     emails: "", // Clear the email input field
-  //     invalidEmails: invalidEmails, // Store invalid emails
-  //   }));
-  //   setIsFormValid(validateForm());
-  // };
+  
 
   const addEmployee = async () => {
     const newEmployees = []
@@ -1554,7 +1513,7 @@ const NewTrainingRequest = () => {
                     SelectDisplayProps={{ style: { fontSize: "12px" } }}
                     onChange={(e) => {
                       const selectedSkills = e.target.value
-                      if (selectedSkills.length <= 3) {
+                      if (selectedSkills.length = 1) {
                         setFormData({
                           ...formData,
                           selectedPrimarySkill: selectedSkills,
@@ -1701,28 +1660,7 @@ const NewTrainingRequest = () => {
               </RadioGroup>
             )}
           </FormControl>
-          {/* {formData.employeeDetails === "open" && role === "CapDev" && (
-  <FormControl fullWidth className="formControl">
-    <Typography className="subheader">
-      Employee Level <span className="required">*</span>
-    </Typography>
-    <Select
-      variant="outlined"
-      name="employeeLevel"
-      value={formData.selectedEmployeeLevel}
-      onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
-      style={{ height: "30px", fontSize: "12px" }}
-      multiple // Allow multiple selections
-    >
-      <MenuItem value=""><em>Select Employee Level</em></MenuItem>
-      {formData.employeeLevels.map(level => (
-        <MenuItem key={level.id} value={level.id}>
-          {level.job_title}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-)} */}
+        
           <Grid container spacing={5} style={{ gap: "10px" }}>
             {/* Employee Select Section */}
             <Grid item size={4}>
@@ -1735,75 +1673,100 @@ const NewTrainingRequest = () => {
                 </Typography>
 
                 <Autocomplete
-                  options={searchResults}
-                  getOptionLabel={(option) => option.name || ""}
-                  getOptionDisabled={(option) => option.totalPrimarySkills >= 3}
-                  onInputChange={handleEmployeeSearch}
-                  onChange={(event, value) => {
-                    if (value && value.totalPrimarySkills < 3) {
-                      setSelectedEmployee(value)
-                    }
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      placeholder="Search Employees"
-                      helperText="Employees with 3+ ongoing learnings cannot be selected"
-                      InputProps={{
-                        ...params.InputProps,
-                        style: { fontSize: "12.5px" },
-                      }}
-                    />
-                  )}
-                  renderOption={(props, option) => (
-                    <li
-                      {...props}
-                      style={{
-                        opacity: option.totalPrimarySkills >= 3 ? 0.5 : 1,
-                        pointerEvents: option.totalPrimarySkills >= 3 ? "none" : "auto",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "8px",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
-                        <span>{option.name}</span>
-                      </div>
+  options={searchResults}
+  getOptionLabel={(option) => option.name || ""}
+  getOptionDisabled={(option) =>
+    formData.employeeDetails === "open"
+      ? option.totalPrimarySkills >= 1
+      : option.totalPrimarySkills >= 3
+  }
+  onInputChange={handleEmployeeSearch}
+  onChange={(event, value) => {
+    if (
+      (formData.employeeDetails === "open" && value && value.totalPrimarySkills < 1) ||
+      (formData.employeeDetails === "add" && value && value.totalPrimarySkills < 3)
+    ) {
+      setSelectedEmployee(value);
+    }
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      placeholder="Search Employees"
+      helperText={
+        formData.employeeDetails === "open"
+          ? "Employees with 1+ ongoing learnings cannot be selected"
+          : "Employees with 3+ ongoing learnings cannot be selected"
+      }
+      InputProps={{
+        ...params.InputProps,
+        style: { fontSize: "12.5px" },
+      }}
+    />
+  )}
+  renderOption={(props, option) => (
+    <li
+      {...props}
+      style={{
+        opacity:
+          formData.employeeDetails === "open"
+            ? option.totalPrimarySkills >= 1
+              ? 0.5
+              : 1
+            : option.totalPrimarySkills >= 3
+            ? 0.5
+            : 1,
+        pointerEvents:
+          formData.employeeDetails === "open"
+            ? option.totalPrimarySkills >= 1
+              ? "none"
+              : "auto"
+            : option.totalPrimarySkills >= 3
+            ? "none"
+            : "auto",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "8px",
+        fontSize: "12px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
+        <span>{option.name}</span>
+      </div>
 
-                      {option.totalPrimarySkills > 0 && (
-                        <span
-                          style={{
-                            backgroundColor:
-                              option.totalPrimarySkills >= 3
-                                ? "#ffebee"
-                                : option.totalPrimarySkills === 1
-                                  ? "#fbfbd3"
-                                  : "#fbfbd3",
-                            borderRadius: "12px",
-                            padding: "4px 8px",
-                            fontSize: "10px",
-                            color: option.totalPrimarySkills >= 3 ? "#c62828" : "#000000",
-                          }}
-                        >
-                          {option.totalPrimarySkills} learnings
-                        </span>
-                      )}
-                    </li>
-                  )}
-                  PaperComponent={(props) => (
-                    <Paper
-                      {...props}
-                      style={{
-                        maxHeight: 300,
-                        fontSize: "12px",
-                      }}
-                    />
-                  )}
-                />
+      {option.totalPrimarySkills > 0 && (
+        <span
+          style={{
+            backgroundColor:
+              option.totalPrimarySkills >= 3
+                ? "#ffebee"
+                : option.totalPrimarySkills === 1
+                ? "#fbfbd3"
+                : "#fbfbd3",
+            borderRadius: "12px",
+            padding: "4px 8px",
+            fontSize: "10px",
+            color: option.totalPrimarySkills >= 3 ? "#c62828" : "#000000",
+          }}
+        >
+          {option.totalPrimarySkills} learnings
+        </span>
+      )}
+    </li>
+  )}
+  PaperComponent={(props) => (
+    <Paper
+      {...props}
+      style={{
+        maxHeight: 300,
+        fontSize: "12px",
+      }}
+    />
+  )}
+/>
               </FormControl>
             </Grid>
 
@@ -2298,20 +2261,6 @@ const NewTrainingRequest = () => {
           </Box>
         </Paper>
       </Paper>
-
-      {/* <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>  */}
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}
@@ -2353,4 +2302,3 @@ const NewTrainingRequest = () => {
   )
 }
 export default NewTrainingRequest
-

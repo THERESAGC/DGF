@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.26, for Win64 (x86_64)
 --
--- Host: localhost    Database: dgf_dummy
+-- Host: 127.0.0.1    Database: dgf_dummy
 -- ------------------------------------------------------
--- Server version	8.0.40
+-- Server version	8.0.26
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -47,7 +47,7 @@ CREATE TABLE `assigned_courses` (
   CONSTRAINT `assigned_courses_ibfk_3` FOREIGN KEY (`mentor_id`) REFERENCES `employee` (`emp_id`),
   CONSTRAINT `assigned_courses_ibfk_4` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`),
   CONSTRAINT `assigned_courses_ibfk_5` FOREIGN KEY (`coursetype_id`) REFERENCES `course_type` (`type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,7 +75,7 @@ CREATE TABLE `comments` (
   CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `logintable` (`emp_id`),
   CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `logintable` (`emp_id`),
   CONSTRAINT `comments_ibfk_4` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`comment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,7 +137,7 @@ CREATE TABLE `emp_newtrainingrequested` (
   KEY `idx_emp_request` (`emp_id`,`requestid`),
   CONSTRAINT `emp_newtrainingrequested_ibfk_1` FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest` (`requestid`),
   CONSTRAINT `fk_emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employee` (`emp_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -204,6 +204,8 @@ CREATE TABLE `logintable` (
   `password` varchar(255) NOT NULL,
   `role_id` int DEFAULT NULL,
   `profile_image` longblob,
+  `created_on` timestamp NULL DEFAULT NULL,
+  `status` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`emp_id`),
   UNIQUE KEY `email` (`email`),
   KEY `role_id` (`role_id`),
@@ -298,7 +300,7 @@ CREATE TABLE `newtrainingrequest` (
   `learningtype` bigint DEFAULT NULL,
   `skilldevelopment` bigint DEFAULT NULL,
   `AssignedTo` varchar(100) DEFAULT 'HS1111',
-  `org_level` tinyint(1) DEFAULT '0',
+  `org_level` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`requestid`),
   KEY `source` (`source`),
   KEY `trainingobj` (`trainingobj`),
@@ -338,7 +340,7 @@ CREATE TABLE `notifications` (
   KEY `requestid` (`requestid`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`emp_id`) REFERENCES `logintable` (`emp_id`),
   CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest` (`requestid`)
-) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -388,7 +390,7 @@ CREATE TABLE `request_primary_skills` (
   KEY `primaryskill_id` (`primaryskill_id`),
   CONSTRAINT `request_primary_skills_ibfk_1` FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest` (`requestid`),
   CONSTRAINT `request_primary_skills_ibfk_2` FOREIGN KEY (`primaryskill_id`) REFERENCES `primaryskill` (`skill_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -509,4 +511,4 @@ CREATE TABLE `training_request_employee_level` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-03  7:37:40
+-- Dump completed on 2025-03-07 10:18:00
