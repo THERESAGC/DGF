@@ -406,62 +406,59 @@ const NewTrainingRequest = () => {
   }, [user])
 
   const handleEmployeeSearch = (event, value) => {
-      if (value.length > 0) {
-        let apiUrl
-        if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-  apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
-        } else {
-  apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
-        }
-   
-        fetch(apiUrl)
-          .then((response) => response.json())
-          .then(async (data) => {
-            if (Array.isArray(data)) {
-              const employeesWithSkills = await Promise.all(
-  data.map(async (emp) => {
-                  try {
-                    let learnerResponse
-                    let learnerData
-   
-                    if (formData.employeeDetails === "open") {
-                      learnerResponse = await fetch(
-  `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
-                      )
-                      learnerData = await learnerResponse.json()
-                      return {
-                        ...emp,
-                        totalPrimarySkills: learnerData.total_requests || 0,
-                      }
-                    } else {
-  learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
-                      learnerData = await learnerResponse.json()
-                      return {
-                        ...emp,
-                        totalPrimarySkills: learnerData.total_primary_skills || 0,
-                      }
-                    }
-                  } catch (error) {
-                    console.error("Error fetching learner data:", error)
-                    return { ...emp, totalPrimarySkills: 0 }
-                  }
-                }),
-              )
-              setSearchResults(
-  employeesWithSkills.map((emp) => ({
-                  id: emp.emp_id,
-                  name: emp.emp_name,
-                  email: emp.emp_email,
-  profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
-  uniqueKey: `${emp.emp_id}-${Date.now()}`,
-                  totalPrimarySkills: emp.totalPrimarySkills,
-                })),
-              )
-            }
-          })
-          .catch((error) => console.error("Error fetching employees:", error))
+    if (value.length > 0) {
+      let apiUrl;
+      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+        apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`;
+      } else {
+        apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`;
       }
+
+      fetch(apiUrl)
+        .then((response) => response.json())
+        .then(async (data) => {
+          if (Array.isArray(data)) {
+            const employeesWithSkills = await Promise.all(
+              data.map(async (emp) => {
+                try {
+                  let learnerResponse;
+                  let learnerData;
+
+                  const endpoint = 
+                    formData.employeeDetails === "open"
+                      ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
+                      : `http://localhost:8000/api/learners/getLearners/${emp.emp_id}`;
+
+                  learnerResponse = await fetch(endpoint);
+                  learnerData = await learnerResponse.json();
+
+                  return {
+                    ...emp,
+                    totalPrimarySkills: formData.employeeDetails === "open" 
+                      ? learnerData.total_requests || 0
+                      : learnerData.total_primary_skills || 0,
+                  };
+                } catch (error) {
+                  console.error("Error fetching learner data:", error);
+                  return { ...emp, totalPrimarySkills: 0 };
+                }
+              })
+            );
+            setSearchResults(
+              employeesWithSkills.map((emp) => ({
+                id: emp.emp_id,
+                name: emp.emp_name,
+                email: emp.emp_email,
+                profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
+                uniqueKey: `${emp.emp_id}-${Date.now()}`,
+                totalPrimarySkills: emp.totalPrimarySkills,
+              }))
+            );
+          }
+        })
+        .catch((error) => console.error("Error fetching employees:", error));
     }
+  };
 
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
@@ -529,45 +526,55 @@ const NewTrainingRequest = () => {
     return null
   }
   const addEmployeesByLevel = async () => {
-    const newEmployees = []
+    const newEmployees = [];
 
-    // Fetch employees based on selected employee levels if "Place an Open Request" is selected
     if (formData.selectedEmployeeLevel.length > 0) {
-      const levelIds = formData.selectedEmployeeLevel.join(",")
+      const levelIds = formData.selectedEmployeeLevel.join(",");
       try {
         const response = await fetch(
-          `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationIds=${levelIds}`,
-        )
-        const data = await response.json()
+          `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationIds=${levelIds}`
+        );
+        const data = await response.json();
+
         if (response.ok) {
-          const fetchedEmployees = data.map((emp) => ({
-            id: emp.emp_id,
-            name: emp.emp_name,
-            email: emp.emp_email,
-            availableFrom: "",
-            bandwidth: "",
-            weekend: "",
-            profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`, // Convert image data to base64
-            uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
-          }))
+          const fetchedEmployees = await Promise.all(
+            data.map(async (emp) => {
+              try {
+                const endpoint =
+                  formData.employeeDetails === "open"
+                    ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
+                    : `http://localhost:8000/api/learners/getLearners/${emp.emp_id}`;
 
-          // Filter out employees that are already in the list
+                const response = await fetch(endpoint);
+                const learnerData = await response.json();
+
+                return {
+                  ...emp,
+                  availableFrom: "",
+                  bandwidth: "",
+                  weekend: "",
+                  total_requests: formData.employeeDetails === "open"
+                    ? learnerData.total_requests || 0
+                    : learnerData.total_primary_skills || 0,
+                  requests: learnerData.requests || [],
+                  profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
+                  uniqueKey: `${emp.emp_id}-${Date.now()}`,
+                };
+              } catch (error) {
+                console.error("Error fetching learner data:", error);
+                return { ...emp, total_requests: 0 };
+              }
+            })
+          );
+
           const uniqueEmployees = fetchedEmployees.filter(
-            (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.id),
-          )
+            (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.emp_id)
+          );
 
-          newEmployees.push(...uniqueEmployees)
-        } else {
-          console.error("Failed to fetch employees by designation:", data.message)
-          setSnackbarMessage(`Failed to fetch employees: ${data.message}`)
-          setSnackbarSeverity("error")
-          setSnackbarOpen(true)
+          newEmployees.push(...uniqueEmployees);
         }
       } catch (error) {
-        console.error("Error fetching employees by designation:", error)
-        setSnackbarMessage(`Error fetching employees: ${error.message}`)
-        setSnackbarSeverity("error")
-        setSnackbarOpen(true)
+        console.error("Error fetching employees by designation:", error);
       }
     }
 
@@ -576,69 +583,78 @@ const NewTrainingRequest = () => {
       employees: [...prevFormData.employees, ...newEmployees],
       showTable: true,
       showSummary: true,
-    }))
-    setIsFormValid(validateForm())
-  }
+    }));
+    setIsFormValid(validateForm());
+  };
 
   
 
   const addEmployee = async () => {
-    const newEmployees = []
-    const invalidEmails = []
+    const newEmployees = [];
+    const invalidEmails = [];
 
-    // Add selected employee from "Select Employee" field
+    // Add selected employee
     if (selectedEmployee && !formData.employees.some((emp) => emp.id === selectedEmployee.id)) {
       try {
-        const response = await fetch(`http://localhost:8000/api/learners/getLearners/${selectedEmployee.id}`)
-        const data = await response.json()
+        const endpoint =
+          formData.employeeDetails === "open"
+            ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${selectedEmployee.id}`
+            : `http://localhost:8000/api/learners/getLearners/${selectedEmployee.id}`;
+
+        const response = await fetch(endpoint);
+        const data = await response.json();
 
         newEmployees.push({
           ...selectedEmployee,
           availableFrom: "",
           bandwidth: "",
           weekend: "",
-          total_requests: data.total_requests || 0,
+          total_requests: formData.employeeDetails === "open" 
+            ? data.total_requests || 0
+            : data.total_primary_skills || 0,
           requests: data.requests || [],
-        })
+        });
       } catch (error) {
-        console.error("Error fetching employee requests:", error)
-        newEmployees.push(selectedEmployee)
+        console.error("Error fetching employee requests:", error);
+        newEmployees.push(selectedEmployee);
       }
-      setSelectedEmployee(null)
+      setSelectedEmployee(null);
     }
 
-    // Process comma-separated emails
+    // Process emails
     if (formData.emails.trim() !== "") {
-      const emailList = formData.emails.split(",").map((email) => email.trim())
-      const uniqueEmails = [...new Set(emailList)] // Remove duplicate emails
+      const emailList = formData.emails.split(",").map((email) => email.trim());
+      const uniqueEmails = [...new Set(emailList)];
 
       for (const email of uniqueEmails) {
-        const employee = await handleEmailSearch(email)
+        const employee = await handleEmailSearch(email);
         if (employee) {
           try {
-            const response = await fetch(`http://localhost:8000/api/learners/getLearners/${employee.id}`)
-            const data = await response.json()
+            const endpoint =
+              formData.employeeDetails === "open"
+                ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${employee.id}`
+                : `http://localhost:8000/api/learners/getLearners/${employee.id}`;
+
+            const response = await fetch(endpoint);
+            const data = await response.json();
 
             newEmployees.push({
               ...employee,
               availableFrom: "",
               bandwidth: "",
               weekend: "",
-              total_requests: data.total_requests || 0,
+              total_requests: formData.employeeDetails === "open" 
+                ? data.total_requests || 0
+                : data.total_primary_skills || 0,
               requests: data.requests || [],
-            })
+            });
           } catch (error) {
-            console.error("Error fetching employee requests:", error)
-            newEmployees.push(employee)
+            console.error("Error fetching employee requests:", error);
+            newEmployees.push(employee);
           }
         } else {
-          invalidEmails.push(email)
+          invalidEmails.push(email);
         }
-      }
-      if (invalidEmails.length > 0) {
-        setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`)
-        setSnackbarSeverity("error")
-        setSnackbarOpen(true)
       }
     }
 
@@ -648,9 +664,10 @@ const NewTrainingRequest = () => {
       showTable: newEmployees.length > 0,
       showSummary: true,
       emails: "",
-    }))
-    setIsFormValid(validateForm())
-  }
+    }));
+    setIsFormValid(validateForm());
+  };
+
 
   const removeEmployee = (id) => {
     setFormData({
