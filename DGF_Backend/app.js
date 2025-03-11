@@ -48,6 +48,7 @@ const loginRoutes = require('./routes/loginRoutes');
 const { getMatrixProjects } = require('./services/matrixProjectService');
 const { getCourses } = require('./services/courseService');
 const TrainingCommentRoutes = require('./routes/initiateTrainingCommentsRoutes');
+const getAllRolesRoutes = require('./routes/getAllRolesRoutes');
 
 
 const app = express();
@@ -197,6 +198,9 @@ app.use('/api/training-comment', TrainingCommentRoutes);
  
 //orglevellearner
 app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
+
+//get all roles
+app.use('/api/getAllRoles', getAllRolesRoutes);
 
 app.use('/api/employee-completion-status', getEmpLearningCompletionRoutes);
 
