@@ -50,21 +50,27 @@ const fetchLearnerData = useCallback((requestId) => {
   fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestId}`)
     .then(response => response.json())
     .then(data => {
-      console.log(data,)
-      if (data && data.length) {
-        const learnerImages = data.slice(0, 2).map(learner => learner.imageUrl); // Get first 2 learners' images
-        const totalLearners = data.length; // Get total count of learners
-       
+      console.log(data, "Learner data fetched successfully"); // Log the entire response
+      if (data && data.employees && data.employees.length) {
+        const learnerImages = data.employees.slice(0, 2).map(learner => {
+          if (learner.profile_image && learner.profile_image.data) {
+            const base64String = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`;
+            return base64String;
+          }
+          return "/path/to/default/avatar.jpg"; // Fallback if no image available
+        });
+        const totalLearners = data.employees.length; // Get total count of learners
+
         // Use prevState to update the learnersData
         setLearnersData(prevState => ({
           ...prevState, // Spread the previous state to avoid overwriting it
-          [requestId]: { learnerImages, totalLearners, rawData: data }
+          [requestId]: { learnerImages, totalLearners, rawData: data.employees }
         }));
       }
     })
     .catch(error => console.error('Error fetching learner data:', error));
 }, []);
-
+console.log("Learners Data: avaialble", learnersData);
 
 // Fetch completion data
 const fetchCompletionData = useCallback((requestId) => {
@@ -96,7 +102,7 @@ useEffect(() => {
         }
         return learner;
       });
- 
+
       console.log(`Updated Learners for Request ${requestId}:`, updatedLearnersData);
       return {
         ...learnersInfo,
@@ -105,14 +111,14 @@ useEffect(() => {
     }
     return learnersInfo;
   });
- 
+
   const updatedLearnersData = updatedLearners.reduce((acc, learnerInfo, index) => {
     acc[Object.keys(learnersData)[index]] = learnerInfo;
     return acc;
   }, {});
- 
+
   console.log('Updated Learners Data:', updatedLearnersData);
- 
+
   if (JSON.stringify(updatedLearnersData) !== JSON.stringify(learnersData)) {
     setLearnersData(updatedLearnersData);
   }
@@ -564,35 +570,35 @@ const handleEditClick = (status,requestId) => {
           {row.newprospectname || row.project_name}
         </TableCell>
         <TableCell>
-          <Box display="flex" alignItems="center">
-            {(learnersData[row.requestid]?.rawData || []).slice(0, 2).map((learner, i) => {
-              const imageUrl = learner.profile_image ? learner.profile_image : "/path/to/default/avatar.jpg";  // Fallback if no image available
-              return (
-                <Avatar
-                  key={i}
-                  src={imageUrl}
-                  alt={`Learner ${i + 1}`}
-                  style={{ marginLeft: i === 1 ? -1.5 : 1 }}
-                />
-              );
-            })}
-            {(learnersData[row.requestid]?.totalLearners || 0) > 2 && (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                style={{
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: '50%',
-                  width: 20,
-                  height: 20,
-                }}
-              >
-                <Typography variant="body2">+{learnersData[row.requestid].totalLearners - 2}</Typography>
-              </Box>
-            )}
-          </Box>
-        </TableCell>
+  <Box display="flex" alignItems="center">
+    {(learnersData[row.requestid]?.rawData || []).slice(0, 2).map((learner, i) => {
+      const imageUrl = learner.profile_image ? learner.profile_image : "/path/to/default/avatar.jpg";  // Fallback if no image available
+      return (
+        <Avatar
+          key={i}
+          src={imageUrl}
+          alt={`Learner ${i + 1}`}
+          style={{ marginLeft: i === 1 ? -1.5 : 1 }}
+        />
+      );
+    })}
+    {(learnersData[row.requestid]?.totalLearners || 0) > 2 && (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        style={{
+          backgroundColor: '#f0f0f0',
+          borderRadius: '50%',
+          width: 20,
+          height: 20,
+        }}
+      >
+        <Typography variant="body2">+{learnersData[row.requestid].totalLearners - 2}</Typography>
+      </Box>
+    )}
+  </Box>
+</TableCell>
         <TableCell style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{row.trainingobj_name || "No Objective"}</TableCell>
         <TableCell style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{row.techstack_name || "No Tech Stack"}</TableCell>
         <TableCell style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>{formatDate(row.createddate) || "No Date"}</TableCell>
