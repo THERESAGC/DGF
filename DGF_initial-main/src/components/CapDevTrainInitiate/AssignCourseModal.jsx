@@ -266,7 +266,11 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                         type="date"
                         size="small"
                         fullWidth
+                        inputProps={{
+                          min: new Date().toISOString().split("T")[0], // Set the minimum date to today
+                        }}
                         InputProps={{
+                          
                           startAdornment: (
                             <InputAdornment position="start">
                               <CalendarTodayIcon fontSize="small" />

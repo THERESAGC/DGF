@@ -12,7 +12,7 @@ const ClarificationRequestedContainer = () => {
     boxSizing: 'border-box',
     marginRight: '40px',
     maxHeight: '100vh',
-    maxWidth: '100%'
+ marginBottom: '50px',
         }
        
     };

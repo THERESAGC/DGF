@@ -1,5 +1,5 @@
 const db = require('../config/db');
- 
+
 const getLearnersService = (emp_id) => {
     return new Promise((resolve, reject) => {
         const query = `
@@ -13,7 +13,8 @@ SELECT
     GROUP_CONCAT(DISTINCT techstack.stack_name) AS tech_stacks,
     training_obj.training_name AS training_objective, -- To fetch the training objective name
     logintable.name AS requested_by, -- Assuming logintable has the employee name as emp_name
-    projectname.ProjectName AS project_name -- To fetch the project name
+    projectname.ProjectName AS project_name, -- To fetch the project name
+    newtrainingrequest.newprospectname -- To fetch the new prospect name
 FROM
     emp_newtrainingrequested
 LEFT JOIN
@@ -48,11 +49,10 @@ GROUP BY
     emp_newtrainingrequested.createddate,
     training_obj.training_name,
     logintable.name, -- Changed newtrainingrequest.requestedby to logintable.emp_name
-    projectname.ProjectName;
- 
- 
+    projectname.ProjectName,
+    newtrainingrequest.newprospectname; -- Added newprospectname to the GROUP BY clause
         `;
- 
+
         const totalRequestsQuery = `
             SELECT COUNT(DISTINCT requestid) AS total_requests
             FROM emp_newtrainingrequested
@@ -64,7 +64,7 @@ GROUP BY
                 AND org_level = 0
             );
         `;
- 
+
         const totalPrimarySkillsQuery = `
             SELECT COUNT(primaryskill_id) AS total_primary_skills
             FROM request_primary_skills
@@ -80,7 +80,7 @@ GROUP BY
                 )
             );
         `;
- 
+
         db.execute(totalRequestsQuery, [emp_id], (err, totalRequestsResults) => {
             if (err) {
                 reject(err);
@@ -106,7 +106,7 @@ GROUP BY
         });
     });
 };
- 
+
 module.exports = {
     getLearnersService
 };

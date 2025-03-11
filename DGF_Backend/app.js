@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const socketIo = require('socket.io');
+const cron = require('node-cron');
 
 const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
@@ -44,6 +45,10 @@ const getEmpLearningCompletionRoutes = require('./routes/getEmpLearningCompletio
 const getEmpsforCapdev = require('./routes/getEmployeesBasedOnRoleRoutes');
 const getsetEmpBasedOnIdRoutes = require('./routes/getsetEmpBasedOnIdRoutes');
 const loginRoutes = require('./routes/loginRoutes');
+const { getMatrixProjects } = require('./services/matrixProjectService');
+const { getCourses } = require('./services/courseService');
+const TrainingCommentRoutes = require('./routes/initiateTrainingCommentsRoutes');
+
 
 const app = express();
 const server = http.createServer(app);
@@ -51,6 +56,38 @@ const io = socketIo(server, {
     cors: {
         origin: "http://localhost:5173",  // Update with the URL where your frontend is running
         methods: ["GET", "POST"]
+    }
+});
+
+// Schedule the getMatrixProjects service to run every 24 hours
+cron.schedule('0 0 * * *', async () => {
+    console.log('Running getMatrixProjects service...');
+    await getMatrixProjects();
+});
+
+// Fetch data from Matrix Project API
+app.get('/api/fetch-matrix-projects', async (req, res) => {
+    try {
+        await getMatrixProjects();
+        res.status(200).json({ message: 'Data fetched and saved successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching data' });
+    }
+});
+
+// Schedule the getCourses service to run every 24 hours
+cron.schedule('0 0 * * *', async () => {
+    console.log('Running getCourses service...');
+    await getCourses();
+});
+
+// Fetch data from Academy API
+app.get('/api/fetch-courses', async (req, res) => {
+    try {
+        await getCourses();
+        res.status(200).json({ message: 'Data fetched and saved successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching data' });
     }
 });
 
@@ -154,6 +191,9 @@ app.use('/api/emp',getEmpsforCapdev );
  
 //getempbyid and setassignedto routes
 app.use('/api/getemp', getsetEmpBasedOnIdRoutes);
+
+//initiateTrainingComments
+app.use('/api/training-comment', TrainingCommentRoutes);
  
 //orglevellearner
 app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line

@@ -8,8 +8,8 @@ const SpocContainer = () => {
       minHeight: '100vh',
       padding: '10px 42px 0 0',
       boxSizing: 'border-box',
-      // marginLeft: '240px',
-      maxHeight: '100vh',
+       marginBottom: '50px',
+
       maxWidth: '100%',
       position: 'relative',
     }

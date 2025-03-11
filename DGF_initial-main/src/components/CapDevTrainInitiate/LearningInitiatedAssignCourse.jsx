@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import {
   Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead,
-  TableRow, Paper, Checkbox, Avatar, IconButton, Pagination, PaginationItem,
+  TableRow, Paper, Checkbox, Avatar, IconButton, Pagination,
   CircularProgress, LinearProgress, Menu, MenuItem, Snackbar, Alert
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, ArrowForward } from "@mui/icons-material";
+import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, ArrowForward, Rowing } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { arrayBufferToBase64 } from "../../utils/ImgConveter";
 import AssignCourseModal from "./AssignCourseModal";
+import CommentsSidebar from "./CommentsSidebar";
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -63,11 +64,15 @@ const StatusChip = styled(Box)(({ theme }) => ({
   color: "#06819E",
 }));
 
+import PropTypes from 'prop-types';
+
 function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse }) {
   const [assignedCourses, setAssignedCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [anchorElMap, setAnchorElMap] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [currentAssignmentId, setCurrentAssignmentId] = useState(null);
 
   const handleMenuClick = (event, assignmentId) => {
     setAnchorElMap(prev => ({ ...prev, [assignmentId]: event.currentTarget }));
@@ -97,7 +102,11 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
       setSnackbar({ open: true, message: error.message || "Failed to update status", severity: "error" });
     }
   };
-
+ const handleChatIconClick = (assignmentId) => {
+    console.log(assignmentId, "clicked");
+    setCurrentAssignmentId(assignmentId);
+    setSidebarOpen(true);
+  };
   useEffect(() => {
     const fetchAssignedCourses = async () => {
       try {
@@ -131,6 +140,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
             checked={isSelected}
             onChange={onSelect}
             color="primary"
+            disabled={row.coursesAssigned >= 3}
           />
         </TableCell>
         <TableCell>
@@ -147,7 +157,9 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           <StatusChip>{row.status}</StatusChip>
         </TableCell>
         <TableCell>
-          <HeaderButton onClick={() => onAssignCourse(row.emp_id)}>
+          <HeaderButton onClick={() => onAssignCourse(row.emp_id)}
+             disabled={row.coursesAssigned >= 3}
+            >
             Assign Course
           </HeaderButton>
         </TableCell>
@@ -234,12 +246,15 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                               </MenuItem>
                             ))}
                           </Menu>
-                          <IconButton size="small">
+                          <IconButton size="small" onClick={() => handleChatIconClick(course.assignment_id)}>
                             <ChatBubbleOutline />
                           </IconButton>
+                           
                         </TableCell>
                       </TableRow>
                     ))}
+                    
+    
                   </TableBody>
                 </Table>
               )}
@@ -247,7 +262,10 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           </TableCell>
         </TableRow>
       )}
-
+ {/* Sidebar component */}
+ <CommentsSidebar open={isSidebarOpen} 
+      onClose={() => setSidebarOpen(false)}
+      assignmentId={currentAssignmentId} />
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -257,9 +275,32 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </>
-  );
-}
+        </>
+      );
+    }
+    
+    Row.propTypes = {
+      row: PropTypes.shape({
+        emp_id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        avatar: PropTypes.string,
+        coursesAssigned: PropTypes.number,
+        availableFrom: PropTypes.string,
+        dailyBandwidth: PropTypes.string,
+        weekendAvailability: PropTypes.string,
+        status: PropTypes.string,
+        requestid: PropTypes.string.isRequired,
+        assignment_id: PropTypes.string,
+      }).isRequired,
+      isExpanded: PropTypes.bool.isRequired,
+      isSelected: PropTypes.bool.isRequired,
+      onToggleExpand: PropTypes.func.isRequired,
+      onSelect: PropTypes.func.isRequired,
+      onAssignCourse: PropTypes.func.isRequired,
+    };
+    
+
+
 
 export default function CourseTracker() {
   const { requestId } = useParams();
@@ -279,8 +320,8 @@ export default function CourseTracker() {
           `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`
         );
         const data = await response.json();
-
-        const formattedLearners = data.map(item => ({
+        console.log(data);
+        const formattedLearners = data.employees.map(item => ({
           emp_id: item.emp_id,
           name: item.emp_name || item.emp_id,
           avatar: item.profile_image?.data
@@ -396,6 +437,16 @@ export default function CourseTracker() {
               onChange={(e, value) => setPage(value)}
               shape="rounded"
               color="primary"
+              sx={{
+                "& .MuiPaginationItem-root.Mui-selected": {
+                  color: "red",
+                  fontWeight: "bold",
+                  backgroundColor: "transparent",
+                },
+                "& .MuiPaginationItem-root": {
+                  margin: "-1px",
+                },
+              }}
             />
           </Box>
         </>

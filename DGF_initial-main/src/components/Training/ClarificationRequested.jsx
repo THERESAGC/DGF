@@ -1,30 +1,9 @@
 import React from "react"
-import {
-  Paper,
-  Typography,
-  Grid,
-  Divider,
-  Pagination,
-  Box,
-  FormControl,
-  TableCell,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableBody,
-  Avatar,
-  Button,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  TextField,
-  Autocomplete,
-  MenuItem,
-  Select,
-  Dialog,
-  DialogTitle,
-} from "@mui/material"
+import {  Paper,  Typography,  Grid2,  Divider,  Pagination,  Box,
+  FormControl,  TableCell,  TableContainer,  Table,  TableHead,  TableRow,
+  TableBody,  Avatar,  Button,  RadioGroup,  FormControlLabel,  Radio,
+  TextField,  Autocomplete,  MenuItem,  Select,  Dialog,  DialogTitle,
+  DialogContent,  DialogActions,} from "@mui/material"
 import { useState, useEffect, useContext } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import IconButton from "@mui/material/IconButton" // Correct import for IconButton
@@ -36,14 +15,9 @@ import formatDate from "../../utils/dateUtils"
 import removeHtmlTags from "../../utils/htmlUtils"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import { ChatContext } from "../context/ChatContext" // Import ChatContext
-import MuiAlert from "@mui/material/Alert"
-// import { _toLeftRightCenter } from 'chart.js/helpers';
+
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
-// Define the Alert component for Snackbar
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
-})
 
 const ClarificationRequested = () => {
   const [learners, setLearners] = useState([]) // State to hold the fetched learners data
@@ -54,8 +28,7 @@ const ClarificationRequested = () => {
   const { messages, sendMessage, newMessage, setNewMessage } = useContext(ChatContext)
   const [comments, setComments] = useState([])
   const [userProfiles, setUserProfiles] = useState({}) // Store user profiles
-  const [latestCommentId, setLatestCommentId] = useState(null) // State to store the latest comment ID
-  const [searchResults, setSearchResults] = useState([])
+    const [searchResults, setSearchResults] = useState([])
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
@@ -64,8 +37,12 @@ const ClarificationRequested = () => {
   const itemsPerPage = 5
   const [page, setPage] = useState(1)
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+
+  const [popupOpen, setPopupOpen] = useState(false);
+const handleClosePopup = () => setPopupOpen(false);
   const handleCloseStatusDialog = () => {
     setStatusDialogOpen(false)
+    navigate("/training-container");
   }
 
   const [formData, setFormData] = useState({
@@ -91,9 +68,9 @@ const ClarificationRequested = () => {
           `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestid}`,
         )
         const learnerdata = await learnerResponse.json()
-        setpreviousEmployeesInDB(learnerdata)
+        setpreviousEmployeesInDB(learnerdata.employees)
 
-        const updatedLearners = learnerdata.map((learner) => {
+        const updatedLearners = learnerdata.employees.map((learner) => {
           if (learner.profile_image && learner.profile_image.data) {
             const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`
             return {
@@ -116,12 +93,12 @@ const ClarificationRequested = () => {
         setComments(commentsdata)
         console.log("Fetched Comments:", commentsdata) // Add this line to log fetched comments
 
-        if (commentsdata.length > 0) {
-          const latestComment = commentsdata.reduce((latest, comment) =>
-            new Date(comment.created_date) > new Date(latest.created_date) ? comment : latest,
-          )
-          setLatestCommentId(latestComment.comment_id)
-        }
+        // if (commentsdata.length > 0) {
+        //   const latestComment = commentsdata.reduce((latest, comment) =>
+        //     new Date(comment.created_date) > new Date(latest.created_date) ? comment : latest,
+        //   )
+        //   setLatestCommentId(latestComment.comment_id)
+        // }
 
         const userIds = new Set()
         commentsdata.forEach((comment) => {
@@ -165,17 +142,19 @@ const ClarificationRequested = () => {
   const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date))
 
   useEffect(() => {
-    const updatedLearners = learners.map((learner) => {
+    if (Array.isArray(learners)) {
+    const updatedLearners = learners.map(learner => {
       if (learner.profile_image && learner.profile_image.data) {
-        const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`
+        const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(learner.profile_image.data)}`;
         if (learner.profile_image !== base64Flag) {
-          return { ...learner, profile_image: base64Flag }
+          return { ...learner, profile_image: base64Flag };
         }
       }
-      return learner
-    })
-    setLearners(updatedLearners)
-  }, [learners.length])
+      return learner;
+    });
+    setLearners(updatedLearners);
+  }
+  }, [learners.length]);
 
   useEffect(() => {
     if (requestid) {
@@ -453,71 +432,49 @@ const ClarificationRequested = () => {
     }
   }
 
+
+  // Helper function to check if there are changes between form data and database data
   const handleSubmit = async () => {
+  
     /**********************Comments Websocket logic***********************/
-    if (newMessage.trim()) {
-      sendMessage(newMessage, requestDetails?.requestid, user.emp_id, "Approval Requested")
-    }
-
-    const commentdata = {
-      requestid: requestDetails?.requestid,
-      comment_text: newMessage,
-      created_by: user.emp_id,
-      parent_comment_id: latestCommentId,
-      requeststatus: "Approval Requested",
-    }
-
-    if (latestCommentId) {
-      try {
-        const response = await fetch("http://localhost:8000/api/comments/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(commentdata),
-        })
-
-        if (response.ok) {
-          console.log("Comment Added Successfully")
-          setNewMessage("")
-        } else {
-          console.error("Error adding comment:", await response.json())
-        }
-      } catch (err) {
-        console.error("Error adding comment:", err)
-      }
-    }
-
+    if (!newMessage.trim()) {
+      setPopupOpen(true);
+     }
+     else
+     { 
+      sendMessage(newMessage, requestDetails?.requestid, user.emp_id, "Approval Requested");    
+     
+  
     /*************Employee addition removal logic********** */
-
+  
     try {
-      const currentEmployeeIds = formData.employees.map((emp) => emp.emp_id)
-
+      const currentEmployeeIds = formData.employees.map((emp) => emp.emp_id);
+  
       // 1. Detect new employees
       const newEmployees = formData.employees.filter(
-        (emp) => !previousEmployeesInDB.some((dbEmp) => dbEmp.emp_id === emp.emp_id),
-      )
-
+        (emp) => !previousEmployeesInDB.some((dbEmp) => dbEmp.emp_id === emp.emp_id)
+      );
+  
       // 2. Detect employees that need updating
       const employeesToUpdate = formData.employees.filter((emp) =>
-        previousEmployeesInDB.some((dbEmp) => dbEmp.emp_id === emp.emp_id && hasChanges(emp, dbEmp)),
-      )
-
+        previousEmployeesInDB.some((dbEmp) => dbEmp.emp_id === emp.emp_id && hasChanges(emp, dbEmp))
+      );
+  
       // 3. Detect removed employees
-      const employeesToDelete = previousEmployeesInDB.filter((dbEmp) => !currentEmployeeIds.includes(dbEmp.emp_id))
-
+      const employeesToDelete = previousEmployeesInDB.filter((dbEmp) => !currentEmployeeIds.includes(dbEmp.emp_id));
+  
       // Perform API calls to add, update, or delete employees
       await Promise.all([
         ...newEmployees.map((emp) => addEmployeeinDB(emp)),
         ...employeesToUpdate.map((emp) => updateEmployeeinDB(emp)),
         ...employeesToDelete.map((emp) => deleteEmployeeinDB(emp.emp_id)),
-      ])
-
+      ]);
+  
       // After successful operation, show success message
-      setSnackbarMessage("Employee records updated successfully")
-      setSnackbarSeverity("success")
-      setSnackbarOpen(true)
-
+      setSnackbarMessage("Employee records updated successfully");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+  
       // Optionally reset form state or clear formData
       setFormData({
         employees: [],
@@ -525,25 +482,31 @@ const ClarificationRequested = () => {
         showSummary: false,
         emails: "",
         invalidEmails: [],
-      })
-
-      setStatusDialogOpen(true)
+      });
+  
+      setStatusDialogOpen(true);
     } catch (error) {
-      console.error("Error submitting employee data:", error)
-      setSnackbarMessage("An error occurred while updating employee records.")
-      setSnackbarSeverity("error")
-      setSnackbarOpen(true)
+      console.error("Error submitting employee data:", error);
+      setSnackbarMessage("An error occurred while updating employee records.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      // Reset the flag after submission is complete
+      handleSubmit.isSubmitting = false;
     }
   }
-
-  // Helper function to check if there are changes between form data and database data
+  };
+  
+  // Initialize the flag
+  handleSubmit.isSubmitting = false;
+  
   const hasChanges = (employee, dbEmployee) => {
     return (
       employee.availableFrom !== dbEmployee.availableFrom ||
       employee.bandwidth !== dbEmployee.bandwidth ||
       employee.weekend !== dbEmployee.weekend
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -569,20 +532,20 @@ const ClarificationRequested = () => {
       <Paper elevation={1} className="paper" style={{ height: "100%", width: "100%", marginLeft: "-1.5rem" }}>
         <div className="inner-container">
           <Box style={{ padding: "10px", marginTop: "1rem" }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
+            <Grid2 container spacing={5}>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem" }}>
                   <Typography className="typography-label-upper">Request ID/No:</Typography>
                   <Typography className="typography-value-upper"> #{requestDetails?.requestid}</Typography>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </Grid2>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Request By:</Typography>
                   <Typography className="typography-value-upper"> {requestDetails?.requestedby}</Typography>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </Grid2>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Project:</Typography>
                   <Typography className="typography-value-upper">
@@ -590,17 +553,17 @@ const ClarificationRequested = () => {
                     {requestDetails?.newprospectname || requestDetails?.project}{" "}
                   </Typography>
                 </FormControl>
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
+              </Grid2>
+            </Grid2>
+ 
+            <Grid2 container spacing={5}>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Service Division:</Typography>
                   <Typography className="typography-value-upper">{requestDetails?.service_division}</Typography>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </Grid2>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Expected Completion:</Typography>
                   <Typography className="typography-value-upper">
@@ -608,40 +571,41 @@ const ClarificationRequested = () => {
                     {formatDate(requestDetails?.expecteddeadline)}{" "}
                   </Typography>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </Grid2>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Techstack / Area:</Typography>
                   <Typography className="typography-value-upper">Front-end</Typography>
                 </FormControl>
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} style={{ marginTop: "0.5rem" }}>
-              <Grid item xs={12} md={4}>
-                <FormControl fullWidth className="form-control">
-                  <Typography className="typography-label-upper">Primary Skills / Competencies:</Typography>
-                  <Typography className="typography-value-upper">
-                    {" "}
-                    {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-                      <ul style={{ paddingLeft: "20px" }}>
-                        {requestDetails?.primarySkills.map((skill, index) => (
-                          <li key={index}>{skill}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <Typography className="typography-value-upper">No skills available</Typography>
-                    )}
-                  </Typography>
-                </FormControl>
-              </Grid>
-            </Grid>
+              </Grid2>
+            </Grid2>
+ 
+            <Grid2 container spacing={2} style={{ marginTop: "1rem" }}>
+  <Grid2 item size={4}>
+    <FormControl fullWidth className="form-control">
+      <Typography className="typography-label-upper">
+        Primary Skills / Competencies:
+      </Typography>
+      <div className="typography-value-upper">
+        {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
+          <ul style={{ paddingLeft: "20px" }}>
+            {requestDetails?.primarySkills.map((skill, index) => (
+              <li key={index}>{skill}</li>
+            ))}
+          </ul>
+        ) : (
+          <Typography className="typography-value-upper">No skills available</Typography>
+        )}
+      </div>
+    </FormControl>
+  </Grid2>
+</Grid2>
           </Box>
-
+ 
           <Divider className="divider" style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }} />
           <Box>
-            <Grid container spacing={2} style={{ marginTop: "0.5rem", paddingLeft: "5px" }}>
-              <Grid item xs={12} md={4}>
+            <Grid2 container spacing={2} style={{ marginTop: "0.5rem", paddingLeft: "5px" }}>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Other Skill Information in Details:</Typography>
                   <Typography className="typography-value-upper">
@@ -649,27 +613,27 @@ const ClarificationRequested = () => {
                     {removeHtmlTags(requestDetails?.otherskill)}
                   </Typography>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={4}>
+              </Grid2>
+              <Grid2 item size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Completion Criteria:</Typography>
                   <Typography className="typography-value-upper">
                     {removeHtmlTags(requestDetails?.suggestedcompletioncriteria)}
                   </Typography>
                 </FormControl>
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} style={{ paddingLeft: "5px", marginTop: "0.5rem" }}>
-              <Grid item xs={12}>
+              </Grid2>
+            </Grid2>
+ 
+            <Grid2 container spacing={2} style={{ paddingLeft: "5px", marginTop: "0.5rem" }}>
+              <Grid2 item size={12}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Comments:</Typography>
                   <Typography className="typography-value-upper">{removeHtmlTags(requestDetails?.comments)}</Typography>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </Grid2>
+            </Grid2>
           </Box>
-
+ 
           <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
           <Box>
             <div style={{ maxWidth: "100%", margin: "auto", paddingLeft: "0.5rem" }}>
@@ -677,9 +641,9 @@ const ClarificationRequested = () => {
               <Typography className="typography-label-upper">
                 Employee with upto 3 ongoing learnings cannot be included in this learning request
               </Typography>
-              <Grid container spacing={5}>
+              <Grid2 container spacing={5}>
                 {/* Select Employee Section */}
-                <Grid item size={3.5}>
+                <Grid2 item size={3.5}>
                   <FormControl fullWidth>
                     <Typography
                       className="subheader"
@@ -732,7 +696,7 @@ const ClarificationRequested = () => {
                             <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
                             <span>{option.name}</span>
                           </div>
-
+ 
                           {option.totalPrimarySkills > 0 && (
                             <span
                               style={{
@@ -759,10 +723,10 @@ const ClarificationRequested = () => {
                       )}
                     />
                   </FormControl>
-                </Grid>
-
+                </Grid2>
+ 
                 {/* OR Section */}
-                <Grid item size={1} style={{ marginTop: "52px", marginLeft: "-30px" }}>
+                <Grid2 item size={1} style={{ marginTop: "52px", marginLeft: "-30px" }}>
                   <Typography
                     className="subheader"
                     align="center"
@@ -770,10 +734,10 @@ const ClarificationRequested = () => {
                   >
                     OR
                   </Typography>
-                </Grid>
-
+                </Grid2>
+ 
                 {/* Email Input Section */}
-                <Grid item size={3.5}>
+                <Grid2 item size={3.5}>
                   <FormControl fullWidth style={{ marginLeft: "-36px", marginTop: "24px" }}>
                     <Typography
                       className="subheader"
@@ -792,10 +756,10 @@ const ClarificationRequested = () => {
                       }}
                     />
                   </FormControl>
-                </Grid>
-
+                </Grid2>
+ 
                 {/* Add Employee Button */}
-                <Grid item size={4}>
+                <Grid2 item size={4}>
                   <Box
                     display="flex"
                     justifyContent="flex-end"
@@ -821,11 +785,11 @@ const ClarificationRequested = () => {
                       +
                     </Button>
                   </Box>
-                </Grid>
-              </Grid>
+                </Grid2>
+              </Grid2>
               {/* {console.log(formData.employees.length) } */}
               {formData.showTable && formData.employees.length > 0 ? (
-                <Grid item size={12} style={{ marginTop: "15px" }}>
+                <Grid2 item size={12} style={{ marginTop: "15px" }}>
                   <TableContainer component={Paper} className="tableContainer">
                     <Table size="small">
                       <TableHead className="head">
@@ -933,7 +897,7 @@ const ClarificationRequested = () => {
                       </TableBody>
                     </Table>
                   </TableContainer>
-
+ 
                   <Box
                     sx={{
                       display: "flex",
@@ -963,11 +927,11 @@ const ClarificationRequested = () => {
                       }}
                     />
                   </Box>
-                </Grid>
+                </Grid2>
               ) : (
                 <p>No employees available</p>
               )}
-
+ 
               <Box
                 style={{
                   backgroundColor: "#F8FBFF",
@@ -984,7 +948,7 @@ const ClarificationRequested = () => {
                     borderRadius: "8px",
                     marginTop: "1rem",
                     marginBottom: "1rem",
-                    maxHeight: sortedComments.length > 0 ? window.innerHeight * 0.3 : "none", // Set maxHeight if there are comments
+                    maxHeight: sortedComments.length > 0 ? window.innerHeight * 0.30 : "none", // Set maxHeight if there are comments
                     overflowY: sortedComments.length > 0 ? "auto" : "visible", // Enable scroll if there are comments
                   }}
                 >
@@ -1077,7 +1041,7 @@ const ClarificationRequested = () => {
           </Box>
         </div>
       </Paper>
-
+ 
       <Dialog
         open={statusDialogOpen}
         onClose={handleCloseStatusDialog}
@@ -1114,6 +1078,16 @@ const ClarificationRequested = () => {
           </IconButton>
         </DialogTitle>
       </Dialog>
+      
+<Dialog open={popupOpen} onClose={handleClosePopup}>
+  <DialogTitle>Missing Comments</DialogTitle>
+  <DialogContent>Please add comments before submitting.</DialogContent>
+  <DialogActions>
+    <Button onClick={handleClosePopup} color="primary">
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
     </>
   )
 }
