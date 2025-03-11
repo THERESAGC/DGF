@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1741588106948" clover="3.2.0">
+  <project timestamp="1741588106950" name="All files">
+    <metrics statements="21" coveredstatements="21" conditionals="32" coveredconditionals="32" methods="4" coveredmethods="4" elements="57" coveredelements="57" complexity="0" loc="21" ncloc="21" packages="1" files="1" classes="1"/>
+    <file name="newTrainingRequestService.js" path="E:\DGF\DGF_Backend\services\newTrainingRequestService.js">
+      <metrics statements="21" coveredstatements="21" conditionals="32" coveredconditionals="32" methods="4" coveredmethods="4"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="20" count="4" type="stmt"/>
+      <line num="37" count="4" type="stmt"/>
+      <line num="39" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="41" count="4" type="stmt"/>
+      <line num="60" count="4" type="stmt"/>
+      <line num="78" count="4" type="stmt"/>
+      <line num="79" count="4" type="stmt"/>
+      <line num="82" count="4" type="stmt"/>
+      <line num="83" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="84" count="1" type="stmt"/>
+      <line num="87" count="3" type="stmt"/>
+      <line num="91" count="3" type="stmt"/>
+      <line num="94" count="3" type="stmt"/>
+      <line num="95" count="3" type="stmt"/>
+      <line num="97" count="3" type="stmt"/>
+      <line num="98" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="99" count="1" type="stmt"/>
+      <line num="101" count="2" type="stmt"/>
+      <line num="109" count="1" type="stmt"/>
+    </file>
+  </project>
+</coverage>
