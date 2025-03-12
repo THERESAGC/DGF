@@ -1,7 +1,6 @@
-// components/CapDevTrainInitiate/RequestInformation.jsx
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Card, CardContent, Typography, Divider } from "@mui/material";
+import { Box, Grid2 , Card, CardContent, Typography, Divider } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import formatDate from "../../utils/dateUtils";
 import removeHtmlTags from "../../utils/htmlUtils";
@@ -54,69 +53,60 @@ const RequestInformation = () => {
   if (error) return <Typography color="error">Error: {error}</Typography>;
  
   return (
-    <StyledCard sx={{ maxWidth: 1200, margin: "20px auto", p: 2 }}>
-      <CardContent sx={{ p: 3 }}>
-        <Box sx={{ 
-          display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          gap: 2,
-          mb: 2,
-        }}>
-          <Box>
+    <StyledCard sx={{ marginBottom: "20px" }}>
+      <CardContent >
+        {/* First Grid2 Layout */}
+        <Grid2 container spacing={6} sx={{ display: "flex", justifyContent: "center" }}>
+          <Grid2 item size={2}>
             <InfoLabel>Request ID/No:</InfoLabel>
             <InfoValue>LR {requestData.requestid}</InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={2}>
             <InfoLabel>Request by:</InfoLabel>
             <InfoValue>{requestData.requestedby}</InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={2}>
             <InfoLabel>Project:</InfoLabel>
             <InfoValue>{requestData.project}</InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={2}>
             <InfoLabel>Service Division</InfoLabel>
             <InfoValue>{requestData.service_division}</InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={2}>
             <InfoLabel>Expected Completion</InfoLabel>
             <InfoValue>{formatDate(requestData.expecteddeadline)}</InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={2}>
             <InfoLabel>Techstack / Area</InfoLabel>
             <InfoValue>{requestData.techstack}</InfoValue>
-          </Box>
-        </Box>
+          </Grid2>
+        </Grid2>
  
-        <Box sx={{ 
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 2,
-          mb: 2,
-        }}>
-          <Box>
+        {/* Second Grid2 Layout */}
+        <Grid2 container spacing={5}  sx={{marginTop: "30px"}}>
+          <Grid2 item size={4}>
             <InfoLabel>Primary Skills / Competencies</InfoLabel>
             <InfoValue>
               {requestData.primarySkills?.map((skill, index) => (
                 <div key={index}>{skill}</div>
               ))}
             </InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={4}>
             <InfoLabel>Other Skill Information in Details</InfoLabel>
             <InfoValue>{removeHtmlTags(requestData.otherskill)}</InfoValue>
-          </Box>
-          <Box>
+          </Grid2>
+          <Grid2 item size={4}>
             <InfoLabel>Completion Criteria</InfoLabel>
             <InfoValue>{removeHtmlTags(requestData.suggestedcompletioncriteria)}</InfoValue>
-          </Box>
-        </Box>
+          </Grid2>
+        </Grid2>
  
-        <Box sx={{ mb: 2 }}>
+        {/* Comments Box */}
+        <Box size={12} sx={{ marginTop: "20px" }}>
           <InfoLabel>Comments</InfoLabel>
-          <InfoValue>
-            {removeHtmlTags(requestData.comments)}
-          </InfoValue>
+          <InfoValue>{removeHtmlTags(requestData.comments)}</InfoValue>
         </Box>
       </CardContent>
     </StyledCard>
@@ -124,4 +114,3 @@ const RequestInformation = () => {
 };
  
 export default RequestInformation;
- 

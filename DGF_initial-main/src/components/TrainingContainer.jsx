@@ -27,7 +27,7 @@ const TrainingContainer = () => {
       padding: '4px 22px 0 0px',
       marginLeft: '-20px',
       marginright: '0',
-      maxHeight: '100vh',
+      // maxHeight: '100vh',
       maxWidth: '100%',
       marginBottom:"50px"
     }

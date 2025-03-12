@@ -85,8 +85,8 @@ useEffect(() => {
 }, [learners.length]);
 
 
-  return (
-    <>
+return (
+  <>
     <Box justifyContent="space-between" >
       <Typography fullWidth variant="h5" gutterBottom className="mainHeading" style={{ fontWeight: "bold", fontSize: "14px",paddingLeft: "32px"}}>
         Learning Details
@@ -196,7 +196,7 @@ useEffect(() => {
               </FormControl>
             </Grid2>
             <Grid2 item size={4}>
-              <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem", display: "flex", alignItems: "center" }}>
+              <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem", display: "flex" }}>
                 <Typography className="typography-label-upper">
                   Completion Criteria:
                 </Typography>
@@ -225,18 +225,19 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
         </Box>
         <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
         <Box>
-          <div style={{ maxWidth: "100%", margin: "auto", padding: 20 }}>
+          <div style={{ maxWidth: "100%", margin: "auto"}}>
             <h2 style={{ fontSize: "12px", marginBottom: "1rem" }}>{learners.length} Learner(s) are allocated to this learning request</h2>
             <TableContainer
               component={Paper}
-              style={{ padding: "16px", marginTop: "16px", maxWidth: "97%" , marginLeft:"-18px" }} elevation={0}
+              style={{ padding: "16px", marginTop: "16px", maxWidth: "100%" , marginLeft:"-18px" }} elevation={0}
             >
-              <Table size="small">
+              <Table size="small" sx={{borderBottom: "1px solid #EAEAEA"}} >
                 {learners.length > 0 && (
-                  <TableHead sx={{ backgroundColor: "#CCE3FF" }}>
-                    <TableRow>
+                  <TableHead sx={{ backgroundColor: "#CCE3FF" }} >
+                    <TableRow  >
+                     
                       <TableCell
-                        style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" }}
+                        style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" , textAlign:"left" }}
                       >
                         Employee ID
                       </TableCell>
@@ -251,23 +252,24 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                         Available From
                       </TableCell>
                       <TableCell
-                        style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" }}
+                        style={{ padding: "8px", fontWeight: "bold", fontSize: "12px",textAlign:"center" }}
                       >
                         Daily Bandwidth
                       </TableCell>
                       <TableCell
-                        style={{ padding: "8px", fontWeight: "bold", fontSize: "12px" }}
+                        style={{ padding: "8px", fontWeight: "bold", fontSize: "12px",textAlign:"center" }}
                       >
                         Available on Weekend?
                       </TableCell>
-                    </TableRow>
+                   
+                    </TableRow >
                   </TableHead>
                 )}
               <TableBody>
 {learners.length > 0 ? (
   learners.map((learner) => (
-    <TableRow key={learner.emp_id}>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+    <TableRow key={learner.emp_id} sx={{borderBottom:"1px solid #EAEAEA"}}>
+      <TableCell style={{textAlign:"left"  }}>
         {learner.emp_id}
       </TableCell>
       <TableCell style={{ padding: "8px", fontSize: "12px" }}>
@@ -279,10 +281,10 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
       <TableCell style={{ padding: "8px", fontSize: "12px" }}>
         {formatDate(learner.availablefrom)}
       </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+      <TableCell style={{ padding: "8px", fontSize: "12px" ,textAlign:"center"}}>
         {learner.dailyband}
       </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+      <TableCell style={{ padding: "8px", fontSize: "12px",textAlign:"center" }}>
         {learner.availableonweekend === 1 ? "Yes" : "No"}
       </TableCell>
     </TableRow>
@@ -304,7 +306,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             flexDirection="column"
             gap={2}
             paddingLeft={5}
-            style={{ height: '300px', overflowY: 'auto' }} // Add this line
+            style={{ height: '150px', overflowY: 'auto' ,paddingLeft:"0px"}} // Add this line
           >
             {sortedComments.length > 0 ? (
               sortedComments.map((comment) => {
@@ -325,24 +327,25 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                       {comment.comment_text}
                     </Typography>
                     <Typography className="typography-label-upper" style={{ fontSize: '0.85rem' }}>
-                      {formatDate(comment.created_date)}
+                      {new Date(comment.created_date).toLocaleString()}
                     </Typography>
                   </div>
                 );
               })
             ) : (
-              <Typography>No comments available.</Typography>
+              <Typography style={{textAlign:"center",marginTop:"2rem"}}>No comments available.</Typography>
             )}
           </Box>
         </Box>
       </div>
     </Paper>
   </>
-  );
+);
 };
- 
+
 Requesterinformation.propTypes = {
-  roleId: PropTypes.number.isRequired,
+roleId: PropTypes.number.isRequired,
 };
- 
+
 export default Requesterinformation;
+

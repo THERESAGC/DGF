@@ -3337,7 +3337,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
             marginBottom:"50px"
           }}
         >
-          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem" }}>
+          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem",marginTop:"1rem" }}>
             Learning Request Details
           </Typography>
 
@@ -3525,7 +3525,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
           <Typography
             className="simpleHeading"
-            style={{ fontWeight: "600", marginBottom: "0.2rem", paddingTop: "15px" }}
+            style={{ fontWeight: "600", marginBottom: "0.2rem", paddingTop: "2rem" }}
           >
             Skilling For
           </Typography>
@@ -3652,26 +3652,11 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
               </Grid>
             </Grid>
           ) : (
-            <Box display="flex" flexDirection="row" marginBottom="1rem" gap={2} flexWrap="wrap">
-              <FormControl
-                fullWidth
-                className="formControl"
-                style={{
-                  flexBasis: "30%",
-                  minWidth: "250px",
-                  display: "flex",
-                  marginLeft: "1.2rem", // Remove unnecessary left margin
-                  marginRight: "0.3rem", // Add right margin to separate form controls
-                }}
-              >
-                <Typography
-                  className="subheader"
-                  style={{
-                    display: "inline",
-                    marginBottom: "0.5rem",
-                    color: "#4F4949",
-                  }}
-                >
+            
+            <Grid container spacing={5}>
+            <Grid item size={4}>
+              <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.3rem" }}>
+                <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
                   Service Division <span className="required">*</span>
                 </Typography>
                 <Select
@@ -3681,7 +3666,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                   value={formData.selectedServiceDivision}
                   onChange={handleChange}
                   displayEmpty
-                  style={{ height: "30px", fontSize: "12px", width: "274px" }}
+                  style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
                 >
                   <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
                     <em
@@ -3689,6 +3674,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                         height: "30px",
                         opacity: "0.75",
                         fontStyle: "normal",
+                        width: "274px",
                         fontFamily: "Poppins",
                       }}
                     >
@@ -3696,35 +3682,17 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                     </em>
                   </MenuItem>
                   {formData.services.map((service) => (
-                    <MenuItem
-                      key={service.id}
-                      value={service.id}
-                      style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
-                    >
+                    <MenuItem key={service.id} value={service.id} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
                       {service.service_name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              <FormControl
-                fullWidth
-                className="formControl"
-                style={{
-                  flexBasis: "30%",
-                  minWidth: "250px",
-                  display: "flex",
-                  marginLeft: "0", // Remove unnecessary left margin
-                  marginRight: "0.6rem",
-                }}
-              >
-                <Typography
-                  className="subheader"
-                  style={{
-                    display: "inline",
-                    marginBottom: "0.5rem",
-                    color: "#4F4949",
-                  }}
-                >
+            </Grid>
+          
+            <Grid item size={4}>
+              <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
+                <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
                   Project Name <span className="required">*</span>
                 </Typography>
                 <Select
@@ -3738,7 +3706,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                     })
                   }
                   displayEmpty
-                  style={{ height: "30px", fontSize: "12px" }}
+                  style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
                 >
                   <MenuItem
                     disabled
@@ -3764,17 +3732,17 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                     <MenuItem
                       key={project.ProjectID}
                       value={project.ProjectID}
-                      style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
+                      style={{ fontSize: "10px", padding: "4px 4px 4px 6px",width:"100px" }}
                     >
                       {project.ProjectName}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              
-            </Box>
+            </Grid>
+          </Grid>
           )}
-          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem", paddingTop: "15px" }}>
+          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem", paddingTop: "2rem" }}>
             Learning Details
           </Typography>
 
@@ -3951,7 +3919,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                     fontStyle: "normal",
                     fontFamily: "Poppins",
                     marginTop: "0.5rem",
-                    maxWidth: "400px",
+                    maxWidth: "100%",
                   }}
                 />
               </FormControl>
@@ -3975,7 +3943,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                   placeholder="Suggest Completion criteria should be less than 1000 words"
                   style={{
                     height: "138px",
-                    maxWidth: "400px",
+                    maxWidth: "100%",
                     marginTop: "0.5rem",
                     fontStyle: "normal",
                     fontFamily: "Poppins",
@@ -3999,7 +3967,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                   placeholder="Comments should be less than 350 words"
                   style={{
                     height: "138px",
-                    maxWidth: "400px",
+                    maxWidth: "100%",
                     marginTop: "0.5rem",
                   }}
                 />
@@ -4302,7 +4270,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
             )}
             {/* Table for Employees */}
             {formData.showTable && (
-              <Grid item size={12}>
+              <Grid item size={12} style={{ boxShadow: "none" }}>
                 <TableContainer component={Paper} className="tableContainer">
                   <Table size="smaller">
                     <TableHead className="head">
@@ -4323,9 +4291,9 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                               placeholder="Search Employees"
                               value={formData.searchQuery}
                               onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
-                              style={{ fontSize: "12px", width: "200px" }}
+                              style={{ fontSize: "12px", width: "200px",marginTop:"16px" }}
                               InputProps={{
-                                style: { fontSize: "12.5px" },
+                                style: { fontSize: "12.5px",color: "#4F4949" },
                               }}
                             />
                           </Box>
@@ -4347,6 +4315,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                               width: "160px",
                               "& input": {
                                 fontSize: "14px",
+                                color: "#4F4949"
                               },
                             }}
                           />
@@ -4367,6 +4336,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                               fontFamily: "Poppins",
                               letterSpacing: "-0.5px",
                               padding: "5px",
+                              color: "#4F4949"
                             }}
                           >
                             <MenuItem value="" disabled>
@@ -4388,8 +4358,8 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                               })
                             }
                           >
-                            <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                            <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+                            <FormControlLabel value="Yes" control={<Radio size="small" color=" " />} label="Yes" />
+                            <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
                           </RadioGroup>
                         </TableCell>
                         <TableCell>
@@ -4415,7 +4385,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                       </TableRow>
                     </TableHead>
 
-                    <TableBody>
+                    <TableBody sx={{borderBottom:"1px solid #EAEAEA"}}>
   {formData.employees
     .filter((employee) => employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()))
     .slice(
@@ -4428,7 +4398,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
  
       return (
         <React.Fragment key={employee.uniqueKey}>
-          <TableRow sx={{ "& > *": { borderBottom: isExpanded ? "unset" : undefined } }}>
+          <TableRow sx={{ "& > *": { borderBottom: isExpanded ? "unset" : undefined }, borderBottom: "1px solid #EAEAEA" }}>
             <TableCell>
               {employee.id}
               {hasActiveLearning && (
@@ -4450,7 +4420,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
               )}
             </TableCell>
             <TableCell>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 ,color: "#4F4949"}}>
                 <Avatar src={employee.profileImage} sx={{ width: 32, height: 32 }} />
                 {employee.name}
               </Box>
@@ -4470,7 +4440,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                   letterSpacing: "-0.5px",
                   padding: "5px",
                   width: "160px",
-                  "& input": { fontSize: "14px" },
+                  "& input": { fontSize: "14px",color: "#4F4949" },
                 }}
               />
             </TableCell>
@@ -4485,6 +4455,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                   fontFamily: "Poppins",
                   letterSpacing: "-0.5px",
                   padding: "5px",
+                  color: "#4F4949"
                 }}
               >
                 <MenuItem value="" disabled>
@@ -4502,8 +4473,8 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                 value={employee.weekend || ""}
                 onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
               >
-                <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+                <FormControlLabel value="Yes" control={<Radio size="small" color=" "/>} label="Yes" />
+                <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
               </RadioGroup>
             </TableCell>
             <TableCell>

@@ -11,6 +11,7 @@ const RequestInfoContainer = () => {
       marginBottom: '50px',
       maxWidth: '100%',
       position: 'relative',
+      marginLeft: '-16px',
      
     }
   };

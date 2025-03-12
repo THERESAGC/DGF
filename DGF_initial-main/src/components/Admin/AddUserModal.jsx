@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -13,29 +13,101 @@ import {
   Grid, 
   Button,
   Avatar,
-  Modal
+  Modal,
+  TextField,
+  Autocomplete
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import axios from 'axios';
 
 const AddUserModal = ({ open, onClose }) => {
   const [role, setRole] = useState('');
   const [employee, setEmployee] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [userRole, setUserRole] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/getallroles/getAllRoles');
+        setRoles(response.data);
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const fetchEmployees = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8000/api/employees/searchWithoutManager?name=${searchTerm}`);
+          setEmployees(response.data);
+        } catch (error) {
+          console.error('Error fetching employees:', error);
+        }
+      };
+
+      fetchEmployees();
+    }
+  }, [searchTerm]);
 
   const handleRoleChange = (event) => {
     setRole(event.target.value);
   };
 
-  const handleEmployeeChange = (event) => {
-    setEmployee(event.target.value);
+  const handleEmployeeChange = (event, value) => {
+    setEmployee(value ? value.emp_id : '');
+    setSelectedEmployee(value);
   };
 
-  const employeeDetails = {
-    "Jonathan Hart": {
-      designation: "Marketing Executive",
-      userId: "HS1232",
-      email: "jonathan@xyz.com"
+  const handleUserRoleChange = (event) => {
+    setUserRole(event.target.value);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleAddUser = async () => {
+    if (!selectedEmployee || !role) {
+      alert('Please select an employee and role.');
+      return;
+    }
+  
+    const roleData = roles.find(r => r.role_name === (role === 'User' ? userRole : role));
+    const role_id = roleData ? roleData.role_id : null;
+  
+    const userData = {
+      emp_id: selectedEmployee.emp_id,
+      name: selectedEmployee.emp_name,
+      email: selectedEmployee.emp_email,
+      password: 'defaultPassword', // You might want to generate or ask for a password
+      designation: selectedEmployee.Designation_Name, // Use Designation_Name here
+      role_id: role_id,
+      profile_image: selectedEmployee.profile_image,
+      created_on: new Date().toISOString().slice(0, 19).replace('T', ' '), // Format as 'YYYY-MM-DD HH:MM:SS'
+      status: 'invited'
+    };
+  
+    try {
+      await axios.post('http://localhost:8000/api/addUser', userData);
+      alert('User added successfully');
+      onClose();
+    } catch (error) {
+      console.error('Error adding user:', error.response ? error.response.data : error.message);
+      alert('Error adding user');
     }
   };
+
+  const capDevRole = roles.find(role => role.role_name === "CapDev Role");
+  const spocRole = roles.find(role => role.role_name === "SPOC");
+  const userRoles = roles.filter(role => role.role_name !== "CapDev Role" && role.role_name !== "SPOC");
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -59,25 +131,65 @@ const AddUserModal = ({ open, onClose }) => {
               value={role}
               onChange={handleRoleChange}
             >
+              {capDevRole && (
+                <FormControlLabel 
+                  value={capDevRole.role_name} 
+                  control={<Radio size="small" />} 
+                  label={capDevRole.role_name} 
+                  sx={{ mr: 3 }}
+                />
+              )}
+              {spocRole && (
+                <FormControlLabel 
+                  value={spocRole.role_name} 
+                  control={<Radio size="small" />} 
+                  label={spocRole.role_name} 
+                  sx={{ mr: 3 }}
+                />
+              )}
               <FormControlLabel 
-                value="capdev" 
+                value="User" 
                 control={<Radio size="small" />} 
-                label="Capdev" 
+                label="User" 
                 sx={{ mr: 3 }}
-              />
-              <FormControlLabel 
-                value="spoc" 
-                control={<Radio size="small" />} 
-                label="SPOC" 
-                sx={{ mr: 3 }}
-              />
-              <FormControlLabel 
-                value="user" 
-                control={<Radio size="small" />} 
-                label="User (DM/DH)" 
               />
             </RadioGroup>
           </FormControl>
+
+          {role === "User" && (
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <FormLabel component="legend" required sx={{ 
+                color: 'black', 
+                fontSize: '0.875rem',
+                mb: 1
+              }}>
+                Select User Role
+              </FormLabel>
+              <Select
+                value={userRole}
+                onChange={handleUserRoleChange}
+                displayEmpty
+                IconComponent={KeyboardArrowDownIcon}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {selected || "Select User Role"}
+                  </Box>
+                )}
+                sx={{ 
+                  height: 40,
+                  '.MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#e0e0e0',
+                  }
+                }}
+              >
+                {userRoles.map((role) => (
+                  <MenuItem key={role.role_id} value={role.role_name}>
+                    {role.role_name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
 
           <FormControl fullWidth sx={{ mb: 3 }}>
             <FormLabel component="legend" required sx={{ 
@@ -85,32 +197,36 @@ const AddUserModal = ({ open, onClose }) => {
               fontSize: '0.875rem',
               mb: 1
             }}>
-              Select Employee
+              Search Employee
             </FormLabel>
-            <Select
-              value={employee}
+            <Autocomplete
+              options={employees}
+              getOptionLabel={(option) => option.emp_name}
+              onInputChange={handleSearchChange}
               onChange={handleEmployeeChange}
-              displayEmpty
-              IconComponent={KeyboardArrowDownIcon}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Avatar 
-                    src="/placeholder.svg?height=30&width=30" 
-                    alt={selected || "Placeholder"}
-                    sx={{ width: 24, height: 24, mr: 1 }}
-                  />
-                  {selected || "Select Employee"}
-                </Box>
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Search by name"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
               )}
-              sx={{ 
-                height: 40,
-                '.MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#e0e0e0',
-                }
-              }}
-            >
-              <MenuItem value="Jonathan Hart">Jonathan Hart</MenuItem>
-            </Select>
+              renderOption={(props, option) => (
+                <li {...props} key={option.emp_id}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar 
+                      src={option.profile_image || "/placeholder.svg?height=30&width=30"} 
+                      alt={option.emp_name}
+                      sx={{ width: 24, height: 24, mr: 1 }}
+                    />
+                    {option.emp_name}
+                  </Box>
+                </li>
+              )}
+            />
           </FormControl>
 
           <Paper 
@@ -127,22 +243,23 @@ const AddUserModal = ({ open, onClose }) => {
               textAlign: 'center'
             }}
           >
-            {employee ? (
+            {selectedEmployee ? (
               <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                    Employee ID
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {selectedEmployee.emp_id}
+                  </Typography>
+                </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                     Designation
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {employeeDetails[employee].designation}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                    User ID
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {employeeDetails[employee].userId}
+                    {selectedEmployee.Designation_Name}
+                    {console.log(`Designation Name: ${selectedEmployee.Designation_Name}`)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sx={{ mt: 1 }}>
@@ -150,7 +267,7 @@ const AddUserModal = ({ open, onClose }) => {
                     Email
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {employeeDetails[employee].email}
+                    {selectedEmployee.emp_email}
                   </Typography>
                 </Grid>
               </Grid>
@@ -181,6 +298,7 @@ const AddUserModal = ({ open, onClose }) => {
                 minWidth: 80,
                 boxShadow: 'none'
               }}
+              onClick={handleAddUser}
             >
               Add
             </Button>

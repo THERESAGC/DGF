@@ -6,7 +6,10 @@ import { Box } from '@mui/material';
  
 const InitiateLearningDetails = () => {
   return (
-    <Box style={{ padding: "20px 30px 0px 0px" }}>
+    <Box style={{ padding: "20px 30px 0px 0px",
+      marginBottom: "50px",
+      
+     }}>
       <Typography style={{ fontWeight: "bold", fontSize: "16px" }}>
         Learning Details
       </Typography>

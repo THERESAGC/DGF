@@ -341,7 +341,7 @@ return (
     </Typography>
     <div className="typography-value-upper">
       {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-        <ul style={{ paddingLeft: '10px' }}>
+        <ul style={{ paddingLeft: '15px' }}>
           {requestDetails?.primarySkills.map((skill, index) => (
             <li key={index}>{skill}</li>
           ))}

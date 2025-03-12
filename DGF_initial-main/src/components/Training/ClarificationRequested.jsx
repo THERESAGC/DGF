@@ -581,25 +581,24 @@ const handleClosePopup = () => setPopupOpen(false);
             </Grid2>
  
             <Grid2 container spacing={2} style={{ marginTop: "1rem" }}>
-  <Grid2 item size={4}>
-    <FormControl fullWidth className="form-control">
-      <Typography className="typography-label-upper">
-        Primary Skills / Competencies:
-      </Typography>
-      <div className="typography-value-upper">
-        {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-          <ul style={{ paddingLeft: "20px" }}>
-            {requestDetails?.primarySkills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
-        ) : (
-          <Typography className="typography-value-upper">No skills available</Typography>
-        )}
-      </div>
-    </FormControl>
-  </Grid2>
-</Grid2>
+              <Grid2 item size={4}>
+                <FormControl fullWidth className="form-control">
+                  <Typography className="typography-label-upper">Primary Skills / Competencies:</Typography>
+                  <Typography className="typography-value-upper">
+                    {" "}
+                    {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
+                      <ul style={{ paddingLeft: "20px" }}>
+                        {requestDetails?.primarySkills.map((skill, index) => (
+                          <li key={index}>{skill}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <Typography className="typography-value-upper">No skills available</Typography>
+                    )}
+                  </Typography>
+                </FormControl>
+              </Grid2>
+            </Grid2>
           </Box>
  
           <Divider className="divider" style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }} />
@@ -636,14 +635,14 @@ const handleClosePopup = () => setPopupOpen(false);
  
           <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
           <Box>
-            <div style={{ maxWidth: "100%", margin: "auto", paddingLeft: "0.5rem" }}>
+            <div style={{ maxWidth: "100%", margin: "auto" }}>
               <h5>Employee Details</h5>
               <Typography className="typography-label-upper">
                 Employee with upto 3 ongoing learnings cannot be included in this learning request
               </Typography>
-              <Grid2 container spacing={5}>
+              <Grid2 container spacing={2} >
                 {/* Select Employee Section */}
-                <Grid2 item size={3.5}>
+                <Grid2 item size={4}>
                   <FormControl fullWidth>
                     <Typography
                       className="subheader"
@@ -726,22 +725,24 @@ const handleClosePopup = () => setPopupOpen(false);
                 </Grid2>
  
                 {/* OR Section */}
-                <Grid2 item size={1} style={{ marginTop: "52px", marginLeft: "-30px" }}>
+                <Grid2 item style={{ marginTop: "52px"}}>
                   <Typography
                     className="subheader"
                     align="center"
-                    style={{ display: "inline", marginTop: "32px", color: "#4F4949", fontSize: "12px" }}
+                    style={{ display: "inline", marginTop: "32px", color: "#4F4949", fontSize: "12px",textAlign:" center" ,
+                      margin:" 6px auto 0 auto",
+                      display: "block "}}
                   >
                     OR
                   </Typography>
                 </Grid2>
  
                 {/* Email Input Section */}
-                <Grid2 item size={3.5}>
-                  <FormControl fullWidth style={{ marginLeft: "-36px", marginTop: "24px" }}>
+                <Grid2 item size={4}>
+                  <FormControl fullWidth style={{  marginTop: "24px" }}>
                     <Typography
                       className="subheader"
-                      style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949", width: "280px" }}
+                      style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
                     >
                       Enter comma(,) separated email ids <span className="required">*</span>
                     </Typography>
@@ -759,12 +760,12 @@ const handleClosePopup = () => setPopupOpen(false);
                 </Grid2>
  
                 {/* Add Employee Button */}
-                <Grid2 item size={4}>
+                <Grid2 item >
                   <Box
                     display="flex"
                     justifyContent="flex-end"
                     marginTop="1.7rem"
-                    style={{ marginLeft: "-56px", marginTop: "50px" }}
+                    style={{ marginTop: "50px" }}
                   >
                     <Button
                       className="btn"
@@ -779,7 +780,7 @@ const handleClosePopup = () => setPopupOpen(false);
                         color: "#1C71FE",
                         boxShadow: "none",
                         border: "0.5px solid #1C71FE",
-                        marginLeft: "10px",
+                        // marginLeft: "10px",
                       }}
                     >
                       +
@@ -948,7 +949,7 @@ const handleClosePopup = () => setPopupOpen(false);
                     borderRadius: "8px",
                     marginTop: "1rem",
                     marginBottom: "1rem",
-                    maxHeight: sortedComments.length > 0 ? window.innerHeight * 0.30 : "none", // Set maxHeight if there are comments
+                    maxHeight: sortedComments.length > 0 ? window.innerHeight * 0.3 : "none", // Set maxHeight if there are comments
                     overflowY: sortedComments.length > 0 ? "auto" : "visible", // Enable scroll if there are comments
                   }}
                 >
@@ -988,7 +989,7 @@ const handleClosePopup = () => setPopupOpen(false);
                     )}
                   </Box>
                 </Box>
-                <Box paddingLeft={5}>
+                <Box style={{width:"90%" , margin : "auto"}}>
                   <FormControl fullWidth style={{ marginBottom: "1rem" }}>
                     <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949" }}>
                       Your Comments
@@ -1078,18 +1079,10 @@ const handleClosePopup = () => setPopupOpen(false);
           </IconButton>
         </DialogTitle>
       </Dialog>
-      
-<Dialog open={popupOpen} onClose={handleClosePopup}>
-  <DialogTitle>Missing Comments</DialogTitle>
-  <DialogContent>Please add comments before submitting.</DialogContent>
-  <DialogActions>
-    <Button onClick={handleClosePopup} color="primary">
-      OK
-    </Button>
-  </DialogActions>
-</Dialog>
     </>
   )
 }
-
+ 
 export default ClarificationRequested
+ 
+ 

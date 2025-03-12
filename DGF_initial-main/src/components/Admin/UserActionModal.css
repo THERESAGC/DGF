@@ -1,0 +1,40 @@
+.user-action-modal {
+  font-family: "Poppins", sans-serif !important;
+}
+
+.modal-title {
+  font-weight: 500 !important;
+  font-size: 1.25rem !important;
+}
+
+.action-button {
+  background-color: #09459e !important;
+  color: #fff !important;
+  border-radius: 20px !important;
+  text-transform: none !important;
+  font-weight: normal !important;
+  box-shadow: none !important;
+  font-family: "Poppins", sans-serif !important;
+}
+
+.cancel-button {
+  color: #09459e !important;
+  text-transform: none !important;
+  font-weight: normal !important;
+}
+
+.resend-button {
+  border-color: #09459e !important;
+  color: #09459e !important;
+  text-transform: none !important;
+  border-radius: 4px !important;
+}
+
+.active-status {
+  color: #2bb381 !important;
+}
+
+.inactive-status {
+  color: #aa1700 !important;
+}
+

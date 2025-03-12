@@ -4,11 +4,11 @@ const NewRequestContainer = () => {
 const styles = {
   newRequestContainer: {
  
-    padding: '10px 12px',
+    padding: '10px 4px',
     position: 'relative',
     boxSizing: 'border-box',
-    marginRight: '40px',
-    maxHeight: '100vh',
+    marginRight: '58px',
+    
     maxWidth: '100%'
 }
 };

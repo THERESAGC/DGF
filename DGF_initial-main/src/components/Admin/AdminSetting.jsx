@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+"use client"
+
+import { useEffect, useState } from "react"
 import {
   Table,
   TableBody,
@@ -12,10 +14,11 @@ import {
   Typography,
   Box,
   Pagination,
-} from "@mui/material";
-import { ArrowForward } from "@mui/icons-material"; // Import ArrowForward icon
-import { styled } from "@mui/material/styles";
-import axios from "axios";
+} from "@mui/material"
+import { ArrowForward } from "@mui/icons-material"
+import { styled } from "@mui/material/styles"
+import axios from "axios"
+import UserActionModal from "./UserActionModal"
 
 const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   width: "22px",
@@ -32,37 +35,63 @@ const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
     fontSize: "16px",
     fontWeight: "bold",
   },
-}));
+}))
 
 export default function UserTable() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([])
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [actionModalOpen, setActionModalOpen] = useState(false)
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/logins")
-      .then(response => {
-        const fetchedUsers = response.data.map(user => ({
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = () => {
+    axios
+      .get("http://localhost:8000/api/logins")
+      .then((response) => {
+        const fetchedUsers = response.data.map((user) => ({
           id: user.emp_id,
           name: user.name,
           email: user.email,
-          // avatar: , // Placeholder image
           role: user.role_name,
-          createdOn:new Date(user.created_on).toLocaleDateString(), // Format date, // Placeholder date
-          status: user.status, // Placeholder status
-        }));
-        setUsers(fetchedUsers);
+          createdOn: new Date(user.created_on).toLocaleDateString(),
+          status: user.status,
+        }))
+        setUsers(fetchedUsers)
       })
-      .catch(error => {
-        console.error("Error fetching users:", error);
-      });
-  }, []);
+      .catch((error) => {
+        console.error("Error fetching users:", error)
+      })
+  }
+
+  const handleActionClick = (user) => {
+    setSelectedUser(user)
+    setActionModalOpen(true)
+  }
+
+  const handleCloseActionModal = () => {
+    setActionModalOpen(false)
+    // Refresh the user list after modal is closed to reflect any changes
+    fetchUsers()
+  }
 
   return (
-    <Box sx={{ backgroundColor: "#FFFFFF", borderRadius: "15px", opacity: 1, padding: 3, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", transition: "min-height 0.3s ease" }}>
+    <Box
+      sx={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: "15px",
+        opacity: 1,
+        padding: 3,
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        transition: "min-height 0.3s ease",
+      }}
+    >
       <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
-            <TableRow sx={{ borderBottom: "2px solid #8FBEF8"}}>
-              <TableCell sx={{ fontFamily: "inherit", fontWeight: "bold"}}>User ID</TableCell>
+            <TableRow sx={{ borderBottom: "2px solid #8FBEF8" }}>
+              <TableCell sx={{ fontFamily: "inherit", fontWeight: "bold" }}>User ID</TableCell>
               <TableCell sx={{ fontFamily: "inherit", fontWeight: "bold" }}>Name</TableCell>
               <TableCell sx={{ fontFamily: "inherit", fontWeight: "bold" }}>Email</TableCell>
               <TableCell sx={{ fontFamily: "inherit", fontWeight: "bold" }}>Role</TableCell>
@@ -83,26 +112,22 @@ export default function UserTable() {
                 </TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.email}</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.role}</TableCell>
-                <TableCell sx={{ fontFamily: "inherit" }}>
-               {user.createdOn}
-                </TableCell>
+                <TableCell sx={{ fontFamily: "inherit" }}>{user.createdOn}</TableCell>
                 <TableCell>
-                  <Typography
-                    sx={{
-                      color: user.status === "active" ? "#2BB381" : "#AA1700",
-                      fontSize: "0.75rem",
-                      opacity:1,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {user.status}
-                  </Typography>
-                </TableCell>
+  <Typography
+    sx={{
+      color: user.status === "active" ? "#2BB381" : user.status === "invited" ? "#B39C2B" : "#AA1700",
+      fontSize: "0.75rem",
+      opacity: 1,
+      fontFamily: "inherit",
+    }}
+  >
+    {user.status}
+  </Typography>
+</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>
-                  <ArrowForwardDesign>
-                    <IconButton size="small">
-                      <ArrowForward />
-                    </IconButton>
+                  <ArrowForwardDesign onClick={() => handleActionClick(user)}>
+                    <ArrowForward fontSize="small" />
                   </ArrowForwardDesign>
                 </TableCell>
               </TableRow>
@@ -116,6 +141,10 @@ export default function UserTable() {
         </Typography>
         <Pagination count={Math.ceil(users.length / 5)} size="small" shape="rounded" />
       </Box>
+
+      {/* User Action Modal */}
+      <UserActionModal open={actionModalOpen} onClose={handleCloseActionModal} user={selectedUser} />
     </Box>
-  );
+  )
 }
+

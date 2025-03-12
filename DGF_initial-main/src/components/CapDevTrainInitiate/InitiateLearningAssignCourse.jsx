@@ -259,7 +259,7 @@ function CourseTracker() {
         position: "relative",
       }}
     >
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between",  mb: 3 }}>
         <Typography variant="h6" fontWeight="bold">
           Assign Courses & Track the Learning Progress
         </Typography>
@@ -283,18 +283,18 @@ function CourseTracker() {
                 <TableRow sx={{ backgroundColor: "#FAFAFA" }}>
                   <TableCell width="48px" />
                   <TableCell padding="checkbox" width="48px" />
-                  <TableCell>Name</TableCell>
+                  <TableCell style={{textAlign:"left"}}>Name</TableCell>
                   <TableCell align="center">Courses Assigned</TableCell>
                   <TableCell align="center">Available From</TableCell>
                   <TableCell align="center">Daily Bandwidth</TableCell>
                   <TableCell align="center">Weekend Availability</TableCell>
                   <TableCell align="center">Status</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell style={{textAlign:"left"}}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {learners.map((row) => (
-                  <Row
+                  <Row 
                     key={row.emp_id}
                     row={row}
                     isExpanded={expandedId === row.emp_id}
@@ -304,6 +304,9 @@ function CourseTracker() {
                     onAssignCourse={() => {
                       setSelectedEmployees([row.emp_id])
                       setShowAssignModal(true)
+                    }}
+                    style={{
+                      backgroundColor: row % 2 !== 0 ? 'red' : 'transparent' // Apply color to odd rows
                     }}
                   />
                 ))}

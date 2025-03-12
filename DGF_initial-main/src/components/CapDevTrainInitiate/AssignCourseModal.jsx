@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Modal, Box, Typography, TextField, Paper, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Button, FormControl, InputLabel, 
+import {
+  Modal, Box, Typography, TextField, Paper, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Button, FormControl, InputLabel,
   Select, MenuItem, IconButton, InputAdornment, TextareaAutosize, CircularProgress, RadioGroup, FormControlLabel, Radio, Autocomplete
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-
+ 
 const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [availableCourses, setAvailableCourses] = useState([]);
@@ -20,7 +20,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
   const [learningType, setLearningType] = useState('');
   const [mentors, setMentors] = useState([]);
   const [mentorLoading, setMentorLoading] = useState(false);
-
+ 
   useEffect(() => {
     const fetchCourseTypes = async () => {
       try {
@@ -33,7 +33,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
     };
     fetchCourseTypes();
   }, []);
-
+ 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -55,11 +55,11 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
         setLoading(false);
       }
     };
-
+ 
     const timer = setTimeout(fetchCourses, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
+ 
   const handleAddCourse = (course) => {
     if (!courses.some(c => c.course_id === course.course_id)) {
       setCourses(prev => [
@@ -75,7 +75,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
       ]);
     }
   };
-
+ 
   const handleAssign = async () => {
     try {
       setSubmitting(true);
@@ -91,9 +91,9 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
             comments: specialComments,
             learning_type: learningType,
           };
-
+ 
           console.log('Payload:', payload); // Log the payload to verify its content
-
+ 
           await fetch('http://localhost:8000/api/assign-courses/assign', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -108,7 +108,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
       setSubmitting(false);
     }
   };
-
+ 
   const handleMentorSearch = async (query) => {
     try {
       setMentorLoading(true);
@@ -121,7 +121,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
       setMentorLoading(false);
     }
   };
-
+ 
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
@@ -140,7 +140,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
         <Typography variant="h6" sx={{ mb: 3 }}>
           Assign Course to {employeeIds.length > 1 ? `${employeeIds.length} Employees` : 'Employee'}
         </Typography>
-
+ 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
           <Box sx={{ width: '48%' }}>
             <Typography component="label" htmlFor="select-course" sx={{ mb: 1, display: 'block' }}>
@@ -174,10 +174,11 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                   handleAddCourse(value);
                 }
               }}
+              disabled={courses.length >=3}
             />
             {loading && <CircularProgress size={24} sx={{ mt: 1 }} />}
           </Box>
-
+ 
           <Box sx={{ width: '48%' }}>
             <FormControl fullWidth>
               <Typography component="label" htmlFor="learning-type" sx={{ mb: 1, display: 'block' }}>
@@ -201,7 +202,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
             </FormControl>
           </Box>
         </Box>
-
+ 
         {courses.length === 0 ? (
           <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center' }}>
             <Typography variant="body1" color="text.secondary">
@@ -249,10 +250,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                         )}
                         onChange={(event, value) => {
                           if (value) {
-                            setCourses(prev => 
-                              prev.map(c => 
-                                c.course_id === course.course_id 
-                                  ? { ...c, mentor: value.emp_id } 
+                            setCourses(prev =>
+                              prev.map(c =>
+                                c.course_id === course.course_id
+                                  ? { ...c, mentor: value.emp_id }
                                   : c
                               )
                             );
@@ -270,7 +271,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                           min: new Date().toISOString().split("T")[0], // Set the minimum date to today
                         }}
                         InputProps={{
-                          
+                         
                           startAdornment: (
                             <InputAdornment position="start">
                               <CalendarTodayIcon fontSize="small" />
@@ -279,9 +280,9 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                         }}
                         value={course.completionDate}
                         onChange={(e) => setCourses(prev =>
-                          prev.map(c => 
-                            c.course_id === course.course_id 
-                              ? { ...c, completionDate: e.target.value } 
+                          prev.map(c =>
+                            c.course_id === course.course_id
+                              ? { ...c, completionDate: e.target.value }
                               : c
                           )
                         )}
@@ -291,10 +292,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                       <FormControl fullWidth size="small">
                         <Select
                           value={course.coursetype}
-                          onChange={(e) => setCourses(prev => 
-                            prev.map(c => 
-                              c.course_id === course.course_id 
-                                ? { ...c, coursetype: e.target.value } 
+                          onChange={(e) => setCourses(prev =>
+                            prev.map(c =>
+                              c.course_id === course.course_id
+                                ? { ...c, coursetype: e.target.value }
                                 : c
                             )
                           )}
@@ -309,8 +310,8 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                       </FormControl>
                     </TableCell>
                     <TableCell>
-                      <IconButton 
-                        onClick={() => setCourses(prev => 
+                      <IconButton
+                        onClick={() => setCourses(prev =>
                           prev.filter(c => c.course_id !== course.course_id)
                         )}
                       >
@@ -323,35 +324,35 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
             </Table>
           </TableContainer>
         )}
-
+ 
         <Box sx={{ mb: 3 }}>
           <Typography gutterBottom>Special Comments</Typography>
           <TextareaAutosize
             minRows={3}
-            style={{ 
-              width: '100%', 
-              padding: '8px', 
-              border: '1px solid #ddd', 
-              borderRadius: '4px' 
+            style={{
+              width: '100%',
+              padding: '8px',
+              border: '1px solid #ddd',
+              borderRadius: '4px'
             }}
             value={specialComments}
             onChange={(e) => setSpecialComments(e.target.value)}
           />
         </Box>
-
+ 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={onClose}
             disabled={submitting}
           >
             Cancel
           </Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             color="primary"
             onClick={handleAssign}
-            disabled={submitting || courses.length === 0}
+            disabled={submitting || courses.length === 0|| courses.length > 3}
           >
             {submitting ? <CircularProgress size={24} /> : 'Assign'}
           </Button>
@@ -360,5 +361,6 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
     </Modal>
   );
 };
-
+ 
 export default AssignCourseModal;
+ 

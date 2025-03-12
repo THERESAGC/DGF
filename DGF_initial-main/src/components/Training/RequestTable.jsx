@@ -525,7 +525,7 @@ const handleEditClick = (status,requestId) => {
           onChange={handleDaysChange}
           variant="outlined"
           size="small"
-          style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px', marginRight: '-10px' }}
+          style={{ marginLeft: '20px', height: '30px', backgroundColor: "white", width: '105px' }}
           InputProps={{
             style: { fontSize: '0.63rem' } // Decreasing the font size here
           }}

@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const socketIo = require('socket.io');
 const cron = require('node-cron');
+// const fetch = require('node-fetch').default;
 
 const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
@@ -49,6 +50,13 @@ const { getMatrixProjects } = require('./services/matrixProjectService');
 const { getCourses } = require('./services/courseService');
 const TrainingCommentRoutes = require('./routes/initiateTrainingCommentsRoutes');
 const getAllRolesRoutes = require('./routes/getAllRolesRoutes');
+const addUserRoutes = require('./routes/addUserRoutes');
+const userUpdateStatusRoutes = require('./routes/userUpdateStatusRoutes');
+const excelExportController = require('./controllers/excelExportController'); // Import the excel export controller
+
+
+// Import the syncEmployees function
+const { syncEmployees } = require('./services/storeEmployeeService');
 
 
 const app = express();
@@ -81,6 +89,26 @@ cron.schedule('0 0 * * *', async () => {
     console.log('Running getCourses service...');
     await getCourses();
 });
+
+
+// Added employee sync cron job
+cron.schedule('0 0 * * *', async () => {
+    console.log('Running employee sync service...');
+    await syncEmployees();
+});
+
+
+// Added manual sync endpoint
+app.get('/api/sync-employees', async (req, res) => {
+    try {
+        await syncEmployees();
+        res.status(200).json({ message: 'Employee sync completed successfully' });
+    } catch (error) {
+        console.error('Manual employee sync failed:', error);
+        res.status(500).json({ message: 'Employee sync failed' });
+    }
+});
+
 
 // Fetch data from Academy API
 app.get('/api/fetch-courses', async (req, res) => {
@@ -213,7 +241,12 @@ app.use('/api/assign-courses', assignCourseRoutes);
 app.use('/api/assigned-courses', getAssignedCoursesRoutes);
 app.use('/api/course-status', courseStatusRoutes);
 
+app.use('/api', addUserRoutes);
 
+// Set up the route for exporting data to Excel
+app.get('/export-excel', excelExportController.exportExcelData);
+
+app.use('/api/user', userUpdateStatusRoutes);
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');

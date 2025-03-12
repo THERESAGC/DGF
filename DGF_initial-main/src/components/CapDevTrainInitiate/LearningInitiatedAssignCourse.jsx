@@ -25,6 +25,17 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     paddingLeft: "0px !important",
     fontFamily: "inherit",
   },
+  "& .innertable": {
+    padding: "0px !important",
+ 
+  },
+  "& .innertable th": {
+    fontSize: "10px !important",
+    fontWeight: "bold",
+  },
+  "& .innertable td": {
+    fontSize: "10px !important",
+  },
 }));
 
 const HeaderButton = styled(Button)(({ theme }) => ({
@@ -107,6 +118,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
     setCurrentAssignmentId(assignmentId);
     setSidebarOpen(true);
   };
+
   useEffect(() => {
     const fetchAssignedCourses = async () => {
       try {
@@ -156,7 +168,8 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         <TableCell>
           <StatusChip>{row.status}</StatusChip>
         </TableCell>
-        <TableCell>
+      
+          <TableCell style={{textAlign:"left"}}>
           <HeaderButton onClick={() => onAssignCourse(row.emp_id)}
              disabled={row.coursesAssigned >= 3}
             >
@@ -167,51 +180,61 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
 
       {isExpanded && (
         <TableRow sx={{ backgroundColor: "#f1f2fd" }}>
-          <TableCell colSpan={9} sx={{ py: 0 }}>
-            <Box sx={{ ml: 10, mr: 8, textAlign: "left" }}>
+          <TableCell colSpan={12} className="innertable">
+            <Box sx={{ textAlign: "left" }}>
               {loadingCourses ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <Box sx={{ display: "flex", justifyContent: "center"}}>
                   <CircularProgress />
                 </Box>
               ) : (
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: "bold", paddingRight: "16px" }}>Mentor</TableCell>
-                      <TableCell sx={{ fontWeight: "bold", paddingLeft: "16px" }}>Course Name</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>End Date</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Comments</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
+                <Table >
+                   <TableHead sx={{ backgroundColor: "#FAFAFA" }}>
+                <TableRow >
+                  <TableCell width="48px" style={{paddingLeft:"0px !important"}} />
+                  <TableCell padding="checkbox" width="48px" />
+                  <TableCell style={{textAlign:"left",width:"164px"}}>Mentor</TableCell>
+                  <TableCell  style={{textAlign:"left"}}>Course Name</TableCell>
+                  <TableCell align="center">End Date</TableCell>
+                  <TableCell align="center">Comments</TableCell>
+                 
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell style={{textAlign:"left"}}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
                   <TableBody>
                     {assignedCourses.map((course, index) => (
                       <TableRow key={index}>
-                        <TableCell sx={{ paddingRight: "16px" }}>{course.mentor_name}</TableCell>
+                        <TableCell/>
+                        <TableCell/>
+                        <TableCell sx={{ textAlign:"left !important" }}>{course.mentor_name}</TableCell>
                         <TableCell sx={{ paddingLeft: "16px" }}>
-                          <Box sx={{ display: "flex", flexDirection: "column", gap: 1}}>
+                          <Box sx={{ display: "flex", gap: 1 , alignItems: "center"}}>
                             <Typography variant="body2" sx={{
                               whiteSpace: "nowrap",
                               overflow: "hidden",
                               textOverflow: "ellipsis",
-                              fontSize: "12px",
+                              fontSize: "10px !important",
                               mb: 1,
+                              textAlign: "left",
+                              width: "200px"
                             }}>
                               {course.course_name || "N/A"}
                             </Typography>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Box sx={{ width: "70%", maxWidth: "100px"}}>
+                            <Box sx={{ width:"100%",maxWidth:"100px", alignItems: "center", gap: "5px" ,display: "flex"
+                              
+  
+                             }}>
+                              
                                 <LinearProgress
                                   variant="determinate"
                                   value={course.progress || 0}
-                                  sx={{ height: 8, borderRadius: 4 }}
+                                  sx={{ height: 8, borderRadius: 4,width:"48px" }}
                                 />
-                              </Box>
+                              
                               <Typography variant="caption">
                                 {course.progress || 0}%
                               </Typography>
-                            </Box>
+                              </Box>
                           </Box>
                         </TableCell>
                         <TableCell>
@@ -224,6 +247,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                         </TableCell>
                         <TableCell>
                           <ActionIconButton
+                            style={{height:"20px",width:"20px"}}
                             size="small"
                             onClick={(e) => handleMenuClick(e, course.assignment_id)}
                           >
@@ -367,7 +391,7 @@ export default function CourseTracker() {
       position: "relative"
     }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h5">Assign Courses & Track Progress</Typography>
+        <Typography variant="h5" style={{fontWeight:"600"}}>Assign Courses & Track Progress</Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
           <HeaderButton variant="outlined">Send Reminder</HeaderButton>
           <HeaderButton
@@ -386,19 +410,19 @@ export default function CourseTracker() {
         </Box>
       ) : (
         <>
-          <StyledTableContainer component={Paper}>
+          <StyledTableContainer component={Paper} sx={{width: "100%" , boxShadow:"none", padding:"0px"}}>
             <Table aria-label="course-tracker-table">
               <TableHead sx={{ backgroundColor: "#FAFAFA" }}>
                 <TableRow>
-                  <TableCell width="48px" />
-                  <TableCell padding="checkbox" width="48px" />
-                  <TableCell>Name</TableCell>
-                  <TableCell align="center">Courses</TableCell>
+                <TableCell  style={{paddingLeft:"0px !important", width :"30px !important"}} />
+                <TableCell padding="checkbox" style={{width :"30px !important"}} />
+                  <TableCell style={{textAlign:"left", width:"120px"}}>Name</TableCell>
+                  <TableCell style={{textAlign:"center" , width:"120px"}}>Courses Assigned</TableCell>
                   <TableCell align="center">Available From</TableCell>
                   <TableCell align="center">Bandwidth</TableCell>
                   <TableCell align="center">Weekends</TableCell>
                   <TableCell align="center">Status</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell style={{textAlign:"left", width:"110px"}}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
