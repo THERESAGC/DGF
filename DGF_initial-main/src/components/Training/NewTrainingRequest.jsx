@@ -2730,63 +2730,66 @@ const NewTrainingRequest = () => {
     }
   }, [user])
 
-  const handleEmployeeSearch = (event, value) => {
-    if (value.length > 0) {
-      let apiUrl
-      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
-      } else {
-apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
-      }
- 
-      fetch(apiUrl)
-        .then((response) => response.json())
-        .then(async (data) => {
-          if (Array.isArray(data)) {
-            const employeesWithSkills = await Promise.all(
-data.map(async (emp) => {
-                try {
-                  let learnerResponse
-                  let learnerData
- 
-                  if (formData.employeeDetails === "open") {
-                    learnerResponse = await fetch(
-`http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
-                    )
-                    learnerData = await learnerResponse.json()
-                    return {
-                      ...emp,
-                      totalPrimarySkills: learnerData.total_requests || 0,
-                    }
-                  } else {
-learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
-                    learnerData = await learnerResponse.json()
-                    return {
-                      ...emp,
-                      totalPrimarySkills: learnerData.total_primary_skills || 0,
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error fetching learner data:", error)
-                  return { ...emp, totalPrimarySkills: 0 }
-                }
-              }),
-            )
-            setSearchResults(
-employeesWithSkills.map((emp) => ({
-                id: emp.emp_id,
-                name: emp.emp_name,
-                email: emp.emp_email,
-profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`,
-uniqueKey: `${emp.emp_id}-${Date.now()}`,
-                totalPrimarySkills: emp.totalPrimarySkills,
-              })),
-            )
-          }
-        })
-        .catch((error) => console.error("Error fetching employees:", error))
+
+const handleEmployeeSearch = (event, value) => {
+  if (value.length > 0) {
+    let apiUrl;
+    if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+      apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`;
+    } else {
+      apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`;
     }
+
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then(async (data) => {
+        if (Array.isArray(data)) {
+          const employeesWithSkills = await Promise.all(
+            data.map(async (emp) => {
+              try {
+                let learnerResponse;
+                let learnerData;
+
+                if (formData.employeeDetails === "open") {
+                  learnerResponse = await fetch(
+                    `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
+                  );
+                  learnerData = await learnerResponse.json();
+                  return {
+                    ...emp,
+                    totalPrimarySkills: learnerData.total_requests || 0,
+                  };
+                } else {
+                  learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`);
+                  learnerData = await learnerResponse.json();
+                  return {
+                    ...emp,
+                    totalPrimarySkills: learnerData.total_primary_skills || 0,
+                  };
+                }
+              } catch (error) {
+                console.error("Error fetching learner data:", error);
+                return { ...emp, totalPrimarySkills: 0 };
+              }
+            })
+          );
+          setSearchResults(
+            employeesWithSkills.map((emp) => ({
+              id: emp.emp_id,
+              name: emp.emp_name,
+              email: emp.emp_email,
+              profileImage: emp.profile_image?.data
+                ? `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`
+                : "/placeholder.svg", // Use a placeholder image if profile_image is null
+              uniqueKey: `${emp.emp_id}-${Date.now()}`,
+              totalPrimarySkills: emp.totalPrimarySkills,
+            }))
+          );
+        }
+      })
+      .catch((error) => console.error("Error fetching employees:", error));
   }
+};
 
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
@@ -2814,48 +2817,52 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     }
   }
 
-  const handleEmailSearch = async (email) => {
-    try {
-      let apiUrl
 
-      // Construct the API URL based on the conditions
-      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-        apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`
-      } else {
-        apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`
-      }
+const handleEmailSearch = async (email) => {
+  try {
+    let apiUrl;
 
-      const response = await fetch(apiUrl)
-      const data = await response.json()
-
-      if (response.ok && data.length > 0) {
-        const employee = data[0]
-        if (!formData.employees.some((existingEmp) => existingEmp.id === employee.emp_id)) {
-          return {
-            id: employee.emp_id,
-            name: employee.emp_name,
-            email: employee.emp_email,
-            availableFrom: "",
-            bandwidth: "",
-            weekend: "",
-            profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(employee.profile_image.data)}`, // Convert image data to base64
-            uniqueKey: `${employee.emp_id}-${Date.now()}`, // Add unique key
-          }
-        }
-      } else {
-        console.error("Failed to fetch employee by email:", data.message)
-        setSnackbarMessage(`Email ${email} not found.`)
-        setSnackbarSeverity("error")
-        setSnackbarOpen(true)
-      }
-    } catch (error) {
-      console.error("Error fetching employee by email:", error)
-      setSnackbarMessage(`Error fetching employee by email: ${error.message}`)
-      setSnackbarSeverity("error")
-      setSnackbarOpen(true)
+    // Construct the API URL based on the conditions
+    if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+      apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`;
+    } else {
+      apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`;
     }
-    return null
+
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    if (response.ok && data.length > 0) {
+      const employee = data[0];
+      if (!formData.employees.some((existingEmp) => existingEmp.id === employee.emp_id)) {
+        return {
+          id: employee.emp_id,
+          name: employee.emp_name,
+          email: employee.emp_email,
+          availableFrom: "",
+          bandwidth: "",
+          weekend: "",
+          profileImage: employee.profile_image?.data
+            ? `data:image/jpeg;base64,${arrayBufferToBase64(employee.profile_image.data)}`
+            : "/placeholder.svg", // Use a placeholder image if profile_image is null
+          uniqueKey: `${employee.emp_id}-${Date.now()}`, // Add unique key
+        };
+      }
+    } else {
+      console.error("Failed to fetch employee by email:", data.message);
+      setSnackbarMessage(`Email ${email} not found.`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  } catch (error) {
+    console.error("Error fetching employee by email:", error);
+    setSnackbarMessage(`Error fetching employee by email: ${error.message}`);
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
   }
+  return null;
+};
+
   const addEmployeesByLevel = async () => {
     const newEmployees = []
 
