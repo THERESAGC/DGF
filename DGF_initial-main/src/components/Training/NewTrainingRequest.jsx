@@ -1184,39 +1184,135 @@ const NewTrainingRequest = () => {
             Skilling For
           </Typography>
           <FormControl component="fieldset" style={{ marginBottom: "0.5rem" }}>
-            <RadioGroup
-              row
-              name="trainingPurpose"
-              value={formData.trainingPurpose}
-              onChange={(e) => {
-                // Only allow changes if role_id is 8 or 4
-                if (user.role_id === 8 || user.role_id === 4) {
-                  handleChange(e)
-                }
-              }}
-            >
-              <FormControlLabel
-                value="prospect"
-                control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
-                label={
-                  <Typography className="subheader" style={{ fontWeight: "600" }}>
-                    Prospect
-                  </Typography>
-                }
-                disabled={user.role_id !== 8 && user.role_id !== 4}
-              />
-              <FormControlLabel
-                value="project"
-                style={{ marginLeft: "20px" }}
-                control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
-                label={
-                  <Typography className="project" style={{ fontWeight: "600" }}>
-                    Existing Project
-                  </Typography>
-                }
-                disabled={user.role_id !== 8 && user.role_id !== 4}
-              />
-            </RadioGroup>
+          <RadioGroup
+
+row
+
+name="trainingPurpose"
+
+value={formData.trainingPurpose}
+
+onChange={(e) => {
+
+  // Only allow changes if role_id is 8 or 4
+
+  if (user.role_id === 8 || user.role_id === 4) {
+
+    handleChange(e);
+
+  }
+
+}}
+>
+
+{/* Prospect Radio Button */}
+<FormControlLabel
+
+  value="prospect"
+
+  control={
+<CustomRadio
+
+      sx={{
+
+        "& .MuiSvgIcon-root": {
+
+          // Lighten the circle only for "Prospect" when disabled and not selected
+
+          color:
+
+            user.role_id !== 8 && user.role_id !== 4 && formData.trainingPurpose !== "prospect"
+
+              ? "#D3D3D3" // Disabled color
+
+              : "#707070", // Normal color
+
+        },
+
+      }}
+
+    />
+
+  }
+
+  label={
+<Typography
+
+      className="subheader"
+
+      style={{
+
+        fontWeight: "600",
+
+        color:
+
+          formData.trainingPurpose === "prospect" || user.role_id === 8 || user.role_id === 4
+
+            ? "#000000" // Normal color for selected or authorized role
+
+            : "#D3D3D3", // Lightened color when disabled
+
+      }}
+>
+
+      Prospect
+</Typography>
+
+  }
+
+  disabled={user.role_id !== 8 && user.role_id !== 4} // Disable if role is not 8 or 4
+
+/>
+
+{/* Existing Project Radio Button */}
+<FormControlLabel
+
+  value="project"
+
+  style={{ marginLeft: "20px" }}
+
+  control={
+<CustomRadio
+
+      sx={{
+
+        "& .MuiSvgIcon-root": {
+
+          color: "#707070", // Keep the color of the circle for "Existing Project" unchanged
+
+        },
+
+      }}
+
+    />
+
+  }
+
+  label={
+<Typography
+
+      className="project"
+
+      style={{
+
+        fontWeight: "600",
+
+        color: "#000000", // Keep text color normal for "Existing Project"
+
+      }}
+>
+
+      Existing Project
+</Typography>
+
+  }
+
+  disabled={false} // "Existing Project" is always enabled
+
+/>
+</RadioGroup>
+
+
           </FormControl>
           {formData.trainingPurpose === "prospect" ? (
             <Grid container spacing={5}>
@@ -1385,6 +1481,7 @@ const NewTrainingRequest = () => {
                         fontSize: "12px",
                         padding: "4px 4px 4px 6px",
                         fontFamily: "Poppins",
+                        
                       }}
                     >
                       <em
@@ -1440,11 +1537,12 @@ const NewTrainingRequest = () => {
                       fontSize: "10px",
                       fontFamily: "Poppins",
                       letterSpacing: "-0.5px", // Reduce letter spacing
-                      padding: "5px",
+                    
                       width: "160px",
+                    
                       "& input": {
-                        fontSize: "14px",
-                        color: "#787878",
+                        fontSize: "13px",
+                        color: formData.selectedDate ? "#4F4949" : "#787878", // Change color when a date is selected
                       },
                     }}
                   />
@@ -1627,7 +1725,7 @@ const NewTrainingRequest = () => {
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
-                  style={{ marginBottom: "0.1rem", color: "#4F4949", maxWidth: "400px", display: "inline" }}
+                  style={{ marginBottom: "0.5rem", color: "#4F4949", maxWidth: "400px", display: "inline" }}
                 >
                   Desired Impact<span className="required">*</span>
                 </Typography>
