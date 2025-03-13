@@ -5,13 +5,11 @@ import { useParams } from "react-router-dom"
 const SpocContainer = () => {
   const styles = {
     newSpocContainer: {
-      minHeight: '100vh',
-      padding: '10px 42px 0 0',
+      flex: 'auto',
       boxSizing: 'border-box',
-       marginBottom: '50px',
-
+      padding: '3px 42px 0 25px',
       maxWidth: '100%',
-      position: 'relative',
+      marginBottom:"50px"
     }
   };
  

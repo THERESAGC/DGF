@@ -7,10 +7,10 @@ const ClarificationRequestedContainer = () => {
     const styles = {
         clarificationRequestedContainer: {
 
-    padding: '10px 30px',
+    padding: '10px 60px 0px 50px',
     position: 'relative',
     boxSizing: 'border-box',
-    marginRight: '40px',
+   
     
  marginBottom: '50px',
         }

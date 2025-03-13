@@ -6,12 +6,12 @@ const RequestInfoContainer = () => {
   const styles = {
     newRequestInfoContainer: {
      
-      padding: '10px 15px',
+      padding: '10px 42px 0px 25px',
       boxSizing: 'border-box',
       marginBottom: '50px',
       maxWidth: '100%',
       position: 'relative',
-      marginLeft: '-16px',
+      
      
     }
   };
