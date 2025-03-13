@@ -72,7 +72,7 @@ const NewTrainingRequest = () => {
     techStacks: [],
     selectedTechStack: "",
     primarySkills: [],
-    selectedPrimarySkill: "",
+    selectedPrimarySkill: [],
     projects: [],
     selectedProject: "",
     employeeLevels: [],
@@ -95,16 +95,9 @@ const NewTrainingRequest = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success")
   const [isFormValid, setIsFormValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [projectOptions, setProjectOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Set default training purpose to "project" for roles other than 8 and 4
-    if (user && user.role_id !== 8 && user.role_id !== 4) {
-      setFormData((prevState) => ({
-        ...prevState,
-        trainingPurpose: "project",
-      }))
-    }
-  }, [user])
 
   const validateForm = () => {
     const requiredFields = [
@@ -130,26 +123,34 @@ const NewTrainingRequest = () => {
     if (formData.employeeDetails === "add") {
       // Check if all table fields are filled
       const allTableFieldsFilled = formData.employees.every((emp) => emp.availableFrom && emp.bandwidth && emp.weekend)
-
+     
       if (!allTableFieldsFilled) {
-        return false
+        return false;
       }
       return requiredFields.every((field) => field !== "" && field !== null)
     }
 
     // Ensure otherSkill and completionCriteria are not empty
     if (!formData.otherSkill || !formData.completionCriteria) {
-      return false
+      return false;
     }
 
     return requiredFields.every((field) => field !== "" && field !== null)
   }
   useEffect(() => {
-    const isEmployeeDetailsValid =
-      formData.employees.length > 0 &&
-      formData.employees.every((emp) => emp.availableFrom && emp.bandwidth && emp.weekend)
+    const isEmployeeDetailsValid = formData.employees.length > 0 && formData.employees.every(
+      (emp) => emp.availableFrom && emp.bandwidth && emp.weekend
+    )
     setIsFormValid(validateForm() && isEmployeeDetailsValid)
-  }, [formData, formData.employees, formData.otherSkill, formData.completionCriteria, validateForm])
+  },[formData, formData.employees, formData.otherSkill, formData.completionCriteria, validateForm])
+
+
+  // useEffect(() => {
+  //   setIsFormValid(validateForm());
+  // }, [formData, formData.employees, formData.otherSkill, formData.completionCriteria]);
+
+  // Add these styled components at the top of the file
+
 
   const [expandedEmpId, setExpandedEmpId] = useState(null)
 
@@ -314,7 +315,7 @@ const NewTrainingRequest = () => {
   }
   const handleOtherSkillChange = (value) => {
     const sanitizedValue = value === "<p><br></p>" ? "" : value
-
+  
     setFormData((prevData) => ({
       ...prevData,
       otherSkill: sanitizedValue,
@@ -405,65 +406,66 @@ const NewTrainingRequest = () => {
     }
   }, [user])
 
-  const handleEmployeeSearch = (event, value) => {
-    if (value.length > 0) {
-      let apiUrl
-      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-        apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
-      } else {
-        apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
-      }
 
-      fetch(apiUrl)
-        .then((response) => response.json())
-        .then(async (data) => {
-          if (Array.isArray(data)) {
-            const employeesWithSkills = await Promise.all(
-              data.map(async (emp) => {
-                try {
-                  let learnerResponse
-                  let learnerData
-
-                  if (formData.employeeDetails === "open") {
-                    learnerResponse = await fetch(
-                      `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
-                    )
-                    learnerData = await learnerResponse.json()
-                    return {
-                      ...emp,
-                      totalPrimarySkills: learnerData.total_requests || 0,
-                    }
-                  } else {
-                    learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
-                    learnerData = await learnerResponse.json()
-                    return {
-                      ...emp,
-                      totalPrimarySkills: learnerData.total_primary_skills || 0,
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error fetching learner data:", error)
-                  return { ...emp, totalPrimarySkills: 0 }
-                }
-              }),
-            )
-            setSearchResults(
-              employeesWithSkills.map((emp) => ({
-                id: emp.emp_id,
-                name: emp.emp_name,
-                email: emp.emp_email,
-                profileImage: emp.profile_image?.data
-                  ? `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`
-                  : "/placeholder.svg", // Use a placeholder image if profile_image is null
-                uniqueKey: `${emp.emp_id}-${Date.now()}`,
-                totalPrimarySkills: emp.totalPrimarySkills,
-              })),
-            )
-          }
-        })
-        .catch((error) => console.error("Error fetching employees:", error))
+const handleEmployeeSearch = (event, value) => {
+  if (value.length > 0) {
+    let apiUrl;
+    if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+      apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`;
+    } else {
+      apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`;
     }
+
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then(async (data) => {
+        if (Array.isArray(data)) {
+          const employeesWithSkills = await Promise.all(
+            data.map(async (emp) => {
+              try {
+                let learnerResponse;
+                let learnerData;
+
+                if (formData.employeeDetails === "open") {
+                  learnerResponse = await fetch(
+                    `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
+                  );
+                  learnerData = await learnerResponse.json();
+                  return {
+                    ...emp,
+                    totalPrimarySkills: learnerData.total_requests || 0,
+                  };
+                } else {
+                  learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`);
+                  learnerData = await learnerResponse.json();
+                  return {
+                    ...emp,
+                    totalPrimarySkills: learnerData.total_primary_skills || 0,
+                  };
+                }
+              } catch (error) {
+                console.error("Error fetching learner data:", error);
+                return { ...emp, totalPrimarySkills: 0 };
+              }
+            })
+          );
+          setSearchResults(
+            employeesWithSkills.map((emp) => ({
+              id: emp.emp_id,
+              name: emp.emp_name,
+              email: emp.emp_email,
+              profileImage: emp.profile_image?.data
+                ? `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`
+                : "/placeholder.svg", // Use a placeholder image if profile_image is null
+              uniqueKey: `${emp.emp_id}-${Date.now()}`,
+              totalPrimarySkills: emp.totalPrimarySkills,
+            }))
+          );
+        }
+      })
+      .catch((error) => console.error("Error fetching employees:", error));
   }
+};
 
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
@@ -485,150 +487,184 @@ const NewTrainingRequest = () => {
           }
         })
         .catch((error) => console.error("Error fetching managers by name:", error))
-    } else {
+    }
+    else{
       setSearchResults([])
     }
   }
 
-  const handleEmailSearch = async (email) => {
-    try {
-      let apiUrl
 
-      // Construct the API URL based on the conditions
-      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-        apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`
-      } else {
-        apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`
+const handleEmailSearch = async (email) => {
+  try {
+    let apiUrl;
+
+    // Construct the API URL based on the conditions
+    if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+      apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`;
+    } else {
+      apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`;
+    }
+
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    if (response.ok && data.length > 0) {
+      const employee = data[0];
+      if (!formData.employees.some((existingEmp) => existingEmp.id === employee.emp_id)) {
+        return {
+          id: employee.emp_id,
+          name: employee.emp_name,
+          email: employee.emp_email,
+          availableFrom: "",
+          bandwidth: "",
+          weekend: "",
+          profileImage: employee.profile_image?.data
+            ? `data:image/jpeg;base64,${arrayBufferToBase64(employee.profile_image.data)}`
+            : "/placeholder.svg", // Use a placeholder image if profile_image is null
+          uniqueKey: `${employee.emp_id}-${Date.now()}`, // Add unique key
+        };
       }
+    } else {
+      console.error("Failed to fetch employee by email:", data.message);
+      setSnackbarMessage(`Email ${email} not found.`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  } catch (error) {
+    console.error("Error fetching employee by email:", error);
+    setSnackbarMessage(`Error fetching employee by email: ${error.message}`);
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
+  return null;
+};
 
-      const response = await fetch(apiUrl)
-      const data = await response.json()
+const addEmployeesByLevel = async () => {
+  const newEmployees = [];
 
-      if (response.ok && data.length > 0) {
-        const employee = data[0]
+  // Fetch employees based on selected employee levels if "Place an Open Request" is selected
+  if (formData.selectedEmployeeLevel.length > 0) {
+    const levelNames = formData.selectedEmployeeLevel.join(",");
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const fetchedEmployees = data.map((emp) => ({
+          id: emp.emp_id,
+          name: emp.emp_name,
+          email: emp.emp_email,
+          availableFrom: "",
+          bandwidth: "",
+          weekend: "",
+          profileImage: emp.profile_image?.data
+            ? `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`
+            : "/placeholder.svg", // Use a placeholder image if profile_image is null
+          uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
+        }));
 
-        // Check if employee already exists in the list
-        if (!formData.employees.some((existingEmp) => existingEmp.id === employee.emp_id)) {
-          // Fetch learning data to check how many learnings the employee has
-          let learnerResponse
-          let learnerData
+        // Filter out employees that are already in the list
+        const uniqueEmployees = fetchedEmployees.filter(
+          (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.id)
+        );
 
-          if (formData.employeeDetails === "open") {
-            learnerResponse = await fetch(
-              `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${employee.emp_id}`,
-            )
-            learnerData = await learnerResponse.json()
-
-            // For org level, check if employee has more than 2 learnings
-            if (learnerData.total_requests > 2) {
-              setSnackbarMessage(
-                `Failed to add employee ${employee.emp_name} because they already have three learnings.`,
-              )
-              setSnackbarSeverity("error")
-              setSnackbarOpen(true)
-              return null
-            }
-          } else {
-            learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${employee.emp_id}`)
-            learnerData = await learnerResponse.json()
-
-            // For regular add, check if employee has 3 or more learnings
-            if (learnerData.total_primary_skills >= 3) {
-              setSnackbarMessage(
-                `Failed to add employee ${employee.emp_name} because they already have three learnings.`,
-              )
-              setSnackbarSeverity("error")
-              setSnackbarOpen(true)
-              return null
-            }
-          }
-
-          return {
-            id: employee.emp_id,
-            name: employee.emp_name,
-            email: employee.emp_email,
-            availableFrom: "",
-            bandwidth: "",
-            weekend: "",
-            profileImage: employee.profile_image?.data
-              ? `data:image/jpeg;base64,${arrayBufferToBase64(employee.profile_image.data)}`
-              : "/placeholder.svg",
-            uniqueKey: `${employee.emp_id}-${Date.now()}`,
-            total_requests: learnerData.total_requests || learnerData.total_primary_skills || 0,
-            requests: learnerData.requests || [],
-          }
-        }
+        newEmployees.push(...uniqueEmployees);
       } else {
-        console.error("Failed to fetch employee by email:", data.message)
-        setSnackbarMessage(`Email ${email} not found.`)
-        setSnackbarSeverity("error")
-        setSnackbarOpen(true)
+        console.error("Failed to fetch employees by designation:", data.message);
+        setSnackbarMessage(`Failed to fetch employees: ${data.message}`);
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
       }
     } catch (error) {
-      console.error("Error fetching employee by email:", error)
-      setSnackbarMessage(`Error fetching employee by email: ${error.message}`)
-      setSnackbarSeverity("error")
-      setSnackbarOpen(true)
+      console.error("Error fetching employees by designation:", error);
+      setSnackbarMessage(`Error fetching employees: ${error.message}`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
-    return null
   }
 
-  const addEmployeesByLevel = async () => {
-    const newEmployees = []
+  setFormData((prevFormData) => ({
+    ...prevFormData,
+    employees: [...prevFormData.employees, ...newEmployees],
+    showTable: true,
+    showSummary: true,
+  }));
+  setIsFormValid(validateForm());
+};
 
-    // Fetch employees based on selected employee levels if "Place an Open Request" is selected
-    if (formData.selectedEmployeeLevel.length > 0) {
-      const levelIds = formData.selectedEmployeeLevel.join(",")
-      try {
-        const response = await fetch(
-          `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationIds=${levelIds}`,
-        )
-        const data = await response.json()
-        if (response.ok) {
-          const fetchedEmployees = data.map((emp) => ({
-            id: emp.emp_id,
-            name: emp.emp_name,
-            email: emp.emp_email,
-            availableFrom: "",
-            bandwidth: "",
-            weekend: "",
-            profileImage: `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`, // Convert image data to base64
-            uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
-          }))
-
-          // Filter out employees that are already in the list
-          const uniqueEmployees = fetchedEmployees.filter(
-            (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.id),
-          )
-
-          newEmployees.push(...uniqueEmployees)
-        } else {
-          console.error("Failed to fetch employees by designation:", data.message)
-          setSnackbarMessage(`Failed to fetch employees: ${data.message}`)
-          setSnackbarSeverity("error")
-          setSnackbarOpen(true)
-        }
-      } catch (error) {
-        console.error("Error fetching employees by designation:", error)
-        setSnackbarMessage(`Error fetching employees: ${error.message}`)
-        setSnackbarSeverity("error")
-        setSnackbarOpen(true)
-      }
-    }
-
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      employees: [...prevFormData.employees, ...newEmployees],
-      showTable: true,
-      showSummary: true,
-    }))
-    setIsFormValid(validateForm())
+const fetchProjects = async (searchTerm) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`http://localhost:8000/api/project-search/search?letter=${searchTerm}`);
+    const data = await response.json();
+    setProjectOptions(data);
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+  } finally {
+    setLoading(false);
   }
+};
+
+useEffect(() => {
+  fetchProjects(''); // Fetch all projects initially
+}, []);
+
+  // const addEmployee = async () => {
+  //   const newEmployees = [];
+  //   const invalidEmails = [];
+
+  //   // Add selected employee from "Select Employee" field
+  //   if (
+  //     selectedEmployee &&
+  //     !formData.employees.some((emp) => emp.id === selectedEmployee.id)
+  //   ) {
+  //     newEmployees.push({
+  //       ...selectedEmployee,
+  //       availableFrom: "",
+  //       bandwidth: "",
+  //       weekend: "",
+  //     });
+  //     setSelectedEmployee(null); // Clear the selected employee after adding
+  //   }
+
+  //   // Process comma-separated emails
+  //   if (formData.emails.trim() !== "") {
+  //     const emailList = formData.emails.split(",").map((email) => email.trim());
+  //     const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
+
+  //     for (const email of uniqueEmails) {
+  //       const employee = await handleEmailSearch(email);
+  //       if (employee) {
+  //         // Check if the employee is already in the list
+  //         if (!formData.employees.some((emp) => emp.id === employee.id)) {
+  //           newEmployees.push(employee);
+  //         }
+  //       } else {
+  //         invalidEmails.push(email);
+  //       }
+  //     }
+  //     if (invalidEmails.length > 0) {
+  //       setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
+  //       setSnackbarSeverity("error");
+  //       setSnackbarOpen(true);
+  //     }
+  //   }
+
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     employees: [...prevFormData.employees, ...newEmployees],
+  //     showTable: true,
+  //     showSummary: true,
+  //     emails: "", // Clear the email input field
+  //     invalidEmails: invalidEmails, // Store invalid emails
+  //   }));
+  //   setIsFormValid(validateForm());
+  // };
 
   const addEmployee = async () => {
     const newEmployees = []
     const invalidEmails = []
-    const tooManyLearningsEmails = []
 
     // Add selected employee from "Select Employee" field
     if (selectedEmployee && !formData.employees.some((emp) => emp.id === selectedEmployee.id)) {
@@ -659,14 +695,26 @@ const NewTrainingRequest = () => {
       for (const email of uniqueEmails) {
         const employee = await handleEmailSearch(email)
         if (employee) {
-          newEmployees.push(employee)
+          try {
+            const response = await fetch(`http://localhost:8000/api/learners/getLearners/${employee.id}`)
+            const data = await response.json()
+
+            newEmployees.push({
+              ...employee,
+              availableFrom: "",
+              bandwidth: "",
+              weekend: "",
+              total_requests: data.total_requests || 0,
+              requests: data.requests || [],
+            })
+          } catch (error) {
+            console.error("Error fetching employee requests:", error)
+            newEmployees.push(employee)
+          }
         } else {
-          // Check if it's an invalid email or an employee with too many learnings
-          // This is a simplified check - the actual error message would come from handleEmailSearch
           invalidEmails.push(email)
         }
       }
-
       if (invalidEmails.length > 0) {
         setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`)
         setSnackbarSeverity("error")
@@ -677,15 +725,15 @@ const NewTrainingRequest = () => {
     setFormData((prev) => ({
       ...prev,
       employees: [...prev.employees, ...newEmployees],
-      showTable: newEmployees.length > 0 || prev.employees.length > 0,
+      showTable: newEmployees.length > 0,
       showSummary: true,
       emails: "",
     }))
-
     setTimeout(() => {
       setIsFormValid(validateForm())
     }, 0)
   }
+  
 
   const removeEmployee = (id) => {
     setFormData({
@@ -793,7 +841,7 @@ const NewTrainingRequest = () => {
         if (formData.employeeDetails === "open" && formData.selectedEmployeeLevel.length > 0) {
           const employeeLevelRequestBody = {
             requestid: newRequestId, // Use the newRequestId here
-            employee_level_ids: formData.selectedEmployeeLevel.filter((id) => id !== undefined), // Use selectedEmployeeLevel
+            designation_names: formData.selectedEmployeeLevel.filter((name) => name !== undefined), // Use selectedEmployeeLevel
           }
 
           console.log("Submitting request body to training-request/employee-levels API:", employeeLevelRequestBody) // Log the request body
@@ -1356,55 +1404,48 @@ onChange={(e) => {
                       </em>
                     </MenuItem>
                     {formData.services.map((service) => (
-                      <MenuItem
-                        key={service.id}
-                        value={service.id}
-                        style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
-                      >
-                        {service.service_name}
-                      </MenuItem>
-                    ))}
+                                        <MenuItem key={service.id} value={service.id} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                                          {service.service_name}
+                                        </MenuItem>
+                                      ))}
                   </Select>
                 </FormControl>
               </Grid>
 
               <Grid size={4}>
-                <FormControl
-                  fullWidth
-                  style={{
-                    display: "flex",
-                    marginLeft: "0",
-                    marginRight: "0.6rem",
-                  }}
-                >
-                  <Typography
-                    className="subheader"
-                    style={{
-                      display: "inline",
-                      marginBottom: "0.5rem",
-                      color: "#4F4949",
-                    }}
-                  >
-                    Prospect Name <span className="required">*</span>
+                <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
+                  <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
+                    Project Name <span className="required">*</span>
                   </Typography>
-                  <Tooltip
-                    title={formData.prospectNameErrorMessage}
-                    open={formData.prospectNameError}
-                    placement="bottom-end"
-                    arrow
-                  >
-                    <TextField
-                      variant="outlined"
-                      placeholder="Enter Prospect"
-                      name="prospectName"
-                      value={formData.prospectName}
-                      onChange={handleChange}
-                      error={formData.prospectNameError}
-                      InputProps={{
-                        style: { fontSize: "12px" },
-                      }}
-                    />
-                  </Tooltip>
+                  
+                  <Autocomplete
+                    options={formData.projects}
+                    getOptionLabel={(option) => option.ProjectName}
+                    value={formData.projects.find((project) => project.ProjectID === formData.selectedProject) || null}
+                    onChange={(event, value) =>
+                      setFormData({
+                        ...formData,
+                        selectedProject: value ? value.ProjectID : "",
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder="Search Projects"
+                        style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
+                        InputProps={{
+                          ...params.InputProps,
+                          style: { fontSize: "12px" },
+                        }}
+                      />
+                    )}
+                    renderOption={(props, option) => (
+                      <li {...props} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                        {option.ProjectName}
+                      </li>
+                    )}
+                  />
                 </FormControl>
               </Grid>
             </Grid>
@@ -1966,30 +2007,30 @@ onChange={(e) => {
             {formData.employeeDetails === "open" && role === "CapDev" && (
               <Grid item size={4}>
                 <FormControl fullWidth className="formControl">
-                  <Typography
-                    className="subheader"
-                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
-                  >
-                    Employee Designation <span className="required">*</span>
-                  </Typography>
-                  <Select
-                    variant="outlined"
-                    name="employeeLevel"
-                    value={formData.selectedEmployeeLevel}
-                    onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
-                    style={{ height: "30px", fontSize: "12px" }}
-                    multiple // Allow multiple selections
-                  >
-                    <MenuItem value="">
-                      <em>Select Employee Designation</em>
-                    </MenuItem>
-                    {formData.employeeLevels.map((level) => (
-                      <MenuItem key={level.id} value={level.id}>
-                        {level.job_title}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                              <Typography
+                                className="subheader"
+                                style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
+                              >
+                                Employee Level <span className="required">*</span>
+                              </Typography>
+                              <Select
+                                variant="outlined"
+                                name="employeeLevel"
+                                value={formData.selectedEmployeeLevel}
+                                onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
+                                style={{ height: "30px", fontSize: "12px" }}
+                                multiple // Allow multiple selections
+                              >
+                                <MenuItem value="">
+                                  <em>Select Employee Level</em>
+                                </MenuItem>
+                                {formData.employeeLevels.map((level) => (
+                                  <MenuItem key={level.Designation_Name} value={level.Designation_Name}>
+                                    {level.Designation_Name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
               </Grid>
             )}
 

@@ -53,7 +53,10 @@ const getAllRolesRoutes = require('./routes/getAllRolesRoutes');
 const addUserRoutes = require('./routes/addUserRoutes');
 const userUpdateStatusRoutes = require('./routes/userUpdateStatusRoutes');
 const excelExportController = require('./controllers/excelExportController'); // Import the excel export controller
+const projectSearchRoutes = require('./routes/projectSearchRoutes');
 
+const updateUserRoleRoutes = require('./routes/updateUserRoleRoutes');
+ 
 
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
@@ -215,6 +218,9 @@ app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); //
 // Learner routes
 app.use('/api/learners', learnerRoutes); // Add this line
 
+// User routes
+app.use('/api/users', updateUserRoleRoutes);
+
 //Get Cpadev employees
 app.use('/api/emp',getEmpsforCapdev );
  
@@ -247,6 +253,8 @@ app.use('/api', addUserRoutes);
 app.get('/export-excel', excelExportController.exportExcelData);
 
 app.use('/api/user', userUpdateStatusRoutes);
+
+app.use('/api/project-search', projectSearchRoutes);
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');

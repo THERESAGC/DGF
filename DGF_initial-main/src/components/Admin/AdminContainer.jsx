@@ -26,8 +26,8 @@ const AdminContainer = () => {
     mainContent: {
       flex: 'auto',
       boxSizing: 'border-box',
-      padding: '2px 14px 0 28px',
-      
+      padding: '4px 22px 0 0px',
+      marginLeft: '-20px',
       marginright: '0',
       maxHeight: '100vh',
       maxWidth: '100%',

@@ -1,10 +1,25 @@
-import { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, IconButton, Typography, Box, Pagination, } from "@mui/material";
-import { ArrowForward } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
-import axios from "axios";
-import UserActionModal from "./UserActionModal";
- 
+"use client"
+
+import { useEffect, useState } from "react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
+  IconButton,
+  Typography,
+  Box,
+  Pagination,
+} from "@mui/material"
+import { ArrowForward } from "@mui/icons-material"
+import { styled } from "@mui/material/styles"
+import axios from "axios"
+import UserActionModal from "./UserActionModal"
+
 const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   width: "22px",
   height: "22px",
@@ -20,19 +35,17 @@ const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
     fontSize: "16px",
     fontWeight: "bold",
   },
-}));
- 
+}))
+
 export default function UserTable() {
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [actionModalOpen, setActionModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
- 
+  const [users, setUsers] = useState([])
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [actionModalOpen, setActionModalOpen] = useState(false)
+
   useEffect(() => {
-    fetchUsers();
-  }, []);
- 
+    fetchUsers()
+  }, [])
+
   const fetchUsers = () => {
     axios
       .get("http://localhost:8000/api/logins")
@@ -44,34 +57,25 @@ export default function UserTable() {
           role: user.role_name,
           createdOn: new Date(user.created_on).toLocaleDateString(),
           status: user.status,
-        }));
-        setUsers(fetchedUsers);
+        }))
+        setUsers(fetchedUsers)
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
-      });
-  };
- 
+        console.error("Error fetching users:", error)
+      })
+  }
+
   const handleActionClick = (user) => {
-    setSelectedUser(user);
-    setActionModalOpen(true);
-  };
- 
+    setSelectedUser(user)
+    setActionModalOpen(true)
+  }
+
   const handleCloseActionModal = () => {
-    setActionModalOpen(false);
+    setActionModalOpen(false)
     // Refresh the user list after modal is closed to reflect any changes
-    fetchUsers();
-  };
- 
-  const handlePageChange = (event, page) => {
-    setCurrentPage(page);
-  };
- 
-  // Calculate the users to display for the current page
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
- 
+    fetchUsers()
+  }
+
   return (
     <Box
       sx={{
@@ -97,30 +101,30 @@ export default function UserTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentUsers.map((user, index) => (
+            {users.map((user, index) => (
               <TableRow key={user.id} sx={{ backgroundColor: index % 2 === 0 ? "#F1F2FD" : "white" }}>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.id}</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Avatar src={user.avatar} sx={{ width: 24, height: 24 }} />
-                    <Typography sx={{ fontFamily: "inherit" }}>{user.name}</Typography>
+                    <Typography>{user.name}</Typography>
                   </Box>
                 </TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.email}</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.role}</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.createdOn}</TableCell>
                 <TableCell>
-                  <Typography
-                    sx={{
-                      color: user.status === "active" ? "#2BB381" : user.status === "invited" ? "#B39C2B" : "#AA1700",
-                      fontSize: "0.75rem",
-                      opacity: 1,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {user.status}
-                  </Typography>
-                </TableCell>
+  <Typography
+    sx={{
+      color: user.status === "active" ? "#2BB381" : user.status === "invited" ? "#B39C2B" : "#AA1700",
+      fontSize: "0.75rem",
+      opacity: 1,
+      fontFamily: "inherit",
+    }}
+  >
+    {user.status}
+  </Typography>
+</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>
                   <ArrowForwardDesign onClick={() => handleActionClick(user)}>
                     <ArrowForward fontSize="small" />
@@ -133,19 +137,14 @@ export default function UserTable() {
       </TableContainer>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
         <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "inherit" }}>
-          Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, users.length)} of {users.length} records
+          Showing {users.length} of {users.length} records
         </Typography>
-        <Pagination
-          count={Math.ceil(users.length / usersPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
-          size="small"
-          shape="rounded"
-        />
+        <Pagination count={Math.ceil(users.length / 5)} size="small" shape="rounded" />
       </Box>
+
       {/* User Action Modal */}
       <UserActionModal open={actionModalOpen} onClose={handleCloseActionModal} user={selectedUser} />
     </Box>
-  );
+  )
 }
- 
+

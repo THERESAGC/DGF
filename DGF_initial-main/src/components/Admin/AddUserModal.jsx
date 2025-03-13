@@ -64,6 +64,7 @@ const AddUserModal = ({ open, onClose }) => {
   const handleEmployeeChange = (event, value) => {
     setEmployee(value ? value.emp_id : '');
     setSelectedEmployee(value);
+    console.log('Selected Employee:', value);
   };
 
   const handleUserRoleChange = (event) => {
@@ -107,7 +108,8 @@ const AddUserModal = ({ open, onClose }) => {
 
   const capDevRole = roles.find(role => role.role_name === "CapDev Role");
   const spocRole = roles.find(role => role.role_name === "SPOC");
-  const userRoles = roles.filter(role => role.role_name !== "CapDev Role" && role.role_name !== "SPOC");
+  const rmRole = roles.find(role => role.role_name === "RM Role");
+  const userRoles = roles.filter(role => role.role_name !== "CapDev Role" && role.role_name !== "SPOC" && role.role_name !== "RM Role");
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -144,6 +146,14 @@ const AddUserModal = ({ open, onClose }) => {
                   value={spocRole.role_name} 
                   control={<Radio size="small" />} 
                   label={spocRole.role_name} 
+                  sx={{ mr: 3 }}
+                />
+              )}
+              {rmRole && (
+                <FormControlLabel 
+                  value={rmRole.role_name} 
+                  control={<Radio size="small" />} 
+                  label={rmRole.role_name} 
                   sx={{ mr: 3 }}
                 />
               )}
@@ -258,8 +268,7 @@ const AddUserModal = ({ open, onClose }) => {
                     Designation
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {selectedEmployee.Designation_Name}
-                    {console.log(`Designation Name: ${selectedEmployee.Designation_Name}`)}
+                    {selectedEmployee.Designation_Name || 'N/A'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sx={{ mt: 1 }}>

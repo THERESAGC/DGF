@@ -70,6 +70,24 @@ const UserActionModal = ({ open, onClose, user }) => {
     } finally {
       setLoading(false)
     }
+
+    //
+    try {
+      // Update user role and status
+      await axios.put(`http://localhost:8000/api/users/update-role`, {
+        emp_id: user.id,
+        role_name: selectedRole,
+      })
+
+      alert("User updated successfully")
+      onClose()
+    } catch (error) {
+      console.error("Error updating user:", error)
+      alert("Error updating user")
+    } finally {
+      setLoading(false)
+    }
+
   }
 
   const handleResendInvitation = async () => {
