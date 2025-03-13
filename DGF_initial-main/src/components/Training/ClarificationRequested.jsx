@@ -522,7 +522,7 @@ const handleClosePopup = () => setPopupOpen(false);
             <ArrowBackIosNewIcon />
           </IconButton>
         </Box>
-        <Box style={{ marginRight: "87%" }}>
+        <Box style={{ marginRight: "88%" }}>
           <Typography variant="h5" gutterBottom className="mainHeading" style={{ margin: "1rem -38px 1 rem -24px" }}>
             Learning Request
           </Typography>
@@ -878,8 +878,8 @@ const handleClosePopup = () => setPopupOpen(false);
                                       updateEmployee(employee.emp_id, "weekend", e.target.value === "Yes" ? 1 : 0)
                                     }
                                   >
-                                    <FormControlLabel value="Yes" control={<Radio size="small" />} label="Yes" />
-                                    <FormControlLabel value="No" control={<Radio size="small" />} label="No" />
+                                    <FormControlLabel value="Yes" control={<Radio size="small" color=" "/>} label="Yes" />
+                                    <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
                                   </RadioGroup>
                                 </TableCell>
                                 <TableCell>

@@ -2334,7 +2334,7 @@ const NewTrainingRequest = () => {
         >
           <CheckCircleIcon style={{ color: "green", fontSize: "3rem", marginBottom: "10px" }} />
           Request generated successfully with request number :
-          <strong style={{ fontSize: "18px", color: "#333" }}>{newRequestId}</strong>.
+          <strong style={{ fontSize: "18px", color: "#333" }}> LR {newRequestId}</strong>.
           <IconButton
             onClick={handleCloseDialog}
             style={{

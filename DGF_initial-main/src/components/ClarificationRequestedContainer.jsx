@@ -11,7 +11,7 @@ const ClarificationRequestedContainer = () => {
     position: 'relative',
     boxSizing: 'border-box',
     marginRight: '40px',
-    maxHeight: '100vh',
+    
  marginBottom: '50px',
         }
        
