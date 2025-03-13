@@ -9,7 +9,7 @@ describe("sendEmail", () => {
   beforeEach(() => {
     sendMailMock = jest.fn();
     nodemailer.createTransport.mockReturnValue({
-      sendMail: sendMailMock, // Ensure sendMail exists in the returned object
+      sendMail: sendMailMock, 
     });
   });
   

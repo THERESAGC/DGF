@@ -26,6 +26,7 @@ describe('getEmpNewTrainingRequestedByRequestId Service', () => {
         createddate: '2025-02-28',
         courses_assigned: 3,
         profile_image: 'john_doe.jpg',
+        request_org_level: 'Level 2',
       },
     ];
 
@@ -35,7 +36,7 @@ describe('getEmpNewTrainingRequestedByRequestId Service', () => {
 
     const result = await getEmpNewTrainingRequestedByRequestId(123);
 
-    expect(result).toEqual(mockResults);
+    expect(result).toEqual({"employees": [{"availablefrom": "2025-03-01", "availableonweekend": "Yes", "comment": "Training approved", "courses_assigned": 3, "createddate": "2025-02-28", "dailyband": "Morning", "emailsentdate": "2025-03-05", "emailsentstatus": "Sent", "emp_id": 101, "emp_name": "John Doe", "profile_image": "john_doe.jpg", "requestid": 123, "status": "Pending"}], "request_org_level": "Level 2"});
     expect(db.execute).toHaveBeenCalledTimes(1);
     expect(db.execute).toHaveBeenCalledWith(expect.any(String), [123], expect.any(Function));
   });
@@ -49,7 +50,7 @@ describe('getEmpNewTrainingRequestedByRequestId Service', () => {
 
     const result = await getEmpNewTrainingRequestedByRequestId(999); // Assuming 999 has no matching records
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({"employees": [], "request_org_level": null});
     expect(db.execute).toHaveBeenCalledTimes(1);
   });
 

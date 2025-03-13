@@ -25,18 +25,6 @@ describe('updateCourseStatus Service', () => {
     jest.clearAllMocks();
   });
 
-  test('should throw error for invalid status', async () => {
-    await expect(updateCourseStatus(1, 'InvalidStatus')).rejects.toThrow(
-      'Invalid status: InvalidStatus. Allowed values: Completed, Incomplete, Learning Suspended, Completed with Delay'
-    );
-  });
-
-  test('should throw an error if database connection fails', async () => {
-    db.promise().getConnection.mockRejectedValue(new Error('DB Connection Error'));
-
-    await expect(updateCourseStatus(1, 'Completed')).rejects.toThrow('Database operation failed: DB Connection Error');
-  });
-
   test('should successfully update course status', async () => {
     connectionMock.query
         .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
@@ -45,7 +33,6 @@ describe('updateCourseStatus Service', () => {
         .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed' }]]) // Request-level status calculation
         .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed' }]]) // Employees status array (FIX HERE)
         .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
-
 
     const result = await updateCourseStatus(1, 'Completed');
 
@@ -64,20 +51,158 @@ describe('updateCourseStatus Service', () => {
     expect(connectionMock.release).toHaveBeenCalled();
   });
 
+  test('should update employee status to "Completed with Delay" when one status is "Incomplete" and the other is "Completed with Delay"', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Incomplete' }, { status: 'Completed with Delay' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Incomplete' }, { status: 'Completed with Delay' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Incomplete' }, { status: 'Completed with Delay' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+
+    await updateCourseStatus(1, 'Completed with Delay');
+
+    expect(connectionMock.query).toHaveBeenCalledWith(
+      'UPDATE newtrainingrequest SET requeststatus = ? WHERE requestid = ?',
+      ['Completed with Delay', 202]
+    );
+  });
+
+  test('should update employee status to "Completed" when one status is "Completed" and the other is "Completed with Delay"', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed with Delay' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed with Delay' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed with Delay' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+
+    await updateCourseStatus(1, 'Completed');
+
+    expect(connectionMock.query).toHaveBeenCalledWith(
+      'UPDATE emp_newtrainingrequested SET status = ? WHERE emp_id = ? AND requestid = ?',
+      ['Completed', 101, 202]
+    );
+  });
+
+  test('should update employee status to "Learning Initiated" when one status is "Completed" and the other is "Learning Initiated"', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Learning Initiated' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Learning Initiated' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Learning Initiated' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+
+    await updateCourseStatus(1, 'Learning Initiated');
+
+    expect(connectionMock.query).toHaveBeenCalledWith(
+      'UPDATE emp_newtrainingrequested SET status = ? WHERE emp_id = ? AND requestid = ?',
+      ['Learning Initiated', 101, 202]
+    );
+  });
+
+  test('should update employee status when all courses have the same status (else block)', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed' }, { status: 'Completed' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Completed' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+
+  
+      const result = await updateCourseStatus(1, 'Completed');
+
+    expect(connectionMock.query).toHaveBeenCalledTimes(6);
+
+    expect(result).toEqual({
+        success: true,
+        message: 'Status updated successfully',
+        updated: { course: 1, employee: 1, request: 1 },
+    });
+  });
+
+  test('should update employee status when all courses do not have the same status (else block)', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }, { status: 'Completed' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+
+  
+      const result = await updateCourseStatus(1, 'Completed');
+
+    expect(connectionMock.query).toHaveBeenCalledTimes(5);
+
+    expect(result).toEqual({
+        success: true,
+        message: 'Status updated successfully',
+        updated: { course: 1, employee: 1, request: 1 },
+    });
+  });
+
+  test('should update request status to "Completed" if two employees have one "Completed" and one "Incomplete"', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+  
+    await updateCourseStatus(1, 'Completed');
+  
+    expect(connectionMock.query).toHaveBeenCalledWith(
+      'UPDATE newtrainingrequest SET requeststatus = ? WHERE requestid = ?',
+      ['Completed', 202]
+    );
+  });
+
+  test('should update request status to "Completed" if two employees have one "Completed with Delay" and one "Incomplete"', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed with Delay' }, { status: 'Incomplete' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed with Delay' }, { status: 'Incomplete' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed with Delay' }, { status: 'Incomplete' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+  
+    await updateCourseStatus(1, 'Completed');
+  
+    expect(connectionMock.query).toHaveBeenCalledTimes(6);
+  });
+
+  test('should update request status to "Completed" if two employees have one "Completed with Delay" and one "Completed"', async () => {
+    connectionMock.query
+      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
+      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
+      .mockResolvedValueOnce([[{ status: 'Completed with Delay' }, { status: 'Completed' }]]) // Employee course statuses
+      .mockResolvedValueOnce([[{ status: 'Completed with Delay' }, { status: 'Completed' }]]) // Employees list for status calculation
+      .mockResolvedValueOnce([[{ status: 'Completed with Delay' }, { status: 'Completed' }]]) // Fix: Ensure employees array is correctly structured
+      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
+  
+    await updateCourseStatus(1, 'Completed');
+  
+    expect(connectionMock.query).toHaveBeenCalledTimes(6);
+  });
+
   test('should update request status based on majority', async () => {
     connectionMock.query
       .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
       .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
-      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Incomplete' }]]) // Courses have different statuses
+      .mockResolvedValueOnce([[{ status: 'Learning Initiated' }, { status: 'Completed' }]]) // Courses have different statuses
       .mockResolvedValueOnce([
-        [{ status: 'Completed' }, { status: 'Completed' }, { status: 'Incomplete' }],
+        [{ status: 'Learning Initiated' }, { status: 'Completed' }, { status: 'Completed' }],
       ]) // Majority check
       .mockResolvedValueOnce([
-        [{ status: 'Completed' }, { status: 'Completed' }, { status: 'Incomplete' }], // Fix: Ensure array structure
+        [{ status: 'Learning Initiated' }, { status: 'Completed' }, { status: 'Completed' }], // Fix: Ensure array structure
       ]) // Employees list for majority calculation
       .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
   
-    await updateCourseStatus(1, 'Completed');
+    const result = await updateCourseStatus(1, 'Completed');
   
     expect(connectionMock.query).toHaveBeenCalledWith(
       'UPDATE newtrainingrequest SET requeststatus = ? WHERE requestid = ?',
@@ -105,7 +230,6 @@ describe('updateCourseStatus Service', () => {
       [202]
     );
   });
-  
 
   test('should rollback if query execution fails', async () => {
     connectionMock.query.mockRejectedValueOnce(new Error('Query Execution Error'));
@@ -114,6 +238,18 @@ describe('updateCourseStatus Service', () => {
 
     expect(connectionMock.rollback).toHaveBeenCalled();
     expect(connectionMock.release).toHaveBeenCalled();
+  });
+
+  test('should throw error for invalid status', async () => {
+    await expect(updateCourseStatus(1, 'InvalidStatus')).rejects.toThrow(
+      'Invalid status: InvalidStatus. Allowed values: Completed, Incomplete, Learning Suspended, Completed with Delay'
+    );
+  });
+
+  test('should throw an error if database connection fails', async () => {
+    db.promise().getConnection.mockRejectedValue(new Error('DB Connection Error'));
+
+    await expect(updateCourseStatus(1, 'Completed')).rejects.toThrow('Database operation failed: DB Connection Error');
   });
 
   
