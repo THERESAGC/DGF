@@ -277,7 +277,7 @@ function CourseTracker() {
         </Box>
       ) : (
         <>
-          <StyledTableContainer component={Paper}>
+          <StyledTableContainer component={Paper} sx={{width: "100%" , boxShadow:"none", padding:"0px"}}>
             <Table aria-label="collapsible table">
               <TableHead>
                 <TableRow sx={{ backgroundColor: "#FAFAFA" }}>

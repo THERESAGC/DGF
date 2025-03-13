@@ -1080,7 +1080,7 @@ const NewTrainingRequest = () => {
                     color: "#4F4949",
                   }}
                 >
-                  Designation <span className="required">*</span>
+                  Department/Group <span className="required">*</span>
                 </Typography>
                 <Select
                   variant="outlined"
@@ -1111,7 +1111,7 @@ const NewTrainingRequest = () => {
                         fontFamily: "Poppins",
                       }}
                     >
-                      Select Designation
+                      Select Department/Group
                     </em>
                   </MenuItem>
                   {formData.sources.map((source) => (
@@ -1872,7 +1872,7 @@ const NewTrainingRequest = () => {
                     className="subheader"
                     style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
                   >
-                    Employee Level <span className="required">*</span>
+                    Employee Designation <span className="required">*</span>
                   </Typography>
                   <Select
                     variant="outlined"
@@ -1883,7 +1883,7 @@ const NewTrainingRequest = () => {
                     multiple // Allow multiple selections
                   >
                     <MenuItem value="">
-                      <em>Select Employee Level</em>
+                      <em>Select Employee Designation</em>
                     </MenuItem>
                     {formData.employeeLevels.map((level) => (
                       <MenuItem key={level.id} value={level.id}>
@@ -2334,7 +2334,7 @@ const NewTrainingRequest = () => {
         >
           <CheckCircleIcon style={{ color: "green", fontSize: "3rem", marginBottom: "10px" }} />
           Request generated successfully with request number :
-          <strong style={{ fontSize: "18px", color: "#333" }}>{newRequestId}</strong>.
+          <strong style={{ fontSize: "18px", color: "#333" }}> LR {newRequestId}</strong>.
           <IconButton
             onClick={handleCloseDialog}
             style={{
