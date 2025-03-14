@@ -98,6 +98,18 @@ const NewTrainingRequest = () => {
   const [projectOptions, setProjectOptions] = useState([])
   const [loading, setLoading] = useState(false)
 
+
+  const [trainingObjectiveError, setTrainingObjectiveError] = useState(false)
+  const [trainingObjectiveErrorMessage, setTrainingObjectiveErrorMessage] = useState("")
+  const [techStackError, setTechStackError] = useState(false)
+  const [techStackErrorMessage, setTechStackErrorMessage] = useState("")
+  const [primarySkillError, setPrimarySkillError] = useState(false)
+  const [primarySkillErrorMessage, setPrimarySkillErrorMessage] = useState("")
+
+  const [trainingObjectiveOpen, setTrainingObjectiveOpen] = useState(false)
+  const [techStackOpen, setTechStackOpen] = useState(false)
+  const [primarySkillOpen, setPrimarySkillOpen] = useState(false)
+
   const validateForm = () => {
     const requiredFields = [
       formData.selectedSource,
@@ -288,6 +300,10 @@ const NewTrainingRequest = () => {
     setFormData({ ...formData, selectedSource })
     setIsFormValid(validateForm())
 
+    // Clear dependent errors
+  setTrainingObjectiveError(false)
+  setTrainingObjectiveErrorMessage("")
+
     // Fetch training objectives based on the selected source
     fetch(`http://localhost:8000/api/training/objectives?source_id=${selectedSource}`)
       .then((response) => response.json())
@@ -341,17 +357,15 @@ const NewTrainingRequest = () => {
   }
 
   const handleTrainingObjectiveChange = (e) => {
-    if (!formData.selectedSource) {
-      setSnackbarMessage("Please select Designation first")
-      setSnackbarSeverity("error")
-      setSnackbarOpen(true)
-      return
-    }
-
     const selectedTrainingObjective = e.target.value
     setFormData({ ...formData, selectedTrainingObjective })
     setIsFormValid(validateForm())
+    
+    // Clear dependent errors
+    setTechStackError(false)
+    setTechStackErrorMessage("")
   }
+  
 
   const handleTechStackChange = (e) => {
     if (!formData.selectedSource || !formData.selectedTrainingObjective) {
@@ -361,9 +375,13 @@ const NewTrainingRequest = () => {
       return
     }
 
-    const selectedTechStack = e.target.value
-    setFormData({ ...formData, selectedTechStack })
-    setIsFormValid(validateForm())
+      const selectedTechStack = e.target.value
+      setFormData({ ...formData, selectedTechStack })
+      setIsFormValid(validateForm())
+      
+      // Clear dependent errors
+      setPrimarySkillError(false)
+      setPrimarySkillErrorMessage("")
 
     // Fetch primary skills based on the selected tech stack
     fetch(`http://localhost:8000/api/primaryskill/by-stack?stack_id=${selectedTechStack}`)
@@ -1123,51 +1141,54 @@ const NewTrainingRequest = () => {
 
             {/* Learning Objective */}
             <Grid item size={4}>
-              <FormControl fullWidth style={{ marginleft: "8px" }}>
-                <Typography
-                  className="subheader"
-                  style={{
-                    display: "inline",
-                    marginBottom: "0.5rem",
-                    color: "#4F4949",
-                  }}
-                >
-                  Learning Objective <span className="required">*</span>
-                </Typography>
-                <Select
-                  variant="outlined"
-                  name="trainingObjective"
-                  value={formData.selectedTrainingObjective}
-                  onChange={handleTrainingObjectiveChange}
-                  displayEmpty
-                  style={{
-                    height: "30px",
-                    fontSize: "12px",
-                  }}
-                >
-                  <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                    <em
-                      style={{
-                        height: "30px",
-                        opacity: "0.75",
-                        fontStyle: "normal",
-                        fontFamily: "Poppins",
-                      }}
-                    >
-                      Select Learning Objective
-                    </em>
-                  </MenuItem>
-                  {formData.trainingObjectives.map((objective) => (
-                    <MenuItem
-                      key={objective.training_id}
-                      value={objective.training_id}
-                      style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
-                    >
-                      {objective.training_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {/* Learning Objective Field */}
+<FormControl fullWidth style={{ marginLeft: "8px" }}>
+  <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
+    Learning Objective <span className="required">*</span>
+  </Typography>
+  <Tooltip title={trainingObjectiveErrorMessage} open={trainingObjectiveError} arrow>
+    <Select
+      variant="outlined"
+      name="trainingObjective"
+      value={formData.selectedTrainingObjective}
+      onChange={handleTrainingObjectiveChange}
+      displayEmpty
+      style={{
+        height: "30px",
+        fontSize: "12px",
+      }}
+      error={trainingObjectiveError}
+      onOpen={() => {
+        if (!formData.selectedSource) {
+          setTrainingObjectiveError(true)
+          setTrainingObjectiveErrorMessage("Please select Designation first")
+          setTrainingObjectiveOpen(false)
+        } else {
+          setTrainingObjectiveError(false)
+          setTrainingObjectiveErrorMessage("")
+          setTrainingObjectiveOpen(true)
+        }
+      }}
+      open={trainingObjectiveOpen}
+      onClose={() => setTrainingObjectiveOpen(false)}
+    >
+      <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+        <em style={{ height: "30px", opacity: "0.75", fontStyle: "normal", fontFamily: "Poppins" }}>
+          Select Learning Objective
+        </em>
+      </MenuItem>
+      {formData.trainingObjectives.map((objective) => (
+        <MenuItem
+          key={objective.training_id}
+          value={objective.training_id}
+          style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
+        >
+          {objective.training_name}
+        </MenuItem>
+      ))}
+    </Select>
+  </Tooltip>
+</FormControl>
             </Grid>
           </Grid>
 
@@ -1436,123 +1457,140 @@ const NewTrainingRequest = () => {
 
               {/* Tech Stack Field */}
               <Grid item size={4}>
-                <FormControl fullWidth>
-                  <Typography
-                    className="subheader"
-                    noWrap
-                    style={{
-                      display: "inline",
-                      marginBottom: "0.5rem",
-                      color: "#4F4949",
-                    }}
-                  >
-                    Tech Stack / Competency
-                    <span className="required">*</span>
-                  </Typography>
-                  <Select
-                    variant="outlined"
-                    name="techStack"
-                    value={formData.selectedTechStack}
-                    onChange={handleTechStackChange}
-                    displayEmpty
-                    style={{
-                      height: "30px",
-                      fontSize: "12px",
-                      fontStyle: "normal",
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 300,
-                          fontSize: "12px",
-                        },
-                      },
-                    }}
-                  >
-                    <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                      <em
-                        style={{
-                          height: "30px",
-                          opacity: "0.75",
-                          color: "#4F4949",
-                          fontStyle: "normal",
-                          fontFamily: "Poppins",
-                        }}
-                      >
-                        Select Tech Stack
-                      </em>
-                    </MenuItem>
-                    {formData.techStacks.map((stack) => (
-                      <MenuItem
-                        key={stack.stack_id}
-                        value={stack.stack_id}
-                        style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
-                      >
-                        {stack.stack_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                {/* Tech Stack Field */}
+<FormControl fullWidth>
+  <Typography
+    className="subheader"
+    noWrap
+    style={{
+      display: "inline",
+      marginBottom: "0.5rem",
+      color: "#4F4949",
+    }}
+  >
+    Tech Stack / Competency
+    <span className="required">*</span>
+  </Typography>
+  <Tooltip title={techStackErrorMessage} open={techStackError} arrow>
+    <Select
+      variant="outlined"
+      name="techStack"
+      value={formData.selectedTechStack}
+      onChange={handleTechStackChange}
+      displayEmpty
+      style={{
+        height: "30px",
+        fontSize: "12px",
+        fontStyle: "normal",
+      }}
+      error={techStackError}
+      onOpen={() => {
+        if (!formData.selectedSource || !formData.selectedTrainingObjective) {
+          setTechStackError(true)
+          setTechStackErrorMessage("Please select Designation and Learning Objective first")
+          setTechStackOpen(false)
+        } else {
+          setTechStackError(false)
+          setTechStackErrorMessage("")
+          setTechStackOpen(true)
+        }
+      }}
+      open={techStackOpen}
+      onClose={() => setTechStackOpen(false)}
+    >
+      <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+        <em style={{
+          height: "30px",
+          opacity: "0.75",
+          color: "#4F4949",
+          fontStyle: "normal",
+          fontFamily: "Poppins",
+        }}>
+          Select Tech Stack
+        </em>
+      </MenuItem>
+      {formData.techStacks.map((stack) => (
+        <MenuItem
+          key={stack.stack_id}
+          value={stack.stack_id}
+          style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
+        >
+          {stack.stack_name}
+        </MenuItem>
+      ))}
+    </Select>
+  </Tooltip>
+</FormControl>
               </Grid>
 
               {/* Primary Skill Field */}
               <Grid item size={4}>
-                <FormControl fullWidth>
-                  <Typography
-                    className="subheader"
-                    noWrap
-                    style={{
-                      display: "inline",
-                      marginBottom: "0.5rem",
-                      marginRight: "100px",
-                      color: "#4F4949",
-                    }}
-                  >
-                    Primary Skill
-                    <span className="required">*</span>
-                  </Typography>
-                  <Select
-                    variant="outlined"
-                    name="primarySkill"
-                    value={formData.selectedPrimarySkill}
-                    SelectDisplayProps={{ style: { fontSize: "12px" } }}
-                    onChange={(e) => {
-                      if (!formData.selectedTechStack) {
-                        setSnackbarMessage("Please select Tech Stack first")
-                        setSnackbarSeverity("error")
-                        setSnackbarOpen(true)
-                        return
-                      }
-
-                      const selectedSkills = e.target.value
-                      setFormData({
-                        ...formData,
-                        selectedPrimarySkill: selectedSkills,
-                      })
-                    }}
-                    style={{
-                      height: "30px",
-                      fontSize: "12px",
-                      opacity: 1,
-                      marginLeft: "0px",
-                    }}
-                  >
-                    <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                      <em style={{ height: "30px", opacity: "1", fontStyle: "normal", fontFamily: "Poppins" }}>
-                        Select Primary Skill
-                      </em>
-                    </MenuItem>
-                    {formData.primarySkills.map((skill) => (
-                      <MenuItem
-                        key={skill.skill_id}
-                        value={skill.skill_id}
-                        style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
-                      >
-                        {skill.skill_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                {/* Primary Skill Field */}
+<FormControl fullWidth>
+  <Typography
+    className="subheader"
+    noWrap
+    style={{
+      display: "inline",
+      marginBottom: "0.5rem",
+      marginRight: "100px",
+      color: "#4F4949",
+    }}
+  >
+    Primary Skill
+    <span className="required">*</span>
+  </Typography>
+  <Tooltip title={primarySkillErrorMessage} open={primarySkillError} arrow>
+    <Select
+      variant="outlined"
+      name="primarySkill"
+      value={formData.selectedPrimarySkill}
+      SelectDisplayProps={{ style: { fontSize: "12px" } }}
+      onChange={(e) => {
+        const selectedSkills = e.target.value
+        setFormData({
+          ...formData,
+          selectedPrimarySkill: selectedSkills,
+        })
+      }}
+      style={{
+        height: "30px",
+        fontSize: "12px",
+        opacity: 1,
+        marginLeft: "0px",
+      }}
+      error={primarySkillError}
+      onOpen={() => {
+        if (!formData.selectedTechStack) {
+          setPrimarySkillError(true)
+          setPrimarySkillErrorMessage("Please select Tech Stack first")
+          setPrimarySkillOpen(false)
+        } else {
+          setPrimarySkillError(false)
+          setPrimarySkillErrorMessage("")
+          setPrimarySkillOpen(true)
+        }
+      }}
+      open={primarySkillOpen}
+      onClose={() => setPrimarySkillOpen(false)}
+    >
+      <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+        <em style={{ height: "30px", opacity: "1", fontStyle: "normal", fontFamily: "Poppins" }}>
+          Select Primary Skill
+        </em>
+      </MenuItem>
+      {formData.primarySkills.map((skill) => (
+        <MenuItem
+          key={skill.skill_id}
+          value={skill.skill_id}
+          style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
+        >
+          {skill.skill_name}
+        </MenuItem>
+      ))}
+    </Select>
+  </Tooltip>
+</FormControl>
               </Grid>
             </Grid>
           </FormControl>
