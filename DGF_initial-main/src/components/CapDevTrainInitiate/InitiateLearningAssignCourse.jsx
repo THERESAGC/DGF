@@ -1,29 +1,14 @@
 // components/CapDevInitiateLearningAssignCourse.jsx
 import { useState, useEffect } from "react"
-import {
-  Box,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Checkbox,
-  Avatar,
-  IconButton,
-  Pagination,
-  PaginationItem,
-  CircularProgress,
-} from "@mui/material"
+import {  Box,  Typography,  Button,  Table,  TableBody,  TableCell,
+  TableContainer,  TableHead,  TableRow,  Paper,  Checkbox,  Avatar,
+  IconButton,  Pagination,  PaginationItem,  CircularProgress,} from "@mui/material"
 import { styled } from "@mui/material/styles"
 import { KeyboardArrowDown, KeyboardArrowUp, NavigateBefore, NavigateNext } from "@mui/icons-material"
 import { useParams } from "react-router-dom"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import AssignCourseModal from "./AssignCourseModal"
-
+import PropTypes from "prop-types"
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
     padding: "16px",
@@ -119,7 +104,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           <StatusText>Initiate Learning</StatusText>
         </TableCell>
         <TableCell align="center">
-          <HeaderButton onClick={onAssignCourse}>Assign Course</HeaderButton>
+          <HeaderButton onClick={()=>onAssignCourse(row.courses_assigned)}>Assign Course</HeaderButton>
         </TableCell>
       </TableRow>
       {isExpanded && hasActiveLearning && (
@@ -163,7 +148,14 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
     </>
   )
 }
-
+Row.propTypes = {
+    row: PropTypes.object.isRequired,
+    isExpanded: PropTypes.bool.isRequired,
+    isSelected: PropTypes.bool.isRequired,
+    onToggleExpand: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    onAssignCourse: PropTypes.func.isRequired,
+  };
 function CourseTracker() {
   const [expandedId, setExpandedId] = useState(null)
   const [page, setPage] = useState(1)
@@ -172,6 +164,7 @@ function CourseTracker() {
   const [showAssignModal, setShowAssignModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [requestOrgLevel, setRequestOrgLevel] = useState(0)
+  const[coursesAssigned,setCoursesAssigned]=useState(null)
   const { requestId } = useParams()
   const rowsPerPage = 5
   const totalRecords = 15
@@ -248,7 +241,24 @@ function CourseTracker() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
   }
-
+  const handleModalClose = () => {
+        setShowAssignModal(false);
+        setSelectedEmployees([]);
+        setCoursesAssigned(0);
+      };
+      const handleAssignCourse = (coursesAssigned, empId) => {
+        setSelectedEmployees([empId]);
+        setCoursesAssigned(coursesAssigned); // Set coursesAssigned
+        setShowAssignModal(true);
+      };
+      const updateCourseCount = (empId, newCount) => {
+        setLearners((prevLearners) =>
+          prevLearners.map((learner) =>
+            learner.emp_id === empId ? { ...learner, courses_assigned: newCount } : learner
+          )
+        );
+      };
+    
   return (
     <Box
       sx={{
@@ -264,11 +274,15 @@ function CourseTracker() {
           Assign Courses & Track the Learning Progress
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
-          <HeaderButton>Send Reminder</HeaderButton>
-          <HeaderButton onClick={() => setShowAssignModal(true)} disabled={selectedEmployees.length === 0}>
-            Assign Course
-          </HeaderButton>
-        </Box>
+                  <HeaderButton variant="outlined">Send Reminder</HeaderButton>
+                  <HeaderButton
+                    variant="outlined"
+                    onClick={() => setShowAssignModal(true)}
+                    disabled={selectedEmployees.length === 0}
+                  >
+                    Assign Course ({selectedEmployees.length})
+                  </HeaderButton>
+                </Box>
       </Box>
 
       {loading ? (
@@ -301,10 +315,8 @@ function CourseTracker() {
                     isSelected={selectedEmployees.includes(row.emp_id)}
                     onToggleExpand={handleToggleExpand}
                     onSelect={() => handleSelectEmployee(row.emp_id)}
-                    onAssignCourse={() => {
-                      setSelectedEmployees([row.emp_id])
-                      setShowAssignModal(true)
-                    }}
+                    onAssignCourse={handleAssignCourse}
+
                     style={{
                       backgroundColor: row % 2 !== 0 ? 'red' : 'transparent' // Apply color to odd rows
                     }}
@@ -330,15 +342,14 @@ function CourseTracker() {
         </>
       )}
 
-      <AssignCourseModal
+<AssignCourseModal
         open={showAssignModal}
-        onClose={() => {
-          setShowAssignModal(false)
-          setSelectedEmployees([])
-        }}
+        onClose={handleModalClose}
         employeeIds={selectedEmployees}
         requestId={requestId}
         requestOrgLevel={requestOrgLevel}
+        coursesAssigned={coursesAssigned}
+        onCoursesAssigned={(empId, newCount) => updateCourseCount(empId, newCount)} // Pass the callback function
       />
     </Box>
   )

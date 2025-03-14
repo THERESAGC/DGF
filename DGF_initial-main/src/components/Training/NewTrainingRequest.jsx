@@ -39,7 +39,6 @@ import AuthContext from "../Auth/AuthContext"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import { toPascalCase } from "../../utils/stringUtils"
 import getRoleType from "../../utils/roleUtils"
-import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import Grid from "@mui/material/Grid2"
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material"
 
@@ -50,11 +49,12 @@ const CustomRadio = styled(Radio)({
 const NewTrainingRequest = () => {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext) // Get the user from AuthContext
+  // In the component initialization, update the initial state to set trainingPurpose based on role_id
   const [formData, setFormData] = useState({
     completionCriteria: "",
     otherSkill: "",
     comment: "",
-    trainingPurpose: "prospect",
+    trainingPurpose: user?.role_id === 8 || user?.role_id === 4 ? "prospect" : "project",
     employeeDetails: "add",
     selectedDate: null,
     availableFromDate: null,
@@ -95,9 +95,8 @@ const NewTrainingRequest = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success")
   const [isFormValid, setIsFormValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [projectOptions, setProjectOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
-
+  const [projectOptions, setProjectOptions] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const validateForm = () => {
     const requiredFields = [
@@ -123,34 +122,26 @@ const NewTrainingRequest = () => {
     if (formData.employeeDetails === "add") {
       // Check if all table fields are filled
       const allTableFieldsFilled = formData.employees.every((emp) => emp.availableFrom && emp.bandwidth && emp.weekend)
-     
+
       if (!allTableFieldsFilled) {
-        return false;
+        return false
       }
       return requiredFields.every((field) => field !== "" && field !== null)
     }
 
     // Ensure otherSkill and completionCriteria are not empty
     if (!formData.otherSkill || !formData.completionCriteria) {
-      return false;
+      return false
     }
 
     return requiredFields.every((field) => field !== "" && field !== null)
   }
   useEffect(() => {
-    const isEmployeeDetailsValid = formData.employees.length > 0 && formData.employees.every(
-      (emp) => emp.availableFrom && emp.bandwidth && emp.weekend
-    )
+    const isEmployeeDetailsValid =
+      formData.employees.length > 0 &&
+      formData.employees.every((emp) => emp.availableFrom && emp.bandwidth && emp.weekend)
     setIsFormValid(validateForm() && isEmployeeDetailsValid)
-  },[formData, formData.employees, formData.otherSkill, formData.completionCriteria, validateForm])
-
-
-  // useEffect(() => {
-  //   setIsFormValid(validateForm());
-  // }, [formData, formData.employees, formData.otherSkill, formData.completionCriteria]);
-
-  // Add these styled components at the top of the file
-
+  }, [formData, formData.employees, formData.otherSkill, formData.completionCriteria, validateForm])
 
   const [expandedEmpId, setExpandedEmpId] = useState(null)
 
@@ -189,6 +180,7 @@ const NewTrainingRequest = () => {
           setFormData((prevFormData) => ({
             ...prevFormData,
             sources: data,
+            trainingPurpose: user.role_id === 8 || user.role_id === 4 ? prevFormData.trainingPurpose : "project",
           }))
         })
         .catch((error) => console.error("Error fetching sources:", error))
@@ -290,10 +282,6 @@ const NewTrainingRequest = () => {
 
     setIsFormValid(validateForm())
   }
-  // const handleDateChange = (newValue) => {
-  //   setFormData({ ...formData, selectedDate: newValue });
-  //   setIsFormValid(validateForm());
-  // };
 
   const handleSourceChange = (e) => {
     const selectedSource = e.target.value
@@ -315,7 +303,7 @@ const NewTrainingRequest = () => {
   }
   const handleOtherSkillChange = (value) => {
     const sanitizedValue = value === "<p><br></p>" ? "" : value
-  
+
     setFormData((prevData) => ({
       ...prevData,
       otherSkill: sanitizedValue,
@@ -353,12 +341,26 @@ const NewTrainingRequest = () => {
   }
 
   const handleTrainingObjectiveChange = (e) => {
+    if (!formData.selectedSource) {
+      setSnackbarMessage("Please select Designation first")
+      setSnackbarSeverity("error")
+      setSnackbarOpen(true)
+      return
+    }
+
     const selectedTrainingObjective = e.target.value
     setFormData({ ...formData, selectedTrainingObjective })
     setIsFormValid(validateForm())
   }
 
   const handleTechStackChange = (e) => {
+    if (!formData.selectedSource || !formData.selectedTrainingObjective) {
+      setSnackbarMessage("Please select Designation and Learning Objective first")
+      setSnackbarSeverity("error")
+      setSnackbarOpen(true)
+      return
+    }
+
     const selectedTechStack = e.target.value
     setFormData({ ...formData, selectedTechStack })
     setIsFormValid(validateForm())
@@ -406,66 +408,65 @@ const NewTrainingRequest = () => {
     }
   }, [user])
 
+  const handleEmployeeSearch = (event, value) => {
+    if (value.length > 0) {
+      let apiUrl
+      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+        apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
+      } else {
+        apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
+      }
 
-const handleEmployeeSearch = (event, value) => {
-  if (value.length > 0) {
-    let apiUrl;
-    if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-      apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`;
-    } else {
-      apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`;
-    }
+      fetch(apiUrl)
+        .then((response) => response.json())
+        .then(async (data) => {
+          if (Array.isArray(data)) {
+            const employeesWithSkills = await Promise.all(
+              data.map(async (emp) => {
+                try {
+                  let learnerResponse
+                  let learnerData
 
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then(async (data) => {
-        if (Array.isArray(data)) {
-          const employeesWithSkills = await Promise.all(
-            data.map(async (emp) => {
-              try {
-                let learnerResponse;
-                let learnerData;
-
-                if (formData.employeeDetails === "open") {
-                  learnerResponse = await fetch(
-                    `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
-                  );
-                  learnerData = await learnerResponse.json();
-                  return {
-                    ...emp,
-                    totalPrimarySkills: learnerData.total_requests || 0,
-                  };
-                } else {
-                  learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`);
-                  learnerData = await learnerResponse.json();
-                  return {
-                    ...emp,
-                    totalPrimarySkills: learnerData.total_primary_skills || 0,
-                  };
+                  if (formData.employeeDetails === "open") {
+                    learnerResponse = await fetch(
+                      `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
+                    )
+                    learnerData = await learnerResponse.json()
+                    return {
+                      ...emp,
+                      totalPrimarySkills: learnerData.total_requests || 0,
+                    }
+                  } else {
+                    learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
+                    learnerData = await learnerResponse.json()
+                    return {
+                      ...emp,
+                      totalPrimarySkills: learnerData.total_primary_skills || 0,
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error fetching learner data:", error)
+                  return { ...emp, totalPrimarySkills: 0 }
                 }
-              } catch (error) {
-                console.error("Error fetching learner data:", error);
-                return { ...emp, totalPrimarySkills: 0 };
-              }
-            })
-          );
-          setSearchResults(
-            employeesWithSkills.map((emp) => ({
-              id: emp.emp_id,
-              name: emp.emp_name,
-              email: emp.emp_email,
-              profileImage: emp.profile_image?.data
-                ? `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`
-                : "/placeholder.svg", // Use a placeholder image if profile_image is null
-              uniqueKey: `${emp.emp_id}-${Date.now()}`,
-              totalPrimarySkills: emp.totalPrimarySkills,
-            }))
-          );
-        }
-      })
-      .catch((error) => console.error("Error fetching employees:", error));
+              }),
+            )
+            setSearchResults(
+              employeesWithSkills.map((emp) => ({
+                id: emp.emp_id,
+                name: emp.emp_name,
+                email: emp.emp_email,
+                profileImage: emp.profile_image
+                  ? emp.profile_image // Use the URL directly
+                  : "/placeholder.svg", // Use a placeholder image if profile_image is null
+                uniqueKey: `${emp.emp_id}-${Date.now()}`,
+                totalPrimarySkills: emp.totalPrimarySkills,
+              })),
+            )
+          }
+        })
+        .catch((error) => console.error("Error fetching employees:", error))
+    }
   }
-};
 
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
@@ -487,180 +488,126 @@ const handleEmployeeSearch = (event, value) => {
           }
         })
         .catch((error) => console.error("Error fetching managers by name:", error))
-    }
-    else{
+    } else {
       setSearchResults([])
     }
   }
 
-
-const handleEmailSearch = async (email) => {
-  try {
-    let apiUrl;
-
-    // Construct the API URL based on the conditions
-    if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-      apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`;
-    } else {
-      apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`;
-    }
-
-    const response = await fetch(apiUrl);
-    const data = await response.json();
-
-    if (response.ok && data.length > 0) {
-      const employee = data[0];
-      if (!formData.employees.some((existingEmp) => existingEmp.id === employee.emp_id)) {
-        return {
-          id: employee.emp_id,
-          name: employee.emp_name,
-          email: employee.emp_email,
-          availableFrom: "",
-          bandwidth: "",
-          weekend: "",
-          profileImage: employee.profile_image?.data
-            ? `data:image/jpeg;base64,${arrayBufferToBase64(employee.profile_image.data)}`
-            : "/placeholder.svg", // Use a placeholder image if profile_image is null
-          uniqueKey: `${employee.emp_id}-${Date.now()}`, // Add unique key
-        };
-      }
-    } else {
-      console.error("Failed to fetch employee by email:", data.message);
-      setSnackbarMessage(`Email ${email} not found.`);
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  } catch (error) {
-    console.error("Error fetching employee by email:", error);
-    setSnackbarMessage(`Error fetching employee by email: ${error.message}`);
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  }
-  return null;
-};
-
-const addEmployeesByLevel = async () => {
-  const newEmployees = [];
-
-  // Fetch employees based on selected employee levels if "Place an Open Request" is selected
-  if (formData.selectedEmployeeLevel.length > 0) {
-    const levelNames = formData.selectedEmployeeLevel.join(",");
+  const handleEmailSearch = async (email) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`
-      );
-      const data = await response.json();
-      if (response.ok) {
-        const fetchedEmployees = data.map((emp) => ({
-          id: emp.emp_id,
-          name: emp.emp_name,
-          email: emp.emp_email,
-          availableFrom: "",
-          bandwidth: "",
-          weekend: "",
-          profileImage: emp.profile_image?.data
-            ? `data:image/jpeg;base64,${arrayBufferToBase64(emp.profile_image.data)}`
-            : "/placeholder.svg", // Use a placeholder image if profile_image is null
-          uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
-        }));
+      let apiUrl
 
-        // Filter out employees that are already in the list
-        const uniqueEmployees = fetchedEmployees.filter(
-          (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.id)
-        );
-
-        newEmployees.push(...uniqueEmployees);
+      // Construct the API URL based on the conditions
+      if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
+        apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`
       } else {
-        console.error("Failed to fetch employees by designation:", data.message);
-        setSnackbarMessage(`Failed to fetch employees: ${data.message}`);
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
+        apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`
+      }
+
+      const response = await fetch(apiUrl)
+      const data = await response.json()
+
+      if (response.ok && data.length > 0) {
+        const employee = data[0]
+        if (!formData.employees.some((existingEmp) => existingEmp.id === employee.emp_id)) {
+          return {
+            id: employee.emp_id,
+            name: employee.emp_name,
+            email: employee.emp_email,
+            availableFrom: "",
+            bandwidth: "",
+            weekend: "",
+            profileImage: employee.profile_image
+              ? employee.profile_image // Use the URL directly
+              : "/placeholder.svg", // Use a placeholder image if profile_image is null
+            uniqueKey: `${employee.emp_id}-${Date.now()}`, // Add unique key
+          }
+        }
+      } else {
+        console.error("Failed to fetch employee by email:", data.message)
+        setSnackbarMessage(`Email ${email} not found.`)
+        setSnackbarSeverity("error")
+        setSnackbarOpen(true)
       }
     } catch (error) {
-      console.error("Error fetching employees by designation:", error);
-      setSnackbarMessage(`Error fetching employees: ${error.message}`);
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      console.error("Error fetching employee by email:", error)
+      setSnackbarMessage(`Error fetching employee by email: ${error.message}`)
+      setSnackbarSeverity("error")
+      setSnackbarOpen(true)
+    }
+    return null
+  }
+
+  const addEmployeesByLevel = async () => {
+    const newEmployees = []
+
+    // Fetch employees based on selected employee levels if "Place an Open Request" is selected
+    if (formData.selectedEmployeeLevel.length > 0) {
+      const levelNames = formData.selectedEmployeeLevel.join(",")
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`,
+        )
+        const data = await response.json()
+        if (response.ok) {
+          const fetchedEmployees = data.map((emp) => ({
+            id: emp.emp_id,
+            name: emp.emp_name,
+            email: emp.emp_email,
+            availableFrom: "",
+            bandwidth: "",
+            weekend: "",
+            profileImage: emp.profile_image
+              ? emp.profile_image // Use the URL directly
+              : "/placeholder.svg", // Use a placeholder image if profile_image is null
+            uniqueKey: `${emp.emp_id}-${Date.now()}`, // Add unique key
+          }))
+
+          // Filter out employees that are already in the list
+          const uniqueEmployees = fetchedEmployees.filter(
+            (emp) => !formData.employees.some((existingEmp) => existingEmp.id === emp.id),
+          )
+
+          newEmployees.push(...uniqueEmployees)
+        } else {
+          console.error("Failed to fetch employees by designation:", data.message)
+          setSnackbarMessage(`Failed to fetch employees: ${data.message}`)
+          setSnackbarSeverity("error")
+          setSnackbarOpen(true)
+        }
+      } catch (error) {
+        console.error("Error fetching employees by designation:", error)
+        setSnackbarMessage(`Error fetching employees: ${error.message}`)
+        setSnackbarSeverity("error")
+        setSnackbarOpen(true)
+      }
+    }
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      employees: [...prevFormData.employees, ...newEmployees],
+      showTable: true,
+      showSummary: true,
+    }))
+    setIsFormValid(validateForm())
+  }
+
+  const fetchProjects = async (searchTerm) => {
+    setLoading(true)
+    try {
+      const response = await fetch(`http://localhost:8000/api/project-search/search?letter=${searchTerm}`)
+      const data = await response.json()
+      setProjectOptions(data)
+    } catch (error) {
+      console.error("Error fetching projects:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  setFormData((prevFormData) => ({
-    ...prevFormData,
-    employees: [...prevFormData.employees, ...newEmployees],
-    showTable: true,
-    showSummary: true,
-  }));
-  setIsFormValid(validateForm());
-};
-
-const fetchProjects = async (searchTerm) => {
-  setLoading(true);
-  try {
-    const response = await fetch(`http://localhost:8000/api/project-search/search?letter=${searchTerm}`);
-    const data = await response.json();
-    setProjectOptions(data);
-  } catch (error) {
-    console.error("Error fetching projects:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  fetchProjects(''); // Fetch all projects initially
-}, []);
-
-  // const addEmployee = async () => {
-  //   const newEmployees = [];
-  //   const invalidEmails = [];
-
-  //   // Add selected employee from "Select Employee" field
-  //   if (
-  //     selectedEmployee &&
-  //     !formData.employees.some((emp) => emp.id === selectedEmployee.id)
-  //   ) {
-  //     newEmployees.push({
-  //       ...selectedEmployee,
-  //       availableFrom: "",
-  //       bandwidth: "",
-  //       weekend: "",
-  //     });
-  //     setSelectedEmployee(null); // Clear the selected employee after adding
-  //   }
-
-  //   // Process comma-separated emails
-  //   if (formData.emails.trim() !== "") {
-  //     const emailList = formData.emails.split(",").map((email) => email.trim());
-  //     const uniqueEmails = [...new Set(emailList)]; // Remove duplicate emails
-
-  //     for (const email of uniqueEmails) {
-  //       const employee = await handleEmailSearch(email);
-  //       if (employee) {
-  //         // Check if the employee is already in the list
-  //         if (!formData.employees.some((emp) => emp.id === employee.id)) {
-  //           newEmployees.push(employee);
-  //         }
-  //       } else {
-  //         invalidEmails.push(email);
-  //       }
-  //     }
-  //     if (invalidEmails.length > 0) {
-  //       setSnackbarMessage(`Invalid emails: ${invalidEmails.join(", ")}`);
-  //       setSnackbarSeverity("error");
-  //       setSnackbarOpen(true);
-  //     }
-  //   }
-
-  //   setFormData((prevFormData) => ({
-  //     ...prevFormData,
-  //     employees: [...prevFormData.employees, ...newEmployees],
-  //     showTable: true,
-  //     showSummary: true,
-  //     emails: "", // Clear the email input field
-  //     invalidEmails: invalidEmails, // Store invalid emails
-  //   }));
-  //   setIsFormValid(validateForm());
-  // };
+  useEffect(() => {
+    fetchProjects("") // Fetch all projects initially
+  }, [])
 
   const addEmployee = async () => {
     const newEmployees = []
@@ -733,7 +680,6 @@ useEffect(() => {
       setIsFormValid(validateForm())
     }, 0)
   }
-  
 
   const removeEmployee = (id) => {
     setFormData({
@@ -1036,10 +982,10 @@ useEffect(() => {
             minWidth: "100%",
             marginLeft: "-42px",
             boxShadow: "none",
-            marginBottom:"50px"
+            marginBottom: "50px",
           }}
         >
-          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem",marginTop:"1rem" }}>
+          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem", marginTop: "1rem" }}>
             Learning Request Details
           </Typography>
 
@@ -1231,13 +1177,29 @@ useEffect(() => {
           >
             Skilling For
           </Typography>
+          {/* Replace the RadioGroup for trainingPurpose with this updated version */}
           <FormControl component="fieldset" style={{ marginBottom: "0.5rem" }}>
             <RadioGroup row name="trainingPurpose" value={formData.trainingPurpose} onChange={handleChange}>
               <FormControlLabel
                 value="prospect"
-                control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
+                control={
+                  <CustomRadio
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        color: user?.role_id === 8 || user?.role_id === 4 ? "#707070" : "#d0d0d0",
+                      },
+                    }}
+                    disabled={!(user?.role_id === 8 || user?.role_id === 4)}
+                  />
+                }
                 label={
-                  <Typography className="subheader" style={{ fontWeight: "600" }}>
+                  <Typography
+                    className="subheader"
+                    style={{
+                      fontWeight: "600",
+                      color: user?.role_id === 8 || user?.role_id === 4 ? "#4F4949" : "#d0d0d0",
+                    }}
+                  >
                     Prospect
                   </Typography>
                 }
@@ -1248,7 +1210,7 @@ useEffect(() => {
                 control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
                 label={
                   <Typography className="project" style={{ fontWeight: "600" }}>
-                   Existing Project
+                    Existing Project
                   </Typography>
                 }
               />
@@ -1260,53 +1222,8 @@ useEffect(() => {
                 <FormControl
                   fullWidth
                   style={{
-                    // flexBasis: "30%",
-                    // minWidth: "250px",
                     display: "flex",
-                    marginLeft: "0", // Remove unnecessary left margin
-                    marginRight: "0.6rem",
-                  }}
-                >
-                  <Typography
-                    className="subheader"
-                    style={{
-                      display: "inline",
-                      marginBottom: "0.5rem",
-                      color: "#4F4949",
-                    }}
-                  >
-                    Prospect Name <span className="required">*</span>
-                  </Typography>
-                  <Tooltip
-                    title={formData.prospectNameErrorMessage}
-                    open={formData.prospectNameError}
-                    placement="bottom-end"
-                    arrow
-                  >
-                    <TextField
-                      variant="outlined"
-                      placeholder="Enter Prospect"
-                      name="prospectName"
-                      value={formData.prospectName}
-                      onChange={handleChange}
-                      error={formData.prospectNameError}
-                      InputProps={{
-                        style: { fontSize: "12px" },
-                      }}
-                    />
-                  </Tooltip>
-                </FormControl>
-              </Grid>
-
-              <Grid size={4}>
-                <FormControl
-                  fullWidth
-                  style={{
-                    // flexBasis: "30%",
-                    // minWidth: "250px",
-                    display: "flex",
-                    // marginLeft: "20px", // Remove unnecessary left margin
-                    marginRight: "0.3rem", // Add right margin to separate form controls
+                    marginRight: "0.3rem",
                   }}
                 >
                   <Typography
@@ -1352,83 +1269,131 @@ useEffect(() => {
                   </Select>
                 </FormControl>
               </Grid>
+
+              <Grid size={4}>
+                <FormControl
+                  fullWidth
+                  style={{
+                    display: "flex",
+                    marginRight: "0.6rem",
+                  }}
+                >
+                  <Typography
+                    className="subheader"
+                    style={{
+                      display: "inline",
+                      marginBottom: "0.5rem",
+                      color: "#4F4949",
+                    }}
+                  >
+                    Prospect Name <span className="required">*</span>
+                  </Typography>
+                  <Tooltip
+                    title={formData.prospectNameErrorMessage}
+                    open={formData.prospectNameError}
+                    placement="bottom-end"
+                    arrow
+                  >
+                    <TextField
+                      variant="outlined"
+                      placeholder="Enter Prospect"
+                      name="prospectName"
+                      value={formData.prospectName}
+                      onChange={handleChange}
+                      error={formData.prospectNameError}
+                      InputProps={{
+                        style: { fontSize: "12px" },
+                      }}
+                    />
+                  </Tooltip>
+                </FormControl>
+              </Grid>
             </Grid>
           ) : (
-            
             <Grid container spacing={5}>
-            <Grid item size={4}>
-              <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.3rem" }}>
-                <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
-                  Service Division <span className="required">*</span>
-                </Typography>
-                <Select
-                  variant="outlined"
-                  defaultValue=""
-                  name="selectedServiceDivision"
-                  value={formData.selectedServiceDivision}
-                  onChange={handleChange}
-                  displayEmpty
-                  style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
-                >
-                  <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                    <em
-                      style={{
-                        height: "30px",
-                        opacity: "0.75",
-                        fontStyle: "normal",
-                        width: "274px",
-                        fontFamily: "Poppins",
-                      }}
-                    >
-                      Select Service Division
-                    </em>
-                  </MenuItem>
-                  {formData.services.map((service) => (
-                    <MenuItem key={service.id} value={service.id} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                      {service.service_name}
+              <Grid item size={4}>
+                <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.3rem" }}>
+                  <Typography
+                    className="subheader"
+                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
+                  >
+                    Service Division <span className="required">*</span>
+                  </Typography>
+                  <Select
+                    variant="outlined"
+                    defaultValue=""
+                    name="selectedServiceDivision"
+                    value={formData.selectedServiceDivision}
+                    onChange={handleChange}
+                    displayEmpty
+                    style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
+                  >
+                    <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                      <em
+                        style={{
+                          height: "30px",
+                          opacity: "0.75",
+                          fontStyle: "normal",
+                          width: "274px",
+                          fontFamily: "Poppins",
+                        }}
+                      >
+                        Select Service Division
+                      </em>
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    {formData.services.map((service) => (
+                      <MenuItem
+                        key={service.id}
+                        value={service.id}
+                        style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}
+                      >
+                        {service.service_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item size={4}>
+                <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
+                  <Typography
+                    className="subheader"
+                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
+                  >
+                    Project Name <span className="required">*</span>
+                  </Typography>
+
+                  <Autocomplete
+                    options={formData.projects}
+                    getOptionLabel={(option) => option.ProjectName}
+                    value={formData.projects.find((project) => project.ProjectID === formData.selectedProject) || null}
+                    onChange={(event, value) =>
+                      setFormData({
+                        ...formData,
+                        selectedProject: value ? value.ProjectID : "",
+                      })
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder="Search Projects"
+                        style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
+                        InputProps={{
+                          ...params.InputProps,
+                          style: { fontSize: "12px" },
+                        }}
+                      />
+                    )}
+                    renderOption={(props, option) => (
+                      <li {...props} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                        {option.ProjectName}
+                      </li>
+                    )}
+                  />
+                </FormControl>
+              </Grid>
             </Grid>
-          
-            <Grid item size={4}>
-<FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
-  <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
-    Project Name <span className="required">*</span>
-  </Typography>
-  
-  <Autocomplete
-    options={formData.projects}
-    getOptionLabel={(option) => option.ProjectName}
-    value={formData.projects.find((project) => project.ProjectID === formData.selectedProject) || null}
-    onChange={(event, value) =>
-      setFormData({
-        ...formData,
-        selectedProject: value ? value.ProjectID : "",
-      })
-    }
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        variant="outlined"
-        placeholder="Search Projects"
-        style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
-        InputProps={{
-          ...params.InputProps,
-          style: { fontSize: "12px" },
-        }}
-      />
-    )}
-    renderOption={(props, option) => (
-      <li {...props} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-        {option.ProjectName}
-      </li>
-    )}
-  />
-</FormControl>
-            </Grid>
-          </Grid>
           )}
           <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem", paddingTop: "2rem" }}>
             Learning Details
@@ -1458,7 +1423,7 @@ useEffect(() => {
                       fontSize: "10px",
                       fontFamily: "Poppins",
                       letterSpacing: "-0.5px", // Reduce letter spacing
-                    
+
                       width: "160px",
                       "& input": {
                         fontSize: "13px",
@@ -1543,7 +1508,7 @@ useEffect(() => {
                       color: "#4F4949",
                     }}
                   >
-                   Primary Skill
+                    Primary Skill
                     <span className="required">*</span>
                   </Typography>
                   <Select
@@ -1552,11 +1517,18 @@ useEffect(() => {
                     value={formData.selectedPrimarySkill}
                     SelectDisplayProps={{ style: { fontSize: "12px" } }}
                     onChange={(e) => {
+                      if (!formData.selectedTechStack) {
+                        setSnackbarMessage("Please select Tech Stack first")
+                        setSnackbarSeverity("error")
+                        setSnackbarOpen(true)
+                        return
+                      }
+
                       const selectedSkills = e.target.value
-                        setFormData({
-                          ...formData,
-                          selectedPrimarySkill: selectedSkills,
-                        })
+                      setFormData({
+                        ...formData,
+                        selectedPrimarySkill: selectedSkills,
+                      })
                     }}
                     style={{
                       height: "30px",
@@ -1587,7 +1559,7 @@ useEffect(() => {
 
           <Grid container spacing={5} marginTop="1rem">
             {/* Other Skills Field */}
-            <Grid item size={4} style={{ maxWidth: "400px"}}>
+            <Grid item size={4} style={{ maxWidth: "400px" }}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
@@ -1614,7 +1586,7 @@ useEffect(() => {
             </Grid>
 
             {/* Completion Criteria Field */}
-            <Grid item size={4} style={{ maxWidth: "400px"}}>
+            <Grid item size={4} style={{ maxWidth: "400px" }}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
@@ -1641,10 +1613,13 @@ useEffect(() => {
             </Grid>
 
             {/* Comments Field */}
-            <Grid item size={4} style={{ maxWidth: "400px"}}>
+            <Grid item size={4} style={{ maxWidth: "400px" }}>
               <FormControl fullWidth>
-                <Typography className="subheader" style={{ marginBottom: "0.5rem", color: "#4F4949" , maxWidth: "400px", display:"inline"}}>
-                  Desired Impact<span className="required" >*</span>
+                <Typography
+                  className="subheader"
+                  style={{ marginBottom: "0.5rem", color: "#4F4949", maxWidth: "400px", display: "inline" }}
+                >
+                  Desired Impact<span className="required">*</span>
                 </Typography>
                 <ReactQuill
                   value={formData.comment}
@@ -1697,28 +1672,7 @@ useEffect(() => {
               </RadioGroup>
             )}
           </FormControl>
-          {/* {formData.employeeDetails === "open" && role === "CapDev" && (
-  <FormControl fullWidth className="formControl">
-    <Typography className="subheader">
-      Employee Level <span className="required">*</span>
-    </Typography>
-    <Select
-      variant="outlined"
-      name="employeeLevel"
-      value={formData.selectedEmployeeLevel}
-      onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
-      style={{ height: "30px", fontSize: "12px" }}
-      multiple // Allow multiple selections
-    >
-      <MenuItem value=""><em>Select Employee Level</em></MenuItem>
-      {formData.employeeLevels.map(level => (
-        <MenuItem key={level.id} value={level.id}>
-          {level.job_title}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-)} */}
+
           <Grid container spacing={5} style={{ gap: "10px" }}>
             {/* Employee Select Section */}
             <Grid item size={4}>
@@ -1731,100 +1685,100 @@ useEffect(() => {
                 </Typography>
 
                 <Autocomplete
-  options={searchResults}
-  getOptionLabel={(option) => option.name || ""}
-  getOptionDisabled={(option) =>
-    formData.employeeDetails === "open"
-      ? option.totalPrimarySkills >= 1
-      : option.totalPrimarySkills >= 3
-  }
-  onInputChange={handleEmployeeSearch}
-  onChange={(event, value) => {
-    if (
-      (formData.employeeDetails === "open" && value && value.totalPrimarySkills < 1) ||
-      (formData.employeeDetails === "add" && value && value.totalPrimarySkills < 3)
-    ) {
-      setSelectedEmployee(value);
-    }
-  }}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      variant="outlined"
-      placeholder="Search Employees"
-      helperText={
-        formData.employeeDetails === "open"
-          ? "Employees with 1+ ongoing learnings cannot be selected"
-          : "Employees with 3+ ongoing learnings cannot be selected"
-      }
-      InputProps={{
-        ...params.InputProps,
-        style: { fontSize: "12.5px" },
-      }}
-    />
-  )}
-  renderOption={(props, option) => (
-    <li
-      {...props}
-      style={{
-        opacity:
-          formData.employeeDetails === "open"
-            ? option.totalPrimarySkills >= 1
-              ? 0.5
-              : 1
-            : option.totalPrimarySkills >= 3
-            ? 0.5
-            : 1,
-        pointerEvents:
-          formData.employeeDetails === "open"
-            ? option.totalPrimarySkills >= 1
-              ? "none"
-              : "auto"
-            : option.totalPrimarySkills >= 3
-            ? "none"
-            : "auto",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "8px",
-        fontSize: "12px",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
-        <span>{option.name}</span>
-      </div>
- 
-      {option.totalPrimarySkills > 0 && (
-        <span
-          style={{
-            backgroundColor:
-              option.totalPrimarySkills >= 3
-                ? "#ffebee"
-                : option.totalPrimarySkills === 1
-                ? "#fbfbd3"
-                : "#fbfbd3",
-            borderRadius: "12px",
-            padding: "4px 8px",
-            fontSize: "10px",
-            color: option.totalPrimarySkills >= 3 ? "#c62828" : "#000000",
-          }}
-        >
-          {option.totalPrimarySkills} learnings
-        </span>
-      )}
-    </li>
-  )}
-  PaperComponent={(props) => (
-    <Paper
-      {...props}
-      style={{
-        maxHeight: 300,
-        fontSize: "12px",
-      }}
-    />
-  )}
-/>
+                  options={searchResults}
+                  getOptionLabel={(option) => option.name || ""}
+                  getOptionDisabled={(option) =>
+                    formData.employeeDetails === "open"
+                      ? option.totalPrimarySkills >= 1
+                      : option.totalPrimarySkills >= 3
+                  }
+                  onInputChange={handleEmployeeSearch}
+                  onChange={(event, value) => {
+                    if (
+                      (formData.employeeDetails === "open" && value && value.totalPrimarySkills < 1) ||
+                      (formData.employeeDetails === "add" && value && value.totalPrimarySkills < 3)
+                    ) {
+                      setSelectedEmployee(value)
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      placeholder="Search Employees"
+                      helperText={
+                        formData.employeeDetails === "open"
+                          ? "Employees with 1+ ongoing learnings cannot be selected"
+                          : "Employees with 3+ ongoing learnings cannot be selected"
+                      }
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { fontSize: "12.5px" },
+                      }}
+                    />
+                  )}
+                  renderOption={(props, option) => (
+                    <li
+                      {...props}
+                      style={{
+                        opacity:
+                          formData.employeeDetails === "open"
+                            ? option.totalPrimarySkills >= 1
+                              ? 0.5
+                              : 1
+                            : option.totalPrimarySkills >= 3
+                              ? 0.5
+                              : 1,
+                        pointerEvents:
+                          formData.employeeDetails === "open"
+                            ? option.totalPrimarySkills >= 1
+                              ? "none"
+                              : "auto"
+                            : option.totalPrimarySkills >= 3
+                              ? "none"
+                              : "auto",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
+                        <span>{option.name}</span>
+                      </div>
+
+                      {option.totalPrimarySkills > 0 && (
+                        <span
+                          style={{
+                            backgroundColor:
+                              option.totalPrimarySkills >= 3
+                                ? "#ffebee"
+                                : option.totalPrimarySkills === 1
+                                  ? "#fbfbd3"
+                                  : "#fbfbd3",
+                            borderRadius: "12px",
+                            padding: "4px 8px",
+                            fontSize: "10px",
+                            color: option.totalPrimarySkills >= 3 ? "#c62828" : "#000000",
+                          }}
+                        >
+                          {option.totalPrimarySkills} learnings
+                        </span>
+                      )}
+                    </li>
+                  )}
+                  PaperComponent={(props) => (
+                    <Paper
+                      {...props}
+                      style={{
+                        maxHeight: 300,
+                        fontSize: "12px",
+                      }}
+                    />
+                  )}
+                />
               </FormControl>
             </Grid>
 
@@ -1903,31 +1857,31 @@ useEffect(() => {
             {/* Employee Level Section */}
             {formData.employeeDetails === "open" && role === "CapDev" && (
               <Grid item size={4}>
-            <FormControl fullWidth className="formControl">
-              <Typography
-                className="subheader"
-                style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
-              >
-                Employee Level <span className="required">*</span>
-              </Typography>
-              <Select
-                variant="outlined"
-                name="employeeLevel"
-                value={formData.selectedEmployeeLevel}
-                onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
-                style={{ height: "30px", fontSize: "12px" }}
-                multiple // Allow multiple selections
-              >
-                <MenuItem value="">
-                  <em>Select Employee Level</em>
-                </MenuItem>
-                {formData.employeeLevels.map((level) => (
-                  <MenuItem key={level.Designation_Name} value={level.Designation_Name}>
-                    {level.Designation_Name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                <FormControl fullWidth className="formControl">
+                  <Typography
+                    className="subheader"
+                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
+                  >
+                    Employee Level <span className="required">*</span>
+                  </Typography>
+                  <Select
+                    variant="outlined"
+                    name="employeeLevel"
+                    value={formData.selectedEmployeeLevel}
+                    onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
+                    style={{ height: "30px", fontSize: "12px" }}
+                    multiple // Allow multiple selections
+                  >
+                    <MenuItem value="">
+                      <em>Select Employee Level</em>
+                    </MenuItem>
+                    {formData.employeeLevels.map((level) => (
+                      <MenuItem key={level.Designation_Name} value={level.Designation_Name}>
+                        {level.Designation_Name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
             )}
 
@@ -1979,9 +1933,9 @@ useEffect(() => {
                               placeholder="Search Employees"
                               value={formData.searchQuery}
                               onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
-                              style={{ fontSize: "12px", width: "200px",marginTop:"16px" }}
+                              style={{ fontSize: "12px", width: "200px", marginTop: "16px" }}
                               InputProps={{
-                                style: { fontSize: "12.5px",color: "#4F4949" },
+                                style: { fontSize: "12.5px", color: "#4F4949" },
                               }}
                             />
                           </Box>
@@ -2003,7 +1957,7 @@ useEffect(() => {
                               width: "160px",
                               "& input": {
                                 fontSize: "14px",
-                                color: "#4F4949"
+                                color: "#4F4949",
                               },
                             }}
                           />
@@ -2024,7 +1978,7 @@ useEffect(() => {
                               fontFamily: "Poppins",
                               letterSpacing: "-0.5px",
                               padding: "5px",
-                              color: "#4F4949"
+                              color: "#4F4949",
                             }}
                           >
                             <MenuItem value="" disabled>
@@ -2047,7 +2001,7 @@ useEffect(() => {
                             }
                           >
                             <FormControlLabel value="Yes" control={<Radio size="small" color=" " />} label="Yes" />
-                            <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
+                            <FormControlLabel value="No" control={<Radio size="small" color=" " />} label="No" />
                           </RadioGroup>
                         </TableCell>
                         <TableCell>
@@ -2073,165 +2027,192 @@ useEffect(() => {
                       </TableRow>
                     </TableHead>
 
-                    <TableBody sx={{borderBottom:"1px solid #EAEAEA"}}>
-  {formData.employees
-    .filter((employee) => employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()))
-    .slice(
-      formData.page * formData.rowsPerPage,
-      formData.page * formData.rowsPerPage + formData.rowsPerPage,
-    )
-    .map((employee) => {
-      const isExpanded = expandedEmpId === employee.id
-      const hasActiveLearning = employee.total_requests > 0
- 
-      return (
-        <React.Fragment key={employee.uniqueKey}>
-          <TableRow sx={{ "& > *": { borderBottom: isExpanded ? "unset" : undefined }, borderBottom: "1px solid #EAEAEA" }}>
-            <TableCell>
-              {employee.id}
-              {hasActiveLearning && (
-                <Box sx={{ display: "flex", alignItems: "center", mt: 0.5, backgroundColor: "#FFFFE6" }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleToggleEmpExpand(employee.id)}
-                    sx={{ padding: "0", marginRight: "4px" }}
-                  >
-                    {isExpanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" sx={{ border: "1px solid black", borderRadius: "50%" }} />}
-                  </IconButton>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "#000000", fontWeight: 500, fontSize: "10px !important" }}
-                  >
-                    {employee.total_requests} learning is in progress
-                  </Typography>
-                </Box>
-              )}
-            </TableCell>
-            <TableCell>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 ,color: "#4F4949"}}>
-                <Avatar src={employee.profileImage} sx={{ width: 32, height: 32 }} />
-                {employee.name}
-              </Box>
-            </TableCell>
-            <TableCell>
-              <TextField
-                type="date"
-                value={employee.availableFrom || ""}
-                onChange={(e) => updateEmployee(employee.id, "availableFrom", e.target.value)}
-                size="small"
-                inputProps={{
-                  min: new Date().toISOString().split("T")[0],
-                }}
-                sx={{
-                  fontSize: "10px",
-                  fontFamily: "Poppins",
-                  letterSpacing: "-0.5px",
-                  padding: "5px",
-                  width: "160px",
-                  "& input": { fontSize: "14px",color: "#4F4949" },
-                }}
-              />
-            </TableCell>
-            <TableCell>
-              <Select
-                value={employee.bandwidth || ""}
-                onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
-                size="small"
-                displayEmpty
-                sx={{
-                  fontSize: "10px",
-                  fontFamily: "Poppins",
-                  letterSpacing: "-0.5px",
-                  padding: "5px",
-                  color: "#4F4949"
-                }}
-              >
-                <MenuItem value="" disabled>
-                  Select
-                </MenuItem>
-                <MenuItem value="2 Hours">2 Hours</MenuItem>
-                <MenuItem value="4 Hours">4 Hours</MenuItem>
-                <MenuItem value="6 Hours">6 Hours</MenuItem>
-                <MenuItem value="Full Day">Full Day</MenuItem>
-              </Select>
-            </TableCell>
-            <TableCell>
-              <RadioGroup
-                row
-                value={employee.weekend || ""}
-                onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
-              >
-                <FormControlLabel value="Yes" control={<Radio size="small" color=" "/>} label="Yes" />
-                <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
-              </RadioGroup>
-            </TableCell>
-            <TableCell>
-              <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </TableCell>
-          </TableRow>
- 
-          {isExpanded && hasActiveLearning && (
-  <TableRow sx={{ backgroundColor: "#FFFFE6" }}>
-    <TableCell colSpan={6} style={{ padding: 0 }}>
-      <Box sx={{ padding: "8px 16px 16px 40px" }}>
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={2} sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: "#4F4949" }}>
-              Req No:
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              #{employee.requests?.[0]?.requestid || "231"}
-            </Typography>
-          </Grid>
-          <Grid item xs={2} sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: "#4F4949" }}>
-              Project
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {employee.requests?.[0]?.project_name || "Staffing Nation"}
-            </Typography>
-          </Grid>
-          <Grid item xs={2} sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: "#4F4949" }}>
-              Objective
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {employee.requests?.[0]?.training_objective || "Upskilling"}
-            </Typography>
-          </Grid>
-          <Grid item xs={2} sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: "#4F4949" }}>
-              Tech Stack
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {employee.requests?.[0]?.tech_stacks || "React"}
-            </Typography>
-          </Grid>
-          <Grid item xs={4} sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: "#4F4949" }}>
-              Requested on
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {employee.requests?.[0]?.createddate
-                ? new Date(employee.requests[0].createddate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
-                : "Jan 20, 2025"}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Box>
-    </TableCell>
-  </TableRow>
-)}
-        </React.Fragment>
-      )
-    })}
-</TableBody>
+                    <TableBody sx={{ borderBottom: "1px solid #EAEAEA" }}>
+                      {formData.employees
+                        .filter((employee) => employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()))
+                        .slice(
+                          formData.page * formData.rowsPerPage,
+                          formData.page * formData.rowsPerPage + formData.rowsPerPage,
+                        )
+                        .map((employee) => {
+                          const isExpanded = expandedEmpId === employee.id
+                          const hasActiveLearning = employee.total_requests > 0
+
+                          return (
+                            <React.Fragment key={employee.uniqueKey}>
+                              <TableRow
+                                sx={{
+                                  "& > *": { borderBottom: isExpanded ? "unset" : undefined },
+                                  borderBottom: "1px solid #EAEAEA",
+                                }}
+                              >
+                                <TableCell>
+                                  {employee.id}
+                                  {hasActiveLearning && (
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        mt: 0.5,
+                                        backgroundColor: "#FFFFE6",
+                                      }}
+                                    >
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => handleToggleEmpExpand(employee.id)}
+                                        sx={{ padding: "0", marginRight: "4px" }}
+                                      >
+                                        {isExpanded ? (
+                                          <KeyboardArrowUp fontSize="small" />
+                                        ) : (
+                                          <KeyboardArrowDown
+                                            fontSize="small"
+                                            sx={{ border: "1px solid black", borderRadius: "50%" }}
+                                          />
+                                        )}
+                                      </IconButton>
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ color: "#000000", fontWeight: 500, fontSize: "10px !important" }}
+                                      >
+                                        {employee.total_requests} learning is in progress
+                                      </Typography>
+                                    </Box>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "#4F4949" }}>
+                                    <Avatar src={employee.profileImage} sx={{ width: 32, height: 32 }} />
+                                    {employee.name}
+                                  </Box>
+                                </TableCell>
+                                <TableCell>
+                                  <TextField
+                                    type="date"
+                                    value={employee.availableFrom || ""}
+                                    onChange={(e) => updateEmployee(employee.id, "availableFrom", e.target.value)}
+                                    size="small"
+                                    inputProps={{
+                                      min: new Date().toISOString().split("T")[0],
+                                    }}
+                                    sx={{
+                                      fontSize: "10px",
+                                      fontFamily: "Poppins",
+                                      letterSpacing: "-0.5px",
+                                      padding: "5px",
+                                      width: "160px",
+                                      "& input": { fontSize: "14px", color: "#4F4949" },
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Select
+                                    value={employee.bandwidth || ""}
+                                    onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
+                                    size="small"
+                                    displayEmpty
+                                    sx={{
+                                      fontSize: "10px",
+                                      fontFamily: "Poppins",
+                                      letterSpacing: "-0.5px",
+                                      padding: "5px",
+                                      color: "#4F4949",
+                                    }}
+                                  >
+                                    <MenuItem value="" disabled>
+                                      Select
+                                    </MenuItem>
+                                    <MenuItem value="2 Hours">2 Hours</MenuItem>
+                                    <MenuItem value="4 Hours">4 Hours</MenuItem>
+                                    <MenuItem value="6 Hours">6 Hours</MenuItem>
+                                    <MenuItem value="Full Day">Full Day</MenuItem>
+                                  </Select>
+                                </TableCell>
+                                <TableCell>
+                                  <RadioGroup
+                                    row
+                                    value={employee.weekend || ""}
+                                    onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
+                                  >
+                                    <FormControlLabel
+                                      value="Yes"
+                                      control={<Radio size="small" color=" " />}
+                                      label="Yes"
+                                    />
+                                    <FormControlLabel
+                                      value="No"
+                                      control={<Radio size="small" color=" " />}
+                                      label="No"
+                                    />
+                                  </RadioGroup>
+                                </TableCell>
+                                <TableCell>
+                                  <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
+                                    <CloseIcon />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+
+                              {isExpanded && hasActiveLearning && (
+                                <TableRow sx={{ backgroundColor: "#FFFFE6" }}>
+                                  <TableCell colSpan={6} style={{ padding: 0 }}>
+                                    <Box sx={{ padding: "8px 16px 16px 40px" }}>
+                                      <Grid container spacing={4} justifyContent="center">
+                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
+                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
+                                            Req No:
+                                          </Typography>
+                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            #{employee.requests?.[0]?.requestid || "231"}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
+                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
+                                            Project
+                                          </Typography>
+                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {employee.requests?.[0]?.project_name || "Staffing Nation"}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
+                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
+                                            Objective
+                                          </Typography>
+                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {employee.requests?.[0]?.training_objective || "Upskilling"}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
+                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
+                                            Tech Stack
+                                          </Typography>
+                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {employee.requests?.[0]?.tech_stacks || "React"}
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item xs={4} sx={{ textAlign: "center" }}>
+                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
+                                            Requested on
+                                          </Typography>
+                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {employee.requests?.[0]?.createddate
+                                              ? new Date(employee.requests[0].createddate).toLocaleDateString("en-US", {
+                                                  year: "numeric",
+                                                  month: "short",
+                                                  day: "numeric",
+                                                })
+                                              : "Jan 20, 2025"}
+                                          </Typography>
+                                        </Grid>
+                                      </Grid>
+                                    </Box>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </React.Fragment>
+                          )
+                        })}
+                    </TableBody>
                   </Table>
                   <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
@@ -2320,19 +2301,6 @@ useEffect(() => {
         </Paper>
       </Paper>
 
-      {/* <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>  */}
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}
@@ -2374,4 +2342,3 @@ useEffect(() => {
   )
 }
 export default NewTrainingRequest
-

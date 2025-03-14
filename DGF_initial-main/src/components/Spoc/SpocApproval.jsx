@@ -93,7 +93,7 @@ useEffect(() => {
 }, [requestid]);
 
 const totalPages = Math.ceil(learners.length / itemsPerPage);
-const currentItems = learners.slice(
+const currentItems = sortedLearners.slice(
   (page - 1) * itemsPerPage,
   page * itemsPerPage
 );
@@ -339,17 +339,9 @@ return (
     <Typography className="typography-label-upper">
       Primary Skills :
     </Typography>
-    <div className="typography-value-upper">
-      {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-        <ul style={{ paddingLeft: '15px' }}>
-          {requestDetails?.primarySkills.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul>
-      ) : (
-        <Typography className="typography-value-upper">No skills available</Typography>
-      )}
-    </div>
+    <Typography className="typography-value-upper">
+                  {requestDetails?.primarySkills}
+                </Typography>
   </FormControl>
 </Grid2>
 </Grid2>
@@ -360,7 +352,7 @@ return (
             <Grid2 item size={4}  style={{ maxWidth:"400px"}} >
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
-                  Other Skill Information in Details:
+                  Other Relevant Information:
                 </Typography>
                 <Typography className="typography-value-upper">
                  { removeHtmlTags(requestDetails?.otherskill)}
@@ -384,7 +376,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             <Grid2 item size={12}>
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
-                  Comments:
+                Desired Impact:
                 </Typography>
                 <Typography  className="typography-value-upper"  style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                   {removeHtmlTags(requestDetails?.comments)}
@@ -440,37 +432,38 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                     </TableRow>
                   </TableHead>
                 )}
-              <TableBody>
-{sortedLearners.length > 0 ? (
-  sortedLearners.map((learner) => (
-    <TableRow key={learner.emp_id}>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {learner.emp_id}
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        <Box display="flex" alignItems="center" gap={1}>
-          <Avatar alt="User" src={learner.profile_image} /> {/* Use the base64-encoded image */}
-          {learner.emp_name}
-        </Box>
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {formatDate(learner.availablefrom)}
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {learner.dailyband}
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {learner.availableonweekend === 1 ? "Yes" : "No"}
+
+<TableBody>
+  {currentItems.length > 0 ? (
+    currentItems.map((learner) => (
+      <TableRow key={learner.emp_id}>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.emp_id}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Avatar alt="User" src={learner.profile_image} /> {/* Use the base64-encoded image */}
+            {learner.emp_name}
+          </Box>
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {formatDate(learner.availablefrom)}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.dailyband}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.availableonweekend === 1 ? "Yes" : "No"}
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} style={{ textAlign: "center" }}>
+        No learners found
       </TableCell>
     </TableRow>
-  ))
-) : (
-  <TableRow>
-    <TableCell colSpan={5} style={{ textAlign: "center" }}>
-      No learners found
-    </TableCell>
-  </TableRow>
-)}
+  )}
 </TableBody>
               </Table>
  
@@ -492,32 +485,33 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
  
  
             <Box sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mt: 2,
-                        alignItems: "center"
-                      }}>
-                        <Typography variant="body2" color="text.secondary">
-                          Showing {currentItems.length} of {learners.length} records
-                        </Typography>
-                        <Pagination
-                          count={totalPages}
-                          page={page}
-                          onChange={(e, value) => setPage(value)}
-                          shape="rounded"
-                          color="primary"
-                          sx={{
-                            '& .MuiPaginationItem-root.Mui-selected': {
-                              color: 'red', // Change text color for selected page
-                              fontWeight: 'bold', // Optional: Change font weight,
-                              backgroundColor: 'transparent', // Optional: Remove background color
-                            },
-                            '& .MuiPaginationItem-root': {
-                              margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
-                            },
-                          }}
-                        />
-                      </Box>
+  display: "flex",
+  justifyContent: "space-between",
+  mt: 2,
+  alignItems: "center"
+}}>
+  <Typography variant="body2" color="text.secondary">
+    Showing {learners.length === 0 ? 0 : (page - 1) * itemsPerPage + 1}-
+    {Math.min(page * itemsPerPage, learners.length)} of {learners.length} records
+  </Typography>
+  <Pagination
+    count={totalPages}
+    page={page}
+    onChange={(e, value) => setPage(value)}
+    shape="rounded"
+    color="primary"
+    sx={{
+      '& .MuiPaginationItem-root.Mui-selected': {
+        color: 'red', // Change text color for selected page
+        fontWeight: 'bold', // Optional: Change font weight,
+        backgroundColor: 'transparent', // Optional: Remove background color
+      },
+      '& .MuiPaginationItem-root': {
+        margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
+      },
+    }}
+  />
+</Box>
  
             <Box
               style={{

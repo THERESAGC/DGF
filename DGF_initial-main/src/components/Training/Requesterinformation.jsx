@@ -1,7 +1,7 @@
 import {  useState ,useEffect,} from "react";
 import PropTypes from 'prop-types';
 import { useParams } from "react-router-dom";
-import { Paper, Typography, Grid2, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar } from "@mui/material";
+import { Paper, Typography, Grid2, Divider, Box, FormControl, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Pagination } from "@mui/material";
 import "../Training/Requesterinformation.css";
 import formatDate from "../../utils/dateUtils";
 import removeHtmlTags from "../../utils/htmlUtils";
@@ -15,7 +15,8 @@ const { requestId } = useParams();
 const [comments, setComments] = useState([]);
 const [userProfiles, setUserProfiles] = useState({});
 const [requestDetails, setRequestDetails] = useState(null);
-
+const itemsPerPage = 5;
+const [page, setPage] = useState(1);
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -67,6 +68,11 @@ useEffect(() => {
   fetchData();
 }, [requestId]);
 
+const totalPages = Math.ceil(learners.length / itemsPerPage);
+const currentItems = learners.slice(
+  (page - 1) * itemsPerPage,
+  page * itemsPerPage
+);
 const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
 
 useEffect(() => {
@@ -163,21 +169,13 @@ return (
           </Grid2>
           <Grid2 container spacing={2} style={{ marginTop: "1.5rem" }}>
 <Grid2 item size={4} >
-  <FormControl fullwidth="true" className="form-control">
+<FormControl fullWidth className="form-control">
     <Typography className="typography-label-upper">
       Primary Skills :
     </Typography>
-    <div className="typography-value-upper">
-      {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-        <ul style={{ paddingLeft: '20px' }}>
-          {requestDetails?.primarySkills.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul>
-      ) : (
-        <Typography className="typography-value-upper">No skills available</Typography>
-      )}
-    </div>
+    <Typography className="typography-value-upper">
+                  {requestDetails?.primarySkills}
+                </Typography>
   </FormControl>
 </Grid2>
 </Grid2>
@@ -188,7 +186,7 @@ return (
             <Grid2 item size={4}>
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
-                  Other Skill Information in Details:
+                Other Relevant Information:
                 </Typography>
                 <Typography className="typography-value-upper">
                  { removeHtmlTags(requestDetails?.otherskill)}
@@ -212,7 +210,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             <Grid2 item size={12}>
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
-                  Comments:
+                Desired Impact:
                 </Typography>
                 <Typography  className="typography-value-upper"  style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                   {removeHtmlTags(requestDetails?.comments)}
@@ -266,8 +264,8 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                   </TableHead>
                 )}
               <TableBody>
-{learners.length > 0 ? (
-  learners.map((learner) => (
+{currentItems.length > 0 ? (
+  currentItems.map((learner) => (
     <TableRow key={learner.emp_id} sx={{borderBottom:"1px solid #EAEAEA"}}>
       <TableCell style={{textAlign:"left"  }}>
         {learner.emp_id}
@@ -301,7 +299,35 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             </TableContainer>
          
           </div>
-
+            <Box sx={{
+  display: "flex",
+  justifyContent: "space-between",
+  mt: 2,
+  alignItems: "center"
+}}>
+  <Typography variant="body2" color="text.secondary">
+    Showing {learners.length === 0 ? 0 : (page - 1) * itemsPerPage + 1}-
+    {Math.min(page * itemsPerPage, learners.length)} of {learners.length} records
+  </Typography>
+  <Pagination
+    count={totalPages}
+    page={page}
+    onChange={(e, value) => setPage(value)}
+    shape="rounded"
+    color="primary"
+    sx={{
+      '& .MuiPaginationItem-root.Mui-selected': {
+        color: 'red', // Change text color for selected page
+        fontWeight: 'bold', // Optional: Change font weight,
+        backgroundColor: 'transparent', // Optional: Remove background color
+      },
+      '& .MuiPaginationItem-root': {
+        margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
+      },
+    }}
+  />
+</Box>
+ 
           <Divider style={{ margin: "2rem 5px 1rem 2px ",width:"101%"}} />
 
           <Box

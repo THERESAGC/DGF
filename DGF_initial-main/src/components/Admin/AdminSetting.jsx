@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import {
   Table,
@@ -21,7 +19,6 @@ import axios from "axios"
 import UserActionModal from "./UserActionModal"
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 
-
 const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   width: "22px",
   height: "22px",
@@ -39,10 +36,13 @@ const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   },
 }))
 
+const rowsPerPage = 5;
+
 export default function UserTable() {
   const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
   const [actionModalOpen, setActionModalOpen] = useState(false)
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetchUsers()
@@ -59,8 +59,10 @@ export default function UserTable() {
           role: user.role_name,
           createdOn: new Date(user.created_on).toLocaleDateString(),
           status: user.status,
+          avatar: user.profile_image,
         }))
         setUsers(fetchedUsers)
+        setPage(1)
       })
       .catch((error) => {
         console.error("Error fetching users:", error)
@@ -74,9 +76,16 @@ export default function UserTable() {
 
   const handleCloseActionModal = () => {
     setActionModalOpen(false)
-    // Refresh the user list after modal is closed to reflect any changes
     fetchUsers()
   }
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage)
+  }
+
+  const currentUsers = users.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+  const startIndex = (page - 1) * rowsPerPage + 1
+  const endIndex = Math.min(page * rowsPerPage, users.length)
 
   return (
     <Box
@@ -103,7 +112,7 @@ export default function UserTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user, index) => (
+            {currentUsers.map((user, index) => (
               <TableRow key={user.id} sx={{ backgroundColor: index % 2 === 0 ? "#F1F2FD" : "white" }}>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.id}</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>
@@ -116,23 +125,22 @@ export default function UserTable() {
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.role}</TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.createdOn}</TableCell>
                 <TableCell>
-  <Typography
-    sx={{
-      color: user.status === "active" ? "#2BB381" : user.status === "invited" ? "#B39C2B" : "#AA1700",
-      fontSize: "0.75rem",
-      opacity: 1,
-      fontFamily: "inherit",
-    }}
-  >
-    {user.status}
-  </Typography>
-</TableCell>
-
-<TableCell sx={{ fontFamily: "inherit" }}>
-  <IconButton onClick={() => handleActionClick(user)}>
-    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
-  </IconButton>
-</TableCell>
+                  <Typography
+                    sx={{
+                      color: user.status === "active" ? "#2BB381" : user.status === "invited" ? "#B39C2B" : "#AA1700",
+                      fontSize: "0.75rem",
+                      opacity: 1,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {user.status}
+                  </Typography>
+                </TableCell>
+                <TableCell sx={{ fontFamily: "inherit" }}>
+                  <IconButton onClick={() => handleActionClick(user)}>
+                    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -140,14 +148,18 @@ export default function UserTable() {
       </TableContainer>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
         <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "inherit" }}>
-          Showing {users.length} of {users.length} records
+          {users.length === 0 ? 'No records' : `Showing ${startIndex}-${endIndex} of ${users.length} records`}
         </Typography>
-        <Pagination count={Math.ceil(users.length / 5)} size="small" shape="rounded" />
+        <Pagination
+          count={Math.ceil(users.length / rowsPerPage)}
+          page={page}
+          onChange={handlePageChange}
+          size="small"
+          shape="rounded"
+        />
       </Box>
 
-      {/* User Action Modal */}
       <UserActionModal open={actionModalOpen} onClose={handleCloseActionModal} user={selectedUser} />
     </Box>
   )
 }
-

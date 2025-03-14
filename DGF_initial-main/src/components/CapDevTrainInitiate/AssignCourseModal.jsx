@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Modal, Box, Typography, TextField, Paper, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Button, FormControl, InputLabel,
-  Select, MenuItem, IconButton, InputAdornment, TextareaAutosize, CircularProgress, RadioGroup, FormControlLabel, Radio, Autocomplete
+  TableContainer, TableHead, TableRow, Button, FormControl, Select, MenuItem, IconButton, InputAdornment, TextareaAutosize, CircularProgress, RadioGroup, FormControlLabel, Radio, Autocomplete
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -104,7 +104,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
       }
       onClose();
      navigate(`/learning-initiated-details/${requestId}`, { replace: true }); // Navigate to the specific page
-   
+    
     } catch (error) {
       console.error('Error assigning courses:', error);
     } finally {
@@ -134,7 +134,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
     }
     return true;
   };
- 
+
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
@@ -381,6 +381,5 @@ AssignCourseModal.propTypes = {
   requestId: PropTypes.string.isRequired,
   coursesAssigned:PropTypes.number.isRequired
 };
- 
+
 export default AssignCourseModal;
- 

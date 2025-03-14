@@ -10,8 +10,8 @@ import { useParams } from "react-router-dom";
 import { arrayBufferToBase64 } from "../../utils/ImgConveter";
 import AssignCourseModal from "./AssignCourseModal";
 import CommentsSidebar from "./CommentsSidebar";
-import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
-
+import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -55,20 +55,21 @@ const HeaderButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const ActionIconButton = styled(IconButton)(({ theme }) => ({
+const ActionIconButton = styled(IconButton)(({ theme,disabled }) => ({
   width: "22px",
   height: "22px",
-  border: "2px solid #000000",
+  border: disabled ? "2px solid #a9a9a9" : "2px solid #000000",
   borderRadius: "50%",
   marginRight: "10px",
   marginLeft: "8px",
-  backgroundColor: "rgba(255, 255, 255, 0)",
+  backgroundColor: disabled?"#d3d3d3" :"rgba(255, 255, 255, 0)",
   "&:hover": {
-    backgroundColor: "#d1d1d1",
+    backgroundColor: disabled?"#d3d3d3": "#d1d1d1",
   },
   "& svg": {
     fontSize: "16px",
     fontWeight: "bold",
+    // color: disabled ? "#a9a9a9" : "inherit",
   },
 }));
 
@@ -77,15 +78,16 @@ const StatusChip = styled(Box)(({ theme }) => ({
   color: "#06819E",
 }));
 
-import PropTypes from 'prop-types';
 
-function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse }) {
+
+function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse,onStatusUpdate }) {
   const [assignedCourses, setAssignedCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [anchorElMap, setAnchorElMap] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [currentAssignmentId, setCurrentAssignmentId] = useState(null);
+
 
   const handleMenuClick = (event, assignmentId) => {
     setAnchorElMap(prev => ({ ...prev, [assignmentId]: event.currentTarget }));
@@ -110,6 +112,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
       ));
 
       setSnackbar({ open: true, message: "Status updated successfully!", severity: "success" });
+          onStatusUpdate();
     } catch (error) {
       console.error("Update error:", error);
       setSnackbar({ open: true, message: error.message || "Failed to update status", severity: "error" });
@@ -140,7 +143,10 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
 
     if (isExpanded) fetchAssignedCourses();
   }, [isExpanded, row.emp_id, row.requestid]);
-
+  useEffect(() => {
+    // This useEffect will run whenever assignedCourses changes
+    console.log("Assigned courses updated:", assignedCourses);
+  }, [assignedCourses]);
   return (
     <>
       <TableRow sx={{ backgroundColor: isExpanded ? "#f1f2fd" : "white" }}>
@@ -154,7 +160,8 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
             checked={isSelected}
             onChange={onSelect}
             color="primary"
-            disabled={row.coursesAssigned >= 3}
+            disabled={row.coursesAssigned == 3}
+
           />
         </TableCell>
         <TableCell>
@@ -172,7 +179,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         </TableCell>
       
           <TableCell style={{textAlign:"left"}}>
-          <HeaderButton onClick={() => onAssignCourse(row.emp_id)}
+          <HeaderButton onClick={() => onAssignCourse(row.emp_id,row.coursesAssigned)}
              disabled={row.coursesAssigned >= 3}
             >
             Assign Course
@@ -216,7 +223,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                               overflow: "hidden",
                               textOverflow: "ellipsis",
                               fontSize: "10px !important",
-                             
+                              mb: 1,
                               textAlign: "left",
                               width: "200px"
                             }}>
@@ -248,12 +255,14 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                           <StatusChip>{course.status || "N/A"}</StatusChip>
                         </TableCell>
                         <TableCell>
-                        <IconButton
-                      
-                        onClick={(e) => handleMenuClick(e, course.assignment_id)}
-                        > 
-                        <ArrowCircleRightOutlinedIcon style={{ height: "20px", width: "20px" , paddingLeft:"0px"}}/> 
-                        </IconButton>
+                          <ActionIconButton
+                            style={{height:"20px",width:"20px"}}
+                            size="small"
+                            onClick={(e) => handleMenuClick(e, course.assignment_id)}
+                         
+                            disabled={["Completed", "Incomplete", "Completed with Delay"].includes(course.status)}>
+                            <ArrowForward />
+                          </ActionIconButton>
                           <Menu
                             anchorEl={anchorElMap[course.assignment_id]}
                             open={Boolean(anchorElMap[course.assignment_id])}
@@ -272,7 +281,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                             ))}
                           </Menu>
                           <IconButton size="small" onClick={() => handleChatIconClick(course.assignment_id)}>
-                            <ChatBubbleOutline style={{ height: "20px", width: "20px", paddingLeft:"0px" }}/>
+                            <ChatBubbleOutline />
                           </IconButton>
                            
                         </TableCell>
@@ -322,7 +331,9 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
       onToggleExpand: PropTypes.func.isRequired,
       onSelect: PropTypes.func.isRequired,
       onAssignCourse: PropTypes.func.isRequired,
+      onStatusUpdate: PropTypes.func.isRequired,
     };
+    
     
 
 
@@ -335,41 +346,43 @@ export default function CourseTracker() {
   const [expandedId, setExpandedId] = useState(null);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [coursesAssigned, setCoursesAssigned] = useState(0);
   const itemsPerPage = 5;
 
+  const fetchLearnersData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`
+      );
+      const data = await response.json();
+      console.log(data);
+      const formattedLearners = data.employees.map(item => ({
+        emp_id: item.emp_id,
+        name: item.emp_name || item.emp_id,
+        avatar: item.profile_image?.data
+          ? `data:image/jpeg;base64,${arrayBufferToBase64(item.profile_image.data)}`
+          : "/placeholder.svg",
+        coursesAssigned: item.courses_assigned,
+        availableFrom: new Date(item.availablefrom).toLocaleDateString(),
+        dailyBandwidth: item.dailyband,
+        weekendAvailability: item.availableonweekend === 1 ? "Yes" : "No",
+        status: item.status === "0" ? "Not Assigned" : item.status,
+        requestid: requestId,
+      }));
+
+      setLearners(formattedLearners);
+    } catch (error) {
+      console.error("Error fetching learners:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLearnersData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`
-        );
-        const data = await response.json();
-        console.log(data);
-        const formattedLearners = data.employees.map(item => ({
-          emp_id: item.emp_id,
-          name: item.emp_name || item.emp_id,
-          avatar: item.profile_image?.data
-            ? `data:image/jpeg;base64,${arrayBufferToBase64(item.profile_image.data)}`
-            : "/placeholder.svg",
-          coursesAssigned: item.courses_assigned,
-          availableFrom: new Date(item.availablefrom).toLocaleDateString(),
-          dailyBandwidth: item.dailyband,
-          weekendAvailability: item.availableonweekend === 1 ? "Yes" : "No",
-          status: item.status === "0" ? "Not Assigned" : item.status,
-          requestid: requestId,
-        }));
-
-        setLearners(formattedLearners);
-      } catch (error) {
-        console.error("Error fetching learners:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchLearnersData();
   }, [requestId]);
+
 
   const totalPages = Math.ceil(learners.length / itemsPerPage);
   const currentItems = learners.slice(
@@ -382,7 +395,20 @@ export default function CourseTracker() {
       prev.includes(empId) ? prev.filter(id => id !== empId) : [...prev, empId]
     );
   };
-
+  const handleAssignCourse = (empId, coursesAssigned) => {
+  console.log(empId, coursesAssigned,"Initiate Learning Details Page");
+    setSelectedEmployees([empId]);
+   
+    setCoursesAssigned(coursesAssigned); // Set the coursesAssigned state
+    setShowAssignModal(true);
+  };
+  const handleModalClose = () => {
+    
+    setShowAssignModal(false);
+    setSelectedEmployees([]);
+    //fetchLearnersData(); // Reload the parent component
+    
+  };
   return (
     <Box sx={{
       backgroundColor: "#FFFFFF",
@@ -397,7 +423,7 @@ export default function CourseTracker() {
           <HeaderButton variant="outlined">Send Reminder</HeaderButton>
           <HeaderButton
             variant="outlined"
-            onClick={() => setShowAssignModal(true)}
+            onClick={() => handleAssignCourse(selectedEmployees[0], coursesAssigned)}
             disabled={selectedEmployees.length === 0}
           >
             Assign Course ({selectedEmployees.length})
@@ -437,10 +463,8 @@ export default function CourseTracker() {
                       setExpandedId(prev => prev === id ? null : id)
                     }
                     onSelect={() => handleSelectEmployee(row.emp_id)}
-                    onAssignCourse={(id) => {
-                      setSelectedEmployees([id]);
-                      setShowAssignModal(true);
-                    }}
+                     onAssignCourse={handleAssignCourse}
+                    onStatusUpdate={fetchLearnersData} 
                   />
                 ))}
               </TableBody>
@@ -477,15 +501,15 @@ export default function CourseTracker() {
         </>
       )}
 
-      <AssignCourseModal
-        open={showAssignModal}
-        onClose={() => {
-          setShowAssignModal(false);
-          setSelectedEmployees([]);
-        }}
-        employeeIds={selectedEmployees}
-        requestId={requestId}
-      />
+<AssignCourseModal
+  open={showAssignModal}
+  onClose={handleModalClose}
+  employeeIds={selectedEmployees}
+  requestId={requestId}
+  coursesAssigned={coursesAssigned}
+  
+/>
+
     </Box>
   );
 }
