@@ -26,10 +26,10 @@ const AdminContainer = () => {
     mainContent: {
       flex: 'auto',
       boxSizing: 'border-box',
-      padding: '4px 22px 0 0px',
-      marginLeft: '-20px',
+      padding: '2px 20px 0 30px',
+     
       marginright: '0',
-      maxHeight: '100vh',
+      marginBottom: '50px',
       maxWidth: '100%',
 
     }

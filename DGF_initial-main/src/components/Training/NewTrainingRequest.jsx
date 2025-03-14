@@ -1036,10 +1036,10 @@ useEffect(() => {
             minWidth: "100%",
             marginLeft: "-42px",
             boxShadow: "none",
-            marginBottom: "50px",
+            marginBottom:"50px"
           }}
         >
-          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem", marginTop: "1rem" }}>
+          <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem",marginTop:"1rem" }}>
             Learning Request Details
           </Typography>
 
@@ -1128,7 +1128,7 @@ useEffect(() => {
                     color: "#4F4949",
                   }}
                 >
-                  Department/Group <span className="required">*</span>
+                  Designation <span className="required">*</span>
                 </Typography>
                 <Select
                   variant="outlined"
@@ -1159,7 +1159,7 @@ useEffect(() => {
                         fontFamily: "Poppins",
                       }}
                     >
-                      Select Department/Group
+                      Select Designation
                     </em>
                   </MenuItem>
                   {formData.sources.map((source) => (
@@ -1232,135 +1232,27 @@ useEffect(() => {
             Skilling For
           </Typography>
           <FormControl component="fieldset" style={{ marginBottom: "0.5rem" }}>
-          <RadioGroup
-
-row
-
-name="trainingPurpose"
-
-value={formData.trainingPurpose}
-
-onChange={(e) => {
-
-  // Only allow changes if role_id is 8 or 4
-
-  if (user.role_id === 8 || user.role_id === 4) {
-
-    handleChange(e);
-
-  }
-
-}}
->
-
-{/* Prospect Radio Button */}
-<FormControlLabel
-
-  value="prospect"
-
-  control={
-<CustomRadio
-
-      sx={{
-
-        "& .MuiSvgIcon-root": {
-
-          // Lighten the circle only for "Prospect" when disabled and not selected
-
-          color:
-
-            user.role_id !== 8 && user.role_id !== 4 && formData.trainingPurpose !== "prospect"
-
-              ? "#D3D3D3" // Disabled color
-
-              : "#707070", // Normal color
-
-        },
-
-      }}
-
-    />
-
-  }
-
-  label={
-<Typography
-
-      className="subheader"
-
-      style={{
-
-        fontWeight: "600",
-
-        color:
-
-          formData.trainingPurpose === "prospect" || user.role_id === 8 || user.role_id === 4
-
-            ? "#000000" // Normal color for selected or authorized role
-
-            : "#D3D3D3", // Lightened color when disabled
-
-      }}
->
-
-      Prospect
-</Typography>
-
-  }
-
-  disabled={user.role_id !== 8 && user.role_id !== 4} // Disable if role is not 8 or 4
-
-/>
-
-{/* Existing Project Radio Button */}
-<FormControlLabel
-
-  value="project"
-
-  style={{ marginLeft: "20px" }}
-
-  control={
-<CustomRadio
-
-      sx={{
-
-        "& .MuiSvgIcon-root": {
-
-          color: "#707070", // Keep the color of the circle for "Existing Project" unchanged
-
-        },
-
-      }}
-
-    />
-
-  }
-
-  label={
-<Typography
-
-      className="project"
-
-      style={{
-
-        fontWeight: "600",
-
-        color: "#000000", // Keep text color normal for "Existing Project"
-
-      }}
->
-
-      Existing Project
-</Typography>
-
-  }
-
-  disabled={false} // "Existing Project" is always enabled
-
-/>
-</RadioGroup>
-
-
+            <RadioGroup row name="trainingPurpose" value={formData.trainingPurpose} onChange={handleChange}>
+              <FormControlLabel
+                value="prospect"
+                control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
+                label={
+                  <Typography className="subheader" style={{ fontWeight: "600" }}>
+                    Prospect
+                  </Typography>
+                }
+              />
+              <FormControlLabel
+                value="project"
+                style={{ marginLeft: "20px" }}
+                control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
+                label={
+                  <Typography className="project" style={{ fontWeight: "600" }}>
+                   Existing Project
+                  </Typography>
+                }
+              />
+            </RadioGroup>
           </FormControl>
           {formData.trainingPurpose === "prospect" ? (
             <Grid container spacing={5}>
@@ -1368,8 +1260,53 @@ onChange={(e) => {
                 <FormControl
                   fullWidth
                   style={{
+                    // flexBasis: "30%",
+                    // minWidth: "250px",
                     display: "flex",
-                    marginRight: "0.3rem",
+                    marginLeft: "0", // Remove unnecessary left margin
+                    marginRight: "0.6rem",
+                  }}
+                >
+                  <Typography
+                    className="subheader"
+                    style={{
+                      display: "inline",
+                      marginBottom: "0.5rem",
+                      color: "#4F4949",
+                    }}
+                  >
+                    Prospect Name <span className="required">*</span>
+                  </Typography>
+                  <Tooltip
+                    title={formData.prospectNameErrorMessage}
+                    open={formData.prospectNameError}
+                    placement="bottom-end"
+                    arrow
+                  >
+                    <TextField
+                      variant="outlined"
+                      placeholder="Enter Prospect"
+                      name="prospectName"
+                      value={formData.prospectName}
+                      onChange={handleChange}
+                      error={formData.prospectNameError}
+                      InputProps={{
+                        style: { fontSize: "12px" },
+                      }}
+                    />
+                  </Tooltip>
+                </FormControl>
+              </Grid>
+
+              <Grid size={4}>
+                <FormControl
+                  fullWidth
+                  style={{
+                    // flexBasis: "30%",
+                    // minWidth: "250px",
+                    display: "flex",
+                    // marginLeft: "20px", // Remove unnecessary left margin
+                    marginRight: "0.3rem", // Add right margin to separate form controls
                   }}
                 >
                   <Typography
@@ -1404,84 +1341,6 @@ onChange={(e) => {
                       </em>
                     </MenuItem>
                     {formData.services.map((service) => (
-                                        <MenuItem key={service.id} value={service.id} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                                          {service.service_name}
-                                        </MenuItem>
-                                      ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid size={4}>
-                <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
-                  <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
-                    Project Name <span className="required">*</span>
-                  </Typography>
-                  
-                  <Autocomplete
-                    options={formData.projects}
-                    getOptionLabel={(option) => option.ProjectName}
-                    value={formData.projects.find((project) => project.ProjectID === formData.selectedProject) || null}
-                    onChange={(event, value) =>
-                      setFormData({
-                        ...formData,
-                        selectedProject: value ? value.ProjectID : "",
-                      })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder="Search Projects"
-                        style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { fontSize: "12px" },
-                        }}
-                      />
-                    )}
-                    renderOption={(props, option) => (
-                      <li {...props} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                        {option.ProjectName}
-                      </li>
-                    )}
-                  />
-                </FormControl>
-              </Grid>
-            </Grid>
-          ) : (
-            <Grid container spacing={5}>
-              <Grid item size={4}>
-                <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.3rem" }}>
-                  <Typography
-                    className="subheader"
-                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
-                  >
-                    Service Division <span className="required">*</span>
-                  </Typography>
-                  <Select
-                    variant="outlined"
-                    defaultValue=""
-                    name="selectedServiceDivision"
-                    value={formData.selectedServiceDivision}
-                    onChange={handleChange}
-                    displayEmpty
-                    style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
-                  >
-                    <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-                      <em
-                        style={{
-                          height: "30px",
-                          opacity: "0.75",
-                          fontStyle: "normal",
-                          width: "274px",
-                          fontFamily: "Poppins",
-                        }}
-                      >
-                        Select Service Division
-                      </em>
-                    </MenuItem>
-                    {formData.services.map((service) => (
                       <MenuItem
                         key={service.id}
                         value={service.id}
@@ -1493,62 +1352,83 @@ onChange={(e) => {
                   </Select>
                 </FormControl>
               </Grid>
-
-              <Grid item size={4}>
-                <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
-                  <Typography
-                    className="subheader"
-                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
-                  >
-                    Project Name <span className="required">*</span>
-                  </Typography>
-                  <Select
-                    variant="outlined"
-                    name="prospectName"
-                    value={formData.selectedProject}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        selectedProject: e.target.value === formData.selectedProject ? "" : e.target.value,
-                      })
-                    }
-                    displayEmpty
-                    style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
-                  >
-                    <MenuItem
-                      disabled
-                      value=""
+            </Grid>
+          ) : (
+            
+            <Grid container spacing={5}>
+            <Grid item size={4}>
+              <FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.3rem" }}>
+                <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
+                  Service Division <span className="required">*</span>
+                </Typography>
+                <Select
+                  variant="outlined"
+                  defaultValue=""
+                  name="selectedServiceDivision"
+                  value={formData.selectedServiceDivision}
+                  onChange={handleChange}
+                  displayEmpty
+                  style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
+                >
+                  <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                    <em
                       style={{
-                        fontSize: "12px",
-                        padding: "4px 4px 4px 6px",
+                        height: "30px",
+                        opacity: "0.75",
+                        fontStyle: "normal",
+                        width: "274px",
                         fontFamily: "Poppins",
-                        
                       }}
                     >
-                      <em
-                        style={{
-                          height: "30px",
-                          opacity: "0.75",
-                          fontStyle: "normal",
-                          fontFamily: "Poppins",
-                        }}
-                      >
-                        Select Project
-                      </em>
+                      Select Service Division
+                    </em>
+                  </MenuItem>
+                  {formData.services.map((service) => (
+                    <MenuItem key={service.id} value={service.id} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                      {service.service_name}
                     </MenuItem>
-                    {formData.projects.map((project) => (
-                      <MenuItem
-                        key={project.ProjectID}
-                        value={project.ProjectID}
-                        style={{ fontSize: "10px", padding: "4px 4px 4px 6px", width: "100px" }}
-                      >
-                        {project.ProjectName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
+          
+            <Grid item size={4}>
+<FormControl fullWidth className="formControl" style={{ display: "flex", marginRight: "0.6rem" }}>
+  <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
+    Project Name <span className="required">*</span>
+  </Typography>
+  
+  <Autocomplete
+    options={formData.projects}
+    getOptionLabel={(option) => option.ProjectName}
+    value={formData.projects.find((project) => project.ProjectID === formData.selectedProject) || null}
+    onChange={(event, value) =>
+      setFormData({
+        ...formData,
+        selectedProject: value ? value.ProjectID : "",
+      })
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        variant="outlined"
+        placeholder="Search Projects"
+        style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
+        InputProps={{
+          ...params.InputProps,
+          style: { fontSize: "12px" },
+        }}
+      />
+    )}
+    renderOption={(props, option) => (
+      <li {...props} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+        {option.ProjectName}
+      </li>
+    )}
+  />
+</FormControl>
+            </Grid>
+          </Grid>
           )}
           <Typography className="simpleHeading" style={{ fontWeight: "600", marginBottom: "1rem", paddingTop: "2rem" }}>
             Learning Details
@@ -1580,7 +1460,6 @@ onChange={(e) => {
                       letterSpacing: "-0.5px", // Reduce letter spacing
                     
                       width: "160px",
-                    
                       "& input": {
                         fontSize: "13px",
                         color: formData.selectedDate ? "#4F4949" : "#787878", // Change color when a date is selected
@@ -1664,7 +1543,7 @@ onChange={(e) => {
                       color: "#4F4949",
                     }}
                   >
-                    Primary Skill
+                   Primary Skill
                     <span className="required">*</span>
                   </Typography>
                   <Select
@@ -1674,10 +1553,10 @@ onChange={(e) => {
                     SelectDisplayProps={{ style: { fontSize: "12px" } }}
                     onChange={(e) => {
                       const selectedSkills = e.target.value
-                      setFormData({
-                        ...formData,
-                        selectedPrimarySkill: selectedSkills,
-                      })
+                        setFormData({
+                          ...formData,
+                          selectedPrimarySkill: selectedSkills,
+                        })
                     }}
                     style={{
                       height: "30px",
@@ -1688,7 +1567,7 @@ onChange={(e) => {
                   >
                     <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
                       <em style={{ height: "30px", opacity: "1", fontStyle: "normal", fontFamily: "Poppins" }}>
-                        Select rimary Skill
+                        Select Primary Skill
                       </em>
                     </MenuItem>
                     {formData.primarySkills.map((skill) => (
@@ -1708,7 +1587,7 @@ onChange={(e) => {
 
           <Grid container spacing={5} marginTop="1rem">
             {/* Other Skills Field */}
-            <Grid item size={4}>
+            <Grid item size={4} style={{ maxWidth: "400px"}}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
@@ -1735,7 +1614,7 @@ onChange={(e) => {
             </Grid>
 
             {/* Completion Criteria Field */}
-            <Grid item size={4}>
+            <Grid item size={4} style={{ maxWidth: "400px"}}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
@@ -1762,13 +1641,10 @@ onChange={(e) => {
             </Grid>
 
             {/* Comments Field */}
-            <Grid item size={4}>
+            <Grid item size={4} style={{ maxWidth: "400px"}}>
               <FormControl fullWidth>
-                <Typography
-                  className="subheader"
-                  style={{ marginBottom: "0.5rem", color: "#4F4949", maxWidth: "400px", display: "inline" }}
-                >
-                  Desired Impact<span className="required">*</span>
+                <Typography className="subheader" style={{ marginBottom: "0.5rem", color: "#4F4949" , maxWidth: "400px", display:"inline"}}>
+                  Desired Impact<span className="required" >*</span>
                 </Typography>
                 <ReactQuill
                   value={formData.comment}
@@ -1821,7 +1697,28 @@ onChange={(e) => {
               </RadioGroup>
             )}
           </FormControl>
-
+          {/* {formData.employeeDetails === "open" && role === "CapDev" && (
+  <FormControl fullWidth className="formControl">
+    <Typography className="subheader">
+      Employee Level <span className="required">*</span>
+    </Typography>
+    <Select
+      variant="outlined"
+      name="employeeLevel"
+      value={formData.selectedEmployeeLevel}
+      onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
+      style={{ height: "30px", fontSize: "12px" }}
+      multiple // Allow multiple selections
+    >
+      <MenuItem value=""><em>Select Employee Level</em></MenuItem>
+      {formData.employeeLevels.map(level => (
+        <MenuItem key={level.id} value={level.id}>
+          {level.job_title}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+)} */}
           <Grid container spacing={5} style={{ gap: "10px" }}>
             {/* Employee Select Section */}
             <Grid item size={4}>
@@ -1834,100 +1731,100 @@ onChange={(e) => {
                 </Typography>
 
                 <Autocomplete
-                  options={searchResults}
-                  getOptionLabel={(option) => option.name || ""}
-                  getOptionDisabled={(option) =>
-                    formData.employeeDetails === "open"
-                      ? option.totalPrimarySkills >= 1
-                      : option.totalPrimarySkills >= 3
-                  }
-                  onInputChange={handleEmployeeSearch}
-                  onChange={(event, value) => {
-                    if (
-                      (formData.employeeDetails === "open" && value && value.totalPrimarySkills < 1) ||
-                      (formData.employeeDetails === "add" && value && value.totalPrimarySkills < 3)
-                    ) {
-                      setSelectedEmployee(value)
-                    }
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      placeholder="Search Employees"
-                      helperText={
-                        formData.employeeDetails === "open"
-                          ? "Employees with 1+ ongoing learnings cannot be selected"
-                          : "Employees with 3+ ongoing learnings cannot be selected"
-                      }
-                      InputProps={{
-                        ...params.InputProps,
-                        style: { fontSize: "12.5px" },
-                      }}
-                    />
-                  )}
-                  renderOption={(props, option) => (
-                    <li
-                      {...props}
-                      style={{
-                        opacity:
-                          formData.employeeDetails === "open"
-                            ? option.totalPrimarySkills >= 1
-                              ? 0.5
-                              : 1
-                            : option.totalPrimarySkills >= 3
-                              ? 0.5
-                              : 1,
-                        pointerEvents:
-                          formData.employeeDetails === "open"
-                            ? option.totalPrimarySkills >= 1
-                              ? "none"
-                              : "auto"
-                            : option.totalPrimarySkills >= 3
-                              ? "none"
-                              : "auto",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "8px",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
-                        <span>{option.name}</span>
-                      </div>
-
-                      {option.totalPrimarySkills > 0 && (
-                        <span
-                          style={{
-                            backgroundColor:
-                              option.totalPrimarySkills >= 3
-                                ? "#ffebee"
-                                : option.totalPrimarySkills === 1
-                                  ? "#fbfbd3"
-                                  : "#fbfbd3",
-                            borderRadius: "12px",
-                            padding: "4px 8px",
-                            fontSize: "10px",
-                            color: option.totalPrimarySkills >= 3 ? "#c62828" : "#000000",
-                          }}
-                        >
-                          {option.totalPrimarySkills} learnings
-                        </span>
-                      )}
-                    </li>
-                  )}
-                  PaperComponent={(props) => (
-                    <Paper
-                      {...props}
-                      style={{
-                        maxHeight: 300,
-                        fontSize: "12px",
-                      }}
-                    />
-                  )}
-                />
+  options={searchResults}
+  getOptionLabel={(option) => option.name || ""}
+  getOptionDisabled={(option) =>
+    formData.employeeDetails === "open"
+      ? option.totalPrimarySkills >= 1
+      : option.totalPrimarySkills >= 3
+  }
+  onInputChange={handleEmployeeSearch}
+  onChange={(event, value) => {
+    if (
+      (formData.employeeDetails === "open" && value && value.totalPrimarySkills < 1) ||
+      (formData.employeeDetails === "add" && value && value.totalPrimarySkills < 3)
+    ) {
+      setSelectedEmployee(value);
+    }
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      placeholder="Search Employees"
+      helperText={
+        formData.employeeDetails === "open"
+          ? "Employees with 1+ ongoing learnings cannot be selected"
+          : "Employees with 3+ ongoing learnings cannot be selected"
+      }
+      InputProps={{
+        ...params.InputProps,
+        style: { fontSize: "12.5px" },
+      }}
+    />
+  )}
+  renderOption={(props, option) => (
+    <li
+      {...props}
+      style={{
+        opacity:
+          formData.employeeDetails === "open"
+            ? option.totalPrimarySkills >= 1
+              ? 0.5
+              : 1
+            : option.totalPrimarySkills >= 3
+            ? 0.5
+            : 1,
+        pointerEvents:
+          formData.employeeDetails === "open"
+            ? option.totalPrimarySkills >= 1
+              ? "none"
+              : "auto"
+            : option.totalPrimarySkills >= 3
+            ? "none"
+            : "auto",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "8px",
+        fontSize: "12px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <Avatar src={option.profileImage} style={{ width: 24, height: 24 }} />
+        <span>{option.name}</span>
+      </div>
+ 
+      {option.totalPrimarySkills > 0 && (
+        <span
+          style={{
+            backgroundColor:
+              option.totalPrimarySkills >= 3
+                ? "#ffebee"
+                : option.totalPrimarySkills === 1
+                ? "#fbfbd3"
+                : "#fbfbd3",
+            borderRadius: "12px",
+            padding: "4px 8px",
+            fontSize: "10px",
+            color: option.totalPrimarySkills >= 3 ? "#c62828" : "#000000",
+          }}
+        >
+          {option.totalPrimarySkills} learnings
+        </span>
+      )}
+    </li>
+  )}
+  PaperComponent={(props) => (
+    <Paper
+      {...props}
+      style={{
+        maxHeight: 300,
+        fontSize: "12px",
+      }}
+    />
+  )}
+/>
               </FormControl>
             </Grid>
 
@@ -2006,31 +1903,31 @@ onChange={(e) => {
             {/* Employee Level Section */}
             {formData.employeeDetails === "open" && role === "CapDev" && (
               <Grid item size={4}>
-                <FormControl fullWidth className="formControl">
-                              <Typography
-                                className="subheader"
-                                style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
-                              >
-                                Employee Level <span className="required">*</span>
-                              </Typography>
-                              <Select
-                                variant="outlined"
-                                name="employeeLevel"
-                                value={formData.selectedEmployeeLevel}
-                                onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
-                                style={{ height: "30px", fontSize: "12px" }}
-                                multiple // Allow multiple selections
-                              >
-                                <MenuItem value="">
-                                  <em>Select Employee Level</em>
-                                </MenuItem>
-                                {formData.employeeLevels.map((level) => (
-                                  <MenuItem key={level.Designation_Name} value={level.Designation_Name}>
-                                    {level.Designation_Name}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
+            <FormControl fullWidth className="formControl">
+              <Typography
+                className="subheader"
+                style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
+              >
+                Employee Level <span className="required">*</span>
+              </Typography>
+              <Select
+                variant="outlined"
+                name="employeeLevel"
+                value={formData.selectedEmployeeLevel}
+                onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
+                style={{ height: "30px", fontSize: "12px" }}
+                multiple // Allow multiple selections
+              >
+                <MenuItem value="">
+                  <em>Select Employee Level</em>
+                </MenuItem>
+                {formData.employeeLevels.map((level) => (
+                  <MenuItem key={level.Designation_Name} value={level.Designation_Name}>
+                    {level.Designation_Name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
               </Grid>
             )}
 
@@ -2082,9 +1979,9 @@ onChange={(e) => {
                               placeholder="Search Employees"
                               value={formData.searchQuery}
                               onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
-                              style={{ fontSize: "12px", width: "200px", marginTop: "16px" }}
+                              style={{ fontSize: "12px", width: "200px",marginTop:"16px" }}
                               InputProps={{
-                                style: { fontSize: "12.5px", color: "#4F4949" },
+                                style: { fontSize: "12.5px",color: "#4F4949" },
                               }}
                             />
                           </Box>
@@ -2106,7 +2003,7 @@ onChange={(e) => {
                               width: "160px",
                               "& input": {
                                 fontSize: "14px",
-                                color: "#4F4949",
+                                color: "#4F4949"
                               },
                             }}
                           />
@@ -2127,7 +2024,7 @@ onChange={(e) => {
                               fontFamily: "Poppins",
                               letterSpacing: "-0.5px",
                               padding: "5px",
-                              color: "#4F4949",
+                              color: "#4F4949"
                             }}
                           >
                             <MenuItem value="" disabled>
@@ -2150,7 +2047,7 @@ onChange={(e) => {
                             }
                           >
                             <FormControlLabel value="Yes" control={<Radio size="small" color=" " />} label="Yes" />
-                            <FormControlLabel value="No" control={<Radio size="small" color=" " />} label="No" />
+                            <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
                           </RadioGroup>
                         </TableCell>
                         <TableCell>
@@ -2176,192 +2073,165 @@ onChange={(e) => {
                       </TableRow>
                     </TableHead>
 
-                    <TableBody sx={{ borderBottom: "1px solid #EAEAEA" }}>
-                      {formData.employees
-                        .filter((employee) => employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()))
-                        .slice(
-                          formData.page * formData.rowsPerPage,
-                          formData.page * formData.rowsPerPage + formData.rowsPerPage,
-                        )
-                        .map((employee) => {
-                          const isExpanded = expandedEmpId === employee.id
-                          const hasActiveLearning = employee.total_requests > 0
-
-                          return (
-                            <React.Fragment key={employee.uniqueKey}>
-                              <TableRow
-                                sx={{
-                                  "& > *": { borderBottom: isExpanded ? "unset" : undefined },
-                                  borderBottom: "1px solid #EAEAEA",
-                                }}
-                              >
-                                <TableCell>
-                                  {employee.id}
-                                  {hasActiveLearning && (
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        mt: 0.5,
-                                        backgroundColor: "#FFFFE6",
-                                      }}
-                                    >
-                                      <IconButton
-                                        size="small"
-                                        onClick={() => handleToggleEmpExpand(employee.id)}
-                                        sx={{ padding: "0", marginRight: "4px" }}
-                                      >
-                                        {isExpanded ? (
-                                          <KeyboardArrowUp fontSize="small" />
-                                        ) : (
-                                          <KeyboardArrowDown
-                                            fontSize="small"
-                                            sx={{ border: "1px solid black", borderRadius: "50%" }}
-                                          />
-                                        )}
-                                      </IconButton>
-                                      <Typography
-                                        variant="caption"
-                                        sx={{ color: "#000000", fontWeight: 500, fontSize: "10px !important" }}
-                                      >
-                                        {employee.total_requests} learning is in progress
-                                      </Typography>
-                                    </Box>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "#4F4949" }}>
-                                    <Avatar src={employee.profileImage} sx={{ width: 32, height: 32 }} />
-                                    {employee.name}
-                                  </Box>
-                                </TableCell>
-                                <TableCell>
-                                  <TextField
-                                    type="date"
-                                    value={employee.availableFrom || ""}
-                                    onChange={(e) => updateEmployee(employee.id, "availableFrom", e.target.value)}
-                                    size="small"
-                                    inputProps={{
-                                      min: new Date().toISOString().split("T")[0],
-                                    }}
-                                    sx={{
-                                      fontSize: "10px",
-                                      fontFamily: "Poppins",
-                                      letterSpacing: "-0.5px",
-                                      padding: "5px",
-                                      width: "160px",
-                                      "& input": { fontSize: "14px", color: "#4F4949" },
-                                    }}
-                                  />
-                                </TableCell>
-                                <TableCell>
-                                  <Select
-                                    value={employee.bandwidth || ""}
-                                    onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
-                                    size="small"
-                                    displayEmpty
-                                    sx={{
-                                      fontSize: "10px",
-                                      fontFamily: "Poppins",
-                                      letterSpacing: "-0.5px",
-                                      padding: "5px",
-                                      color: "#4F4949",
-                                    }}
-                                  >
-                                    <MenuItem value="" disabled>
-                                      Select
-                                    </MenuItem>
-                                    <MenuItem value="2 Hours">2 Hours</MenuItem>
-                                    <MenuItem value="4 Hours">4 Hours</MenuItem>
-                                    <MenuItem value="6 Hours">6 Hours</MenuItem>
-                                    <MenuItem value="Full Day">Full Day</MenuItem>
-                                  </Select>
-                                </TableCell>
-                                <TableCell>
-                                  <RadioGroup
-                                    row
-                                    value={employee.weekend || ""}
-                                    onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
-                                  >
-                                    <FormControlLabel
-                                      value="Yes"
-                                      control={<Radio size="small" color=" " />}
-                                      label="Yes"
-                                    />
-                                    <FormControlLabel
-                                      value="No"
-                                      control={<Radio size="small" color=" " />}
-                                      label="No"
-                                    />
-                                  </RadioGroup>
-                                </TableCell>
-                                <TableCell>
-                                  <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
-                                    <CloseIcon />
-                                  </IconButton>
-                                </TableCell>
-                              </TableRow>
-
-                              {isExpanded && hasActiveLearning && (
-                                <TableRow sx={{ backgroundColor: "#FFFFE6" }}>
-                                  <TableCell colSpan={6} style={{ padding: 0 }}>
-                                    <Box sx={{ padding: "8px 16px 16px 40px" }}>
-                                      <Grid container spacing={4} justifyContent="center">
-                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
-                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
-                                            Req No:
-                                          </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                            #{employee.requests?.[0]?.requestid || "231"}
-                                          </Typography>
-                                        </Grid>
-                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
-                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
-                                            Project
-                                          </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                            {employee.requests?.[0]?.project_name || "Staffing Nation"}
-                                          </Typography>
-                                        </Grid>
-                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
-                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
-                                            Objective
-                                          </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                            {employee.requests?.[0]?.training_objective || "Upskilling"}
-                                          </Typography>
-                                        </Grid>
-                                        <Grid item xs={2} sx={{ textAlign: "center" }}>
-                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
-                                            Tech Stack
-                                          </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                            {employee.requests?.[0]?.tech_stacks || "React"}
-                                          </Typography>
-                                        </Grid>
-                                        <Grid item xs={4} sx={{ textAlign: "center" }}>
-                                          <Typography variant="caption" sx={{ color: "#4F4949" }}>
-                                            Requested on
-                                          </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                            {employee.requests?.[0]?.createddate
-                                              ? new Date(employee.requests[0].createddate).toLocaleDateString("en-US", {
-                                                  year: "numeric",
-                                                  month: "short",
-                                                  day: "numeric",
-                                                })
-                                              : "Jan 20, 2025"}
-                                          </Typography>
-                                        </Grid>
-                                      </Grid>
-                                    </Box>
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </React.Fragment>
-                          )
-                        })}
-                    </TableBody>
+                    <TableBody sx={{borderBottom:"1px solid #EAEAEA"}}>
+  {formData.employees
+    .filter((employee) => employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()))
+    .slice(
+      formData.page * formData.rowsPerPage,
+      formData.page * formData.rowsPerPage + formData.rowsPerPage,
+    )
+    .map((employee) => {
+      const isExpanded = expandedEmpId === employee.id
+      const hasActiveLearning = employee.total_requests > 0
+ 
+      return (
+        <React.Fragment key={employee.uniqueKey}>
+          <TableRow sx={{ "& > *": { borderBottom: isExpanded ? "unset" : undefined }, borderBottom: "1px solid #EAEAEA" }}>
+            <TableCell>
+              {employee.id}
+              {hasActiveLearning && (
+                <Box sx={{ display: "flex", alignItems: "center", mt: 0.5, backgroundColor: "#FFFFE6" }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleToggleEmpExpand(employee.id)}
+                    sx={{ padding: "0", marginRight: "4px" }}
+                  >
+                    {isExpanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" sx={{ border: "1px solid black", borderRadius: "50%" }} />}
+                  </IconButton>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#000000", fontWeight: 500, fontSize: "10px !important" }}
+                  >
+                    {employee.total_requests} learning is in progress
+                  </Typography>
+                </Box>
+              )}
+            </TableCell>
+            <TableCell>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 ,color: "#4F4949"}}>
+                <Avatar src={employee.profileImage} sx={{ width: 32, height: 32 }} />
+                {employee.name}
+              </Box>
+            </TableCell>
+            <TableCell>
+              <TextField
+                type="date"
+                value={employee.availableFrom || ""}
+                onChange={(e) => updateEmployee(employee.id, "availableFrom", e.target.value)}
+                size="small"
+                inputProps={{
+                  min: new Date().toISOString().split("T")[0],
+                }}
+                sx={{
+                  fontSize: "10px",
+                  fontFamily: "Poppins",
+                  letterSpacing: "-0.5px",
+                  padding: "5px",
+                  width: "160px",
+                  "& input": { fontSize: "14px",color: "#4F4949" },
+                }}
+              />
+            </TableCell>
+            <TableCell>
+              <Select
+                value={employee.bandwidth || ""}
+                onChange={(e) => updateEmployee(employee.id, "bandwidth", e.target.value)}
+                size="small"
+                displayEmpty
+                sx={{
+                  fontSize: "10px",
+                  fontFamily: "Poppins",
+                  letterSpacing: "-0.5px",
+                  padding: "5px",
+                  color: "#4F4949"
+                }}
+              >
+                <MenuItem value="" disabled>
+                  Select
+                </MenuItem>
+                <MenuItem value="2 Hours">2 Hours</MenuItem>
+                <MenuItem value="4 Hours">4 Hours</MenuItem>
+                <MenuItem value="6 Hours">6 Hours</MenuItem>
+                <MenuItem value="Full Day">Full Day</MenuItem>
+              </Select>
+            </TableCell>
+            <TableCell>
+              <RadioGroup
+                row
+                value={employee.weekend || ""}
+                onChange={(e) => updateEmployee(employee.id, "weekend", e.target.value)}
+              >
+                <FormControlLabel value="Yes" control={<Radio size="small" color=" "/>} label="Yes" />
+                <FormControlLabel value="No" control={<Radio size="small" color=" "/>} label="No" />
+              </RadioGroup>
+            </TableCell>
+            <TableCell>
+              <IconButton color="error" onClick={() => removeEmployee(employee.id)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </TableCell>
+          </TableRow>
+ 
+          {isExpanded && hasActiveLearning && (
+  <TableRow sx={{ backgroundColor: "#FFFFE6" }}>
+    <TableCell colSpan={6} style={{ padding: 0 }}>
+      <Box sx={{ padding: "8px 16px 16px 40px" }}>
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={2} sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ color: "#4F4949" }}>
+              Req No:
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              #{employee.requests?.[0]?.requestid || "231"}
+            </Typography>
+          </Grid>
+          <Grid item xs={2} sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ color: "#4F4949" }}>
+              Project
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              {employee.requests?.[0]?.project_name || "Staffing Nation"}
+            </Typography>
+          </Grid>
+          <Grid item xs={2} sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ color: "#4F4949" }}>
+              Objective
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              {employee.requests?.[0]?.training_objective || "Upskilling"}
+            </Typography>
+          </Grid>
+          <Grid item xs={2} sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ color: "#4F4949" }}>
+              Tech Stack
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              {employee.requests?.[0]?.tech_stacks || "React"}
+            </Typography>
+          </Grid>
+          <Grid item xs={4} sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ color: "#4F4949" }}>
+              Requested on
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              {employee.requests?.[0]?.createddate
+                ? new Date(employee.requests[0].createddate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : "Jan 20, 2025"}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
+    </TableCell>
+  </TableRow>
+)}
+        </React.Fragment>
+      )
+    })}
+</TableBody>
                   </Table>
                   <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
@@ -2450,6 +2320,19 @@ onChange={(e) => {
         </Paper>
       </Paper>
 
+      {/* <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>  */}
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}
@@ -2473,7 +2356,7 @@ onChange={(e) => {
         >
           <CheckCircleIcon style={{ color: "green", fontSize: "3rem", marginBottom: "10px" }} />
           Request generated successfully with request number :
-          <strong style={{ fontSize: "18px", color: "#333" }}> LR {newRequestId}</strong>.
+          <strong style={{ fontSize: "18px", color: "#333" }}>LR{newRequestId}</strong>.
           <IconButton
             onClick={handleCloseDialog}
             style={{
@@ -2491,3 +2374,4 @@ onChange={(e) => {
   )
 }
 export default NewTrainingRequest
+

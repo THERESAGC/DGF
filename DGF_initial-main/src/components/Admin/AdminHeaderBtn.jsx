@@ -28,7 +28,7 @@ const AdminHeaderBtn = () => {
     <>
       <AppBar position="static" className="AdminBar">
         <Toolbar className="toolbar">
-          <Box className="box">
+          <Box className="admin">
             {[
               { text: 'Users', path: '/admin-container' },
               // { text: 'Learning Dashboard', path: '/training-dashboard' },
@@ -45,7 +45,7 @@ const AdminHeaderBtn = () => {
               </Typography>
             ))}
           </Box>
-          <Box className="box">
+          <Box className="admin">
             <Button
               variant="contained"
               color="primary"

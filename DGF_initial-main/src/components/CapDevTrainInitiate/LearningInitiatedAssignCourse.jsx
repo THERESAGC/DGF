@@ -10,6 +10,8 @@ import { useParams } from "react-router-dom";
 import { arrayBufferToBase64 } from "../../utils/ImgConveter";
 import AssignCourseModal from "./AssignCourseModal";
 import CommentsSidebar from "./CommentsSidebar";
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -214,7 +216,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                               overflow: "hidden",
                               textOverflow: "ellipsis",
                               fontSize: "10px !important",
-                              mb: 1,
+                             
                               textAlign: "left",
                               width: "200px"
                             }}>
@@ -246,13 +248,12 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                           <StatusChip>{course.status || "N/A"}</StatusChip>
                         </TableCell>
                         <TableCell>
-                          <ActionIconButton
-                            style={{height:"20px",width:"20px"}}
-                            size="small"
-                            onClick={(e) => handleMenuClick(e, course.assignment_id)}
-                          >
-                            <ArrowForward />
-                          </ActionIconButton>
+                        <IconButton
+                      
+                        onClick={(e) => handleMenuClick(e, course.assignment_id)}
+                        > 
+                        <ArrowCircleRightOutlinedIcon style={{ height: "20px", width: "20px" , paddingLeft:"0px"}}/> 
+                        </IconButton>
                           <Menu
                             anchorEl={anchorElMap[course.assignment_id]}
                             open={Boolean(anchorElMap[course.assignment_id])}
@@ -271,7 +272,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                             ))}
                           </Menu>
                           <IconButton size="small" onClick={() => handleChatIconClick(course.assignment_id)}>
-                            <ChatBubbleOutline />
+                            <ChatBubbleOutline style={{ height: "20px", width: "20px", paddingLeft:"0px" }}/>
                           </IconButton>
                            
                         </TableCell>

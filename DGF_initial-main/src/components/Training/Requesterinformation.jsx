@@ -195,7 +195,7 @@ return (
                 </Typography>
               </FormControl>
             </Grid2>
-            <Grid2 item size={4}>
+            <Grid2 item size={8}>
               <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem", display: "flex" }}>
                 <Typography className="typography-label-upper">
                   Completion Criteria:
@@ -301,6 +301,9 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             </TableContainer>
          
           </div>
+
+          <Divider style={{ margin: "2rem 5px 1rem 2px ",width:"101%"}} />
+
           <Box
             display="flex"
             flexDirection="column"

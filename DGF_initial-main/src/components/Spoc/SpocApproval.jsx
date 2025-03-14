@@ -357,7 +357,7 @@ return (
         <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
         <Box>
           <Grid2 container spacing={5} style={{ marginTop: "1rem" }}>
-            <Grid2 item size={4}>
+            <Grid2 item size={4}  style={{ maxWidth:"400px"}} >
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
                   Other Skill Information in Details:
@@ -367,7 +367,7 @@ return (
                 </Typography>
               </FormControl>
             </Grid2>
-            <Grid2 item size={4}>
+            <Grid2 item size={8}>
               <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem", display: "flex" }}>
                 <Typography className="typography-label-upper">
                   Completion Criteria:

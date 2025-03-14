@@ -19,6 +19,8 @@ import { ArrowForward } from "@mui/icons-material"
 import { styled } from "@mui/material/styles"
 import axios from "axios"
 import UserActionModal from "./UserActionModal"
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+
 
 const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   width: "22px",
@@ -125,11 +127,12 @@ export default function UserTable() {
     {user.status}
   </Typography>
 </TableCell>
-                <TableCell sx={{ fontFamily: "inherit" }}>
-                  <ArrowForwardDesign onClick={() => handleActionClick(user)}>
-                    <ArrowForward fontSize="small" />
-                  </ArrowForwardDesign>
-                </TableCell>
+
+<TableCell sx={{ fontFamily: "inherit" }}>
+  <IconButton onClick={() => handleActionClick(user)}>
+    <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+  </IconButton>
+</TableCell>
               </TableRow>
             ))}
           </TableBody>
