@@ -38,31 +38,31 @@ const handleClosePopup = () => setPopupOpen(false);
 useEffect(() => {
   const fetchData = async () => {
     try {
+      // Reset states when fetching new request data
+      setComments([]);
+      setNewMessage('');
+      setRequestDetails(null);
+      setLearners([]);
+      setUserProfiles({});
+
+      // Fetch request details
       const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestid}`);
       const requestdata = await requestResponse.json();
       setRequestDetails(requestdata);
-      console.log('Request Details:', requestdata);
-      console.log('Request IDdddd:', requestid);
-      
 
+      // Fetch learners
       const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestid}`);
       const learnerdata = await learnerResponse.json();
-      setLearners(learnerdata.employees || []);
-      console.log('Learners Data:', learnerdata);
-      setSortedLearners(learnerdata.employees || []);
-   
+      const initialLearners = learnerdata.employees || [];
+      setLearners(initialLearners);
+      setSortedLearners(initialLearners);
+
+      // Fetch comments
       const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
       const commentsdata = await commentsResponse.json();
       setComments(commentsdata);
-      console.log('Fetched Comments:', commentsdata); // Add this line to log fetched comments
 
-      // if (commentsdata.length > 0) {
-      //   const latestComment = commentsdata.reduce((latest, comment) =>
-      //     new Date(comment.created_date) > new Date(latest.created_date) ? comment : latest
-      //   );
-      //   setLatestCommentId(latestComment.comment_id);
-      // }
-
+      // Fetch user profiles for comments
       const userIds = new Set();
       commentsdata.forEach(comment => {
         if (comment.created_by) userIds.add(comment.created_by);
@@ -72,25 +72,24 @@ useEffect(() => {
       for (let userId of userIds) {
         const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
         const userData = await userResponse.json();
-        console.log(`User Data for ${userId}:`, userData);
         if (userData && userData.length > 0) {
           if (userData[0]?.profile_image?.data) {
             const base64Image = `data:image/jpeg;base64,${arrayBufferToBase64(userData[0].profile_image.data)}`;
             userData[0].profile_image = base64Image;
           }
           profiles[userId] = userData[0];
-        } else {
-          profiles[userId] = { emp_name: 'Unknown', profile_image: '/default-avatar.png' };
         }
       }
       setUserProfiles(profiles);
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   fetchData();
-}, [requestid]);
+}, [requestid]); // Runs when requestid changes
+
 
 const totalPages = Math.ceil(learners.length / itemsPerPage);
 const currentItems = sortedLearners.slice(
@@ -151,107 +150,89 @@ const handleSort = (order) => {
 const handleSubmit = async () => {
   if (!newMessage.trim()) {
     setPopupOpen(true);
-   }
-   else{
- 
-      const requestData = {
-        requestId: requestDetails?.requestid,
-        status: action,
-        roleId: roleId,
-        approverId: user.emp_id,
-      };
-    
-      const commentdata = {
-        requestid: requestDetails?.requestid,
-        comment_text: newMessage,
-        parent_comment_id:  null,
-        created_by: user.emp_id,
-        requestStatus: "Approval Requested",
-      };
-    
+    return;
+  }
+
   try {
-    // Step 1: Update the request status
+    // Prepare request data
+    const requestData = {
+      requestId: requestDetails?.requestid,
+      status: action,
+      roleId: roleId,
+      approverId: user.emp_id,
+    };
+
+    // Prepare comment data
+    const commentdata = {
+      requestid: requestDetails?.requestid,
+      comment_text: newMessage,
+      parent_comment_id: null,
+      created_by: user.emp_id,
+      requestStatus: "Approval Requested",
+    };
+
+    // Step 1: Update request status
     const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestData),
     });
- 
-    const statusData = await statusResponse.json();
-    if (statusResponse.ok) {
-      console.log("API call successful:", statusData);
-      setStatusDialogOpen(true);
-    } else {
-      console.error("Error in API call:", statusData);
-      console.log(statusData)
-      setStatusDialogOpen(false);
-      return; // Exit early if status update fails
+
+    if (!statusResponse.ok) {
+      console.error("Error in status update:", await statusResponse.json());
+      return;
     }
- 
-    // Step 2: If status is "Need Clarification" and there is a comment, add the comment
-    if (action === "needClarification" && newMessage.trim()) {
-      if (!newMessage.trim()) {
-        setPopupOpen(true);
+
+    // Step 2: Add comment
+    const commentResponse = await fetch("http://localhost:8000/api/comments/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(commentdata),
+    });
+
+    if (!commentResponse.ok) {
+      console.error("Error adding comment:", await commentResponse.json());
+      return;
     }
-    else{
-      const commentResponse = await fetch("http://localhost:8000/api/comments/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(commentdata),
-      });
- 
-      if (commentResponse.ok) {
-        console.log("Comment Added Successfully");
-        setNewMessage('');
-      } else {
-        console.error("Error adding comment:", await commentResponse.json());
-      }
-    }
-    }
- 
-    // Step 3: Send an email after updating status and adding a comment if necessary
-    try {
-      const emailResponse = await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          commentdata,
-          action: action, // "approve", "reject", "suspend", or "clarify"
-          requestid: requestDetails?.requestid,
-          requestedby: requestDetails?.requestedby,
-          requestedbyid: "swaroop.bidkar@harbingergroup.com"
-          // requestedbyid: user.email, // Assuming user.email is the requester's email
-          // internalTeamEmail: internalTeamEmail, // Email of the internal team
-          // ccEmail: ccEmail, // CC email (optional)
-        }),
-      });
- 
-      const emailData = await emailResponse.json();
-      if (emailResponse.ok) {
-        console.log("Email Sent Successfully");
-        // alert("Action completed and email sent.");
-      } else {
-        console.error("Error sending email:", emailData);
-        // alert("Error sending email.");
-      }
-    } catch (error) {
-      console.error("Error sending email:", error);
-      // alert("An error occurred while sending the email.");
-    }
- 
+
+    // Step 3: Send email
+    await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        commentdata,
+        action: action,
+        requestid: requestDetails?.requestid,
+        requestedby: requestDetails?.requestedby,
+        requestedbyid: "swaroop.bidkar@harbingergroup.com"
+      }),
+    });
+
+    // Clear states and refresh data
+    setNewMessage('');
+    setStatusDialogOpen(true);
+    
+    // Refresh comments
+    const refreshComments = await fetch(`http://localhost:8000/api/comments/${requestid}`);
+    const newComments = await refreshComments.json();
+    setComments(newComments);
+
   } catch (error) {
-    console.error("Error updating status:", error);
-    // alert("An error occurred while updating status.");
+    console.error("Submission error:", error);
   }
-} 
-  
 };
+
+// Cleanup effect
+useEffect(() => {
+  return () => {
+    setNewMessage('');
+    setComments([]);
+    setRequestDetails(null);
+    setLearners([]);
+  };
+}, []);
+  
+
 const handleCloseStatusDialog = () => {
   setStatusDialogOpen(false);
   navigate("/training-container");
@@ -276,7 +257,7 @@ return (
                   Request ID/No:
                 </Typography>
                 <Typography className="typography-value-upper">
-                #LR{requestDetails?.requestid}
+                #{requestDetails?.requestid}
                 </Typography>
               </FormControl>
             </Grid2>
@@ -557,46 +538,54 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
   <Typography>No comments available.</Typography>
 )}
 </Box>
-              <Typography style={{ fontSize: "12px", marginBottom: "1rem", color: "#4F4949" }}>
-                Take action on this training request
-              </Typography>
+<Typography style={{ fontSize: "12px", marginBottom: "1rem", color: "#4F4949" }}>
+  Take action on this training request
+</Typography>
               <FormControl component="fieldset" style={{ marginBottom: "1rem" }}>
+                {/* Update the RadioGroup with consistent styling */}
                 <RadioGroup
-                  row
-                  value={action}
-                  onChange={(e) => setAction(e.target.value)}
-                >
-                  <FormControlLabel
-                    value="approve"
-                    control={<Radio color=""/>}
-                    label={
-                      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
-                        Approve
-                      </Typography>
-                    }
-                  />
-                  <FormControlLabel
-                    value="reject"
-                    control={<Radio color=""/>}
-                    label={
-                      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
-                        Reject
-                      </Typography>
-                    }
-                  />
-                   {roleId === 4 && (
-                    <FormControlLabel value="hold" control={<Radio />} label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>} />
-                  )}
-                  <FormControlLabel
-                    value="needClarification"
-                    control={<Radio color=""/>}
-                    label={
-                      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
-                        Need Clarification
-                      </Typography>
-                    }
-                  />
-                </RadioGroup>
+  row
+  value={action}
+  onChange={(e) => setAction(e.target.value)}
+>
+  <FormControlLabel
+    value="approve"
+    control={<Radio color="primary" />}  // Added color="primary"
+    label={
+      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
+        Approve
+      </Typography>
+    }
+  />
+  <FormControlLabel
+    value="reject"
+    control={<Radio color="primary" />}  // Added color="primary"
+    label={
+      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
+        Reject
+      </Typography>
+    }
+  />
+  {roleId === 4 && (
+    <FormControlLabel 
+      value="hold" 
+      control={<Radio color="primary" />}  // Added color="primary"
+      label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>} 
+    />
+  )}
+  {roleId !== 4 && (
+    <FormControlLabel
+      value="needClarification"
+      control={<Radio color="primary" />}  // Added color="primary"
+      label={
+        <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
+          Need Clarification
+        </Typography>
+      }
+    />
+  )}
+</RadioGroup>
+
               </FormControl>
               <FormControl fullWidth style={{ marginBottom: "1rem" }}>
               <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949", display: 'inline' }}>
@@ -631,20 +620,20 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
                 Cancel
               </Button>
               <Button
-                variant="contained"
-                style={{
-                  minWidth: "120px",
-                  textTransform: 'none',
-                  borderRadius: '10px',
-                  backgroundColor: !newMessage.trim() ? '#CCCCCC' : '#066DD2',
-                  color: 'white',
-                  boxShadow: 'none'
-                }}
-                onClick={handleSubmit}
-                disabled={!newMessage.trim()}
-              >
-                Submit
-              </Button>
+  variant="contained"
+  style={{ 
+    minWidth: "120px", 
+    textTransform: 'none', 
+    borderRadius: '10px',
+    backgroundColor: !newMessage.trim() ? '#CCCCCC' : '#066DD2',
+    color: 'white',
+    boxShadow: 'none'
+  }}
+  onClick={handleSubmit}
+  disabled={!newMessage.trim()}
+>
+  Submit
+</Button>
             </Box>
           </div>
         </Box>
