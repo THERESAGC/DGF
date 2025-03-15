@@ -1,53 +1,66 @@
-import { useState } from "react";
-import { IconButton, Popover, Box, Button, Typography, TextField, InputAdornment } from "@mui/material";
-import { Calendar, Download } from "lucide-react";
-import PropTypes from "prop-types";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { format } from "date-fns";
-import "./custom-datepicker.css";
-import { Backdrop } from "@mui/material";
+"use client"
 
-
-
+import { useState } from "react"
+import { IconButton, Popover, Box, Button, Typography, TextField, InputAdornment } from "@mui/material"
+import { Calendar, Download } from "lucide-react"
+import PropTypes from "prop-types"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import { format } from "date-fns"
+import "./custom-datepicker.css"
+import { Backdrop } from "@mui/material"
 
 function DownloadReport({ onDownload }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(0); // 0 for Single Day, 1 for Range
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [selectedIndex, setSelectedIndex] = useState(0) // 0 for Single Day, 1 for Range
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
+  const [calendarOpen, setCalendarOpen] = useState(false)
 
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+    setCalendarOpen(false)
+  }
 
   const handleDownload = () => {
     if (selectedIndex === 0 && startDate) {
       // For single day, use the same date for start and end
-      onDownload(startDate, startDate);
+      onDownload(startDate, startDate)
     } else if (startDate && endDate) {
-      onDownload(startDate, endDate);
+      onDownload(startDate, endDate)
     }
-    handleClose();
-  };
+    handleClose()
+  }
 
   // Toggle between Single Day and Range selection
   const handleRangeSelection = (index) => {
-    setSelectedIndex(index);
+    setSelectedIndex(index)
     if (index === 0) {
-      setEndDate(null); // Clear end date when switching to single day
+      setEndDate(null) // Clear end date when switching to single day
     }
-  };
+  }
 
   const handleDateChange = (dates) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-  };
+    if (selectedIndex === 0) {
+      setStartDate(dates)
+      setCalendarOpen(false) // Close calendar after selection for single day
+    } else {
+      const [start, end] = dates
+      setStartDate(start)
+      setEndDate(end)
+      if (start && end) {
+        setCalendarOpen(false) // Close calendar after both dates are selected
+      }
+    }
+  }
+
+  const toggleCalendar = () => {
+    setCalendarOpen(!calendarOpen)
+  }
 
   return (
     <div className="inline-flex items-center border no-underline rounded-full p-2 gap-3">
@@ -75,31 +88,25 @@ function DownloadReport({ onDownload }) {
         }}
         PaperProps={{
           style: {
-        
-            padding: '12px',
-            width: "260px",         
-             // Adjust size of the popover 
-            maxHeight: "80vh", // Add maxHeight to ensure it fits within the screen
-            overflowY: "auto", // Add overflow to handle scrolling
+            padding: "16px",
+            width: "250px", // Increased width
+            maxHeight: calendarOpen ? "500px" : "250px", // Dynamic height based on calendar state
+            overflowY: "auto",
           },
         }}
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
         }}
-        // inputProps={{ style: { fontSize: "12px", width: "250px" } }}
-        // sx={{ "& .MuiPopover-paper": { borderRadius: "8px" } }}
-    
       >
         <Box className="p-2">
-          <Typography variant="subtitle2" className="mb-4" sx={{color: 'rgba(0, 0, 0, 0.6)', paddingBottom: '10px'}}>
-            Select Date Range 
-           
+          <Typography variant="subtitle2" className="mb-4" sx={{ color: "rgba(0, 0, 0, 0.6)", paddingBottom: "10px" }}>
+            Select Date Range
           </Typography>
 
           {/* Toggle Single Day / Range Selection */}
           <div className="flex mb-4" style={{ paddingBottom: "10px" }}>
-            {["Single Day","Range"].map((title, index) => (
+            {["Single Day", "Range"].map((title, index) => (
               <div
                 key={index}
                 className="font-normal rounded-lg border border-black cursor-pointer h-6 w-full flex justify-center items-center"
@@ -118,121 +125,83 @@ function DownloadReport({ onDownload }) {
             ))}
           </div>
 
-          {/* Date Picker(s) */}
+          {/* Date Input Field */}
           <div className="flex mb-4">
-            {selectedIndex === 0 ? (
-              <DatePicker 
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                dateFormat="dd MMM yyyy"
-                className="form-control form-control-sm custom-datepicker"
-                showDisabledMonthNavigation
-                maxDate={new Date("2025-12-31")}
-                minDate={new Date("2020-01-01")}
-                popperPlacement="auto"
-                popperModifiers={{
-                    offset: {
-                        enabled: true,
-                        offset: "0, 10",
-                    },
-                    preventOverflow: {
-                        enabled: true,
-                        escapeWithReference: false,
-                        boundariesElement: "viewport",
-                    },
-                    }}
-                    customInput={
-                        <TextField 
-                          variant="outlined"
-                          size="smaller"
-                         
-                          InputProps={{
-                            style: {
-                                width: "260px",
-                                height: "28px",
-                                fontSize: "smaller"
-                            },
-                            endAdornment: (
-                              <InputAdornment
-                               position="end">
-                                <IconButton style={{padding: '0px'}}>
-                                  <Calendar size={16}  />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      }
-                style={{ width: "200px", height: "28px", fontSize: "0.3rem" }}
-              />
-            ) : (
-              <DatePicker
-                selectsRange
-                startDate={startDate}
-                endDate={endDate}
-                onChange={handleDateChange}
-                dateFormat="dd MMM yyyy"
-                className="form-control form-control-sm custom-datepicker"
-                showDisabledMonthNavigation
-                maxDate={new Date("2025-12-31")}
-                minDate={new Date("2020-01-01")}
-                popperPlacement="auto"
-                popperModifiers={{
-                  style:{
-                    width: "200px",
-                    height: "28px",
-                    fontSize: "smaller"
-                  },
-                    offset: {
-                        enabled: true,
-                        offset: "0, 10",
-                    },
-                    preventOverflow: {
-                        enabled: true,
-                        escapeWithReference: false,
-                        boundariesElement: "viewport",
-                    },
-                    }}
-                    customInput={
-                        <TextField 
-                          variant="outlined"
-                          size="smaller"
-                         
-                          InputProps={{
-                            style: {
-                                width: "260px",
-                                height: "28px",
-                                fontSize: "smaller"
-                            },
-                            endAdornment: (
-                              <InputAdornment
-                               position="end">
-                                <IconButton style={{padding: '0px'}}>
-                                  <Calendar size={16}  />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      }
-                style={{ width: "200px", height: "28px", fontSize: "smaller" }}
-              />
-            )}
+            <TextField
+              variant="outlined"
+              size="small"
+              fullWidth
+              value={
+                selectedIndex === 0
+                  ? startDate
+                    ? format(startDate, "dd MMM yyyy")
+                    : ""
+                  : startDate && endDate
+                    ? `${format(startDate, "dd MMM yyyy")} - ${format(endDate, "dd MMM yyyy")}`
+                    : startDate
+                      ? `${format(startDate, "dd MMM yyyy")} - Select end date`
+                      : ""
+              }
+              onClick={toggleCalendar}
+              InputProps={{
+                readOnly: true,
+                style: {
+                  height: "36px",
+                  fontSize: "14px",
+                },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton edge="end" style={{ padding: "4px" }} onClick={toggleCalendar}>
+                      <Calendar size={18} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
           </div>
 
-          <Box className="mt-4 flex justify-end" sx={{display: 'flex', gap: '10px', paddingBottom: '10px', paddingTop: '10px'}}>
-          <Button
+          {/* Inline Calendar */}
+          {calendarOpen && (
+            <div className="mb-4 calendar-container">
+              {selectedIndex === 0 ? (
+                <DatePicker
+                  selected={startDate}
+                  onChange={handleDateChange}
+                  inline
+                  showDisabledMonthNavigation
+                  maxDate={new Date("2025-12-31")}
+                  minDate={new Date("2020-01-01")}
+                />
+              ) : (
+                <DatePicker
+                  selectsRange
+                  startDate={startDate}
+                  endDate={endDate}
+                  onChange={handleDateChange}
+                  inline
+                  showDisabledMonthNavigation
+                  maxDate={new Date("2025-12-31")}
+                  minDate={new Date("2020-01-01")}
+                />
+              )}
+            </div>
+          )}
+
+          <Box
+            className="mt-4 flex justify-end"
+            sx={{ display: "flex", gap: "10px", paddingBottom: "10px", paddingTop: "10px" }}
+          >
+            <Button
               variant="outlined"
               size="small"
               onClick={handleClose}
-              
               sx={{
                 padding: "6px 10px ",
                 fontSize: "12px",
                 color: "#1976d2",
                 borderColor: "#1976d2",
-                textTransform:'none',
-                fontFamily:'Poppins',
+                textTransform: "none",
+                fontFamily: "Poppins",
                 "&:hover": {
                   backgroundColor: "#e3f2fd",
                   borderColor: "#1976d2",
@@ -250,24 +219,24 @@ function DownloadReport({ onDownload }) {
                 padding: "6px 10px",
                 fontSize: "12px",
                 backgroundColor: "#09459E",
-                textTransform:'none',
-                fontFamily:'Poppins',
+                textTransform: "none",
+                fontFamily: "Poppins",
                 "&:hover": {
                   backgroundColor: "#1565c0",
                 },
               }}
             >
-              Download 
+              Download
             </Button>
           </Box>
 
           {/* Display selected date range */}
-          {selectedIndex === 0 && startDate && (
+          {!calendarOpen && selectedIndex === 0 && startDate && (
             <Typography variant="caption" className="block mt-2 text-gray-600">
               Report period: {format(startDate, "MMMM d, yyyy")}
             </Typography>
           )}
-          {selectedIndex === 1 && startDate && endDate && (
+          {!calendarOpen && selectedIndex === 1 && startDate && endDate && (
             <Typography variant="caption" className="block mt-2 text-gray-600">
               Report period: {format(startDate, "MMMM d, yyyy")} - {format(endDate, "MMMM d, yyyy")}
             </Typography>
@@ -275,11 +244,11 @@ function DownloadReport({ onDownload }) {
         </Box>
       </Popover>
     </div>
-  );
+  )
 }
 
 DownloadReport.propTypes = {
   onDownload: PropTypes.func.isRequired,
-};
+}
 
-export default DownloadReport;
+export default DownloadReport

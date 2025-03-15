@@ -658,7 +658,7 @@ const RequestTable = ({ roleId }) => {
     const { text, color } = mapStatusToDisplayText(row.requeststatus);
     return (
       <TableRow key={index}>
-        <TableCell>#{row.requestid}</TableCell> {/* Assuming requestid is the unique identifier */}
+        <TableCell>#LR{row.requestid}</TableCell> {/* Assuming requestid is the unique identifier */}
         <TableCell style={{ wordWrap: "break-word", whiteSpace: "normal", textAlign: "justify" }}>
           {row.newprospectname || row.project_name}
         </TableCell>

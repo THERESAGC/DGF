@@ -369,7 +369,7 @@ const NewTrainingRequest = () => {
 
   const handleTechStackChange = (e) => {
     if (!formData.selectedSource || !formData.selectedTrainingObjective) {
-      setSnackbarMessage("Please select Designation and Learning Objective first")
+      setSnackbarMessage("Please select Department/Group and Learning Objective first")
       setSnackbarSeverity("error")
       setSnackbarOpen(true)
       return
@@ -1092,7 +1092,7 @@ const NewTrainingRequest = () => {
                     color: "#4F4949",
                   }}
                 >
-                  Designation <span className="required">*</span>
+                  Department/Group <span className="required">*</span>
                 </Typography>
                 <Select
                   variant="outlined"
@@ -1123,7 +1123,7 @@ const NewTrainingRequest = () => {
                         fontFamily: "Poppins",
                       }}
                     >
-                      Select Designation
+                      Select Department/Group
                     </em>
                   </MenuItem>
                   {formData.sources.map((source) => (
@@ -1161,7 +1161,7 @@ const NewTrainingRequest = () => {
       onOpen={() => {
         if (!formData.selectedSource) {
           setTrainingObjectiveError(true)
-          setTrainingObjectiveErrorMessage("Please select Designation first")
+          setTrainingObjectiveErrorMessage("Please select Department/Group first")
           setTrainingObjectiveOpen(false)
         } else {
           setTrainingObjectiveError(false)
@@ -1218,7 +1218,7 @@ const NewTrainingRequest = () => {
                     className="subheader"
                     style={{
                       fontWeight: "600",
-                      color: user?.role_id === 8 || user?.role_id === 4 ? "#4F4949" : "#d0d0d0",
+                      color: user?.role_id === 8 || user?.role_id === 4 ? "#000000DE" : "#d0d0d0",
                     }}
                   >
                     Prospect
@@ -1487,7 +1487,7 @@ const NewTrainingRequest = () => {
       onOpen={() => {
         if (!formData.selectedSource || !formData.selectedTrainingObjective) {
           setTechStackError(true)
-          setTechStackErrorMessage("Please select Designation and Learning Objective first")
+          setTechStackErrorMessage("Please select Department/Group and Learning Objective first")
           setTechStackOpen(false)
         } else {
           setTechStackError(false)
@@ -1895,12 +1895,12 @@ const NewTrainingRequest = () => {
             {/* Employee Level Section */}
             {formData.employeeDetails === "open" && role === "CapDev" && (
               <Grid item size={4}>
-                <FormControl fullWidth className="formControl">
+                {/* <FormControl fullWidth className="formControl">
                   <Typography
                     className="subheader"
                     style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
                   >
-                    Employee Level <span className="required">*</span>
+                    Employee Designation <span className="required">*</span>
                   </Typography>
                   <Select
                     variant="outlined"
@@ -1911,7 +1911,43 @@ const NewTrainingRequest = () => {
                     multiple // Allow multiple selections
                   >
                     <MenuItem value="">
-                      <em>Select Employee Level</em>
+                      <em>Select Employee Designation</em>
+                    </MenuItem>
+                    {formData.employeeLevels.map((level) => (
+                      <MenuItem key={level.Designation_Name} value={level.Designation_Name}>
+                        {level.Designation_Name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl> */}
+
+                <FormControl fullWidth className="formControl">
+                  <Typography
+                    className="subheader"
+                    style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}
+                  >
+                    Employee Designation <span className="required">*</span>
+                  </Typography>
+                  <Select
+                    variant="outlined"
+                    name="employeeLevel"
+                    value={formData.selectedEmployeeLevel}
+                    onChange={(e) => setFormData({ ...formData, selectedEmployeeLevel: e.target.value })}
+                    displayEmpty
+                    style={{ height: "30px", fontSize: "12px" }}
+                    multiple // Allow multiple selections
+                  >
+                    <MenuItem disabled value="" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
+                      <em
+                        style={{
+                          height: "30px",
+                          opacity: "0.75",
+                          fontStyle: "normal",
+                          fontFamily: "Poppins",
+                        }}
+                      >
+                        Select Employee Designation
+                      </em>
                     </MenuItem>
                     {formData.employeeLevels.map((level) => (
                       <MenuItem key={level.Designation_Name} value={level.Designation_Name}>

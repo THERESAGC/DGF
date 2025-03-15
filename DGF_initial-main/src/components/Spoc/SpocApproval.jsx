@@ -276,7 +276,7 @@ return (
                   Request ID/No:
                 </Typography>
                 <Typography className="typography-value-upper">
-                #{requestDetails?.requestid}
+                #LR{requestDetails?.requestid}
                 </Typography>
               </FormControl>
             </Grid2>
@@ -599,11 +599,10 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
                 </RadioGroup>
               </FormControl>
               <FormControl fullWidth style={{ marginBottom: "1rem" }}>
-                <Typography
-                  style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949" }}
-                >
-                  Comments
-                </Typography>
+              <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949", display: 'inline' }}>
+  Comments
+  <span style={{ color: 'red' }}>*</span>
+</Typography>
                 <TextField
                   multiline
                   rows={4} // Ensure this is set to 4 rows
@@ -633,8 +632,16 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
               </Button>
               <Button
                 variant="contained"
-                style={{ minWidth: "120px", textTransform: 'none', borderRadius: '10px ', backgroundColor: '#066DD2', boxShadow: 'none', color: 'white' }}
+                style={{
+                  minWidth: "120px",
+                  textTransform: 'none',
+                  borderRadius: '10px',
+                  backgroundColor: !newMessage.trim() ? '#CCCCCC' : '#066DD2',
+                  color: 'white',
+                  boxShadow: 'none'
+                }}
                 onClick={handleSubmit}
+                disabled={!newMessage.trim()}
               >
                 Submit
               </Button>
