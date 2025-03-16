@@ -24,7 +24,7 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     fontFamily: "inherit",
   },
 }))
-
+ 
 const HeaderButton = styled(Button)(({ theme }) => ({
   height: "30px",
   fontSize: "10px",
@@ -39,21 +39,21 @@ const HeaderButton = styled(Button)(({ theme }) => ({
     backgroundColor: "#f5f5f5",
   },
 }))
-
+ 
 const StatusText = styled(Typography)(({ theme }) => ({
   color: "#B33A3A",
   fontWeight: 500,
 }))
-
+ 
 const ExpandedSection = styled(Box)(({ theme }) => ({
   padding: "0 220px 16px 20px",
 }))
-
+ 
 function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse }) {
   const rowBackgroundColor = isExpanded ? "#F1F2FD" : "white"
   // Determine if the employee has active learning based on request_org_level
   const hasActiveLearning = row.request_org_level === 1 ? row.total_requests > 0 : row.total_primary_skills > 0
-
+ 
   return (
     <>
       <TableRow
@@ -104,7 +104,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           <StatusText>Initiate Learning</StatusText>
         </TableCell>
         <TableCell align="center">
-          <HeaderButton onClick={()=>onAssignCourse(row.courses_assigned)}>Assign Course</HeaderButton>
+          <HeaderButton onClick={() => onAssignCourse(row.courses_assigned, row.emp_id)}>Assign Course</HeaderButton>
         </TableCell>
       </TableRow>
       {isExpanded && hasActiveLearning && (
@@ -168,7 +168,7 @@ function CourseTracker() {
   const { requestId } = useParams()
   const rowsPerPage = 5
   const totalRecords = 15
-
+ 
   useEffect(() => {
     const fetchLearners = async () => {
       try {
@@ -178,12 +178,12 @@ function CourseTracker() {
           `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
         )
         const data = await response.json()
-
+ 
         // Set the request_org_level from the response
         if (data && data.length > 0 && "request_org_level" in data) {
           setRequestOrgLevel(data.request_org_level)
         }
-
+ 
         // Process each employee to get their learning details
         const learnersWithDetails = await Promise.all(
           data.employees
@@ -194,10 +194,10 @@ function CourseTracker() {
                     data.request_org_level === 1
                       ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${learner.emp_id}`
                       : `http://localhost:8000/api/learners/getLearners/${learner.emp_id}`
-
+ 
                   const detailsResponse = await fetch(apiEndpoint)
                   const detailsData = await detailsResponse.json()
-
+ 
                   return {
                     ...learner,
                     profile_image: learner.profile_image?.data
@@ -218,7 +218,7 @@ function CourseTracker() {
               })
             : [],
         )
-
+ 
         setLearners(learnersWithDetails)
       } catch (error) {
         console.error("Error fetching learners:", error)
@@ -226,18 +226,18 @@ function CourseTracker() {
         setLoading(false)
       }
     }
-
+ 
     fetchLearners()
   }, [requestId])
-
+ 
   const handleToggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id)
   }
-
+ 
   const handleSelectEmployee = (empId) => {
     setSelectedEmployees((prev) => (prev.includes(empId) ? prev.filter((id) => id !== empId) : [...prev, empId]))
   }
-
+ 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
   }
@@ -258,7 +258,7 @@ function CourseTracker() {
           )
         );
       };
-    
+   
   return (
     <Box
       sx={{
@@ -284,7 +284,7 @@ function CourseTracker() {
                   </HeaderButton>
                 </Box>
       </Box>
-
+ 
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
@@ -308,7 +308,7 @@ function CourseTracker() {
               </TableHead>
               <TableBody>
                 {learners.map((row) => (
-                  <Row 
+                  <Row
                     key={row.emp_id}
                     row={row}
                     isExpanded={expandedId === row.emp_id}
@@ -316,7 +316,7 @@ function CourseTracker() {
                     onToggleExpand={handleToggleExpand}
                     onSelect={() => handleSelectEmployee(row.emp_id)}
                     onAssignCourse={handleAssignCourse}
-
+ 
                     style={{
                       backgroundColor: row % 2 !== 0 ? 'red' : 'transparent' // Apply color to odd rows
                     }}
@@ -325,7 +325,7 @@ function CourseTracker() {
               </TableBody>
             </Table>
           </StyledTableContainer>
-
+ 
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, px: 1 }}>
             <Typography variant="body2" color="text.secondary">
               Showing {Math.min(learners.length, rowsPerPage)} of {learners.length} records
@@ -341,7 +341,7 @@ function CourseTracker() {
           </Box>
         </>
       )}
-
+ 
 <AssignCourseModal
         open={showAssignModal}
         onClose={handleModalClose}
@@ -354,5 +354,5 @@ function CourseTracker() {
     </Box>
   )
 }
-
+ 
 export default CourseTracker

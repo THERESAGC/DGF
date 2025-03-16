@@ -135,6 +135,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
     return true;
   };
 
+
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
