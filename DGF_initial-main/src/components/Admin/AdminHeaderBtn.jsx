@@ -1,28 +1,30 @@
-import { useState, useContext } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '../Auth/AuthContext';
-import AddUserModal from './AddUserModal'; // Import AddUserModal
-import './AdminHeaderBtn.css';
+"use client"
 
-const AdminHeaderBtn = () => {
-  const [selectedButton, setSelectedButton] = useState('My Learning Requests');
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
-  const navigate = useNavigate();
-  const { user } = useContext(AuthContext); // Get the user from AuthContext
+import { useState, useContext } from "react"
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material"
+import { useNavigate } from "react-router-dom"
+import AuthContext from "../Auth/AuthContext"
+import AddUserModal from "./AddUserModal"
+import "./AdminHeaderBtn.css"
 
-  const handleButtonClick = (button, path) => {
-    setSelectedButton(button);
-    navigate(path);
-  };
+const AdminHeaderBtn = ({ onSelectComponent }) => {
+  const [selectedButton, setSelectedButton] = useState("Users")
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false)
+  const navigate = useNavigate()
+  const { user } = useContext(AuthContext)
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
+  const handleButtonClick = (button) => {
+    setSelectedButton(button)
+    onSelectComponent(button)
+  }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const handleOpenUserModal = () => {
+    setIsUserModalOpen(true)
+  }
+
+  const handleCloseUserModal = () => {
+    setIsUserModalOpen(false)
+  }
 
   return (
     <>
@@ -30,16 +32,15 @@ const AdminHeaderBtn = () => {
         <Toolbar className="toolbar">
           <Box className="admin">
             {[
-              { text: 'Users', path: '/admin-container' },
-              // { text: 'Learning Dashboard', path: '/training-dashboard' },
-              { text: 'Roles', path: '' },
+              { text: "Users", path: "/admin-container" },
+              { text: "New Request Form", path: "" },
             ].map((item) => (
               <Typography
                 key={item.text}
                 variant="h6"
                 component="div"
-                className={`typography ${selectedButton === item.text ? 'selected' : ''}`}
-                onClick={() => handleButtonClick(item.text, item.path)}
+                className={`typography ${selectedButton === item.text ? "selected" : ""}`}
+                onClick={() => handleButtonClick(item.text)}
               >
                 {item.text}
               </Typography>
@@ -50,17 +51,18 @@ const AdminHeaderBtn = () => {
               variant="contained"
               color="primary"
               className="button"
-              onClick={handleOpenModal} // Open modal on button click
-              disabled={user.role_id === 10} // Disable the button if role_id is 10
+              onClick={handleOpenUserModal}
+              disabled={user.role_id === 10}
             >
               Add User
             </Button>
           </Box>
         </Toolbar>
       </AppBar>
-      <AddUserModal open={isModalOpen} onClose={handleCloseModal} /> {/* AddUserModal component */}
+      <AddUserModal open={isUserModalOpen} onClose={handleCloseUserModal} />
     </>
-  );
-};
+  )
+}
 
-export default AdminHeaderBtn;
+export default AdminHeaderBtn
+

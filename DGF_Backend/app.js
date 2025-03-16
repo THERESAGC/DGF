@@ -56,8 +56,15 @@ const excelExportController = require('./controllers/excelExportController'); //
 const projectSearchRoutes = require('./routes/projectSearchRoutes');
 
 const updateUserRoleRoutes = require('./routes/updateUserRoleRoutes');
- 
+const addProjectRoutes = require('./routes/addProjectRoutes');
+const deleteProjectRoutes = require('./routes/deleteProjectRoutes');
 
+const addServiceDivisionRoute = require('./routes/addServiceDivisionRoutes');
+
+const deleteServiceDivisionRoutes = require('./routes/deleteServiceDivisionRoutes');
+const addTechStackRoutes = require('./routes/addTechStackRoutes');
+
+const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
 
@@ -254,7 +261,17 @@ app.get('/export-excel', excelExportController.exportExcelData);
 
 app.use('/api/user', userUpdateStatusRoutes);
 
-app.use('/api/project-search', projectSearchRoutes);
+app.use('/api', addProjectRoutes);
+
+app.use('/api', deleteProjectRoutes);
+
+app.use('/api', addServiceDivisionRoute);
+
+app.use('/api', deleteServiceDivisionRoutes);
+
+app.use('/api', addTechStackRoutes);
+
+app.use('/api', addPrimarySkillRoutes); 
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');

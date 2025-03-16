@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import {
   Table,
@@ -13,11 +15,10 @@ import {
   Box,
   Pagination,
 } from "@mui/material"
-import { ArrowForward } from "@mui/icons-material"
 import { styled } from "@mui/material/styles"
 import axios from "axios"
 import UserActionModal from "./UserActionModal"
-import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined"
 
 const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   width: "22px",
@@ -36,7 +37,7 @@ const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   },
 }))
 
-const rowsPerPage = 5;
+const rowsPerPage = 5
 
 export default function UserTable() {
   const [users, setUsers] = useState([])
@@ -148,7 +149,7 @@ export default function UserTable() {
       </TableContainer>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
         <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "inherit" }}>
-          {users.length === 0 ? 'No records' : `Showing ${startIndex}-${endIndex} of ${users.length} records`}
+          {users.length === 0 ? "No records" : `Showing ${startIndex}-${endIndex} of ${users.length} records`}
         </Typography>
         <Pagination
           count={Math.ceil(users.length / rowsPerPage)}
@@ -163,3 +164,4 @@ export default function UserTable() {
     </Box>
   )
 }
+

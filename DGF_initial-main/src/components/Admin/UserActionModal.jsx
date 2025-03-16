@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import {
   Box,
@@ -87,7 +89,6 @@ const UserActionModal = ({ open, onClose, user }) => {
     } finally {
       setLoading(false)
     }
-
   }
 
   const handleResendInvitation = async () => {
@@ -260,3 +261,4 @@ const UserActionModal = ({ open, onClose, user }) => {
 }
 
 export default UserActionModal
+
