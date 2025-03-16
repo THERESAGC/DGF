@@ -234,13 +234,13 @@ const RequestFormEditor = () => {
       } else {
         // Add new tech stack
         const response = await axios.post("http://localhost:8000/api/tech-stacks", {
-          name: newTechStackName,
+          stackName: newTechStackName,
         })
         setTechStacks([...techStacks, response.data])
         setAlert({ open: true, message: "Tech stack added successfully", severity: "success" })
       }
     } catch (error) {
-      console.error("Error saving tech stack:", error)
+      console.error("Error saving tech stack:", error.response ? error.response.data : error.message)
       setAlert({ open: true, message: "Error saving tech stack", severity: "error" })
     }
 
@@ -268,9 +268,9 @@ const RequestFormEditor = () => {
         setAlert({ open: true, message: "Primary skill updated successfully", severity: "success" })
       } else {
         // Add new primary skill
-        const response = await axios.post("http://localhost:8000/api/primary-skills", {
-          name: newPrimarySkillName,
-          techStackId: selectedTechStackId,
+        const response = await axios.post("http://localhost:8000/api/primary-skill", {
+          skillName: newPrimarySkillName,
+          stackId: selectedTechStackId,
         })
         setPrimarySkills([...primarySkills, response.data])
         setAlert({ open: true, message: "Primary skill added successfully", severity: "success" })
@@ -311,7 +311,7 @@ const RequestFormEditor = () => {
 
   const handleDeleteTechStack = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/tech-stacks/${id}`)
+      await axios.delete(`http://localhost:8000/api/delete-tech-stack/${id}`)
       setTechStacks(techStacks.filter((t) => t.id !== id))
       // Also remove associated primary skills
       setPrimarySkills(primarySkills.filter((s) => s.techStackId !== id))
@@ -428,7 +428,7 @@ const RequestFormEditor = () => {
 
   // Filter primary skills by search term
   const filteredPrimarySkills = primarySkills.filter((skill) =>
-    skill.name.toLowerCase().includes(skillSearchTerm.toLowerCase()),
+    skill.name ? skill.name.toLowerCase().includes(skillSearchTerm.toLowerCase()) : false
   )
 
   // Group primary skills by tech stack

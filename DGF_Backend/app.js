@@ -63,7 +63,7 @@ const addServiceDivisionRoute = require('./routes/addServiceDivisionRoutes');
 
 const deleteServiceDivisionRoutes = require('./routes/deleteServiceDivisionRoutes');
 const addTechStackRoutes = require('./routes/addTechStackRoutes');
-
+const deleteTechStackRoutes = require('./routes/deleteTechStackRoutes');    
 const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
@@ -272,6 +272,8 @@ app.use('/api', deleteServiceDivisionRoutes);
 app.use('/api', addTechStackRoutes);
 
 app.use('/api', addPrimarySkillRoutes); 
+
+app.use('/api/delete-tech-stack', deleteTechStackRoutes);
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');

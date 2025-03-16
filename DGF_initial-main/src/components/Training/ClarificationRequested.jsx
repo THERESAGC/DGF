@@ -136,8 +136,10 @@ const handleClosePopup = () => setPopupOpen(false);
     fetchData()
   }, [requestid])
 
-  const totalPages = Math.ceil(learners.length / itemsPerPage)
-  const currentItems = formData.employees.slice((page - 1) * itemsPerPage, page * itemsPerPage)
+  const totalPages = Math.ceil(formData.employees.length / itemsPerPage);
+const currentItems = formData.employees.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+const startIndex = (page - 1) * itemsPerPage + 1;
+const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
 
   const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date))
 
@@ -804,7 +806,7 @@ const handleClosePopup = () => setPopupOpen(false);
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {formData.employees.map((employee) => {
+                        {currentItems.map((employee) => {
                           const hasActiveLearning = employee.total_requests > 0
                           return (
                             <React.Fragment key={employee.emp_id || employee.uniqueKey}>
@@ -908,7 +910,7 @@ const handleClosePopup = () => setPopupOpen(false);
                     }}
                   >
                     <Typography variant="body2" color="text.secondary">
-                      Showing {currentItems.length} of {formData.employees.length} records
+                    Showing {startIndex}-{endIndex} of {formData.employees.length} records  
                     </Typography>
                     <Pagination
                       count={totalPages}
@@ -953,7 +955,7 @@ const handleClosePopup = () => setPopupOpen(false);
                     overflowY: sortedComments.length > 0 ? "auto" : "visible", // Enable scroll if there are comments
                   }}
                 >
-                  <Box display="flex" flexDirection="column" gap={2} paddingLeft={5}>
+                 <Box display="flex" flexDirection="column" gap={2} paddingLeft={5}>
                     {sortedComments.length > 0 ? (
                       sortedComments.map((comment) => {
                         return (
@@ -989,11 +991,12 @@ const handleClosePopup = () => setPopupOpen(false);
                     )}
                   </Box>
                 </Box>
-                <Box style={{width:"90%" , margin : "auto"}}>
+                <Box style={{ width: "90%", margin: "auto" }}>
                   <FormControl fullWidth style={{ marginBottom: "1rem" }}>
-                    <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949" }}>
-                      Your Comments
-                    </Typography>
+                  <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949", display: 'inline' }}>
+  Your Comments
+  <span style={{ color: 'red' }}>*</span>
+</Typography>
                     <TextField
                       multiline
                       rows={4} // Ensure this is set to 4 rows
@@ -1032,8 +1035,10 @@ const handleClosePopup = () => setPopupOpen(false);
                     backgroundColor: "#066DD2",
                     boxShadow: "none",
                     color: "white",
+                    opacity: newMessage.trim() ? 1 : 0.5,
                   }}
                   onClick={handleSubmit}
+                  disabled={!newMessage.trim()}
                 >
                   Submit
                 </Button>
@@ -1042,7 +1047,7 @@ const handleClosePopup = () => setPopupOpen(false);
           </Box>
         </div>
       </Paper>
- 
+
       <Dialog
         open={statusDialogOpen}
         onClose={handleCloseStatusDialog}
@@ -1082,7 +1087,5 @@ const handleClosePopup = () => setPopupOpen(false);
     </>
   )
 }
- 
+
 export default ClarificationRequested
- 
- 

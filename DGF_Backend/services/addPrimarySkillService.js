@@ -6,7 +6,7 @@ const addPrimarySkill = async (skillName, stackId) => {
     const checkQuery = 'SELECT COUNT(*) AS count FROM techstack WHERE stack_id = ?';
     try {
       // Execute the check query and destructure the result array
-      const [rows] = await db.execute(checkQuery, [stackId]); // Destructure rows from the result
+      const [rows] = await db.promise().execute(checkQuery, [stackId]); // Destructure rows from the result
       console.log('Check result:', rows);
 
       const count = rows[0]?.count;
@@ -16,7 +16,7 @@ const addPrimarySkill = async (skillName, stackId) => {
 
       // Insert the primary skill
       const query = 'INSERT INTO primaryskill (skill_name, stack_id) VALUES (?, ?)';
-      const [result] = await db.execute(query, [skillName, stackId]);
+      const [result] = await db.promise().execute(query, [skillName, stackId]);
 
       return result.insertId;
     } catch (error) {

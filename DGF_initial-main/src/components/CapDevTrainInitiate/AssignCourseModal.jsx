@@ -126,7 +126,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
   };
  
   const isFormValid = () => {
-    if (courses.length === 0) return false;
+    if (courses.length === 0 || !learningType) return false;
     for (const course of courses) {
       if (!course.mentor || !course.coursetype || !course.completionDate) {
         return false;
@@ -134,7 +134,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
     }
     return true;
   };
-
+ 
 
   return (
     <Modal open={open} onClose={onClose}>
