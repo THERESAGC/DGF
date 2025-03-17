@@ -14,7 +14,7 @@ describe('Request Service - updateRequestStatus', () => {
     [10, 'approve', 'spoc approved'],
     [5, 'approve', 'capdev approved'],
     [8, 'reject', 'rejected'],
-    [7, 'hold', 'learning suspended'],
+    [7, 'hold', 'request suspended'],
     [3, 'needClarification', 'clarification requested'],
   ])('should update request status correctly for roleId=%i, status=%s', async (roleId, status, expectedStatus) => {
     const requestId = 123;

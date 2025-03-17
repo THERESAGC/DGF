@@ -113,7 +113,7 @@ const handleAction = async (req, res) => {
     try {
         // 1. Send email to the person who made the request (requestedbyid)
         // await sendEmail(requestedbyid, subject, text, "champ@harbingergroup.com");
-        // await sendEmail(requestedbyid, subject, text, ccEmail);
+        await sendEmail(requestedbyid, subject, text, ccEmail);
 
         // 2. Send email to the internal team (internalTeamEmail) as well
         // await sendEmail(internalTeamEmail, subject, `The training request (ID: ${requestid}) has been ${action}. Please review and process accordingly.`, ccEmail);

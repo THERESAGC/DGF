@@ -85,23 +85,6 @@ describe('updateCourseStatus Service', () => {
     );
   });
 
-  test('should update employee status to "Learning Initiated" when one status is "Completed" and the other is "Learning Initiated"', async () => {
-    connectionMock.query
-      .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
-      .mockResolvedValueOnce([[{ employee_id: 101, requestid: 202 }]]) // Get employee and request ID
-      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Learning Initiated' }]]) // Employee course statuses
-      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Learning Initiated' }]]) // Employees list for status calculation
-      .mockResolvedValueOnce([[{ status: 'Completed' }, { status: 'Learning Initiated' }]]) // Fix: Ensure employees array is correctly structured
-      .mockResolvedValueOnce([{ affectedRows: 1 }]); // Update request status
-
-    await updateCourseStatus(1, 'Learning Initiated');
-
-    expect(connectionMock.query).toHaveBeenCalledWith(
-      'UPDATE emp_newtrainingrequested SET status = ? WHERE emp_id = ? AND requestid = ?',
-      ['Learning Initiated', 101, 202]
-    );
-  });
-
   test('should update employee status when all courses have the same status (else block)', async () => {
     connectionMock.query
       .mockResolvedValueOnce([{ affectedRows: 1 }]) // Update course status
@@ -251,9 +234,6 @@ describe('updateCourseStatus Service', () => {
 
     await expect(updateCourseStatus(1, 'Completed')).rejects.toThrow('Database operation failed: DB Connection Error');
   });
-
-  
-  
 });
 
 

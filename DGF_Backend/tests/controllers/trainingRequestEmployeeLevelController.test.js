@@ -14,15 +14,12 @@ describe("Training Request Employee Level Controller", () => {
     };
 
     jest.clearAllMocks();
-  });
-
-  beforeEach(() => {
     jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
   });
 
   describe("storeEmployeeLevels", () => {
     test("should return 400 if requestid is missing", async () => {
-      req.body = { employee_level_ids: [1, 2, 3] };
+      req.body = { designation_names: ["Manager", "Developer"] }; 
 
       await storeEmployeeLevels(req, res);
 
@@ -30,7 +27,7 @@ describe("Training Request Employee Level Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ message: "Invalid request data" });
     });
 
-    test("should return 400 if employee_level_ids is missing", async () => {
+    test("should return 400 if designation_names is missing", async () => {
       req.body = { requestid: "123" };
 
       await storeEmployeeLevels(req, res);
@@ -39,8 +36,8 @@ describe("Training Request Employee Level Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ message: "Invalid request data" });
     });
 
-    test("should return 400 if employee_level_ids is not an array", async () => {
-      req.body = { requestid: "123", employee_level_ids: "invalid_data" };
+    test("should return 400 if designation_names is not an array", async () => {
+      req.body = { requestid: "123", designation_names: "invalid_data" }; 
 
       await storeEmployeeLevels(req, res);
 
@@ -48,8 +45,8 @@ describe("Training Request Employee Level Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ message: "Invalid request data" });
     });
 
-    test("should return 400 if employee_level_ids is an empty array", async () => {
-      req.body = { requestid: "123", employee_level_ids: [] };
+    test("should return 400 if designation_names is an empty array", async () => {
+      req.body = { requestid: "123", designation_names: [] }; 
 
       await storeEmployeeLevels(req, res);
 
@@ -58,7 +55,7 @@ describe("Training Request Employee Level Controller", () => {
     });
 
     test("should return 500 if an error occurs", async () => {
-      req.body = { requestid: "123", employee_level_ids: [1, 2, 3] };
+      req.body = { requestid: "123", designation_names: ["Manager", "Developer"] }; 
       trainingRequestEmployeeLevelService.storeEmployeeLevels.mockRejectedValue(new Error("Database error"));
 
       await storeEmployeeLevels(req, res);
@@ -68,7 +65,7 @@ describe("Training Request Employee Level Controller", () => {
     });
 
     test("should return 200 if employee levels are stored successfully", async () => {
-      req.body = { requestid: "123", employee_level_ids: [1, 2, 3] };
+      req.body = { requestid: "123", designation_names: ["Manager", "Developer"] }; 
       trainingRequestEmployeeLevelService.storeEmployeeLevels.mockResolvedValue();
 
       await storeEmployeeLevels(req, res);

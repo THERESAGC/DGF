@@ -24,7 +24,7 @@ describe('Training Request Employee Level Service - storeEmployeeLevels', () => 
 
     expect(result).toEqual(mockResults);
     expect(db.query).toHaveBeenCalledWith(
-      'INSERT INTO training_request_employee_level (requestid, employee_level_id) VALUES ?',
+      'INSERT INTO request_designations (requestid, Designation_Name) VALUES ?',
       [[[1001, 1], [1001, 2], [1001, 3]]],
       expect.any(Function)
     );
@@ -44,7 +44,7 @@ describe('Training Request Employee Level Service - storeEmployeeLevels', () => 
 
     expect(result).toEqual(mockResults);
     expect(db.query).toHaveBeenCalledWith(
-      'INSERT INTO training_request_employee_level (requestid, employee_level_id) VALUES ?',
+      'INSERT INTO request_designations (requestid, Designation_Name) VALUES ?',
       [[]],
       expect.any(Function)
     );

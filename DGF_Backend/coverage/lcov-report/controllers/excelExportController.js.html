@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for services/managerSearchByNameservice.js</title>
+    <title>Code coverage report for controllers/excelExportController.js</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">services</a> managerSearchByNameservice.js</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">controllers</a> excelExportController.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -87,55 +87,61 @@
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
-<a name='L25'></a><a href='#L25'>25</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const db = require('../config/db');
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// controllers/excelExportController.js
 &nbsp;
-// Function to get managers based on search query by name
-const searchManagersByName = (name) =&gt; {
-    return new Promise((resolve, reject) =&gt; {
-        const query = `
-        SELECT emp_id AS manager_id, emp_name AS manager_name, emp_email AS manager_email, profile_image AS manager_profile_image
-        FROM employee
-        WHERE emp_name LIKE ? AND emp_id IN (SELECT DISTINCT manager_id FROM employee WHERE manager_id IS NOT NULL);
-        `;
+const excelExportService = require('../services/excelExportService'); // Import the excel export service
 &nbsp;
-        // Using LIKE query to search for names that start with the provided string (case-insensitive)
-        db.execute(query, [`${name}%`], (err, results) =&gt; {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(results);
-            }
-        });
+// Controller method to handle the export request
+const exportExcelData = (req, res) =&gt; {
+  excelExportService.exportToExcel((err, filePath) =&gt; {
+    if (err) {
+      return res.status(500).json({ message: 'Error generating Excel file' });
+    }
+&nbsp;
+    // Send the generated Excel file to the client
+    res.download(filePath, 'training_data.xlsx', (err) =&gt; {
+      if (err) {
+        console.error('Error downloading file:', err);
+      }
+      
+      // Optionally, delete the file after sending
+    //   fs.unlinkSync(filePath);
     });
+  });
 };
 &nbsp;
 module.exports = {
-    searchManagersByName
-};</pre></td></tr></table></pre>
+  exportExcelData
+};
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
