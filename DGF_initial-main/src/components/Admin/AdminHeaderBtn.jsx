@@ -32,7 +32,7 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
         <Toolbar className="toolbar">
       
           <Box className="admin">
-            {[{ text: "Add New Users", path: "/admin-container" }, { text: "New Request Form", path: "" }].map((item) => (
+            {[{ text: "User Management", path: "/admin-container" }, { text: "Data Field Management", path: "" }].map((item) => (
               <Typography
                 key={item.text}
                 variant="h6"
@@ -44,7 +44,7 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
               </Typography>
             ))}
           </Box>
-          {selectedButton !== "New Request Form" && (
+          {selectedButton !== "Data Field Management" && (
             <Box className="admin">
               <Button
                 variant="contained"
@@ -53,7 +53,7 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
                 onClick={handleOpenUserModal}
                 disabled={user.role_id === 10}
               >
-                Add User
+                Add New User
               </Button>
             </Box>
           )}

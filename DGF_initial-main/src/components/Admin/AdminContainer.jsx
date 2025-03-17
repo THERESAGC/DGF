@@ -42,7 +42,7 @@ const AdminContainer = () => {
     switch (selectedComponent) {
       case "Users":
         return roleId && <AdminSetting roleId={roleId} />
-      case "New Request Form":
+      case "Data Field Management":
         return <RequestFormEditor />
       default:
         return roleId && <AdminSetting roleId={roleId} />
