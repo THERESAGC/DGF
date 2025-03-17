@@ -141,7 +141,7 @@
 const db = require('../config/db');
  
 const updateCourseStatus = async (assignmentId, newStatus) => {
-    const allowedStatuses = ['Completed', 'Incomplete', 'Learning Suspended', 'Completed with Delay'];
+    const allowedStatuses = ['Completed', 'Incomplete', 'Learning Suspended', 'Completed with Delay', 'Learning Initiated'];
     const MIN_MAJORITY_RATIO = 0.5;
  
     if (!allowedStatuses.includes(newStatus)) {
