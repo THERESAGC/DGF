@@ -1,14 +1,14 @@
 // services/trainingRequestEmployeeLevelService.js
 const db = require('../config/db');
-
-const storeEmployeeLevels = (requestid, employee_level_ids) => {
+ 
+const storeEmployeeLevels = (requestid, designation_names) => {
     return new Promise((resolve, reject) => {
         // Create an array of query values for multiple inserts
-        const values = employee_level_ids.map(employee_level_id => [requestid, employee_level_id]);
-
-        // SQL query to insert multiple employee levels for a given requestid
-        const query = 'INSERT INTO training_request_employee_level (requestid, employee_level_id) VALUES ?';
-
+        const values = designation_names.map(designation_name => [requestid, designation_name]);
+ 
+        // SQL query to insert multiple designations for a given requestid
+        const query = 'INSERT INTO request_designations (requestid, Designation_Name) VALUES ?';
+ 
         // Use query method and pass the array of values
         db.query(query, [values], (err, results) => {
             if (err) {
@@ -18,7 +18,7 @@ const storeEmployeeLevels = (requestid, employee_level_ids) => {
         });
     });
 };
-
+ 
 module.exports = {
     storeEmployeeLevels
 };

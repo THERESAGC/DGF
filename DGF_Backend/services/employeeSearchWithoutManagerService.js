@@ -4,7 +4,7 @@ const db = require('../config/db');
 const searchEmployeesByNameWithoutManager = (name) => {
     return new Promise((resolve, reject) => {
         const query = `
-            SELECT e.emp_id, e.emp_name, e.emp_email, e.profile_image
+            SELECT *
             FROM employee e
             WHERE e.emp_name LIKE ?;
         `;

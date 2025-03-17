@@ -1,47 +1,61 @@
-import { useContext, useEffect, useState } from 'react';
-// import Dashboard from "./Training/Dashboard";
-// import RequestTable from "./Training/RequestTable";
-// import TrainingHeaderBtn from "../Training/TrainingHeaderBtn";
-import AdminSetting from './AdminSetting';
-import AuthContext from '../Auth/AuthContext';
-import AdminHeaderBtn from './AdminHeaderBtn';
- 
+"use client"
+
+import { useContext, useEffect, useState } from "react"
+import AdminSetting from "./AdminSetting"
+import RequestFormEditor from "./RequestFormEditor"
+import AuthContext from "../Auth/AuthContext"
+import AdminHeaderBtn from "./AdminHeaderBtn"
+
 const AdminContainer = () => {
-  const { user } = useContext(AuthContext);
-  const [roleId, setRoleId] = useState(null);
- 
+  const { user } = useContext(AuthContext)
+  const [roleId, setRoleId] = useState(null)
+  const [selectedComponent, setSelectedComponent] = useState("Users")
+
   useEffect(() => {
     if (user) {
-      setRoleId(user.role_id);
+      setRoleId(user.role_id)
     } else {
-      const storedUser = localStorage.getItem('user');
+      const storedUser = localStorage.getItem("user")
       if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setRoleId(parsedUser.role_id);
+        const parsedUser = JSON.parse(storedUser)
+        setRoleId(parsedUser.role_id)
       }
     }
-  }, [user]);
- 
+  }, [user])
+
+  const handleSelectComponent = (componentName) => {
+    setSelectedComponent(componentName)
+  }
+
   const styles = {
     mainContent: {
-      flex: 'auto',
-      boxSizing: 'border-box',
-      padding: '4px 22px 0 0px',
-      marginLeft: '-20px',
-      marginright: '0',
-      maxHeight: '100vh',
-      maxWidth: '100%',
+      flex: "auto",
+      boxSizing: "border-box",
+      padding: "2px 20px 0 30px",
+      marginright: "0",
+      marginBottom: "50px",
+      maxWidth: "100%",
+    },
+  }
 
+  const renderComponent = () => {
+    switch (selectedComponent) {
+      case "Users":
+        return roleId && <AdminSetting roleId={roleId} />
+      case "New Request Form":
+        return <RequestFormEditor />
+      default:
+        return roleId && <AdminSetting roleId={roleId} />
     }
-  };
- 
+  }
+
   return (
     <div style={styles.mainContent}>
-      <AdminHeaderBtn />
-      {roleId && <AdminSetting roleId={roleId} />}
-      {/* <Dashboard /> */}
+      <AdminHeaderBtn onSelectComponent={handleSelectComponent} />
+      {renderComponent()}
     </div>
-  );
-};
- 
-export default AdminContainer;
+  )
+}
+
+export default AdminContainer
+

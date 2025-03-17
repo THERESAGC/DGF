@@ -38,31 +38,31 @@ const handleClosePopup = () => setPopupOpen(false);
 useEffect(() => {
   const fetchData = async () => {
     try {
+      // Reset states when fetching new request data
+      setComments([]);
+      setNewMessage('');
+      setRequestDetails(null);
+      setLearners([]);
+      setUserProfiles({});
+
+      // Fetch request details
       const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestid}`);
       const requestdata = await requestResponse.json();
       setRequestDetails(requestdata);
-      console.log('Request Details:', requestdata);
-      console.log('Request IDdddd:', requestid);
-      
 
+      // Fetch learners
       const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestid}`);
       const learnerdata = await learnerResponse.json();
-      setLearners(learnerdata.employees || []);
-      console.log('Learners Data:', learnerdata);
-      setSortedLearners(learnerdata.employees || []);
-   
+      const initialLearners = learnerdata.employees || [];
+      setLearners(initialLearners);
+      setSortedLearners(initialLearners);
+
+      // Fetch comments
       const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
       const commentsdata = await commentsResponse.json();
       setComments(commentsdata);
-      console.log('Fetched Comments:', commentsdata); // Add this line to log fetched comments
 
-      // if (commentsdata.length > 0) {
-      //   const latestComment = commentsdata.reduce((latest, comment) =>
-      //     new Date(comment.created_date) > new Date(latest.created_date) ? comment : latest
-      //   );
-      //   setLatestCommentId(latestComment.comment_id);
-      // }
-
+      // Fetch user profiles for comments
       const userIds = new Set();
       commentsdata.forEach(comment => {
         if (comment.created_by) userIds.add(comment.created_by);
@@ -72,28 +72,27 @@ useEffect(() => {
       for (let userId of userIds) {
         const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
         const userData = await userResponse.json();
-        console.log(`User Data for ${userId}:`, userData);
         if (userData && userData.length > 0) {
           if (userData[0]?.profile_image?.data) {
             const base64Image = `data:image/jpeg;base64,${arrayBufferToBase64(userData[0].profile_image.data)}`;
             userData[0].profile_image = base64Image;
           }
           profiles[userId] = userData[0];
-        } else {
-          profiles[userId] = { emp_name: 'Unknown', profile_image: '/default-avatar.png' };
         }
       }
       setUserProfiles(profiles);
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   fetchData();
-}, [requestid]);
+}, [requestid]); // Runs when requestid changes
+
 
 const totalPages = Math.ceil(learners.length / itemsPerPage);
-const currentItems = learners.slice(
+const currentItems = sortedLearners.slice(
   (page - 1) * itemsPerPage,
   page * itemsPerPage
 );
@@ -151,107 +150,89 @@ const handleSort = (order) => {
 const handleSubmit = async () => {
   if (!newMessage.trim()) {
     setPopupOpen(true);
-   }
-   else{
- 
-      const requestData = {
-        requestId: requestDetails?.requestid,
-        status: action,
-        roleId: roleId,
-        approverId: user.emp_id,
-      };
-    
-      const commentdata = {
-        requestid: requestDetails?.requestid,
-        comment_text: newMessage,
-        parent_comment_id:  null,
-        created_by: user.emp_id,
-        requestStatus: "Approval Requested",
-      };
-    
+    return;
+  }
+
   try {
-    // Step 1: Update the request status
+    // Prepare request data
+    const requestData = {
+      requestId: requestDetails?.requestid,
+      status: action,
+      roleId: roleId,
+      approverId: user.emp_id,
+    };
+
+    // Prepare comment data
+    const commentdata = {
+      requestid: requestDetails?.requestid,
+      comment_text: newMessage,
+      parent_comment_id: null,
+      created_by: user.emp_id,
+      requestStatus: "Approval Requested",
+    };
+
+    // Step 1: Update request status
     const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestData),
     });
- 
-    const statusData = await statusResponse.json();
-    if (statusResponse.ok) {
-      console.log("API call successful:", statusData);
-      setStatusDialogOpen(true);
-    } else {
-      console.error("Error in API call:", statusData);
-      console.log(statusData)
-      setStatusDialogOpen(false);
-      return; // Exit early if status update fails
+
+    if (!statusResponse.ok) {
+      console.error("Error in status update:", await statusResponse.json());
+      return;
     }
- 
-    // Step 2: If status is "Need Clarification" and there is a comment, add the comment
-    if (action === "needClarification" && newMessage.trim()) {
-      if (!newMessage.trim()) {
-        setPopupOpen(true);
+
+    // Step 2: Add comment
+    const commentResponse = await fetch("http://localhost:8000/api/comments/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(commentdata),
+    });
+
+    if (!commentResponse.ok) {
+      console.error("Error adding comment:", await commentResponse.json());
+      return;
     }
-    else{
-      const commentResponse = await fetch("http://localhost:8000/api/comments/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(commentdata),
-      });
- 
-      if (commentResponse.ok) {
-        console.log("Comment Added Successfully");
-        setNewMessage('');
-      } else {
-        console.error("Error adding comment:", await commentResponse.json());
-      }
-    }
-    }
- 
-    // Step 3: Send an email after updating status and adding a comment if necessary
-    try {
-      const emailResponse = await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          commentdata,
-          action: action, // "approve", "reject", "suspend", or "clarify"
-          requestid: requestDetails?.requestid,
-          requestedby: requestDetails?.requestedby,
-          requestedbyid: "swaroop.bidkar@harbingergroup.com"
-          // requestedbyid: user.email, // Assuming user.email is the requester's email
-          // internalTeamEmail: internalTeamEmail, // Email of the internal team
-          // ccEmail: ccEmail, // CC email (optional)
-        }),
-      });
- 
-      const emailData = await emailResponse.json();
-      if (emailResponse.ok) {
-        console.log("Email Sent Successfully");
-        // alert("Action completed and email sent.");
-      } else {
-        console.error("Error sending email:", emailData);
-        // alert("Error sending email.");
-      }
-    } catch (error) {
-      console.error("Error sending email:", error);
-      // alert("An error occurred while sending the email.");
-    }
- 
+
+    // Step 3: Send email
+    await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        commentdata,
+        action: action,
+        requestid: requestDetails?.requestid,
+        requestedby: requestDetails?.requestedby,
+        requestedbyid: "swaroop.bidkar@harbingergroup.com"
+      }),
+    });
+
+    // Clear states and refresh data
+    setNewMessage('');
+    setStatusDialogOpen(true);
+    
+    // Refresh comments
+    const refreshComments = await fetch(`http://localhost:8000/api/comments/${requestid}`);
+    const newComments = await refreshComments.json();
+    setComments(newComments);
+
   } catch (error) {
-    console.error("Error updating status:", error);
-    // alert("An error occurred while updating status.");
+    console.error("Submission error:", error);
   }
-} 
-  
 };
+
+// Cleanup effect
+useEffect(() => {
+  return () => {
+    setNewMessage('');
+    setComments([]);
+    setRequestDetails(null);
+    setLearners([]);
+  };
+}, []);
+  
+
 const handleCloseStatusDialog = () => {
   setStatusDialogOpen(false);
   navigate("/training-container");
@@ -339,17 +320,9 @@ return (
     <Typography className="typography-label-upper">
       Primary Skills :
     </Typography>
-    <div className="typography-value-upper">
-      {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-        <ul style={{ paddingLeft: '15px' }}>
-          {requestDetails?.primarySkills.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul>
-      ) : (
-        <Typography className="typography-value-upper">No skills available</Typography>
-      )}
-    </div>
+    <Typography className="typography-value-upper">
+                  {requestDetails?.primarySkills}
+                </Typography>
   </FormControl>
 </Grid2>
 </Grid2>
@@ -357,17 +330,17 @@ return (
         <Divider className="divider" style={{ marginTop: "1rem", marginBottom: "1rem" }} />
         <Box>
           <Grid2 container spacing={5} style={{ marginTop: "1rem" }}>
-            <Grid2 item size={4}>
+            <Grid2 item size={4}  style={{ maxWidth:"400px"}} >
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
-                  Other Skill Information in Details:
+                  Other Relevant Information:
                 </Typography>
                 <Typography className="typography-value-upper">
                  { removeHtmlTags(requestDetails?.otherskill)}
                 </Typography>
               </FormControl>
             </Grid2>
-            <Grid2 item size={4}>
+            <Grid2 item size={8}>
               <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem", display: "flex" }}>
                 <Typography className="typography-label-upper">
                   Completion Criteria:
@@ -384,7 +357,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             <Grid2 item size={12}>
               <FormControl fullWidth className="form-control">
                 <Typography className="typography-label-upper">
-                  Comments:
+                Desired Impact:
                 </Typography>
                 <Typography  className="typography-value-upper"  style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                   {removeHtmlTags(requestDetails?.comments)}
@@ -440,37 +413,38 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                     </TableRow>
                   </TableHead>
                 )}
-              <TableBody>
-{sortedLearners.length > 0 ? (
-  sortedLearners.map((learner) => (
-    <TableRow key={learner.emp_id}>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {learner.emp_id}
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        <Box display="flex" alignItems="center" gap={1}>
-          <Avatar alt="User" src={learner.profile_image} /> {/* Use the base64-encoded image */}
-          {learner.emp_name}
-        </Box>
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {formatDate(learner.availablefrom)}
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {learner.dailyband}
-      </TableCell>
-      <TableCell style={{ padding: "8px", fontSize: "12px" }}>
-        {learner.availableonweekend === 1 ? "Yes" : "No"}
+
+<TableBody>
+  {currentItems.length > 0 ? (
+    currentItems.map((learner) => (
+      <TableRow key={learner.emp_id}>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.emp_id}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Avatar alt="User" src={learner.profile_image} /> {/* Use the base64-encoded image */}
+            {learner.emp_name}
+          </Box>
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {formatDate(learner.availablefrom)}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.dailyband}
+        </TableCell>
+        <TableCell style={{ padding: "8px", fontSize: "12px" }}>
+          {learner.availableonweekend === 1 ? "Yes" : "No"}
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} style={{ textAlign: "center" }}>
+        No learners found
       </TableCell>
     </TableRow>
-  ))
-) : (
-  <TableRow>
-    <TableCell colSpan={5} style={{ textAlign: "center" }}>
-      No learners found
-    </TableCell>
-  </TableRow>
-)}
+  )}
 </TableBody>
               </Table>
  
@@ -492,32 +466,33 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
  
  
             <Box sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mt: 2,
-                        alignItems: "center"
-                      }}>
-                        <Typography variant="body2" color="text.secondary">
-                          Showing {currentItems.length} of {learners.length} records
-                        </Typography>
-                        <Pagination
-                          count={totalPages}
-                          page={page}
-                          onChange={(e, value) => setPage(value)}
-                          shape="rounded"
-                          color="primary"
-                          sx={{
-                            '& .MuiPaginationItem-root.Mui-selected': {
-                              color: 'red', // Change text color for selected page
-                              fontWeight: 'bold', // Optional: Change font weight,
-                              backgroundColor: 'transparent', // Optional: Remove background color
-                            },
-                            '& .MuiPaginationItem-root': {
-                              margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
-                            },
-                          }}
-                        />
-                      </Box>
+  display: "flex",
+  justifyContent: "space-between",
+  mt: 2,
+  alignItems: "center"
+}}>
+  <Typography variant="body2" color="text.secondary">
+    Showing {learners.length === 0 ? 0 : (page - 1) * itemsPerPage + 1}-
+    {Math.min(page * itemsPerPage, learners.length)} of {learners.length} records
+  </Typography>
+  <Pagination
+    count={totalPages}
+    page={page}
+    onChange={(e, value) => setPage(value)}
+    shape="rounded"
+    color="primary"
+    sx={{
+      '& .MuiPaginationItem-root.Mui-selected': {
+        color: 'red', // Change text color for selected page
+        fontWeight: 'bold', // Optional: Change font weight,
+        backgroundColor: 'transparent', // Optional: Remove background color
+      },
+      '& .MuiPaginationItem-root': {
+        margin: '-1px', // Reduce the space between page numbers (adjust as necessary)
+      },
+    }}
+  />
+</Box>
  
             <Box
               style={{
@@ -563,53 +538,60 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
   <Typography>No comments available.</Typography>
 )}
 </Box>
-              <Typography style={{ fontSize: "12px", marginBottom: "1rem", color: "#4F4949" }}>
-                Take action on this training request
-              </Typography>
+<Typography style={{ fontSize: "12px", marginBottom: "1rem", color: "#4F4949" }}>
+  Take action on this training request
+</Typography>
               <FormControl component="fieldset" style={{ marginBottom: "1rem" }}>
+                {/* Update the RadioGroup with consistent styling */}
                 <RadioGroup
-                  row
-                  value={action}
-                  onChange={(e) => setAction(e.target.value)}
-                >
-                  <FormControlLabel
-                    value="approve"
-                    control={<Radio color=""/>}
-                    label={
-                      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
-                        Approve
-                      </Typography>
-                    }
-                  />
-                  <FormControlLabel
-                    value="reject"
-                    control={<Radio color=""/>}
-                    label={
-                      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
-                        Reject
-                      </Typography>
-                    }
-                  />
-                   {roleId === 4 && (
-                    <FormControlLabel value="hold" control={<Radio />} label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>} />
-                  )}
-                  <FormControlLabel
-                    value="needClarification"
-                    control={<Radio color=""/>}
-                    label={
-                      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
-                        Need Clarification
-                      </Typography>
-                    }
-                  />
-                </RadioGroup>
+  row
+  value={action}
+  onChange={(e) => setAction(e.target.value)}
+>
+  <FormControlLabel
+    value="approve"
+    control={<Radio color="primary" />}  // Added color="primary"
+    label={
+      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
+        Approve
+      </Typography>
+    }
+  />
+  <FormControlLabel
+    value="reject"
+    control={<Radio color="primary" />}  // Added color="primary"
+    label={
+      <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
+        Reject
+      </Typography>
+    }
+  />
+  {roleId === 4 && (
+    <FormControlLabel 
+      value="hold" 
+      control={<Radio color="primary" />}  // Added color="primary"
+      label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>} 
+    />
+  )}
+  {roleId !== 4 && (
+    <FormControlLabel
+      value="needClarification"
+      control={<Radio color="primary" />}  // Added color="primary"
+      label={
+        <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
+          Need Clarification
+        </Typography>
+      }
+    />
+  )}
+</RadioGroup>
+
               </FormControl>
               <FormControl fullWidth style={{ marginBottom: "1rem" }}>
-                <Typography
-                  style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949" }}
-                >
-                  Comments
-                </Typography>
+              <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949", display: 'inline' }}>
+  Comments
+  <span style={{ color: 'red' }}>*</span>
+</Typography>
                 <TextField
                   multiline
                   rows={4} // Ensure this is set to 4 rows
@@ -638,12 +620,20 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
                 Cancel
               </Button>
               <Button
-                variant="contained"
-                style={{ minWidth: "120px", textTransform: 'none', borderRadius: '10px ', backgroundColor: '#066DD2', boxShadow: 'none', color: 'white' }}
-                onClick={handleSubmit}
-              >
-                Submit
-              </Button>
+  variant="contained"
+  style={{ 
+    minWidth: "120px", 
+    textTransform: 'none', 
+    borderRadius: '10px',
+    backgroundColor: !newMessage.trim() ? '#CCCCCC' : '#066DD2',
+    color: 'white',
+    boxShadow: 'none'
+  }}
+  onClick={handleSubmit}
+  disabled={!newMessage.trim()}
+>
+  Submit
+</Button>
             </Box>
           </div>
         </Box>

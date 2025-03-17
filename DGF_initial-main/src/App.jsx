@@ -15,7 +15,7 @@ import InitiateLearningDetails from './components/CapDevTrainInitiate/InitiateLe
 import RequestInfoContainer from './components/RequestInfoContainer.jsx';
 import DashboardContainer from './components/DashboardContainer.jsx'
 import AdminContainer from './components/Admin/AdminContainer.jsx';
-            
+import PasswordUpdate from './components/Auth/PasswordUpdate.jsx';   
 
 function App() {
   const obj = {
@@ -40,6 +40,7 @@ function App() {
             <Route path='/requester-information/:requestId' element={<ProtectedRoute element={<FixedComponent><RequestInfoContainer /></FixedComponent>} />} /> 
             <Route path='/dashboardgraph' element={<ProtectedRoute element={<FixedComponent><DashboardContainer  /></FixedComponent>} />} /> 
             <Route path='/admin-container' element={<ProtectedRoute element={<FixedComponent><AdminContainer /></FixedComponent>} />} />
+            <Route path='/password-update' element={<PasswordUpdate />} />
           </Routes>
           </ChatProvider>
         </Router>

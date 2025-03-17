@@ -53,8 +53,18 @@ const getAllRolesRoutes = require('./routes/getAllRolesRoutes');
 const addUserRoutes = require('./routes/addUserRoutes');
 const userUpdateStatusRoutes = require('./routes/userUpdateStatusRoutes');
 const excelExportController = require('./controllers/excelExportController'); // Import the excel export controller
+const projectSearchRoutes = require('./routes/projectSearchRoutes');
 
+const updateUserRoleRoutes = require('./routes/updateUserRoleRoutes');
+const addProjectRoutes = require('./routes/addProjectRoutes');
+const deleteProjectRoutes = require('./routes/deleteProjectRoutes');
 
+const addServiceDivisionRoute = require('./routes/addServiceDivisionRoutes');
+
+const deleteServiceDivisionRoutes = require('./routes/deleteServiceDivisionRoutes');
+const addTechStackRoutes = require('./routes/addTechStackRoutes');
+const deleteTechStackRoutes = require('./routes/deleteTechStackRoutes');    
+const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
 
@@ -215,6 +225,9 @@ app.use('/api/empUpdateTrainingRequested', empUpdateTrainingRequestedRoutes); //
 // Learner routes
 app.use('/api/learners', learnerRoutes); // Add this line
 
+// User routes
+app.use('/api/users', updateUserRoleRoutes);
+
 //Get Cpadev employees
 app.use('/api/emp',getEmpsforCapdev );
  
@@ -247,6 +260,20 @@ app.use('/api', addUserRoutes);
 app.get('/export-excel', excelExportController.exportExcelData);
 
 app.use('/api/user', userUpdateStatusRoutes);
+
+app.use('/api', addProjectRoutes);
+
+app.use('/api', deleteProjectRoutes);
+
+app.use('/api', addServiceDivisionRoute);
+
+app.use('/api', deleteServiceDivisionRoutes);
+
+app.use('/api', addTechStackRoutes);
+
+app.use('/api', addPrimarySkillRoutes); 
+
+app.use('/api/delete-tech-stack', deleteTechStackRoutes);
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');

@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal, Box, Typography, TextField, Paper, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Button, FormControl, InputLabel,
-  Select, MenuItem, IconButton, InputAdornment, TextareaAutosize, CircularProgress, RadioGroup, FormControlLabel, Radio, Autocomplete
+  TableContainer, TableHead, TableRow, Button, FormControl, Select, MenuItem, IconButton, InputAdornment, TextareaAutosize, CircularProgress, RadioGroup, FormControlLabel, Radio, Autocomplete
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+ import{useNavigate} from 'react-router-dom';
  
-const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
+const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssigned}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [availableCourses, setAvailableCourses] = useState([]);
   const [courseTypes, setCourseTypes] = useState([]);
@@ -20,7 +22,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
   const [learningType, setLearningType] = useState('');
   const [mentors, setMentors] = useState([]);
   const [mentorLoading, setMentorLoading] = useState(false);
- 
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchCourseTypes = async () => {
       try {
@@ -56,8 +58,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
       }
     };
  
-    const timer = setTimeout(fetchCourses, 500);
-    return () => clearTimeout(timer);
+   fetchCourses();
   }, [searchQuery]);
  
   const handleAddCourse = (course) => {
@@ -102,6 +103,8 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
         }
       }
       onClose();
+     navigate(`/learning-initiated-details/${requestId}`, { replace: true }); // Navigate to the specific page
+    
     } catch (error) {
       console.error('Error assigning courses:', error);
     } finally {
@@ -122,6 +125,17 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
     }
   };
  
+  const isFormValid = () => {
+    if (courses.length === 0 || !learningType) return false;
+    for (const course of courses) {
+      if (!course.mentor || !course.coursetype || !course.completionDate) {
+        return false;
+      }
+    }
+    return true;
+  };
+ 
+
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
@@ -174,7 +188,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
                   handleAddCourse(value);
                 }
               }}
-              disabled={courses.length >=3}
+              disabled={coursesAssigned+courses.length >=3}
             />
             {loading && <CircularProgress size={24} sx={{ mt: 1 }} />}
           </Box>
@@ -202,7 +216,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
             </FormControl>
           </Box>
         </Box>
- 
+        {console.log("Cousrsrs COunt",coursesAssigned)}
         {courses.length === 0 ? (
           <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center' }}>
             <Typography variant="body1" color="text.secondary">
@@ -352,7 +366,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
             variant="contained"
             color="primary"
             onClick={handleAssign}
-            disabled={submitting || courses.length === 0|| courses.length > 3}
+            disabled={submitting ||courses.length === 0|| coursesAssigned+courses.length > 3||!isFormValid()}
           >
             {submitting ? <CircularProgress size={24} /> : 'Assign'}
           </Button>
@@ -361,6 +375,12 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId }) => {
     </Modal>
   );
 };
- 
+AssignCourseModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  employeeIds: PropTypes.array.isRequired,
+  requestId: PropTypes.string.isRequired,
+  coursesAssigned:PropTypes.number.isRequired
+};
+
 export default AssignCourseModal;
- 

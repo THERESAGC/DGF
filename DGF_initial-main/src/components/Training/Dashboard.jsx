@@ -15,7 +15,7 @@ const Dashboard = ({ roleId }) => {
     needclarification: 0,
     completed: 0,
     completedwithdelay: 0,
-    // partiallycompleted: 0,
+    // requestsuspended: 0,
     incomplete: 0,
     rejected: 0,
     learningsuspended: 0,
@@ -47,7 +47,7 @@ const Dashboard = ({ roleId }) => {
       needclarification: 0,
       completed: 0,
       completedwithdelay: 0,
-      // partiallycompleted: 0,
+      // requestsuspended: 0,
       incomplete: 0,
       rejected: 0,
       learningsuspended: 0,
@@ -66,14 +66,11 @@ const Dashboard = ({ roleId }) => {
       } else if (status === "completed with delay") {
         counts.completedwithdelay++;
       } 
-      // else if (status === "partially completed") {
-      //   counts.partiallycompleted++;
-      // } 
       else if (status === "incomplete") {
         counts.incomplete++;
       } else if (status === "rejected") {
         counts.rejected++;
-      } else if (status === "learning suspended") {
+      } else if (status === "learning suspended" || status === "request suspended") {
         counts.learningsuspended++;
       }else if(status === "spoc approved" || status==="capdev approved"){
         counts.preparinglearningplan++;
