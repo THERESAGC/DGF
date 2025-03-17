@@ -24,7 +24,7 @@ const TrainingContainer = () => {
     mainContent: {
       flex: 'auto',
       boxSizing: 'border-box',
-      padding: '3px 56px 0 10px',
+      padding: '3px 48px 0 10px',
       // marginLeft: '-20px',
       marginright: '0',
       // maxHeight: '100vh',

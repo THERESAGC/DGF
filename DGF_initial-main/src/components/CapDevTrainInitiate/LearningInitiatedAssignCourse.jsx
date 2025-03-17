@@ -28,6 +28,7 @@ import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import AssignCourseModal from "./AssignCourseModal"
 import CommentsSidebar from "./CommentsSidebar"
 import PropTypes from "prop-types"
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -264,14 +265,14 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                           <StatusChip>{course.status || "N/A"}</StatusChip>
                         </TableCell>
                         <TableCell>
-                          <ActionIconButton
+                          <IconButton
                             style={{ height: "20px", width: "20px" }}
                             size="small"
                             onClick={(e) => handleMenuClick(e, course.assignment_id)}
                             disabled={["Completed", "Incomplete", "Completed with Delay"].includes(course.status)}
                           >
-                            <ArrowForward />
-                          </ActionIconButton>
+                            <ArrowCircleRightOutlinedIcon  />
+                          </IconButton>
                           <Menu
                             anchorEl={anchorElMap[course.assignment_id]}
                             open={Boolean(anchorElMap[course.assignment_id])}

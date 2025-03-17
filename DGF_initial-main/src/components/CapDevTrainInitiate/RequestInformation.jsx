@@ -66,8 +66,8 @@ const RequestInformation = () => {
             <InfoValue>{requestData.requestedby}</InfoValue>
           </Grid2>
           <Grid2 item size={2}>
-            <InfoLabel>Project:</InfoLabel>
-            <InfoValue>{requestData.project}</InfoValue>
+            <InfoLabel >Project:</InfoLabel>
+            <InfoValue style={{textAlign:"left"}}>{requestData.project}</InfoValue>
           </Grid2>
           <Grid2 item size={2}>
             <InfoLabel>Service Division</InfoLabel>

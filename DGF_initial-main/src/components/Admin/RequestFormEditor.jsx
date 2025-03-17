@@ -83,7 +83,7 @@ const RequestFormEditor = () => {
 
   const [alert, setAlert] = useState({ open: false, message: "", severity: "success" })
 
-  const itemsPerPage = 8
+  const itemsPerPage = 5
 
   useEffect(() => {
     fetchProjects()
@@ -449,9 +449,7 @@ const RequestFormEditor = () => {
         fontFamily: '"Poppins", sans-serif',
       }}
     >
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 500, color: "#09459E" }}>
-        Request Form Editor
-      </Typography>
+     
 
       <Paper elevation={0} sx={{ mb: 4, borderRadius: "10px", overflow: "hidden" }}>
         <Tabs
@@ -518,8 +516,8 @@ const RequestFormEditor = () => {
                     backgroundColor: "#09459E",
                     textTransform: "none",
                     boxShadow: "none",
-                    borderRadius: "8px",
-                    padding: "8px 16px",
+                    borderRadius: "25px",
+                    padding: "6px 20px",
                     "&:hover": {
                       backgroundColor: "#083a80",
                       boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
@@ -534,7 +532,7 @@ const RequestFormEditor = () => {
                 <TextField
                   placeholder="Search projects..."
                   variant="outlined"
-                  size="small"
+                  size="medium"
                   value={searchTerm}
                   onChange={handleSearchChange}
                   sx={{
@@ -542,6 +540,9 @@ const RequestFormEditor = () => {
                     minWidth: "200px",
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "8px",
+                      fontSize: "12px",
+                      height: "36px",
+                      
                     },
                   }}
                   InputProps={{
@@ -552,20 +553,8 @@ const RequestFormEditor = () => {
                     ),
                   }}
                 />
-
-                <Tooltip title="Sort order">
-                  <IconButton
-                    onClick={handleSortOrderChange}
-                    size="small"
-                    sx={{
-                      border: "1px solid #e0e0e0",
-                      borderRadius: "8px",
-                      padding: "8px",
-                    }}
-                  >
-                    <SortIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+                 
+                
 
                 <ToggleButtonGroup
                   value={viewMode}
@@ -585,13 +574,27 @@ const RequestFormEditor = () => {
                       borderRadius: "8px",
                       marginLeft: "4px",
                       borderLeft: "1px solid #e0e0e0",
+                      
                     },
                     "& .MuiToggleButtonGroup-grouped:first-of-type": {
                       borderRadius: "8px",
                     },
                   }}
                 >
-                  <ToggleButton value="list" aria-label="list view">
+                  <Tooltip title="Sort order">
+                  <IconButton
+                    onClick={handleSortOrderChange}
+                    size="small"
+                    sx={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "8px",
+                      padding: "8px",
+                    }}
+                  >
+                    <SortIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                  <ToggleButton value="list" aria-label="list view" style={{marginRight:"4px" , marginLeft:"8px"}} >
                     <ViewListIcon fontSize="small" />
                   </ToggleButton>
                   <ToggleButton value="grid" aria-label="grid view">
@@ -689,12 +692,15 @@ const RequestFormEditor = () => {
                     </Paper>
                   ) : (
                     <Box sx={{ mb: 3 }}>
-                      <Grid container spacing={2}>
+                      <Grid container spacing={5}>
                         {paginatedProjects.map((project) => (
                           <Grid item xs={12} sm={6} md={4} key={project.id}>
                             <Card
+                            className="card-content"
                               sx={{
                                 height: "100%",
+                                gap: "12px" ,
+                                
                                 display: "flex",
                                 flexDirection: "column",
                                 transition: "transform 0.2s, box-shadow 0.2s",
@@ -707,7 +713,7 @@ const RequestFormEditor = () => {
                                 },
                               }}
                             >
-                              <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                              <CardContent  sx={{ flexGrow: 1, p: 2 ,mb:10 }}>
                                 <Typography
                                   variant="h6"
                                   component="div"
@@ -779,7 +785,7 @@ const RequestFormEditor = () => {
                     </Box>
                   )}
 
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop:"5rem" }}>
                     <Typography variant="body2" color="text.secondary">
                       Showing {paginatedProjects.length} of {filteredProjects.length} projects
                     </Typography>
@@ -822,8 +828,8 @@ const RequestFormEditor = () => {
                     backgroundColor: "#09459E",
                     textTransform: "none",
                     boxShadow: "none",
-                    borderRadius: "8px",
-                    padding: "8px 16px",
+                    borderRadius: "25px",
+                    padding: "6px 20px",
                     "&:hover": {
                       backgroundColor: "#083a80",
                       boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
@@ -843,6 +849,8 @@ const RequestFormEditor = () => {
                   mb: 3,
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "8px",
+                    fontSize: "11px",
+                    height: "36px",
                   },
                 }}
                 InputProps={{
@@ -935,10 +943,12 @@ const RequestFormEditor = () => {
                       borderColor: "#09459E",
                       color: "#09459E",
                       textTransform: "none",
-                      borderRadius: "8px",
+                      borderRadius: "25px",
+                      padding: "6px 20px",
                       "&:hover": {
                         borderColor: "#083a80",
                         backgroundColor: "rgba(9, 69, 158, 0.04)",
+                       
                       },
                     }}
                   >
@@ -957,7 +967,8 @@ const RequestFormEditor = () => {
                       backgroundColor: "#09459E",
                       textTransform: "none",
                       boxShadow: "none",
-                      borderRadius: "8px",
+                      borderRadius: "25px",
+                    padding: "6px 20px",
                       "&:hover": {
                         backgroundColor: "#083a80",
                         boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
@@ -980,6 +991,8 @@ const RequestFormEditor = () => {
                   mb: 3,
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "8px",
+                    fontSize: "11px",
+                    height: "36px",
                   },
                 }}
                 InputProps={{

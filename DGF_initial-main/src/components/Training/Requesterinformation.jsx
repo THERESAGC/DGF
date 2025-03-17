@@ -329,7 +329,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
 </Box>
  
           <Divider style={{ margin: "2rem 5px 1rem 2px ",width:"101%"}} />
-
+          <h4>Comments</h4>
           <Box
             display="flex"
             flexDirection="column"
@@ -337,6 +337,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
             paddingLeft={5}
             style={{ height: '150px', overflowY: 'auto' ,paddingLeft:"0px"}} // Add this line
           >
+            
             {sortedComments.length > 0 ? (
               sortedComments.map((comment) => {
                 console.log('Rendering Comment:', comment); // Add this line to log each comment being rendered
@@ -352,7 +353,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                         {userProfiles[comment.created_by]?.emp_name || 'Unknown'}
                       </Typography>
                     </div>
-                    <Typography className="typography-value-upper" style={{ marginBottom: '8px' }}>
+                    <Typography className="typography-value-upper" style={{ marginBottom: '8px', color:"#707070" }}>
                       {comment.comment_text}
                     </Typography>
                     <Typography className="typography-label-upper" style={{ fontSize: '0.85rem' }}>
