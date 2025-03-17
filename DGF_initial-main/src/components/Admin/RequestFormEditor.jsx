@@ -460,6 +460,8 @@ const RequestFormEditor = () => {
             "& .MuiTabs-indicator": {
               backgroundColor: "#FA5864",
               height: "3px",
+              width:"40px !important",
+              marginLeft:"25px"
             },
             "& .Mui-selected": {
               color: "#09459E !important",

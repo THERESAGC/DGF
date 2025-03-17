@@ -8,7 +8,7 @@ import AddUserModal from "./AddUserModal"
 import "./AdminHeaderBtn.css"
 
 const AdminHeaderBtn = ({ onSelectComponent }) => {
-  const [selectedButton, setSelectedButton] = useState("Users")
+  const [selectedButton, setSelectedButton] = useState("User Management")
   const [isUserModalOpen, setIsUserModalOpen] = useState(false)
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
@@ -25,6 +25,7 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
   const handleCloseUserModal = () => {
     setIsUserModalOpen(false)
   }
+
 
   return (
     <>
