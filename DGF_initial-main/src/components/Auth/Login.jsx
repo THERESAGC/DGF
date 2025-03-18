@@ -23,13 +23,13 @@ const Login = () => {
     if (!email) return false
  
     const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    const hasValidDomain = email.endsWith("example.com") || email.endsWith("harbingergroup.com")
+    const hasValidDomain = email.endsWith("harbingergroup.com")
  
     if (!isValidFormat) {
       setEmailError("Please enter a valid email address")
       return false
     } else if (!hasValidDomain) {
-      setEmailError("Email must be from example.com or harbingergroup.com")
+      setEmailError("Email must be from harbingergroup.com")
       return false
     } else {
       setEmailError("")

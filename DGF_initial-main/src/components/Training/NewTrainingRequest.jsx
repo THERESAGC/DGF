@@ -1142,7 +1142,7 @@ const NewTrainingRequest = () => {
             {/* Learning Objective */}
             <Grid item size={4}>
               {/* Learning Objective Field */}
-<FormControl fullWidth style={{ marginLeft: "8px" }}>
+<FormControl fullWidth >
   <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
     Learning Objective <span className="required">*</span>
   </Typography>
@@ -1448,7 +1448,7 @@ const NewTrainingRequest = () => {
                       width: "160px",
                       "& input": {
                         fontSize: "13px",
-                        color: formData.selectedDate ? "#4F4949" : "#787878", // Change color when a date is selected
+                        color: formData.selectedDate ? "#000000CC" : "#787878", // Change color when a date is selected
                       },
                     }}
                   />
@@ -1611,7 +1611,7 @@ const NewTrainingRequest = () => {
                   modules={{
                     toolbar: [["bold", "italic", "underline"]],
                   }}
-                  // placeholder="Other Skill Details should be less than 1000 words"
+                  placeholder="Relevant Information Details should be less than 1000 words"
                   style={{
                     height: "138px",
                     fontStyle: "normal",
@@ -1665,7 +1665,7 @@ const NewTrainingRequest = () => {
                   modules={{
                     toolbar: [["bold", "italic", "underline"]],
                   }}
-                  placeholder="Comments should be less than 350 words"
+                  placeholder="Desired Impact should be less than 350 words"
                   style={{
                     height: "138px",
                     maxWidth: "100%",
@@ -2078,13 +2078,14 @@ const NewTrainingRequest = () => {
                             <FormControlLabel value="No" control={<Radio size="small" color=" " />} label="No" />
                           </RadioGroup>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{width:"10%"}}>
                           <Button
                             variant="contained"
                             style={{
                               textTransform: "none",
                               padding: "5px",
                               backgroundColor: "#066DD2",
+                              
                             }}
                             onClick={() =>
                               updateAllEmployees({

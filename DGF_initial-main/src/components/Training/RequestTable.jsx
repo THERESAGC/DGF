@@ -11,7 +11,7 @@ import Badge from '@mui/material/Badge';
 import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
 import DownloadReport from "../Training/DownloadReport";
-
+ 
 const statuses = ["In Progress", "Completed", "Incomplete", "Rejected", "Suspended"];
 const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"];
  
@@ -36,7 +36,7 @@ const RequestTable = ({ roleId }) => {
   const [loading, setLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null); // To control popover visibility
   const [selectedRequestId, setSelectedRequestId] = useState(null); // Track the requestId of the row clicked
-  
+ 
   /*-------------------------------------*/
         const excludedStatuses = [
           "rejected",
@@ -63,7 +63,7 @@ const RequestTable = ({ roleId }) => {
             return "/path/to/default/avatar.jpg"; // Fallback if no image available
           });
           const totalLearners = data.employees.length; // Get total count of learners
-
+ 
           // Use prevState to update the learnersData
           setLearnersData(prevState => ({
             ...prevState, // Spread the previous state to avoid overwriting it
@@ -74,7 +74,7 @@ const RequestTable = ({ roleId }) => {
       .catch(error => console.error('Error fetching learner data:', error));
   }, []);
   console.log("Learners Data: avaialble", learnersData);
-
+ 
   // Fetch completion data
   const fetchCompletionData = useCallback((requestId) => {
     fetch(`http://localhost:8000/api/employee-completion-status/${requestId}`)
@@ -91,7 +91,7 @@ const RequestTable = ({ roleId }) => {
       .catch(error => console.error('Error fetching completion data:', error));
   }, []);
   console.log("Completion Status:", completionStatus);
-
+ 
   // Convert learner profile image to base64 when raw data changes
   useEffect(() => {
     console.log('Learners Data Before Update:', learnersData);
@@ -105,7 +105,7 @@ const RequestTable = ({ roleId }) => {
           }
           return learner;
         });
-
+ 
         console.log(`Updated Learners for Request ${requestId}:`, updatedLearnersData);
         return {
           ...learnersInfo,
@@ -114,21 +114,21 @@ const RequestTable = ({ roleId }) => {
       }
       return learnersInfo;
     });
-
+ 
     const updatedLearnersData = updatedLearners.reduce((acc, learnerInfo, index) => {
       acc[Object.keys(learnersData)[index]] = learnerInfo;
       return acc;
     }, {});
-
+ 
     console.log('Updated Learners Data:', updatedLearnersData);
-
+ 
     if (JSON.stringify(updatedLearnersData) !== JSON.stringify(learnersData)) {
       setLearnersData(updatedLearnersData);
     }
   }, [learnersData]);
-  
-  
-  
+ 
+ 
+ 
     // Handle status tab change
     const handleStatusChange = (event, newValue) => {
       setSelectedStatus(statuses[newValue]);
@@ -139,17 +139,17 @@ const RequestTable = ({ roleId }) => {
     setSelectedDays(event.target.value);
     setPage(1);
   };
-  
+ 
   // Sort requests by createddate
   const sortRequestsByDate = (requests) => {
     return requests.sort((a, b) => new Date(b.createddate) - new Date(a.createddate));
   };
-  
+ 
   // Filter requests based on selected days
   const filterRequestsByDays = (requests, selectedDays) => {
     const now = new Date();
     let filteredRequests = requests;
-  
+ 
     if (selectedDays === "Last 7 days") {
       const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
       filteredRequests = requests.filter(request => new Date(request.createddate) >= sevenDaysAgo);
@@ -160,10 +160,10 @@ const RequestTable = ({ roleId }) => {
       const ninetyDaysAgo = new Date(now.setDate(now.getDate() - 90));
       filteredRequests = requests.filter(request => new Date(request.createddate) >= ninetyDaysAgo);
     }
-  
+ 
     return filteredRequests;
   };
-  
+ 
   // Update the useEffect to fetch and sort the requests
   useEffect(() => {
     if (user) {
@@ -171,10 +171,10 @@ const RequestTable = ({ roleId }) => {
         .then(response => response.json())
         .then(data => {
           console.log("Fetched Data:", data); // Log the entire response
-        
+       
           let sortedRequests = sortRequestsByDate(data || []);
           if (roleId === 10 || roleId === 4) {
-            setRequests(sortedRequests); 
+            setRequests(sortedRequests);
             const initialAssignedData = data.reduce((acc, request) => {
               if (request.assignedToId && request.assignedToName) {
                 acc[request.requestid] = {
@@ -199,7 +199,7 @@ const RequestTable = ({ roleId }) => {
             }, {});
             setAssignedToData(initialAssignedData);
           }
-
+ 
           fetch('http://localhost:8000/api/emp/getEmpsforCapdev')
             .then((response) => response.json())
             .then((empData) => {
@@ -214,25 +214,25 @@ const RequestTable = ({ roleId }) => {
               console.error('Error fetching employee options:', error);
               setLoading(false);
             });
-        
+       
         })
         .catch(error => console.error('Error fetching data:', error));
-
-      
+ 
+     
       }
   } , [user, roleId]);
-  
+ 
   // Open the popover when clicking on the table cell
   const handleClick = (event, requestId) => {
     setSelectedRequestId(requestId);
     setAnchorEl(event.currentTarget);
   };
-
+ 
   // Close the popover
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+ 
         // Update the assigned employee in the backend
         const updateRequestWithAssignedTo = (emp_id, requestid) => {
           return fetch('http://localhost:8000/api/getemp/updateAssignedTo', {
@@ -250,7 +250,7 @@ const RequestTable = ({ roleId }) => {
               console.error('Error updating request:', error);
             });
         };
-
+ 
         // Handle the selection of employee from the popover
         const handleEmployeeSelect = (employeeId, requestId) => {
           setAssignedToData((prevData) => ({
@@ -260,9 +260,9 @@ const RequestTable = ({ roleId }) => {
               assignedToName: assignedToOptions.find((opt) => opt.value === employeeId).label,
             },
           }));
-
+ 
           handleClose(); // Close the popover after selection
-
+ 
           // Send the updated assigned employee to the backend
           updateRequestWithAssignedTo(employeeId, requestId).then(() => {
             // Refetch the data after updating the assignment
@@ -285,7 +285,7 @@ const RequestTable = ({ roleId }) => {
               .catch((error) => console.error('Error fetching request data:', error));
           });
         };
-
+ 
         // Updated function to map request status to custom display text and styling
         const mapStatusToDisplayText = (status) => {
           switch (status.toLowerCase()) {
@@ -306,7 +306,7 @@ const RequestTable = ({ roleId }) => {
                 return { text: ["Clarification Awaited"], color: "#AA1700" };
               }
               return{ text: ["Clarification Requested"], color: "#AA1700" };
-          
+         
             case "initiate learning":
               return { text: ["Preparing", "Learning Plan"], color: "#AA1700" };
             case "learning initiated":
@@ -336,11 +336,11 @@ const RequestTable = ({ roleId }) => {
               return { text: [status], color: "black" };
           }
         };
-        
+       
         // Update the filtering logic
         const filteredData = filterRequestsByDays(requests, selectedDays).filter(row => {
           const status = row.requeststatus ? row.requeststatus.toLowerCase().trim() : "";
-        
+       
           if (selectedStatus === "In Progress") {
             const inProgressStatuses = [
               "approval requested",
@@ -356,7 +356,7 @@ const RequestTable = ({ roleId }) => {
             const completeStatuses = [
               "completed",
               "completed with delay",
-              
+             
             ];
             return completeStatuses.includes(status); // Filter for "completed"
           } else if (selectedStatus === "Incomplete") {
@@ -367,17 +367,17 @@ const RequestTable = ({ roleId }) => {
             const suspendedStatuses = [
               "learning suspended",
               "request suspended",
-              
+             
             ];
             return suspendedStatuses.includes(status); ; // Filter for "learning suspended"
           }
           return status === selectedStatus.toLowerCase().trim(); // Return the status if it matches the selected one
         });
-        
-        
+       
+       
         console.log('Filtered Data for Status:', selectedStatus, filteredData.length);
         console.log('Filtered Data:', filteredData); // Check what's inside filteredData
-        
+       
         useEffect(() => {
           if (requests.length > 0) {
           // Fetch learner data for each request ID when requests change
@@ -387,68 +387,68 @@ const RequestTable = ({ roleId }) => {
           });
         }
         }, [requests]);
-        
+       
         // Log the `user` object
         useEffect(() => {
           console.log("User object:", user); // Make sure user is not null and has emp_id
         }, [user]);
-        
+       
         // Navigate to different pages based on status
           const handleArrowClick = (status,requestId) => {
             if (status.toLowerCase() === "initiate training") {
               navigate(`/initiate-training`);
             }
-        
+       
             if (status.toLowerCase() === "clarification requested") {
               navigate(`/requester-information/${requestId}`);
             }
-
+ 
             if (status.toLowerCase() == 'approval requested'){
               navigate(`/requester-information/${requestId}`)
             }
-          
+         
             if (status.toLowerCase() == 'learning in progress'){
               navigate(`/requester-information/${requestId}`)
             }
-
-
+ 
+ 
             if((role === "CapDev") && (status.toLowerCase()  == 'completed' || status.toLowerCase() =='completed with delay' ||status.toLowerCase()=='learning suspended' || status.toLowerCase()=='incomplete')){
               navigate(`/learning-initiated-details/${requestId}`);
             }else{
-              
+             
               navigate(`/requester-information/${requestId}`)
             }
-          
-
+         
+ 
             if (status.toLowerCase() == 'rejected'){
               navigate(`/requester-information/${requestId}`)
             }
-
-            
+ 
+           
           };
         // hanlde Edit Click
         const handleEditClick = (status,requestId) => {
           console.log('Status: Arroe,Edit combo', status);
           console.log('Request ID:', requestId);
-
+ 
           if (status.toLowerCase() === 'approval requested') {
             navigate(`/spoc-approval/${requestId}`);
           }
-          
+         
           if (status.toLowerCase() === 'learning in progress') {
             navigate(`/learning-initiated-details/${requestId}`);
           }
           // Check status value
           if(status.toLowerCase() === 'learning initiated'){
-            
+           
             navigate(`/learning-initiated-details/${requestId}`);
-          
+         
           }
-          
+         
           if (status.toLowerCase() === 'spoc approved' || status.toLowerCase() === 'capdev approved') {
             navigate(`/initiate-learning-details/${requestId}`);
           }
-
+ 
           if (status.toLowerCase() == 'clarification requested'){
             navigate(`/requester-information/${requestId}`)
           }
@@ -458,13 +458,13 @@ const RequestTable = ({ roleId }) => {
           if((role !== "CapDev") && (status == 'Completed' || status.toLowerCase() =='completed with delay' ||status.toLowerCase()=='learning suspended' || status.toLowerCase()=='incomplete')){
             navigate(`/requester-information/${requestId}`)
           }
-        
+       
           if(status.toLowerCase() == 'request suspended'){
               navigate(`/spoc-approval/${requestId}`);
             }
-          
+         
         }
-        
+       
           // Handle message click
           const handleMessageClick = (status, requestId) => {
             console.log('Status:', status);  // Check status value
@@ -473,8 +473,8 @@ const RequestTable = ({ roleId }) => {
               navigate(`/clarification-requested/${requestId}`);
             }
           };
-
-
+ 
+ 
           // Set dynamic styles for tab indicator
           useEffect(() => {
             if (tabsRef.current) {
@@ -491,17 +491,17 @@ const RequestTable = ({ roleId }) => {
               }
             }
           }, [selectedStatus]);
-        
+       
         // Handle download report - Excel format
         const handleDownloadReport = (startDate, endDate) => {
           console.log("Downloading Excel report for date range:", startDate, "to", endDate)
-
+ 
           // Filter requests based on date range
           const filteredByDate = requests.filter((request) => {
             const requestDate = new Date(request.createddate)
             return requestDate >= startDate && requestDate <= endDate
           })
-
+ 
           // Prepare data for Excel export
           const excelData = filteredByDate.map((row) => ({
             "Request ID": row.requestid,
@@ -515,36 +515,36 @@ const RequestTable = ({ roleId }) => {
             Completed: completionStatus[row.requestid]?.completedEmployees || 0,
             "Total Employees": completionStatus[row.requestid]?.totalEmployees || 0,
           }))
-
+ 
           // Create a worksheet
           const worksheet = XLSX.utils.json_to_sheet(excelData)
-
+ 
           // Create a workbook
           const workbook = XLSX.utils.book_new()
           XLSX.utils.book_append_sheet(workbook, worksheet, "Training Requests")
-
+ 
           // Generate Excel file
           const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" })
-
+ 
           // Save to file
           const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
-
+ 
           // Create download link
           const fileName = `training_requests_${formatDate(startDate)}_to_${formatDate(endDate)}.xlsx`
-
+ 
           // Create a download link and trigger the download
           const url = window.URL.createObjectURL(data)
           const link = document.createElement("a")
           link.href = url
           link.download = fileName
           link.click()
-
+ 
           // Clean up
           setTimeout(() => {
             window.URL.revokeObjectURL(url)
           }, 100)
         }
-
+ 
  
   return (
     <TableContainer component={Paper} className="table-container">
@@ -567,7 +567,7 @@ const RequestTable = ({ roleId }) => {
           "spoc approved",
           "capdev approved",
           "initiate learning",
-          "learning initiated","clarification requested"
+          "learning initiated","clarification requested","learning in progress"
         ];
         return inProgressStatuses.includes(statusInRow);
       } else if (status === "Completed") {
@@ -585,7 +585,7 @@ const RequestTable = ({ roleId }) => {
         const suspendedStatuses = [
           "learning suspended",
           "request suspended",
-          
+         
         ];
         return suspendedStatuses.includes(statusInRow); ; // Filter for "learning suspended"
       }
@@ -607,7 +607,7 @@ const RequestTable = ({ roleId }) => {
     );
   })}
 </Tabs>
-
+ 
 <div className="flex items-center ml-2 mr-2">
 {user.role_id === 4 && <DownloadReport onDownload={handleDownloadReport} />}
         </div>
@@ -741,8 +741,10 @@ const RequestTable = ({ roleId }) => {
               <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
             </IconButton>
           )}
-        
-          {(role === "CapDev") && row.requeststatus &&( row.requeststatus.toLowerCase() === "learning in progress"|| row.requeststatus.toLowerCase() === "learning initiated") && (
+       
+          {(role === "CapDev") && row.requeststatus &&( row.requeststatus.toLowerCase() === "learning in progress"|| row.requeststatus.toLowerCase() === "learning initiated"
+          || row.requeststatus.toLowerCase() === "completed" ||row.requeststatus.toLowerCase() === "completed with delay"
+        || row.requeststatus.toLowerCase() === "incomplete" || row.requeststatus.toLowerCase() === "learning suspended" ) && (
             <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
               <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
             </IconButton>
@@ -752,21 +754,44 @@ const RequestTable = ({ roleId }) => {
               <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
             </IconButton>
           )}
-
-{(role === "CapDev") && row.requeststatus && (row.requeststatus.toLowerCase() === "request suspended"||row.requeststatus.toLowerCase() === "learning suspended") && (
+ 
+{(role === "CapDev") && row.requeststatus && (row.requeststatus.toLowerCase() === "request suspended") && (
             <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
               <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
             </IconButton>
           )}
-
-
-          {role === "requester" && (
+ 
+ 
+          {/* {(role === "requester") && (row.requeststatus.toLowerCase() === "learning in progress"||row.requeststatus.toLowerCase() === "approval requested" ||row.requeststatus.toLowerCase() === "spoc approved" || row.requeststatus.toLowerCase() === "capdev approved") &&  (
+            <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )} */}
+ 
+    {(role === "RM" || role ==="requester") && (row.requeststatus.toLowerCase() === "learning in progress"||row.requeststatus.toLowerCase() === "approval requested" ||row.requeststatus.toLowerCase() === "spoc approved" || row.requeststatus.toLowerCase() === "capdev approved"
+    ||row.requeststatus.toLowerCase() === "completed"|| row.requeststatus.toLowerCase() === "completed with delay" || row.requeststatus.toLowerCase() === "rejected" ||
+    row.requeststatus.toLowerCase() === "incomplete" ||row.requeststatus.toLowerCase() === "request suspended" ||
+    row.requeststatus.toLowerCase() === "learning suspended") &&  (
             <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
               <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
             </IconButton>
           )}
-          
-          
+ 
+           {(role === "spoc") && (row.requeststatus.toLowerCase() === "learning in progress"||row.requeststatus.toLowerCase() === "spoc approved" || row.requeststatus.toLowerCase() === "capdev approved") &&  (
+            <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )}
+         
+ 
+          {(role === "CapDev") && (row.requeststatus.toLowerCase() === "rejected") &&  (
+            <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )}
+         
+ 
+         
            {/* { role === "requester" && (row.requeststatus.toLowerCase()==='completed'|| row.requeststatus.toLowerCase()==='completed with delay' || row.requeststatus.toLowerCase()==='rejected' || row.requeststatus.toLowerCase()==='learning suspended'|| row.requeststatus.toLowerCase()==='incomplete') && (
             <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
               <ArrowCircleRightOutlinedIcon style={{ height: "15px" }} />
@@ -800,7 +825,7 @@ const RequestTable = ({ roleId }) => {
     );
   })}
 </TableBody>
-
+ 
 </Table>
  
 <Box sx={{
@@ -831,13 +856,15 @@ const RequestTable = ({ roleId }) => {
   />
 </Box>
     </TableContainer>
-    
+   
 );
 };
-
+ 
 RequestTable.propTypes = {
 roleId: PropTypes.number.isRequired,
 onStatusCountChange: PropTypes.func.isRequired,
 };
  
 export default RequestTable;
+ 
+ 

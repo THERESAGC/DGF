@@ -9,7 +9,7 @@ import TrainingIcon from '../../assets/Training.svg';
 import MyCourseIcon from '../../assets/mycourse.svg';
 import EventIcon from '../../assets/event.svg';
 import Logo from '../../assets/harbinger-logo.svg';
-import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsIcon from '../../assets/setting.png';
  
 import '../FixedNavigation/Sidebar.css';
  
@@ -26,12 +26,20 @@ const Sidebar = () => {
       '/new-request': 'Learnings',
       '/my-courses': 'My Courses',
       '/my-events': 'Events',
-      '/spoc-approval': 'Learnings',
-      '/clarification-requested': 'Learnings',
       '/admin-container': 'Admin Settings',
+      '/learning-initiated-details/:requestId': 'Learnings', // Added new route
+      '/initiate-learning-details/:requestId': 'Learnings', // Added new route
+      '/spoc-approval/:requestId': 'Learnings', // Added new route
+      '/requester-information/:requestId': 'Learnings', // Added new route
+      '/clarification-requested/:requestId': 'Learnings', // Added new route
     };
-    setSelectedTab(pathToTab[location.pathname] || 'Dashboard');
-  }, [location.pathname]);
+ 
+    const matchedPath = Object.keys(pathToTab).find(path =>
+      new RegExp(`^${path.replace(':requestId', '[^/]+')}$`).test(location.pathname)
+    );
+ 
+  setSelectedTab(pathToTab[matchedPath] || 'Dashboard');
+}, [location.pathname]);
  
   const handleTabClick = (tab, path) => {
     setSelectedTab(tab);
@@ -64,7 +72,7 @@ const Sidebar = () => {
   if (user?.role_id === 4) {
     menuItems.push({
       text: 'Admin Settings',
-      icon: <SettingsIcon style={{ width: 15, height: 15, paddingLeft: 25 }} />,
+      icon: <img src={SettingsIcon} alt="Events" style={{ width: 15, height: 15, paddingLeft: 25 }} />,
       path: '/admin-container',
     });
   }

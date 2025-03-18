@@ -22,6 +22,7 @@ import { KeyboardArrowDown, KeyboardArrowUp, NavigateBefore, NavigateNext } from
 import { useParams } from "react-router-dom"
 import AssignCourseModal from "./AssignCourseModal"
 import PropTypes from "prop-types"
+import { he } from "date-fns/locale"
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
     padding: "16px",
@@ -35,6 +36,11 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root:nth-of-type(2)": {
     paddingLeft: "0px !important",
     fontFamily: "inherit",
+  },
+  "& .downarrow":{
+    paddingLeft:"0px !important",
+    paddingRight:"0px !important",
+   
   },
 }))
 
@@ -56,10 +62,11 @@ const HeaderButton = styled(Button)(({ theme }) => ({
 const StatusText = styled(Typography)(({ theme }) => ({
   color: "#B33A3A",
   fontWeight: 500,
+  fontSize: "11px !important",
 }))
 
 const ExpandedSection = styled(Box)(({ theme }) => ({
-  padding: "0 220px 16px 20px",
+  padding: "0 50px 16px 42px",
 }))
 
 function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse }) {
@@ -75,21 +82,21 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           backgroundColor: rowBackgroundColor,
         }}
       >
-        <TableCell padding="checkbox">
+        <TableCell padding="checkbox" className="downarrow">
           {hasActiveLearning && (
             <IconButton onClick={() => onToggleExpand(row.emp_id)}>
               {isExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </IconButton>
           )}
         </TableCell>
-        <TableCell padding="checkbox">
-          <Checkbox checked={isSelected} onChange={onSelect} color="primary" />
+        <TableCell padding="checkbox" className="downarrow" >
+          <Checkbox checked={isSelected} onChange={onSelect} color="primary" style={{height:"17px !important ", width:"17px !important "}}/>
         </TableCell>
         <TableCell>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0.5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Avatar alt={row.emp_name} src={row.profile_image} />
-              <Typography>{row.emp_name}</Typography>
+              <Typography style={{textAlign:"left"}}>{row.emp_name}</Typography>
             </Box>
             {hasActiveLearning && (
               <Box
@@ -121,7 +128,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         <TableCell align="center">{row.dailyband}</TableCell>
         <TableCell align="center">{row.availableonweekend === 1 ? "Yes" : "No"}</TableCell>
         <TableCell align="center">
-          <StatusText>Initiate Learning</StatusText>
+          <StatusText >Initiate Learning</StatusText>
         </TableCell>
         <TableCell align="center">
           <HeaderButton onClick={() => onAssignCourse(row.courses_assigned, row.emp_id)}>Assign Course</HeaderButton>
@@ -129,34 +136,34 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
       </TableRow>
       {isExpanded && hasActiveLearning && (
         <TableRow sx={{ backgroundColor: "#F1F2FD" }}>
-          <TableCell colSpan={9} padding="0">
+          <TableCell colSpan={9} paddingLeft="20px">
             <ExpandedSection>
               <Table size="small" aria-label="details">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Req No:</TableCell>
-                    <TableCell>Project</TableCell>
-                    <TableCell>Objective</TableCell>
-                    <TableCell>Tech Stack</TableCell>
-                    <TableCell>Requested on</TableCell>
-                    <TableCell>Assigned by</TableCell>
+                    <TableCell style={{textAlign:"justify"}}>Req No:</TableCell>
+                    <TableCell style={{textAlign:"justify"}}>Project</TableCell>
+                    <TableCell style={{textAlign:"justify"}}>Objective</TableCell>
+                    <TableCell style={{textAlign:"justify"}}>Tech Stack</TableCell>
+                    <TableCell style={{textAlign:"justify"}}>Requested on</TableCell>
+                    <TableCell style={{textAlign:"justify",width:"30%"}}>Assigned by</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {row.requests?.map((request, index) => (
                     <TableRow key={index}>
-                      <TableCell>#{request.requestid}</TableCell>
-                      <TableCell>{request.project_name}</TableCell>
-                      <TableCell>{request.training_objective}</TableCell>
-                      <TableCell>{request.tech_stacks}</TableCell>
-                      <TableCell>
+                      <TableCell style={{textAlign:"justify"}}>#{request.requestid}</TableCell>
+                      <TableCell style={{textAlign:"justify",width:"20%"}}>{request.project_name}</TableCell>
+                      <TableCell style={{textAlign:"justify"}}>{request.training_objective}</TableCell>
+                      <TableCell style={{textAlign:"justify"}}>{request.tech_stacks}</TableCell>
+                      <TableCell style={{textAlign:"justify"}}>
                         {new Date(request.createddate).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
                       </TableCell>
-                      <TableCell>{request.requested_by || "N/A"}</TableCell>
+                      <TableCell style={{textAlign:"justify"}}>{request.requested_by || "N/A"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -311,8 +318,8 @@ function CourseTracker() {
             <Table aria-label="collapsible table">
               <TableHead>
                 <TableRow sx={{ backgroundColor: "#FAFAFA" }}>
-                  <TableCell width="48px" />
-                  <TableCell padding="checkbox" width="48px">
+                  <TableCell width="30px" className="downarrow" />
+                  <TableCell padding="checkbox" width="30px">
                     <Checkbox
                       onChange={(e) => {
                         if (e.target.checked) {
@@ -326,11 +333,11 @@ function CourseTracker() {
                       color="primary"
                     />
                   </TableCell>
-                  <TableCell style={{ textAlign: "left" }}>Name</TableCell>
-                  <TableCell align="center">Courses Assigned</TableCell>
-                  <TableCell align="center">Available From</TableCell>
-                  <TableCell align="center">Daily Bandwidth</TableCell>
-                  <TableCell align="center">Weekend Availability</TableCell>
+                  <TableCell style={{ textAlign: "left" ,width:"16%"}}>Name</TableCell>
+                  <TableCell align="center" style={{width:"12%"}}>Courses Assigned</TableCell>
+                  <TableCell align="center"style={{width:"12%"}}>Available From</TableCell>
+                  <TableCell align="center"style={{width:"12%"}}>Daily Bandwidth</TableCell>
+                  <TableCell align="center"style={{width:"11%"}}>Weekend Availability</TableCell>
                   <TableCell align="center">Status</TableCell>
                   <TableCell style={{ textAlign: "left" }}>Actions</TableCell>
                 </TableRow>

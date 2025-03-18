@@ -8,7 +8,7 @@ import AddUserModal from "./AddUserModal"
 import "./AdminHeaderBtn.css"
 
 const AdminHeaderBtn = ({ onSelectComponent }) => {
-  const [selectedButton, setSelectedButton] = useState("Users")
+  const [selectedButton, setSelectedButton] = useState("User Management")
   const [isUserModalOpen, setIsUserModalOpen] = useState(false)
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
@@ -26,15 +26,14 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
     setIsUserModalOpen(false)
   }
 
+
   return (
     <>
       <AppBar position="static" className="AdminBar">
         <Toolbar className="toolbar">
+      
           <Box className="admin">
-            {[
-              { text: "Users", path: "/admin-container" },
-              { text: "New Request Form", path: "" },
-            ].map((item) => (
+            {[{ text: "User Management", path: "/admin-container" }, { text: "Data Field Management", path: "" }].map((item) => (
               <Typography
                 key={item.text}
                 variant="h6"
@@ -46,17 +45,20 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
               </Typography>
             ))}
           </Box>
-          <Box className="admin">
-            <Button
-              variant="contained"
-              color="primary"
-              className="button"
-              onClick={handleOpenUserModal}
-              disabled={user.role_id === 10}
-            >
-              Add User
-            </Button>
-          </Box>
+          {selectedButton !== "Data Field Management" && (
+            <Box className="admin">
+              <Button
+                variant="contained"
+                color="primary"
+                className="button"
+                onClick={handleOpenUserModal}
+                disabled={user.role_id === 10}
+              >
+                Add New User
+              </Button>
+            </Box>
+          )}
+
         </Toolbar>
       </AppBar>
       <AddUserModal open={isUserModalOpen} onClose={handleCloseUserModal} />

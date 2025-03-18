@@ -500,15 +500,19 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                 padding: "16px",
                 borderRadius: "8px",
                 marginTop: "1rem",
-                marginBottom: "1rem"
+                marginBottom: "1rem",
+              
+
               }}
             >
+<Box style={{width:"92%", margin:"auto"}}>
+  <h5>Comments</h5>
 <Box
 display="flex"
 flexDirection="column"
 gap={2}
-paddingLeft={5}
-style={{ height: '150px', overflowY: 'auto' }} // Add this line
+// paddingLeft={5}
+style={{ height: '150px', overflowY: 'auto'}} // Add this line
 >
 {sortedComments.length > 0 ? (
   sortedComments.map((comment) => {
@@ -538,7 +542,8 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
   <Typography>No comments available.</Typography>
 )}
 </Box>
-<Typography style={{ fontSize: "12px", marginBottom: "1rem", color: "#4F4949" }}>
+<Box  style={{ marginTop: "3rem" }}>
+<Typography style={{ fontSize: "12px", marginBottom: "0.5rem", color: "#4F4949" }}>
   Take action on this training request
 </Typography>
               <FormControl component="fieldset" style={{ marginBottom: "1rem" }}>
@@ -550,7 +555,7 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
 >
   <FormControlLabel
     value="approve"
-    control={<Radio color="primary" />}  // Added color="primary"
+    control={<Radio color=" " />}  // Added color="primary"
     label={
       <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
         Approve
@@ -559,7 +564,7 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
   />
   <FormControlLabel
     value="reject"
-    control={<Radio color="primary" />}  // Added color="primary"
+    control={<Radio color=" " />}  // Added color="primary"
     label={
       <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
         Reject
@@ -569,14 +574,14 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
   {roleId === 4 && (
     <FormControlLabel 
       value="hold" 
-      control={<Radio color="primary" />}  // Added color="primary"
+      control={<Radio color=" " />}  // Added color="primary"
       label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>} 
     />
   )}
   {roleId !== 4 && (
     <FormControlLabel
       value="needClarification"
-      control={<Radio color="primary" />}  // Added color="primary"
+      control={<Radio color=" " />}  // Added color="primary"
       label={
         <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
           Need Clarification
@@ -587,7 +592,7 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
 </RadioGroup>
 
               </FormControl>
-              <FormControl fullWidth style={{ marginBottom: "1rem" }}>
+              <FormControl fullWidth style={{ marginBottom: "1rem" ,width:"100%"}}>
               <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949", display: 'inline' }}>
   Comments
   <span style={{ color: 'red' }}>*</span>
@@ -605,7 +610,11 @@ style={{ height: '150px', overflowY: 'auto' }} // Add this line
                   }}
                 />
               </FormControl>
+              </Box>
+              </Box>
             </Box>
+
+            
             <Box
               display="flex"
               justifyContent="flex-end"
