@@ -581,7 +581,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
               <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Techstack / Area:</Typography>
-                  <Typography className="typography-value-upper">Front-end</Typography>
+                  <Typography className="typography-value-upper">{requestDetails?.techstack}</Typography>
                 </FormControl>
               </Grid2>
             </Grid2>
@@ -591,16 +591,8 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Primary Skills / Competencies:</Typography>
                   <Typography className="typography-value-upper">
-                    {" "}
-                    {requestDetails?.primarySkills && requestDetails?.primarySkills.length > 0 ? (
-                      <ul style={{ paddingLeft: "20px" }}>
-                        {requestDetails?.primarySkills.map((skill, index) => (
-                          <li key={index}>{skill}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <Typography className="typography-value-upper">No skills available</Typography>
-                    )}
+                    { requestDetails?.primarySkills}
+                   
                   </Typography>
                 </FormControl>
               </Grid2>
@@ -796,11 +788,11 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
               </Grid2>
               {/* {console.log(formData.employees.length) } */}
               {formData.showTable && formData.employees.length > 0 ? (
-                <Grid2 item={true} size={12} style={{ marginTop: "15px" }}>
-                  <TableContainer component={Paper} className="tableContainer">
+                <Grid2 item={true} size={12} style={{ marginTop: "15px"}}>
+                  <TableContainer className='tableContainer' component={Paper} style={{boxShadow: "none",paddingLeft:"0px"}}>
                     <Table size="small">
-                      <TableHead className="head">
-                        <TableRow style={{ height: "10px", backgroundColor: "#CCE3FF" }}>
+                      <TableHead className="head" >
+                        <TableRow style={{ height: "10px", backgroundColor: "white" }}>
                           <TableCell className="tableHeader">Employee ID</TableCell>
                           <TableCell className="tableHeader">Name</TableCell>
                           <TableCell className="tableHeader">Available From</TableCell>

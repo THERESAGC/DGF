@@ -1324,7 +1324,9 @@ const NewTrainingRequest = () => {
                       onChange={handleChange}
                       error={formData.prospectNameError}
                       InputProps={{
-                        style: { fontSize: "12px" },
+                        style: { fontSize: "12px",
+                          height: "30px"
+                         },
                       }}
                     />
                   </Tooltip>
@@ -1403,7 +1405,9 @@ const NewTrainingRequest = () => {
                         style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: "12px" },
+                          style: { fontSize: "12px" ,
+                            height: "30px"
+                          },
                         }}
                       />
                     )}

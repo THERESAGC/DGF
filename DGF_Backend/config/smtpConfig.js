@@ -5,8 +5,8 @@
     port: 587,                  // Use port 587 for TLS
     secure: false,              // Set to false for TLS
     auth: {
-      user: "*******",  // Your Office365 email
-      pass: "*******",    // Your Office365 password or app password
+      user: "*********",  // Your Office365 email
+      pass: "*********"    // Your Office365 password or app password
     },
     tls: {
       ciphers: "SSLv3",

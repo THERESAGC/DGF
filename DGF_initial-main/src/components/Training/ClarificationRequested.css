@@ -6,3 +6,14 @@
 /* .content-wrapper{
    padding: 10px 10px 0 40px;
 } */
+ .tableContainer tr:nth-child(odd){
+   background-color:#F1F2FD; /* Set color for odd rows */
+ }
+ .tableContainer tr{
+   padding-left: "0px" !important;
+ }
+
+ .tableContainer th:nth-child(1){
+   width: 50px !important;
+   white-space: nowrap !important;   
+ }
