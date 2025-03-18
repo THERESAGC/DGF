@@ -1,102 +1,133 @@
 
-import { useState, useContext, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { TextField, Button, Box, Paper, InputLabel } from "@mui/material"
-import axios from "axios"
-import AuthContext from "./AuthContext"
-import logo from "../../assets/harbinger-logo.svg"
-import backgroundImage from "../../assets/Onelogin-BG 1.jpg"
- 
+// export default PasswordUpdate;
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { TextField, Button, Box, Paper, InputLabel } from "@mui/material";
+import axios from "axios";
+import backgroundImage from "../../assets/Onelogin-BG 1.jpg"; // Your background image
+import logo from "../../assets/harbinger-logo.svg"; // Your logo
+
 const PasswordUpdate = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [repeatPassword, setRepeatPassword] = useState("")
-  const [emailError, setEmailError] = useState("")
-  const [newPasswordError, setNewPasswordError] = useState("")
-  const [repeatPasswordError, setRepeatPasswordError] = useState("")
-  const [isFormValid, setIsFormValid] = useState(false)
- 
-  const navigate = useNavigate()
-  const { login } = useContext(AuthContext)
- 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
+  const [repeatPasswordError, setRepeatPasswordError] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation(); // Get the current URL
+  const [token, setToken] = useState(""); // State to store the token
+
+  // Get the token from the URL query params
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const tokenFromURL = queryParams.get("token");
+    setToken(tokenFromURL); // Set the token from URL
+  }, [location]);
+
   // Validate form on input change
   useEffect(() => {
-    validateForm()
-  }, [email, password, newPassword, repeatPassword])
- 
+    validateForm();
+  }, [email, password, newPassword, repeatPassword]);
+
   const validateEmail = (email) => {
-    if (!email) return false
-    const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    const hasValidDomain = email.endsWith("example.com") || email.endsWith("harbingergroup.com")
- 
+    if (!email) return false;
+    const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const hasValidDomain = email.endsWith("example.com") || email.endsWith("harbingergroup.com");
+
     if (!isValidFormat) {
-      setEmailError("Please enter a valid email address")
-      return false
+      setEmailError("Please enter a valid email address");
+      return false;
     } else if (!hasValidDomain) {
-      setEmailError("Email must be from example.com or harbingergroup.com")
-      return false
+      setEmailError("Email must be from example.com or harbingergroup.com");
+      return false;
     } else {
-      setEmailError("")
-      return true
+      setEmailError("");
+      return true;
     }
-  }
- 
+  };
+
   const validatePasswords = () => {
-    let isNewPasswordValid = false
-    let isRepeatPasswordValid = false
- 
+    let isNewPasswordValid = false;
+    let isRepeatPasswordValid = false;
+
     if (!newPassword) {
-      setNewPasswordError("New password is required")
+      setNewPasswordError("New password is required");
     } else if (newPassword.length < 8) {
-      setNewPasswordError("Password must be at least 8 characters")
+      setNewPasswordError("Password must be at least 8 characters");
     } else {
-      setNewPasswordError("")
-      isNewPasswordValid = true
+      setNewPasswordError("");
+      isNewPasswordValid = true;
     }
- 
+
     if (!repeatPassword) {
-      setRepeatPasswordError("Please confirm your new password")
+      setRepeatPasswordError("Please confirm your new password");
     } else if (repeatPassword !== newPassword) {
-      setRepeatPasswordError("Passwords do not match")
+      setRepeatPasswordError("Passwords do not match");
     } else {
-      setRepeatPasswordError("")
-      isRepeatPasswordValid = true
+      setRepeatPasswordError("");
+      isRepeatPasswordValid = true;
     }
- 
-    return isNewPasswordValid && isRepeatPasswordValid
-  }
- 
+
+    return isNewPasswordValid && isRepeatPasswordValid;
+  };
+
   const validateForm = () => {
-    const isEmailValid = validateEmail(email)
-    const isCurrentPasswordValid = password.length > 0
-    const areNewPasswordsValid = validatePasswords()
- 
-    setIsFormValid(isEmailValid && isCurrentPasswordValid && areNewPasswordsValid)
-  }
- 
+    const isEmailValid = validateEmail(email);
+    const isCurrentPasswordValid = password.length > 0;
+    const areNewPasswordsValid = validatePasswords();
+
+    setIsFormValid(isEmailValid && isCurrentPasswordValid && areNewPasswordsValid);
+  };
+
   const handleUpdatePassword = async () => {
-    if (!isFormValid) return
- 
+    if (!isFormValid || !token) {
+      alert("Please fill in all fields correctly or make sure the token is available");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:8000/api/auth/update-password", {
-        email,
-        currentPassword: password,
+      // Construct payload with token and new password
+      const payload = {
+        token,
+        existingPassword: password || undefined, // Send undefined if existingPassword is empty
         newPassword,
-      })
- 
-      if (response.data.message === "Password updated successfully") {
-        alert("Password updated successfully")
-        navigate("/login")
+      };
+
+      console.log("Payload:", payload); // Log the payload for debugging
+
+      // Make API request to the change password endpoint
+      const response = await axios.post(
+        "http://localhost:8000/api/change-password", // Your backend URL
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Handle success response
+      if (response.data.message === "Password changed successfully") {
+        alert("Password updated successfully");
+        navigate("/login"); // Redirect to login page
       } else {
-        alert("Password update failed")
+        alert("Password update failed");
       }
     } catch (error) {
-      console.error("Password update error:", error)
-      alert("Password update failed")
+      console.error("Password update error:", error);
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        alert(`Error: ${error.response.data.message}`);
+      } else {
+        alert("Password update failed");
+      }
     }
-  }
- 
+  };
+
   return (
     <Box
       sx={{
@@ -106,7 +137,7 @@ const PasswordUpdate = () => {
         justifyContent: "center",
         minHeight: "100vh",
         width: "100%",
-        backgroundImage: `url(${backgroundImage})`,
+        backgroundImage: `url(${backgroundImage})`, // Set the background image
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -132,15 +163,15 @@ const PasswordUpdate = () => {
           }}
         >
           <img
-            src={logo || "/placeholder.svg"}
-            alt="Harbinger Group Logo"
+            src={logo} // Display logo
+            alt="Your Logo"
             style={{
               height: "50px",
               marginBottom: "10px",
             }}
           />
         </Box>
- 
+
         <Box sx={{ mb: 3 }}>
           <InputLabel
             htmlFor="email"
@@ -159,7 +190,7 @@ const PasswordUpdate = () => {
             variant="outlined"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="email@harbingergroup.com"
+            placeholder="email@domain.com"
             error={!!emailError}
             helperText={emailError}
             sx={{
@@ -183,7 +214,7 @@ const PasswordUpdate = () => {
             }}
           />
         </Box>
- 
+
         <Box sx={{ mb: 3 }}>
           <InputLabel
             htmlFor="password"
@@ -224,7 +255,7 @@ const PasswordUpdate = () => {
             }}
           />
         </Box>
- 
+
         <Box sx={{ mb: 3 }}>
           <InputLabel
             htmlFor="newPassword"
@@ -267,7 +298,7 @@ const PasswordUpdate = () => {
             }}
           />
         </Box>
- 
+
         <Box sx={{ mb: 4 }}>
           <InputLabel
             htmlFor="repeatPassword"
@@ -310,7 +341,7 @@ const PasswordUpdate = () => {
             }}
           />
         </Box>
- 
+
         <Button
           fullWidth
           variant="contained"
@@ -336,9 +367,7 @@ const PasswordUpdate = () => {
         </Button>
       </Paper>
     </Box>
-  )
-}
- 
-export default PasswordUpdate
+  );
+};
 
- 
+export default PasswordUpdate;

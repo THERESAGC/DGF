@@ -27,7 +27,7 @@ const sendEmail = (to, subject, text, cc = "") => {
     attachments: [
       {
         filename: 'image002.png', // Name of the image
-        path: 'C:/Users/Swaroop.Bidkar/Downloads/image002.png', // Path to your image
+        path: '', // Path to your image
         cid: 'signatureImage' // CID reference that matches the HTML image source
       }
     ]

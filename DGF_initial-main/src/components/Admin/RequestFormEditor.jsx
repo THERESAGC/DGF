@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import {
@@ -49,6 +48,7 @@ import SortIcon from "@mui/icons-material/Sort"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import CodeIcon from "@mui/icons-material/Code"
 import axios from "axios"
+import { color } from "chart.js/helpers"
 
 const RequestFormEditor = () => {
   const [tabValue, setTabValue] = useState(0)
@@ -1287,16 +1287,25 @@ const RequestFormEditor = () => {
           {isEditMode ? "Edit Tech Stack" : "Add New Tech Stack"}
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Tech Stack Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newTechStackName}
-            onChange={(e) => setNewTechStackName(e.target.value)}
-          />
+        <label htmlFor="tech-stack-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+    Tech Stack Name
+  </label>
+  <input
+    id="tech-stack-name"
+    type="text"
+    value={newTechStackName}
+    onChange={(e) => setNewTechStackName(e.target.value)}
+    style={{
+      width: '98%',
+      height: '30px',
+      marginBottom: '1rem',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+      fontSize: '12px',
+      outline: 'none',
+      padding: '0 8px',
+    }}
+  />
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
@@ -1343,19 +1352,9 @@ const RequestFormEditor = () => {
         <DialogTitle sx={{ fontWeight: 500, borderBottom: "1px solid #f0f0f0", pb: 2 }}>
           {isEditMode ? "Edit Primary Skill" : "Add New Primary Skill"}
         </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Primary Skill Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newPrimarySkillName}
-            onChange={(e) => setNewPrimarySkillName(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        {/* <DialogContent sx={{ mt: 2 }}>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <FormControl fullWidth variant="outlined">
               <InputLabel id="tech-stack-label">Tech Stack</InputLabel>
               <Select
@@ -1388,7 +1387,109 @@ const RequestFormEditor = () => {
               </Fab>
             </Tooltip>
           </Box>
-        </DialogContent>
+
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Primary Skill Name"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newPrimarySkillName}
+            onChange={(e) => setNewPrimarySkillName(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          
+        </DialogContent> */}
+        
+        <DialogContent sx={{ mt: 2 }}>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    {/* Simple HTML input for Tech Stack */}
+    <div style={{ width: '100%' }}>
+      <label htmlFor="tech-stack-input" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' , fontSize:"14px"}}>
+        Tech Stack
+      </label>
+      <select
+        id="tech-stack-input"
+        placeholder="Select Tech Stack" 
+        value={selectedTechStackId}
+        onChange={handleTechStackChange}
+        style={{
+          width: '100%',
+          height: '30px',
+          marginBottom: '1rem',
+          borderRadius: '4px',
+          border: '1px solid #ccc',
+          fontSize: '12px',
+          color:selectedTechStackId? 'black': '#6C6868', // Change color based on selection
+         outline: 'none',
+         "&:hover": {
+          backgroundColor: "#083a80",
+        },
+          
+        }}
+      >
+        <option value="" disabled style={{color: '#BDBDBD'}} >Select Tech Stack</option>
+        {techStacks.map((techStack) => (
+          <option key={techStack.id} value={techStack.id} style={{color: 'black'}}>
+            {techStack.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Add New Tech Stack Button */}
+    <Tooltip title="Add New Tech Stack">
+      <Fab
+        size="small"
+        color="primary"
+        onClick={() => {
+          setIsAddPrimarySkillDialogOpen(false);
+          setIsAddTechStackDialogOpen(true);
+        }}
+        sx={{
+          marginTop: '1rem',
+          backgroundColor: "#09459E",
+      
+          height: 'auto',
+          width: '2.5rem',
+          boxShadow: "none",
+          marginBottom: '0.2rem',
+          "&:hover": { backgroundColor: "#083a80" },
+          
+        }}
+      >
+        <AddIcon sx={{height:'2rem', width: '1rem'}} />
+      </Fab>
+    </Tooltip>
+  </Box>
+
+
+  <label htmlFor="tech-stack-input" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' , fontSize:"14px"}}>
+    Primary Skill 
+      </label>
+  {/* Simple HTML input for Primary Skill Name */}
+  <input
+    autoFocus
+    type="text"
+    placeholder="Primary Skill Name"
+    value={newPrimarySkillName}
+    onChange={(e) => setNewPrimarySkillName(e.target.value)}
+    style={{
+      width: '89%',
+      height: '30px',
+    
+      // padding: '10px',
+      marginBottom: '16px',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+      fontSize: '12px',
+      outline: 'none',
+      
+    }}
+  />
+</DialogContent>
+
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
             onClick={() => setIsAddPrimarySkillDialogOpen(false)}

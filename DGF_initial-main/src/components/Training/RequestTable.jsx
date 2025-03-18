@@ -797,7 +797,7 @@ const RequestTable = ({ roleId }) => {
               <ArrowCircleRightOutlinedIcon style={{ height: "15px" }} />
             </IconButton>
           )} */}
-          {(role === "requester") && row.requeststatus && row.requeststatus.toLowerCase() === "clarification requested" && (
+          {(role === "requester" || role === 'RM') && row.requeststatus && row.requeststatus.toLowerCase() === "clarification requested" && (
             <IconButton onClick={() => handleMessageClick(row.requeststatus, row.requestid)}>
               <Badge
                 badgeContent={"1 new"}

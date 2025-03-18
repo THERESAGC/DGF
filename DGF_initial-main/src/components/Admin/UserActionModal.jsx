@@ -1,4 +1,4 @@
-"use client"
+
 import { useState, useEffect } from "react"
 import {
   Box, Typography, Modal, Button, FormControl, FormLabel, Select, MenuItem,
@@ -140,14 +140,17 @@ const UserActionModal = ({ open, onClose, user }) => {
               IconComponent={KeyboardArrowDownIcon}
               renderValue={(selected) => selected}
               sx={{
-                height: 40,
+                height: 30,
+                fontSize: "12px",
                 ".MuiOutlinedInput-notchedOutline": {
                   borderColor: "#e0e0e0",
+                  
+                  
                 },
               }}
             >
               {roles.map((role) => (
-                <MenuItem key={role.role_id} value={role.role_name}>
+                <MenuItem  key={role.role_id} value={role.role_name}>
                   {role.role_name}
                 </MenuItem>
               ))}

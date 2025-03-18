@@ -1986,8 +1986,8 @@ const NewTrainingRequest = () => {
             )}
             {/* Table for Employees */}
             {formData.showTable && (
-              <Grid item size={12} style={{ boxShadow: "none" }}>
-                <TableContainer component={Paper} className="tableContainer">
+              <Grid item size={12} >
+                <TableContainer component={Paper} style={{ boxShadow: "none" }}>
                   <Table size="smaller">
                     <TableHead className="head">
                       <TableRow style={{ height: "40px", backgroundColor: "#CCE3FF" }}>
@@ -2334,7 +2334,7 @@ const NewTrainingRequest = () => {
             {/* Summary */}
             {formData.showSummary && (
               <Grid item xs={12}>
-                <Typography style={{ marginTop: "-30px" }}>
+                <Typography style={{ marginTop: "-55px" }}>
                   Total employees selected: {formData.employees.length}
                   {formData.invalidEmails.length > 0 && <span> (Invalid emails: {formData.invalidEmails.length})</span>}
                 </Typography>

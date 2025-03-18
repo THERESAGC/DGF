@@ -1,27 +1,29 @@
-"use client"
- 
 import { useState, useEffect } from "react"
-import {
-  Box,
-  Typography,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Select,
-  MenuItem,
-  Paper,
-  Grid,
-  Button,
-  Avatar,
-  Modal,
-  TextField,
-  Autocomplete,
+import { 
+  Box, 
+  Typography, 
+  Radio, 
+  RadioGroup, 
+  FormControlLabel, 
+  FormControl, 
+  FormLabel, 
+  Select, 
+  MenuItem, 
+  Paper, 
+  Grid, 
+  Button, 
+  Avatar, 
+  Modal, 
+  TextField, 
+  Autocomplete, 
+  Dialog, 
+  DialogActions, 
+  DialogContent, 
+  DialogTitle, 
 } from "@mui/material"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import axios from "axios"
- 
+
 const AddUserModal = ({ open, onClose }) => {
   const [role, setRole] = useState("")
   const [employee, setEmployee] = useState("")
@@ -30,7 +32,8 @@ const AddUserModal = ({ open, onClose }) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [employees, setEmployees] = useState([])
   const [selectedEmployee, setSelectedEmployee] = useState(null)
- 
+  const [userData, setUserData] = useState(null)
+
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -40,10 +43,9 @@ const AddUserModal = ({ open, onClose }) => {
         console.error("Error fetching roles:", error)
       }
     }
- 
     fetchRoles()
   }, [])
- 
+
   useEffect(() => {
     if (searchTerm) {
       const fetchEmployees = async () => {
@@ -56,75 +58,97 @@ const AddUserModal = ({ open, onClose }) => {
           console.error("Error fetching employees:", error)
         }
       }
- 
       fetchEmployees()
     }
   }, [searchTerm])
- 
+
   const handleRoleChange = (event) => {
     setRole(event.target.value)
   }
- 
+
   const handleEmployeeChange = (event, value) => {
     setEmployee(value ? value.emp_id : "")
     setSelectedEmployee(value)
-    console.log("Selected Employee:", value)
   }
- 
+
   const handleUserRoleChange = (event) => {
     setUserRole(event.target.value)
   }
- 
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value)
   }
- 
-  const handleAddUser = async () => {
-    if (!selectedEmployee || !role) {
-      alert("Please select an employee and role.")
+
+  const handleSaveUser = async () => {
+    if (!selectedEmployee || !role || (role === "User" && !userRole)) {
+      alert("Please fill all required fields.")
       return
     }
- 
-    const roleData = roles.find((r) => r.role_name === (role === "User" ? userRole : role))
-    const role_id = roleData ? roleData.role_id : null
- 
-    const userData = {
+
+    const roleData = roles.find((r) => 
+      r.role_name === (role === "User" ? userRole : role)
+    )
+
+    if (!roleData) {
+      alert("Invalid role selection")
+      return
+    }
+
+    const newUserData = {
       emp_id: selectedEmployee.emp_id,
       name: selectedEmployee.emp_name,
       email: selectedEmployee.emp_email,
-      password: "defaultPassword", // You might want to generate or ask for a password
-      designation: selectedEmployee.Designation_Name, // Use Designation_Name here
-      role_id: role_id,
+      password: "defaultPassword",
+      designation: selectedEmployee.Designation_Name,
+      role_id: roleData.role_id,
       profile_image: selectedEmployee.profile_image,
-      created_on: new Date().toISOString().slice(0, 19).replace("T", " "), // Format as 'YYYY-MM-DD HH:MM:SS'
+      created_on: new Date().toISOString().slice(0, 19).replace("T", " "),
       status: "invited",
     }
- 
+
     try {
-      await axios.post("http://localhost:8000/api/addUser", userData)
-      alert("User added successfully")
-      onClose()
+      // First, add the user
+      const addUserResponse = await axios.post("http://localhost:8000/api/addUser", newUserData);
+      alert("User added successfully");
+
+      // Then, request password change
+      const { email } = newUserData; // Assuming newUserData contains the email
+      const passwordChangeResponse = await axios.post("http://localhost:8000/api/request-password-change", { email });
+
+      if (passwordChangeResponse.status === 200) {
+        alert("Password change request sent successfully");
+      } else {
+        alert("Failed to request password change");
+      }
+
+      // Close the modal after successful completion
+      onClose();
     } catch (error) {
-      console.error("Error adding user:", error.response ? error.response.data : error.message)
-      alert("Error adding user")
+      console.error("Error:", error);
+
+      // Handle the error by showing the appropriate message
+      alert(error.response?.data?.message || "An error occurred");
     }
   }
- 
+
   const capDevRole = roles.find((role) => role.role_name === "CapDev Role")
   const spocRole = roles.find((role) => role.role_name === "SPOC")
   const rmRole = roles.find((role) => role.role_name === "RM Role")
   const userRoles = roles.filter(
-    (role) => role.role_name !== "CapDev Role" && role.role_name !== "SPOC" && role.role_name !== "RM Role",
+    (role) => role.role_name !== "CapDev Role" && 
+             role.role_name !== "SPOC" && 
+             role.role_name !== "RM Role",
   )
- 
+
   return (
+    <>
     <Modal open={open} onClose={onClose}>
-      <Box sx={{ maxWidth: 600, p: 3, mx: "auto", mt: 5, bgcolor: "background.paper", borderRadius: 1 }}>
+      <Box sx={{ maxWidth: 600, p:"13px 17px 13px 15px", mx: "auto", mt: 2, bgcolor: "background.paper", borderRadius: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: 500, mb: 3 }}>
           Add User
         </Typography>
- 
-        <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 1, p: 3 }}>
+
+        <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 1, p: 3, bgcolor: "#FCFCFC" }}>
           <FormControl component="fieldset" sx={{ width: "100%", mb: 3 }}>
             <FormLabel
               component="legend"
@@ -141,7 +165,7 @@ const AddUserModal = ({ open, onClose }) => {
               {capDevRole && (
                 <FormControlLabel
                   value={capDevRole.role_name}
-                  control={<Radio size="small" />}
+                  control={<Radio size="small" color=""/>}
                   label={capDevRole.role_name}
                   sx={{ mr: 3 }}
                 />
@@ -149,7 +173,7 @@ const AddUserModal = ({ open, onClose }) => {
               {spocRole && (
                 <FormControlLabel
                   value={spocRole.role_name}
-                  control={<Radio size="small" />}
+                  control={<Radio size="small" color=""/>}
                   label={spocRole.role_name}
                   sx={{ mr: 3 }}
                 />
@@ -157,27 +181,27 @@ const AddUserModal = ({ open, onClose }) => {
               {rmRole && (
                 <FormControlLabel
                   value={rmRole.role_name}
-                  control={<Radio size="small" />}
+                  control={<Radio size="small" color=""/>}
                   label={rmRole.role_name}
                   sx={{ mr: 3 }}
                 />
               )}
-              <FormControlLabel value="User" control={<Radio size="small" />} label="User" sx={{ mr: 3 }} />
+              <FormControlLabel value="User" control={<Radio size="small" color="" />} label="User" sx={{ mr: 3 }} />
             </RadioGroup>
           </FormControl>
- 
+
           {role === "User" && (
-            <FormControl fullWidth sx={{ mb: 3 }}>
+            <FormControl fullWidth sx={{ mb: 1.5}}>
               <FormLabel
                 component="legend"
                 required
                 sx={{
                   color: "black",
                   fontSize: "0.875rem",
-                  mb: 1,
+                  mb: 0.5,
                 }}
               >
-                Select User Role
+                Select User Group
               </FormLabel>
               <Select
                 value={userRole}
@@ -185,14 +209,15 @@ const AddUserModal = ({ open, onClose }) => {
                 displayEmpty
                 IconComponent={KeyboardArrowDownIcon}
                 renderValue={(selected) => (
-                  <Box sx={{ display: "flex", alignItems: "center" }}>{selected || "Select User Role"}</Box>
+                  <Box sx={{ display: "flex",fontSize:"12px",color: selected?"black":"#BDBDBD" , alignItems: "center" }}>{selected  || "Select User Role" }</Box>
                 )}
                 sx={{
-                  height: 40,
+                  height: "30px",
                   ".MuiOutlinedInput-notchedOutline": {
                     borderColor: "#e0e0e0",
+                    fontSize: "10px",
                   },
-                }}
+              }}
               >
                 {userRoles.map((role) => (
                   <MenuItem key={role.role_id} value={role.role_name}>
@@ -202,15 +227,15 @@ const AddUserModal = ({ open, onClose }) => {
               </Select>
             </FormControl>
           )}
- 
-          <FormControl fullWidth sx={{ mb: 3 }}>
+
+          <FormControl fullWidth sx={{ mb: 1 }}>
             <FormLabel
               component="legend"
               required
               sx={{
                 color: "black",
                 fontSize: "0.875rem",
-                mb: 1,
+                mb:0.5,
               }}
             >
               Search Employee
@@ -227,7 +252,14 @@ const AddUserModal = ({ open, onClose }) => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  sx={{ mb: 2 }}
+                  sx={{
+                    mb: 1,
+                    '& .MuiOutlinedInput-root': {
+                      fontSize: '12px', // You can adjust this value
+                      marginTop: '3px !important', // You can adjust this value
+                      height: '30px !important', // You can adjust this value
+                    },
+                  }}
                 />
               )}
               renderOption={(props, option) => (
@@ -244,7 +276,7 @@ const AddUserModal = ({ open, onClose }) => {
               )}
             />
           </FormControl>
- 
+
           <Paper
             elevation={0}
             sx={{
@@ -292,7 +324,7 @@ const AddUserModal = ({ open, onClose }) => {
               </Typography>
             )}
           </Paper>
- 
+
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
             <Button
               variant="text"
@@ -313,7 +345,7 @@ const AddUserModal = ({ open, onClose }) => {
                 minWidth: 80,
                 boxShadow: "none",
               }}
-              onClick={handleAddUser}
+              onClick={handleSaveUser}
             >
               Add
             </Button>
@@ -321,10 +353,8 @@ const AddUserModal = ({ open, onClose }) => {
         </Box>
       </Box>
     </Modal>
+    </>
   )
 }
- 
+
 export default AddUserModal
- 
- 
- 

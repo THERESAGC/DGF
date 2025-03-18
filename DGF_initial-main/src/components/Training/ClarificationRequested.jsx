@@ -3,7 +3,7 @@ import {  Paper,  Typography,  Grid2,  Divider,  Pagination,  Box,
   FormControl,  TableCell,  TableContainer,  Table,  TableHead,  TableRow,
   TableBody,  Avatar,  Button,  RadioGroup,  FormControlLabel,  Radio,
   TextField,  Autocomplete,  MenuItem,  Select,  Dialog,  DialogTitle,
-  DialogContent,  DialogActions,} from "@mui/material"
+ } from "@mui/material"
 import { useState, useEffect, useContext } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import IconButton from "@mui/material/IconButton" // Correct import for IconButton
@@ -25,7 +25,7 @@ const ClarificationRequested = () => {
   const { requestid } = useParams()
   const { user } = useContext(AuthContext) // Get the user from AuthContext
   const [requestDetails, setRequestDetails] = useState(null) // Store request details
-  const { messages, sendMessage, newMessage, setNewMessage } = useContext(ChatContext)
+  const { sendMessage, newMessage, setNewMessage } = useContext(ChatContext)
   const [comments, setComments] = useState([])
   const [userProfiles, setUserProfiles] = useState({}) // Store user profiles
     const [searchResults, setSearchResults] = useState([])
@@ -35,11 +35,10 @@ const ClarificationRequested = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success")
   const [previousEmployeesInDB, setpreviousEmployeesInDB] = useState([])
   const itemsPerPage = 5
+  const [popupOpen, setPopupOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
 
-  const [popupOpen, setPopupOpen] = useState(false);
-const handleClosePopup = () => setPopupOpen(false);
   const handleCloseStatusDialog = () => {
     setStatusDialogOpen(false)
     navigate("/training-container");
@@ -76,12 +75,17 @@ const handleClosePopup = () => setPopupOpen(false);
             return {
               ...learner,
               profile_image: base64Flag,
-              availableFrom: learner.availablefrom,
-              bandwidth: learner.dailyband,
-              weekend: learner.availableonweekend,
+              availableFrom: learner.availablefrom ? learner.availablefrom:"",
+              bandwidth: learner.dailyband ? learner.dailyband:"",
+              weekend: learner.availableonweekend ? 1:0,
             }
           }
-          return learner
+          return {
+            ...learner,
+            availableFrom: learner.availablefrom ? learner.availablefrom:"",
+            bandwidth: learner.dailyband ? learner.dailyband:"",
+            weekend: learner.availableonweekend?1:0,
+          }
         })
 
         console.log("Learners data:", updatedLearners) // Check if learners are fetched
@@ -535,19 +539,19 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
         <div className="inner-container">
           <Box style={{ padding: "10px", marginTop: "1rem" }}>
             <Grid2 container spacing={5}>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control" style={{ marginBottom: "1rem" }}>
                   <Typography className="typography-label-upper">Request ID/No:</Typography>
                   <Typography className="typography-value-upper"> #{requestDetails?.requestid}</Typography>
                 </FormControl>
               </Grid2>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Request By:</Typography>
                   <Typography className="typography-value-upper"> {requestDetails?.requestedby}</Typography>
                 </FormControl>
               </Grid2>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Project:</Typography>
                   <Typography className="typography-value-upper">
@@ -559,13 +563,13 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
             </Grid2>
  
             <Grid2 container spacing={5}>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Service Division:</Typography>
                   <Typography className="typography-value-upper">{requestDetails?.service_division}</Typography>
                 </FormControl>
               </Grid2>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Expected Completion:</Typography>
                   <Typography className="typography-value-upper">
@@ -574,7 +578,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
                   </Typography>
                 </FormControl>
               </Grid2>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Techstack / Area:</Typography>
                   <Typography className="typography-value-upper">Front-end</Typography>
@@ -583,7 +587,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
             </Grid2>
  
             <Grid2 container spacing={2} style={{ marginTop: "1rem" }}>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Primary Skills / Competencies:</Typography>
                   <Typography className="typography-value-upper">
@@ -606,7 +610,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
           <Divider className="divider" style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }} />
           <Box>
             <Grid2 container spacing={2} style={{ marginTop: "0.5rem", paddingLeft: "5px" }}>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Other Skill Information in Details:</Typography>
                   <Typography className="typography-value-upper">
@@ -615,7 +619,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
                   </Typography>
                 </FormControl>
               </Grid2>
-              <Grid2 item size={4}>
+              <Grid2 item={true} size={4}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Completion Criteria:</Typography>
                   <Typography className="typography-value-upper">
@@ -626,7 +630,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
             </Grid2>
  
             <Grid2 container spacing={2} style={{ paddingLeft: "5px", marginTop: "0.5rem" }}>
-              <Grid2 item size={12}>
+              <Grid2 item={true} size={12}>
                 <FormControl fullWidth className="form-control">
                   <Typography className="typography-label-upper">Comments:</Typography>
                   <Typography className="typography-value-upper">{removeHtmlTags(requestDetails?.comments)}</Typography>
@@ -644,7 +648,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
               </Typography>
               <Grid2 container spacing={2} >
                 {/* Select Employee Section */}
-                <Grid2 item size={4}>
+                <Grid2 item={true} size={4}>
                   <FormControl fullWidth>
                     <Typography
                       className="subheader"
@@ -658,7 +662,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
                       getOptionDisabled={(option) =>
                         option.totalPrimarySkills >= 3 || formData.employees.some((emp) => emp.emp_id === option.id)
                       }
-                      onInputChange={handleEmployeeSearch}
+                      onInputChange={(event, value)=>{handleEmployeeSearch(event, value)}}
                       onChange={(event, value) => {
                         if (
                           value &&
@@ -727,20 +731,20 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
                 </Grid2>
  
                 {/* OR Section */}
-                <Grid2 item style={{ marginTop: "52px"}}>
+                <Grid2 item={true} style={{ marginTop: "52px"}}>
                   <Typography
                     className="subheader"
                     align="center"
                     style={{ display: "inline", marginTop: "32px", color: "#4F4949", fontSize: "12px",textAlign:" center" ,
                       margin:" 6px auto 0 auto",
-                      display: "block "}}
+                      }}
                   >
                     OR
                   </Typography>
                 </Grid2>
  
                 {/* Email Input Section */}
-                <Grid2 item size={4}>
+                <Grid2 item={true} size={4}>
                   <FormControl fullWidth style={{  marginTop: "24px" }}>
                     <Typography
                       className="subheader"
@@ -762,7 +766,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
                 </Grid2>
  
                 {/* Add Employee Button */}
-                <Grid2 item >
+                <Grid2 item={true} >
                   <Box
                     display="flex"
                     justifyContent="flex-end"
@@ -792,7 +796,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
               </Grid2>
               {/* {console.log(formData.employees.length) } */}
               {formData.showTable && formData.employees.length > 0 ? (
-                <Grid2 item size={12} style={{ marginTop: "15px" }}>
+                <Grid2 item={true} size={12} style={{ marginTop: "15px" }}>
                   <TableContainer component={Paper} className="tableContainer">
                     <Table size="small">
                       <TableHead className="head">
