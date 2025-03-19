@@ -26,8 +26,8 @@ const sendEmail = (to, subject, text, cc = "") => {
     cc, // Add the CC field, default is empty string (no CC)
     attachments: [
       {
-        filename: 'image002.png', // Name of the image
-        path: 'C:/Users/Swaroop.Bidkar/Downloads/image002.png', // Path to your image
+        filename: 'image.jpg', // Name of the image
+        path: 'assets/image.jpg', // Path to your image
         cid: 'signatureImage' // CID reference that matches the HTML image source
       }
     ]

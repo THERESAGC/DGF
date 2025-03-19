@@ -36,6 +36,7 @@
   cursor: pointer !important;
   /* transition: background-color 0.3s, color 0.3s; */
 }
+
 .typography:first-child {
   margin-left: 0 !important; /* Remove left margin for the first button */
 }
@@ -50,7 +51,7 @@
 
 .typography.selected {
   position: sticky; /* Ensure the pseudo-element is positioned relative to the text */
-  color: #11161c; /* Ensure text color is white */
+  color: #0544A1; /* Ensure text color is white */
   /* text-decoration: none; Remove the default underline */
 }
 

@@ -83,6 +83,7 @@ const NewTrainingRequest = () => {
     selectedServiceDivision: "",
     searchQuery: "",
     requestonbehalfRole: "",
+    searchEmployeeIdQuery: "",
   })
 
   const role = getRoleType(user.role_id)
@@ -1323,7 +1324,9 @@ const NewTrainingRequest = () => {
                       onChange={handleChange}
                       error={formData.prospectNameError}
                       InputProps={{
-                        style: { fontSize: "12px" },
+                        style: { fontSize: "12px",
+                          height: "30px"
+                         },
                       }}
                     />
                   </Tooltip>
@@ -1402,7 +1405,9 @@ const NewTrainingRequest = () => {
                         style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: "12px" },
+                          style: { fontSize: "12px" ,
+                            height: "30px"
+                          },
                         }}
                       />
                     )}
@@ -1703,7 +1708,7 @@ const NewTrainingRequest = () => {
                   control={<CustomRadio sx={{ "& .MuiSvgIcon-root": { color: "#707070" } }} />}
                   label={
                     <Typography className="subheader" style={{ fontWeight: "600" }}>
-                      Place an Open Request
+                      Place an Open/Org Level Request
                     </Typography>
                   }
                 />
@@ -1986,8 +1991,8 @@ const NewTrainingRequest = () => {
             )}
             {/* Table for Employees */}
             {formData.showTable && (
-              <Grid item size={12} style={{ boxShadow: "none" }}>
-                <TableContainer component={Paper} className="tableContainer">
+              <Grid item size={12} >
+                <TableContainer component={Paper} style={{ boxShadow: "none" }}>
                   <Table size="smaller">
                     <TableHead className="head">
                       <TableRow style={{ height: "40px", backgroundColor: "#CCE3FF" }}>
@@ -1999,9 +2004,23 @@ const NewTrainingRequest = () => {
                         <TableCell className="tableHeader">Actions</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell></TableCell>
+                      <TableCell>
+      <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
+        <TextField
+          variant="outlined"
+          placeholder="Search ID"
+          value={formData.searchEmployeeIdQuery}
+          onChange={(e) => setFormData({ ...formData, searchEmployeeIdQuery: e.target.value })}
+          style={{ fontSize: "12px", width: "90px", marginTop: "16px" }}
+          InputProps={{
+            style: { fontSize: "12.5px", color: "#4F4949" },
+          }}
+        />
+      </Box>
+    </TableCell>
+ 
                         <TableCell>
-                          <Box display="flex" justifyContent="flex-end" marginBottom="1rem">
+                          <Box  justifyContent="flex-end" marginBottom="1rem">
                             <TextField
                               variant="outlined"
                               placeholder="Search Employees"
@@ -2103,16 +2122,19 @@ const NewTrainingRequest = () => {
                     </TableHead>
 
                     <TableBody sx={{ borderBottom: "1px solid #EAEAEA" }}>
-                      {formData.employees
-                        .filter((employee) => employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()))
-                        .slice(
-                          formData.page * formData.rowsPerPage,
-                          formData.page * formData.rowsPerPage + formData.rowsPerPage,
-                        )
-                        .map((employee) => {
-                          const isExpanded = expandedEmpId === employee.id
-                          const hasActiveLearning = employee.total_requests > 0
-
+                    {formData.employees
+    .filter((employee) =>
+      employee.name.toLowerCase().includes(formData.searchQuery.toLowerCase()) &&
+      employee.id.toString().toLowerCase().includes(formData.searchEmployeeIdQuery.toLowerCase())
+    )
+    .slice(
+      formData.page * formData.rowsPerPage,
+      formData.page * formData.rowsPerPage + formData.rowsPerPage,
+    )
+    .map((employee) => {
+      const isExpanded = expandedEmpId === employee.id
+      const hasActiveLearning = employee.total_requests > 0
+ 
                           return (
                             <React.Fragment key={employee.uniqueKey}>
                               <TableRow
@@ -2334,7 +2356,7 @@ const NewTrainingRequest = () => {
             {/* Summary */}
             {formData.showSummary && (
               <Grid item xs={12}>
-                <Typography style={{ marginTop: "-30px" }}>
+                <Typography style={{ marginTop: "-55px" }}>
                   Total employees selected: {formData.employees.length}
                   {formData.invalidEmails.length > 0 && <span> (Invalid emails: {formData.invalidEmails.length})</span>}
                 </Typography>

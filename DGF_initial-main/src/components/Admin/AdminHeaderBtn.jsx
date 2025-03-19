@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useContext } from "react"
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material"
@@ -40,6 +39,10 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
                 component="div"
                 className={`typography ${selectedButton === item.text ? "selected" : ""}`}
                 onClick={() => handleButtonClick(item.text)}
+                sx={{
+                  color: selectedButton === item.text ? "blue" : "black",
+                  cursor: "pointer",
+                }}
               >
                 {item.text}
               </Typography>

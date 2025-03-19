@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useContext, useEffect, useState } from "react"
 import AdminSetting from "./AdminSetting"
@@ -31,7 +31,7 @@ const AdminContainer = () => {
     mainContent: {
       flex: "auto",
       boxSizing: "border-box",
-      padding: "2px 20px 0 30px",
+      padding: "2px 30px 0 30px",
       marginright: "0",
       marginBottom: "50px",
       maxWidth: "100%",

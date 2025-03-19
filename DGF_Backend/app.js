@@ -67,7 +67,7 @@ const deleteTechStackRoutes = require('./routes/deleteTechStackRoutes');
 const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
-
+const passwordForUserRoutes = require('./routes/passwordForUserRoutes'); //Routes for admin enable user and new password mail
 
 const app = express();
 const server = http.createServer(app);
@@ -274,6 +274,10 @@ app.use('/api', addTechStackRoutes);
 app.use('/api', addPrimarySkillRoutes); 
 
 app.use('/api/delete-tech-stack', deleteTechStackRoutes);
+
+// Use routes for when the admin approves enable user from the setting 
+app.use('/api', passwordForUserRoutes);
+
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
     console.log('New client connected');
