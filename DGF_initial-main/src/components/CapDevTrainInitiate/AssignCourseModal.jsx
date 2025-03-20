@@ -142,14 +142,17 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
         position: 'absolute',
         top: '50%',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 800,
+        transform: 'translate(-50%, -53%)',
+        width: 700,
         bgcolor: 'background.paper',
         boxShadow: 24,
         p: 4,
         borderRadius: 2,
-        maxHeight: '90vh',
-        overflowY: 'auto'
+        maxHeight: '85vh',
+        overflowY: 'auto',
+        outline: 'none',
+        resize: 'none',
+ 
       }}>
         <Typography variant="h6" sx={{ mb: 3 }}>
           Assign Course to {employeeIds.length > 1 ? `${employeeIds.length} Employees` : 'Employee'}
@@ -217,7 +220,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                   <FormControlLabel
                     key={type}
                     value={type}
-                    control={<Radio />}
+                    control={<Radio  color=''/>}
                     label={type}
                   />
                 ))}
@@ -227,27 +230,27 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
         </Box>
         {console.log("Cousrsrs COunt",coursesAssigned)}
         {courses.length === 0 ? (
-          <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="body1" color="text.secondary">
+          <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center',height:"30px" }}>
+            <Typography variant="body1" color="text.secondary" mt={0.8}>
               No courses selected
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ mb: 3 }}>
+          <TableContainer component={Paper} sx={{ mb: 3 ,width:"97%"}}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Course Name</TableCell>
-                  <TableCell>Mentor</TableCell>
-                  <TableCell>Completion Date</TableCell>
-                  <TableCell>Course Type</TableCell>
+                  <TableCell style={{width:"25%"}}>Course Name</TableCell>
+                  <TableCell style={{width:"20%"}}>Mentor</TableCell>
+                  <TableCell style={{width:"20%",paddingRight:"0px"}}>Completion Date</TableCell>
+                  <TableCell style={{width:"20%"}}>Course Type</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {courses.map((course) => (
                   <TableRow key={course.course_id}>
-                    <TableCell>{course.name}</TableCell>
+                    <TableCell >{course.name}</TableCell>
                     <TableCell>
                       <Autocomplete
                         freeSolo
@@ -264,10 +267,19 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                             InputProps={{
                               ...params.InputProps,
                               startAdornment: (
-                                <InputAdornment position="start">
-                                  <SearchIcon />
+                                 
+ 
+                                <InputAdornment position="start" >
+                                  <SearchIcon sx={{fontSize:"18px"}}/>
                                 </InputAdornment>
                               ),
+                            }}
+                            sx={{
+                              width: '100%',
+                              '& .MuiInputBase-input::placeholder': {
+                                fontSize: '12px', // Set your desired font size here
+                                textAlign: 'left',
+                              },
                             }}
                           />
                         )}
@@ -290,14 +302,15 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                         type="date"
                         size="small"
                         fullWidth
+                        style={{ width: '80%'}}
                         inputProps={{
+                         
                           min: new Date().toISOString().split("T")[0], // Set the minimum date to today
                         }}
                         InputProps={{
-                         
+                          style: { fontSize: '13px'},
                           startAdornment: (
                             <InputAdornment position="start">
-                              <CalendarTodayIcon fontSize="small" />
                             </InputAdornment>
                           ),
                         }}
@@ -348,15 +361,18 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
           </TableContainer>
         )}
  
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3 ,mt:3}}>
           <Typography gutterBottom>Special Comments</Typography>
           <TextareaAutosize
             minRows={3}
             style={{
-              width: '97%',
-              padding: '8px',
+              width: '99%',
+             
               border: '1px solid #ddd',
-              borderRadius: '4px'
+              borderRadius: '4px',
+              resize: 'none',  // Disable resizing
+              overflowY: 'scroll',  // Enable scrolling if content overflows
+              outline: 'none',  // Remove outline
             }}
             value={specialComments}
             onChange={(e) => setSpecialComments(e.target.value)}
@@ -394,5 +410,6 @@ AssignCourseModal.propTypes = {
 };
  
 export default AssignCourseModal;
+ 
  
  

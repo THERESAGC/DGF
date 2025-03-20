@@ -25,7 +25,7 @@ exports.createNewTrainingRequest = async (req, res) => {
  
     // If projectid is null, set it to 999 here
     if (projectid == null) {
-        projectid = 999;
+        projectid = 0;
     }
  
     // Validate if all required fields are present
