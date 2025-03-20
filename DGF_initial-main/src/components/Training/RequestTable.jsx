@@ -687,7 +687,7 @@ const RequestTable = ({ roleId }) => {
           height: 20,
         }}
       >
-        <Typography variant="body2">+{learnersData[row.requestid].totalLearners - 2}</Typography>
+        <Typography variant="body2" sx={{fontSize:"9px !important"}}>+{learnersData[row.requestid].totalLearners - 2}</Typography>
       </Box>
     )}
   </Box>

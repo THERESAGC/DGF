@@ -1,22 +1,7 @@
 import { useState, useEffect } from "react"
-import {
-  Box,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Checkbox,
-  Avatar,
-  IconButton,
-  Pagination,
-  PaginationItem,
-  CircularProgress,
-} from "@mui/material"
+import {  Box,  Typography,  Button,  Table,  TableBody,  TableCell,  TableContainer,
+  TableHead,  TableRow,  Paper,  Checkbox,  Avatar,  IconButton,  Pagination,  PaginationItem,
+  CircularProgress,} from "@mui/material"
 import { styled } from "@mui/material/styles"
 import { KeyboardArrowDown, KeyboardArrowUp, NavigateBefore, NavigateNext } from "@mui/icons-material"
 import { useParams } from "react-router-dom"
@@ -43,7 +28,7 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
    
   },
 }))
-
+ 
 const HeaderButton = styled(Button)(({ theme }) => ({
   height: "30px",
   fontSize: "10px",
@@ -58,22 +43,22 @@ const HeaderButton = styled(Button)(({ theme }) => ({
     backgroundColor: "#f5f5f5",
   },
 }))
-
+ 
 const StatusText = styled(Typography)(({ theme }) => ({
   color: "#B33A3A",
   fontWeight: 500,
   fontSize: "11px !important",
 }))
-
+ 
 const ExpandedSection = styled(Box)(({ theme }) => ({
   padding: "0 50px 16px 42px",
 }))
-
+ 
 function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse }) {
   const rowBackgroundColor = isExpanded ? "#F1F2FD" : "white"
   // Determine if the employee has active learning based on request_org_level
   const hasActiveLearning = row.request_org_level === 1 ? row.total_requests > 0 : row.total_primary_skills > 0
-
+ 
   return (
     <>
       <TableRow
@@ -195,7 +180,7 @@ function CourseTracker() {
   const { requestId } = useParams()
   const rowsPerPage = 5
   const totalRecords = 15
-
+ 
   useEffect(() => {
     const fetchLearners = async () => {
       try {
@@ -205,12 +190,12 @@ function CourseTracker() {
           `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
         )
         const data = await response.json()
-
+ 
         // Set the request_org_level from the response
         if (data && data.length > 0 && "request_org_level" in data) {
           setRequestOrgLevel(data.request_org_level)
         }
-
+ 
         // Process each employee to get their learning details
         const learnersWithDetails = await Promise.all(
           data.employees
@@ -221,10 +206,10 @@ function CourseTracker() {
                     data.request_org_level === 1
                       ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${learner.emp_id}`
                       : `http://localhost:8000/api/learners/getLearners/${learner.emp_id}`
-
+ 
                   const detailsResponse = await fetch(apiEndpoint)
                   const detailsData = await detailsResponse.json()
-
+ 
                   return {
                     ...learner,
                     profile_image: learner.profile_image || null,
@@ -243,7 +228,7 @@ function CourseTracker() {
               })
             : [],
         )
-
+ 
         setLearners(learnersWithDetails)
       } catch (error) {
         console.error("Error fetching learners:", error)
@@ -251,18 +236,18 @@ function CourseTracker() {
         setLoading(false)
       }
     }
-
+ 
     fetchLearners()
   }, [requestId])
-
+ 
   const handleToggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id)
   }
-
+ 
   const handleSelectEmployee = (empId) => {
     setSelectedEmployees((prev) => (prev.includes(empId) ? prev.filter((id) => id !== empId) : [...prev, empId]))
   }
-
+ 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
   }
@@ -281,7 +266,7 @@ function CourseTracker() {
       prevLearners.map((learner) => (learner.emp_id === empId ? { ...learner, courses_assigned: newCount } : learner)),
     )
   }
-
+ 
   return (
     <Box
       sx={{
@@ -307,7 +292,7 @@ function CourseTracker() {
           </HeaderButton>
         </Box>
       </Box>
-
+ 
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
@@ -343,7 +328,9 @@ function CourseTracker() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {learners.map((row) => (
+                {learners
+    .slice((page - 1) * rowsPerPage, page * rowsPerPage) // Limit rows based on pagination
+    .map((row) => (
                   <Row
                     key={row.emp_id}
                     row={row}
@@ -360,23 +347,24 @@ function CourseTracker() {
               </TableBody>
             </Table>
           </StyledTableContainer>
-
+ 
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, px: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Showing {Math.min(learners.length, rowsPerPage)} of {learners.length} records
-            </Typography>
-            <Pagination
-              count={Math.ceil(learners.length / rowsPerPage)}
-              page={page}
-              onChange={handleChangePage}
-              renderItem={(item) => (
-                <PaginationItem slots={{ previous: NavigateBefore, next: NavigateNext }} {...item} />
-              )}
-            />
-          </Box>
+  <Typography variant="body2" color="text.secondary">
+    Showing {(page - 1) * rowsPerPage + 1}-
+    {Math.min(page * rowsPerPage, learners.length)} of {learners.length} records
+  </Typography>
+  <Pagination
+    count={Math.ceil(learners.length / rowsPerPage)}
+    page={page}
+    onChange={handleChangePage}
+    renderItem={(item) => (
+      <PaginationItem slots={{ previous: NavigateBefore, next: NavigateNext }} {...item} />
+    )}
+  />
+</Box>
         </>
       )}
-
+ 
       <AssignCourseModal
         open={showAssignModal}
         onClose={handleModalClose}
@@ -389,5 +377,6 @@ function CourseTracker() {
     </Box>
   )
 }
-
+ 
 export default CourseTracker
+ 

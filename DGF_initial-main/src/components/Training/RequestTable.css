@@ -126,7 +126,7 @@
   /* width: 120px !important; */
   text-align: left !important;
  
-  white-space: pre-wrap;
+  white-space:normal !important;
   font-family: 'Poppins', sans-serif !important;
  
   /* Ensure text is aligned to the left */

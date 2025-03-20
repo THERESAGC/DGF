@@ -1,9 +1,8 @@
-// routes/projectRoutes.js
 const express = require('express');
 const router = express.Router();
 const projectController = require('../controllers/projectController');
 
-// Route to fetch all project names
-router.get('/all', projectController.getAllProjects);
+// Route to fetch projects by service division
+router.get('/by-service-division', projectController.getProjectsByServiceDivision);
 
 module.exports = router;

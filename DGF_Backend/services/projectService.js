@@ -1,12 +1,13 @@
-// services/projectService.js
 const db = require('../config/db');
 
-// Function to get all project names from the database
-const getAllProjects = () => {
+const getProjectsByServiceDivision = (service_division_id) => {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT ProjectID, ProjectName FROM projectname';
-
-        db.execute(query, (err, results) => {
+        const query = `
+            SELECT ProjectID, ProjectName
+            FROM projectname
+            WHERE service_division_id = ?
+        `;
+        db.execute(query, [service_division_id], (err, results) => {
             if (err) {
                 reject(err);
             } else {
@@ -17,5 +18,5 @@ const getAllProjects = () => {
 };
 
 module.exports = {
-    getAllProjects
+    getProjectsByServiceDivision,
 };

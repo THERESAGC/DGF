@@ -1,9 +1,7 @@
-//
- 
- 
 //controllers/newTrainingRequestController.js
  
 const newTrainingRequestService = require('../services/newTrainingRequestService');
+
  
 exports.createNewTrainingRequest = async (req, res) => {
     let {

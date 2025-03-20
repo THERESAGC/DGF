@@ -1,3 +1,4 @@
+"use client"
 
 import { useState, useContext } from "react"
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material"
@@ -25,14 +26,15 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
     setIsUserModalOpen(false)
   }
 
-
   return (
     <>
       <AppBar position="static" className="AdminBar">
         <Toolbar className="toolbar">
-      
           <Box className="admin">
-            {[{ text: "User Management", path: "/admin-container" }, { text: "Data Field Management", path: "" }].map((item) => (
+            {[
+              { text: "User Management", path: "/admin-container" },
+              { text: "Data Field Management", path: "" },
+            ].map((item) => (
               <Typography
                 key={item.text}
                 variant="h6"
@@ -61,7 +63,6 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
               </Button>
             </Box>
           )}
-
         </Toolbar>
       </AppBar>
       <AddUserModal open={isUserModalOpen} onClose={handleCloseUserModal} />

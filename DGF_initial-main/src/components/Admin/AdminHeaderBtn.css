@@ -51,7 +51,7 @@
 
 .typography.selected {
   position: sticky; /* Ensure the pseudo-element is positioned relative to the text */
-  color: #0544A1; /* Ensure text color is white */
+  color: #0544a1; /* Ensure text color is white */
   /* text-decoration: none; Remove the default underline */
 }
 

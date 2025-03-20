@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import {
   Box,
@@ -18,25 +17,24 @@ import {
   DialogContent,
   DialogActions,
   InputAdornment,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Card,
-  CardContent,
-  Pagination,
-  ToggleButtonGroup,
-  ToggleButton,
+  Badge,
+  Fab,
   Tooltip,
   CircularProgress,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Badge,
-  Fab,
   Snackbar,
   Alert,
+  ToggleButtonGroup,
+  ToggleButton,
+  Card,
+  CardContent,
+  Pagination,
+  MenuItem,
+  Select,
+  FormControl,
+  FormLabel,
 } from "@mui/material"
 import DeleteIcon from "@mui/icons-material/Delete"
 import AddIcon from "@mui/icons-material/Add"
@@ -44,11 +42,13 @@ import EditIcon from "@mui/icons-material/Edit"
 import SearchIcon from "@mui/icons-material/Search"
 import ViewListIcon from "@mui/icons-material/ViewList"
 import GridViewIcon from "@mui/icons-material/GridView"
-import SortIcon from "@mui/icons-material/Sort"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import CodeIcon from "@mui/icons-material/Code"
+import BusinessIcon from "@mui/icons-material/Business"
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward"
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward"
+import MenuBookIcon from "@mui/icons-material/MenuBook"
 import axios from "axios"
-import { color } from "chart.js/helpers"
 
 const RequestFormEditor = () => {
   const [tabValue, setTabValue] = useState(0)
@@ -56,56 +56,51 @@ const RequestFormEditor = () => {
   const [serviceDivisions, setServiceDivisions] = useState([])
   const [techStacks, setTechStacks] = useState([])
   const [primarySkills, setPrimarySkills] = useState([])
+  const [sources, setSources] = useState([])
+  const [learningObjectives, setLearningObjectives] = useState([])
 
   const [isAddProjectDialogOpen, setIsAddProjectDialogOpen] = useState(false)
   const [isAddDivisionDialogOpen, setIsAddDivisionDialogOpen] = useState(false)
   const [isAddTechStackDialogOpen, setIsAddTechStackDialogOpen] = useState(false)
   const [isAddPrimarySkillDialogOpen, setIsAddPrimarySkillDialogOpen] = useState(false)
+  const [isAddNewDivisionDialogOpen, setIsAddNewDivisionDialogOpen] = useState(false)
+  const [isAddSourceDialogOpen, setIsAddSourceDialogOpen] = useState(false)
+  const [isAddLearningObjectiveDialogOpen, setIsAddLearningObjectiveDialogOpen] = useState(false)
+  const [isAddNewSourceDialogOpen, setIsAddNewSourceDialogOpen] = useState(false)
 
   const [newProjectName, setNewProjectName] = useState("")
   const [newDivisionName, setNewDivisionName] = useState("")
   const [newTechStackName, setNewTechStackName] = useState("")
   const [newPrimarySkillName, setNewPrimarySkillName] = useState("")
+  const [newSourceName, setNewSourceName] = useState("")
+  const [newLearningObjectiveName, setNewLearningObjectiveName] = useState("")
   const [selectedTechStackId, setSelectedTechStackId] = useState("")
+  const [selectedServiceDivisionId, setSelectedServiceDivisionId] = useState("")
+  const [selectedSourceId, setSelectedSourceId] = useState("")
 
   const [editItem, setEditItem] = useState(null)
   const [isEditMode, setIsEditMode] = useState(false)
 
   const [searchTerm, setSearchTerm] = useState("")
   const [skillSearchTerm, setSkillSearchTerm] = useState("")
+  const [objectiveSearchTerm, setObjectiveSearchTerm] = useState("")
   const [viewMode, setViewMode] = useState("list")
   const [sortOrder, setSortOrder] = useState("asc")
-  const [projectCategory, setProjectCategory] = useState("all")
-  const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [newProjectCategory, setNewProjectCategory] = useState("")
+  const [expandedServiceDivision, setExpandedServiceDivision] = useState(null)
   const [expandedTechStack, setExpandedTechStack] = useState(null)
+  const [expandedSource, setExpandedSource] = useState(null)
+  const [page, setPage] = useState({})
+  const [loading, setLoading] = useState(false)
 
   const [alert, setAlert] = useState({ open: false, message: "", severity: "success" })
 
   const itemsPerPage = 5
 
   useEffect(() => {
-    fetchProjects()
     fetchServiceDivisions()
     fetchTechStacks()
+    fetchSources()
   }, [])
-
-  const fetchProjects = async () => {
-    setLoading(true)
-    try {
-      const response = await axios.get("http://localhost:8000/api/project/all")
-      const projectsData = response.data.map((project) => ({
-        id: project.ProjectID,
-        name: project.ProjectName,
-      }))
-      setProjects(projectsData)
-      setLoading(false)
-    } catch (error) {
-      console.error("Error fetching projects:", error)
-      setLoading(false)
-    }
-  }
 
   const fetchServiceDivisions = async () => {
     try {
@@ -115,8 +110,31 @@ const RequestFormEditor = () => {
         name: service.service_name,
       }))
       setServiceDivisions(serviceDivisionsData)
+
+      // Initialize pagination state for each service division
+      const paginationState = {}
+      serviceDivisionsData.forEach((division) => {
+        paginationState[division.id] = 1
+      })
+      setPage(paginationState)
     } catch (error) {
       console.error("Error fetching service divisions:", error)
+    }
+  }
+
+  const fetchProjects = async (serviceDivisionId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/project/by-service-division?service_division_id=${serviceDivisionId}`,
+      )
+      const projectsData = response.data.map((project) => ({
+        id: project.ProjectID,
+        name: project.ProjectName,
+        serviceDivisionId: serviceDivisionId,
+      }))
+      setProjects(projectsData)
+    } catch (error) {
+      console.error("Error fetching primary skills:", error)
     }
   }
 
@@ -147,25 +165,75 @@ const RequestFormEditor = () => {
     }
   }
 
+  // Mock functions for sources and learning objectives
+  const fetchSources = async () => {
+    try {
+      // This would be replaced with an actual API call
+      // For now, using mock data
+      const mockSources = [
+        { id: 1, name: "Udemy" },
+        { id: 2, name: "Coursera" },
+        { id: 3, name: "Pluralsight" },
+        { id: 4, name: "LinkedIn Learning" },
+      ]
+      setSources(mockSources)
+
+      // Initialize pagination state for each source
+      const paginationState = {}
+      mockSources.forEach((source) => {
+        paginationState[source.id] = 1
+      })
+      setPage((prevState) => ({ ...prevState, ...paginationState }))
+    } catch (error) {
+      console.error("Error fetching sources:", error)
+    }
+  }
+
+  const fetchLearningObjectives = async (sourceId) => {
+    try {
+      // This would be replaced with an actual API call
+      // For now, using mock data
+      const mockObjectives = [
+        { id: 1, name: "Learn React Fundamentals", sourceId: 1 },
+        { id: 2, name: "Master JavaScript ES6", sourceId: 1 },
+        { id: 3, name: "Advanced CSS Techniques", sourceId: 1 },
+        { id: 4, name: "Node.js Basics", sourceId: 2 },
+        { id: 5, name: "MongoDB for Beginners", sourceId: 2 },
+        { id: 6, name: "TypeScript Essentials", sourceId: 3 },
+        { id: 7, name: "Angular Framework", sourceId: 3 },
+        { id: 8, name: "Vue.js Development", sourceId: 4 },
+      ].filter((obj) => obj.sourceId === sourceId)
+
+      setLearningObjectives((prevObjectives) => {
+        // Filter out objectives for this source and add new ones
+        const filteredObjectives = prevObjectives.filter((obj) => obj.sourceId !== sourceId)
+        return [...filteredObjectives, ...mockObjectives]
+      })
+    } catch (error) {
+      console.error("Error fetching learning objectives:", error)
+    }
+  }
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue)
-    setPage(1)
     setSearchTerm("")
     setSkillSearchTerm("")
+    setObjectiveSearchTerm("")
   }
 
   const handleAddProject = async () => {
-    if (!newProjectName.trim()) return
+    if (!newProjectName.trim() || !selectedServiceDivisionId) return
 
     try {
       if (isEditMode && editItem) {
         // Update existing project
         await axios.put(`http://localhost:8000/api/projects/${editItem.id}`, {
           name: newProjectName,
+          serviceDivisionId: selectedServiceDivisionId,
         })
         setProjects(
           projects.map((p) =>
-            p.id === editItem.id ? { ...p, name: newProjectName, category: newProjectCategory } : p,
+            p.id === editItem.id ? { ...p, name: newProjectName, serviceDivisionId: selectedServiceDivisionId } : p,
           ),
         )
         setAlert({ open: true, message: "Project updated successfully", severity: "success" })
@@ -173,8 +241,17 @@ const RequestFormEditor = () => {
         // Add new project
         const response = await axios.post("http://localhost:8000/api/add-project", {
           ProjectName: newProjectName,
+          serviceDivisionId: selectedServiceDivisionId,
         })
-        setProjects([...projects, response.data])
+
+        // Add the new project to the state with the service division ID
+        const newProject = {
+          id: response.data.ProjectID || Date.now(), // Fallback to timestamp if API doesn't return ID
+          name: newProjectName,
+          serviceDivisionId: selectedServiceDivisionId,
+        }
+
+        setProjects([...projects, newProject])
         setAlert({ open: true, message: "Project added successfully", severity: "success" })
       }
     } catch (error) {
@@ -183,6 +260,7 @@ const RequestFormEditor = () => {
     }
 
     setNewProjectName("")
+    setSelectedServiceDivisionId("")
     setIsAddProjectDialogOpen(false)
     setIsEditMode(false)
     setEditItem(null)
@@ -192,22 +270,30 @@ const RequestFormEditor = () => {
     if (!newDivisionName.trim()) return
 
     try {
-      if (isEditMode && editItem) {
-        // Update existing division
-        await axios.put(`http://localhost:8000/api/service-divisions/${editItem.id}`, {
-          service_name: newDivisionName,
-        })
-        setServiceDivisions(
-          serviceDivisions.map((d) => (d.id === editItem.id ? { ...d, service_name: newDivisionName } : d)),
-        )
-        setAlert({ open: true, message: "Service division updated successfully", severity: "success" })
-      } else {
-        // Add new division
-        const response = await axios.post("http://localhost:8000/api/add-service-division", {
-          service_name: newDivisionName,
-        })
-        setServiceDivisions([...serviceDivisions, response.data])
-        setAlert({ open: true, message: "Service division added successfully", severity: "success" })
+      // Add new division
+      const response = await axios.post("http://localhost:8000/api/add-service-division", {
+        service_name: newDivisionName,
+      })
+
+      const newDivision = {
+        id: response.data.id || Date.now(),
+        name: newDivisionName,
+      }
+
+      const updatedDivisions = [...serviceDivisions, newDivision]
+      setServiceDivisions(updatedDivisions)
+
+      // Initialize pagination for the new division
+      setPage((prevState) => ({
+        ...prevState,
+        [newDivision.id]: 1,
+      }))
+
+      setAlert({ open: true, message: "Service division added successfully", severity: "success" })
+
+      // If adding from the Add Project dialog, select the new division
+      if (isAddNewDivisionDialogOpen) {
+        setSelectedServiceDivisionId(newDivision.id)
       }
     } catch (error) {
       console.error("Error saving service division:", error)
@@ -216,8 +302,7 @@ const RequestFormEditor = () => {
 
     setNewDivisionName("")
     setIsAddDivisionDialogOpen(false)
-    setIsEditMode(false)
-    setEditItem(null)
+    setIsAddNewDivisionDialogOpen(false)
   }
 
   const handleAddTechStack = async () => {
@@ -287,6 +372,86 @@ const RequestFormEditor = () => {
     setEditItem(null)
   }
 
+  // Functions for handling sources and learning objectives
+  const handleAddSource = async () => {
+    if (!newSourceName.trim()) return
+
+    try {
+      if (isEditMode && editItem) {
+        // Update existing source
+        // This would be an actual API call in production
+        setSources(sources.map((s) => (s.id === editItem.id ? { ...s, name: newSourceName } : s)))
+        setAlert({ open: true, message: "Source updated successfully", severity: "success" })
+      } else {
+        // Add new source
+        // This would be an actual API call in production
+        const newSource = {
+          id: Date.now(), // Simulate an ID
+          name: newSourceName,
+        }
+        setSources([...sources, newSource])
+
+        // Initialize pagination for the new source
+        setPage((prevState) => ({
+          ...prevState,
+          [newSource.id]: 1,
+        }))
+
+        setAlert({ open: true, message: "Source added successfully", severity: "success" })
+
+        // If adding from the Add Learning Objective dialog, select the new source
+        if (isAddNewSourceDialogOpen) {
+          setSelectedSourceId(newSource.id)
+        }
+      }
+    } catch (error) {
+      console.error("Error saving source:", error)
+      setAlert({ open: true, message: "Error saving source", severity: "error" })
+    }
+
+    setNewSourceName("")
+    setIsAddSourceDialogOpen(false)
+    setIsAddNewSourceDialogOpen(false)
+    setIsEditMode(false)
+    setEditItem(null)
+  }
+
+  const handleAddLearningObjective = async () => {
+    if (!newLearningObjectiveName.trim() || !selectedSourceId) return
+
+    try {
+      if (isEditMode && editItem) {
+        // Update existing learning objective
+        // This would be an actual API call in production
+        setLearningObjectives(
+          learningObjectives.map((o) =>
+            o.id === editItem.id ? { ...o, name: newLearningObjectiveName, sourceId: selectedSourceId } : o,
+          ),
+        )
+        setAlert({ open: true, message: "Learning objective updated successfully", severity: "success" })
+      } else {
+        // Add new learning objective
+        // This would be an actual API call in production
+        const newObjective = {
+          id: Date.now(), // Simulate an ID
+          name: newLearningObjectiveName,
+          sourceId: selectedSourceId,
+        }
+        setLearningObjectives([...learningObjectives, newObjective])
+        setAlert({ open: true, message: "Learning objective added successfully", severity: "success" })
+      }
+    } catch (error) {
+      console.error("Error saving learning objective:", error)
+      setAlert({ open: true, message: "Error saving learning objective", severity: "error" })
+    }
+
+    setNewLearningObjectiveName("")
+    setSelectedSourceId("")
+    setIsAddLearningObjectiveDialogOpen(false)
+    setIsEditMode(false)
+    setEditItem(null)
+  }
+
   const handleDeleteProject = async (id) => {
     try {
       await axios.delete(`http://localhost:8000/api/projects/${id}`)
@@ -302,6 +467,10 @@ const RequestFormEditor = () => {
     try {
       await axios.delete(`http://localhost:8000/api/delete-service-division/${id}`)
       setServiceDivisions(serviceDivisions.filter((d) => d.id !== id))
+
+      // Also remove associated projects or reassign them
+      setProjects(projects.filter((p) => p.serviceDivisionId !== id))
+
       setAlert({ open: true, message: "Service division deleted successfully", severity: "success" })
     } catch (error) {
       console.error("Error deleting service division:", error)
@@ -327,7 +496,7 @@ const RequestFormEditor = () => {
 
   const handleDeletePrimarySkill = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/primary-skills/${id}`)
+      await axios.delete(`http://localhost:8000/api/primary-skill/${id}`)
       setPrimarySkills(primarySkills.filter((s) => s.id !== id))
       setAlert({ open: true, message: "Primary skill deleted successfully", severity: "success" })
     } catch (error) {
@@ -338,10 +507,35 @@ const RequestFormEditor = () => {
     }
   }
 
+  // Functions for deleting sources and learning objectives
+  const handleDeleteSource = async (id) => {
+    try {
+      // This would be an actual API call in production
+      setSources(sources.filter((s) => s.id !== id))
+      // Also remove associated learning objectives
+      setLearningObjectives(learningObjectives.filter((o) => o.sourceId !== id))
+      setAlert({ open: true, message: "Source deleted successfully", severity: "success" })
+    } catch (error) {
+      console.error("Error deleting source:", error)
+      setAlert({ open: true, message: "Error deleting source", severity: "error" })
+    }
+  }
+
+  const handleDeleteLearningObjective = async (id) => {
+    try {
+      // This would be an actual API call in production
+      setLearningObjectives(learningObjectives.filter((o) => o.id !== id))
+      setAlert({ open: true, message: "Learning objective deleted successfully", severity: "success" })
+    } catch (error) {
+      console.error("Error deleting learning objective:", error)
+      setAlert({ open: true, message: "Error deleting learning objective", severity: "error" })
+    }
+  }
+
   const handleEditProject = (project) => {
     setEditItem(project)
     setNewProjectName(project.name)
-    setNewProjectCategory(project.category || "")
+    setSelectedServiceDivisionId(project.serviceDivisionId)
     setIsEditMode(true)
     setIsAddProjectDialogOpen(true)
   }
@@ -368,13 +562,32 @@ const RequestFormEditor = () => {
     setIsAddPrimarySkillDialogOpen(true)
   }
 
+  // Functions for editing sources and learning objectives
+  const handleEditSource = (source) => {
+    setEditItem(source)
+    setNewSourceName(source.name)
+    setIsEditMode(true)
+    setIsAddSourceDialogOpen(true)
+  }
+
+  const handleEditLearningObjective = (objective) => {
+    setEditItem(objective)
+    setNewLearningObjectiveName(objective.name)
+    setSelectedSourceId(objective.sourceId)
+    setIsEditMode(true)
+    setIsAddLearningObjectiveDialogOpen(true)
+  }
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value)
-    setPage(1)
   }
 
   const handleSkillSearchChange = (event) => {
     setSkillSearchTerm(event.target.value)
+  }
+
+  const handleObjectiveSearchChange = (event) => {
+    setObjectiveSearchTerm(event.target.value)
   }
 
   const handleViewModeChange = (event, newMode) => {
@@ -387,14 +600,31 @@ const RequestFormEditor = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc")
   }
 
-  const handlePageChange = (event, value) => {
-    setPage(value)
+  const handlePageChange = (itemId) => (event, value) => {
+    setPage((prevState) => ({
+      ...prevState,
+      [itemId]: value,
+    }))
   }
 
-  const handleAccordionChange = (techStackId) => async (event, isExpanded) => {
+  const handleAccordionChange = (divisionId) => async (event, isExpanded) => {
+    setExpandedServiceDivision(isExpanded ? divisionId : null)
+    if (isExpanded) {
+      await fetchProjects(divisionId)
+    }
+  }
+
+  const handleTechStackAccordionChange = (techStackId) => async (event, isExpanded) => {
     setExpandedTechStack(isExpanded ? techStackId : null)
     if (isExpanded) {
       await fetchPrimarySkills(techStackId)
+    }
+  }
+
+  const handleSourceAccordionChange = (sourceId) => async (event, isExpanded) => {
+    setExpandedSource(isExpanded ? sourceId : null)
+    if (isExpanded) {
+      await fetchLearningObjectives(sourceId)
     }
   }
 
@@ -404,31 +634,61 @@ const RequestFormEditor = () => {
     fetchPrimarySkills(stackId)
   }
 
+  const handleServiceDivisionChange = (event) => {
+    const value = event.target.value
+    if (value === "add_new") {
+      setIsAddNewDivisionDialogOpen(true)
+    } else {
+      setSelectedServiceDivisionId(value)
+    }
+  }
+
+  const handleSourceChange = (event) => {
+    const value = event.target.value
+    if (value === "add_new") {
+      setIsAddNewSourceDialogOpen(true)
+    } else {
+      setSelectedSourceId(value)
+    }
+  }
+
   const handleCloseAlert = () => {
     setAlert({ ...alert, open: false })
   }
 
-  // Filter and sort projects
-  const filteredProjects = projects
-    .filter(
-      (project) =>
-        project.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (projectCategory === "all" || project.category === projectCategory),
-    )
-    .sort((a, b) => {
-      if (sortOrder === "asc") {
-        return a.name.localeCompare(b.name)
-      } else {
-        return b.name.localeCompare(a.name)
-      }
-    })
+  // Filter projects by search term
+  const filteredProjects = projects.filter((project) => project.name?.toLowerCase().includes(searchTerm.toLowerCase()))
 
-  // Paginate projects
-  const paginatedProjects = filteredProjects.slice((page - 1) * itemsPerPage, page * itemsPerPage)
+  // Sort projects based on sort order
+  const sortedProjects = [...filteredProjects].sort((a, b) => {
+    if (sortOrder === "asc") {
+      return a.name.localeCompare(b.name)
+    } else {
+      return b.name.localeCompare(a.name)
+    }
+  })
+
+  // Group projects by service division
+  const groupedProjects = serviceDivisions.map((division) => {
+    const divisionProjects = sortedProjects.filter((project) => project.serviceDivisionId === division.id)
+
+    // Get current page for this division
+    const currentPage = page[division.id] || 1
+
+    // Paginate projects for this division
+    const paginatedProjects = divisionProjects.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    return {
+      ...division,
+      projects: divisionProjects,
+      paginatedProjects,
+      totalPages: Math.ceil(divisionProjects.length / itemsPerPage),
+    }
+  })
 
   // Filter primary skills by search term
   const filteredPrimarySkills = primarySkills.filter((skill) =>
-    skill.name ? skill.name.toLowerCase().includes(skillSearchTerm.toLowerCase()) : false
+    skill.name ? skill.name.toLowerCase().includes(skillSearchTerm.toLowerCase()) : false,
   )
 
   // Group primary skills by tech stack
@@ -436,6 +696,29 @@ const RequestFormEditor = () => {
     ...techStack,
     skills: filteredPrimarySkills.filter((skill) => skill.techStackId === techStack.id),
   }))
+
+  // Filter learning objectives by search term
+  const filteredLearningObjectives = learningObjectives.filter((objective) =>
+    objective.name ? objective.name.toLowerCase().includes(objectiveSearchTerm.toLowerCase()) : false,
+  )
+
+  // Group learning objectives by source
+  const groupedObjectives = sources.map((source) => {
+    const sourceObjectives = filteredLearningObjectives.filter((objective) => objective.sourceId === source.id)
+
+    // Get current page for this source
+    const currentPage = page[source.id] || 1
+
+    // Paginate objectives for this source
+    const paginatedObjectives = sourceObjectives.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    return {
+      ...source,
+      objectives: sourceObjectives,
+      paginatedObjectives,
+      totalPages: Math.ceil(sourceObjectives.length / itemsPerPage),
+    }
+  })
 
   return (
     <Box
@@ -449,8 +732,6 @@ const RequestFormEditor = () => {
         fontFamily: '"Poppins", sans-serif',
       }}
     >
-     
-
       <Paper elevation={0} sx={{ mb: 4, borderRadius: "10px", overflow: "hidden" }}>
         <Tabs
           value={tabValue}
@@ -460,8 +741,8 @@ const RequestFormEditor = () => {
             "& .MuiTabs-indicator": {
               backgroundColor: "#FA5864",
               height: "3px",
-              width:"40px !important",
-              marginLeft:"25px"
+              width: "40px !important",
+              marginLeft: "25px",
             },
             "& .Mui-selected": {
               color: "#09459E !important",
@@ -479,7 +760,7 @@ const RequestFormEditor = () => {
             }}
           />
           <Tab
-            label="Service Divisions"
+            label="Primary Skills"
             sx={{
               textTransform: "none",
               fontSize: "1rem",
@@ -488,7 +769,7 @@ const RequestFormEditor = () => {
             }}
           />
           <Tab
-            label="Primary Skills"
+            label="Learning Objectives"
             sx={{
               textTransform: "none",
               fontSize: "1rem",
@@ -505,29 +786,53 @@ const RequestFormEditor = () => {
                 <Typography variant="h6" sx={{ fontWeight: 500, color: "#333" }}>
                   Project List
                 </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => {
-                    setIsEditMode(false)
-                    setNewProjectName("")
-                    setNewProjectCategory("")
-                    setIsAddProjectDialogOpen(true)
-                  }}
-                  sx={{
-                    backgroundColor: "#09459E",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    borderRadius: "25px",
-                    padding: "6px 20px",
-                    "&:hover": {
-                      backgroundColor: "#083a80",
-                      boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
-                    },
-                  }}
-                >
-                  Add Project
-                </Button>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<BusinessIcon />}
+                    onClick={() => {
+                      setIsEditMode(false)
+                      setNewDivisionName("")
+                      setIsAddDivisionDialogOpen(true)
+                    }}
+                    sx={{
+                      borderColor: "#09459E",
+                      color: "#09459E",
+                      textTransform: "none",
+                      borderRadius: "25px",
+                      padding: "6px 20px",
+                      "&:hover": {
+                        borderColor: "#083a80",
+                        backgroundColor: "rgba(9, 69, 158, 0.04)",
+                      },
+                    }}
+                  >
+                    Add Service Division
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => {
+                      setIsEditMode(false)
+                      setNewProjectName("")
+                      setSelectedServiceDivisionId("")
+                      setIsAddProjectDialogOpen(true)
+                    }}
+                    sx={{
+                      backgroundColor: "#09459E",
+                      textTransform: "none",
+                      boxShadow: "none",
+                      borderRadius: "25px",
+                      padding: "6px 20px",
+                      "&:hover": {
+                        backgroundColor: "#083a80",
+                        boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
+                      },
+                    }}
+                  >
+                    Add Project
+                  </Button>
+                </Box>
               </Box>
 
               <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -544,7 +849,6 @@ const RequestFormEditor = () => {
                       borderRadius: "8px",
                       fontSize: "12px",
                       height: "36px",
-                      
                     },
                   }}
                   InputProps={{
@@ -555,8 +859,6 @@ const RequestFormEditor = () => {
                     ),
                   }}
                 />
-                 
-                
 
                 <ToggleButtonGroup
                   value={viewMode}
@@ -576,27 +878,31 @@ const RequestFormEditor = () => {
                       borderRadius: "8px",
                       marginLeft: "4px",
                       borderLeft: "1px solid #e0e0e0",
-                      
                     },
                     "& .MuiToggleButtonGroup-grouped:first-of-type": {
                       borderRadius: "8px",
                     },
                   }}
                 >
-                  <Tooltip title="Sort order">
-                  <IconButton
-                    onClick={handleSortOrderChange}
-                    size="small"
-                    sx={{
-                      border: "1px solid #e0e0e0",
-                      borderRadius: "8px",
-                      padding: "8px",
-                    }}
-                  >
-                    <SortIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                  <ToggleButton value="list" aria-label="list view" style={{marginRight:"4px" , marginLeft:"8px"}} >
+                  <Tooltip title={sortOrder === "asc" ? "Sort Ascending" : "Sort Descending"}>
+                    <IconButton
+                      onClick={handleSortOrderChange}
+                      size="small"
+                      sx={{
+                        border: "1px solid #e0e0e0",
+                        borderRadius: "8px",
+                        padding: "8px",
+                        color: sortOrder === "asc" ? "#09459E" : "#666",
+                      }}
+                    >
+                      {sortOrder === "asc" ? (
+                        <ArrowUpwardIcon fontSize="small" />
+                      ) : (
+                        <ArrowDownwardIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </Tooltip>
+                  <ToggleButton value="list" aria-label="list view" style={{ marginRight: "4px", marginLeft: "8px" }}>
                     <ViewListIcon fontSize="small" />
                   </ToggleButton>
                   <ToggleButton value="grid" aria-label="grid view">
@@ -610,150 +916,72 @@ const RequestFormEditor = () => {
                   <CircularProgress size={40} sx={{ color: "#09459E" }} />
                 </Box>
               ) : (
-                <>
-                  {viewMode === "list" ? (
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        maxHeight: 400,
-                        overflow: "auto",
-                        mb: 3,
-                        border: "1px solid #f0f0f0",
-                        borderRadius: "10px",
-                      }}
-                    >
-                      <List>
-                        {paginatedProjects.map((project) => (
-                          <ListItem
-                            key={project.id}
-                            secondaryAction={
-                              <Box>
-                                <IconButton
-                                  edge="end"
-                                  aria-label="edit"
-                                  onClick={() => handleEditProject(project)}
-                                  sx={{
-                                    color: "#09459E",
-                                    "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
-                                  }}
-                                >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton
-                                  edge="end"
-                                  aria-label="delete"
-                                  onClick={() => handleDeleteProject(project.id)}
-                                  sx={{
-                                    color: "#d32f2f",
-                                    "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
-                                  }}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            }
+                <Paper
+                  elevation={0}
+                  sx={{
+                    maxHeight: 600,
+                    overflow: "auto",
+                    mb: 3,
+                    border: "1px solid #f0f0f0",
+                    borderRadius: "10px",
+                  }}
+                >
+                  {groupedProjects.length === 0 ? (
+                    <Box sx={{ p: 3, textAlign: "center" }}>
+                      <Typography color="text.secondary" sx={{ fontStyle: "italic" }}>
+                        No service divisions found. Please add a service division first.
+                      </Typography>
+                    </Box>
+                  ) : (
+                    groupedProjects.map((division) => (
+                      <Accordion
+                        key={division.id}
+                        expanded={expandedServiceDivision === division.id}
+                        onChange={handleAccordionChange(division.id)}
+                        sx={{
+                          "&:before": { display: "none" },
+                          boxShadow: "none",
+                          borderBottom: "1px solid #e0e0e0",
+                          "&:last-child": {
+                            borderBottom: "none",
+                          },
+                          "&.Mui-expanded": {
+                            margin: 0,
+                          },
+                        }}
+                      >
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          sx={{
+                            backgroundColor: "#f5f5f5",
+                            "&:hover": { backgroundColor: "#f0f0f0" },
+                            minHeight: "48px !important",
+                            "& .MuiAccordionSummary-content": {
+                              margin: "12px 0 !important",
+                            },
+                          }}
+                        >
+                          <Box
                             sx={{
-                              borderBottom: "1px solid #f0f0f0",
-                              "&:hover": { backgroundColor: "#f9f9f9" },
-                              transition: "background-color 0.2s",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              width: "100%",
+                              pr: 2,
                             }}
                           >
-                            <ListItemText
-                              primary={<Typography sx={{ fontWeight: 500 }}>{project.name}</Typography>}
-                              secondary={
-                                <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
-                                  {project.category && (
-                                    <Chip
-                                      label={project.category}
-                                      size="small"
-                                      sx={{
-                                        mr: 1,
-                                        backgroundColor: "#e3f2fd",
-                                        color: "#0d47a1",
-                                        fontSize: "0.7rem",
-                                      }}
-                                    />
-                                  )}
-                                  <Typography variant="caption" color="text.secondary">
-                                    ID: {project.id}
-                                  </Typography>
-                                </Box>
-                              }
-                            />
-                          </ListItem>
-                        ))}
-                        {paginatedProjects.length === 0 && (
-                          <ListItem>
-                            <ListItemText
-                              primary="No projects found"
-                              sx={{ color: "text.secondary", fontStyle: "italic", textAlign: "center" }}
-                            />
-                          </ListItem>
-                        )}
-                      </List>
-                    </Paper>
-                  ) : (
-                    <Box sx={{ mb: 3 }}>
-                      <Grid container spacing={5}>
-                        {paginatedProjects.map((project) => (
-                          <Grid item xs={12} sm={6} md={4} key={project.id}>
-                            <Card
-                            className="card-content"
-                              sx={{
-                                height: "100%",
-                                gap: "12px" ,
-                                
-                                display: "flex",
-                                flexDirection: "column",
-                                transition: "transform 0.2s, box-shadow 0.2s",
-                                borderRadius: "10px",
-                                overflow: "hidden",
-                                border: "1px solid #f0f0f0",
-                                "&:hover": {
-                                  transform: "translateY(-4px)",
-                                  boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
-                                },
-                              }}
-                            >
-                              <CardContent  sx={{ flexGrow: 1, p: 2 ,mb:10 }}>
-                                <Typography
-                                  variant="h6"
-                                  component="div"
-                                  sx={{ mb: 1, fontSize: "1rem", fontWeight: 500 }}
-                                >
-                                  {project.name}
-                                </Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                  {project.category && (
-                                    <Chip
-                                      label={project.category}
-                                      size="small"
-                                      sx={{
-                                        mr: 1,
-                                        backgroundColor: "#e3f2fd",
-                                        color: "#0d47a1",
-                                        fontSize: "0.7rem",
-                                      }}
-                                    />
-                                  )}
-                                  <Typography variant="caption" color="text.secondary">
-                                    ID: {project.id}
-                                  </Typography>
-                                </Box>
-                              </CardContent>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "flex-end",
-                                  p: 1,
-                                  borderTop: "1px solid #f0f0f0",
-                                  backgroundColor: "#f9f9f9",
-                                }}
-                              >
+                            <Typography sx={{ fontWeight: 500 }}>{division.name}</Typography>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Badge badgeContent={division.projects.length} color="primary" sx={{ mr: 2 }} />
+                              <Box>
                                 <IconButton
                                   size="small"
-                                  onClick={() => handleEditProject(project)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleEditDivision(division)
+                                  }}
                                   sx={{
+                                    mr: 1,
                                     color: "#09459E",
                                     "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
                                   }}
@@ -762,7 +990,10 @@ const RequestFormEditor = () => {
                                 </IconButton>
                                 <IconButton
                                   size="small"
-                                  onClick={() => handleDeleteProject(project.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteDivision(division.id)
+                                  }}
                                   sx={{
                                     color: "#d32f2f",
                                     "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
@@ -771,162 +1002,174 @@ const RequestFormEditor = () => {
                                   <DeleteIcon fontSize="small" />
                                 </IconButton>
                               </Box>
-                            </Card>
-                          </Grid>
-                        ))}
-                        {paginatedProjects.length === 0 && (
-                          <Grid item xs={12}>
-                            <Paper sx={{ p: 3, textAlign: "center", borderRadius: "10px" }}>
-                              <Typography color="text.secondary" sx={{ fontStyle: "italic" }}>
-                                No projects found
-                              </Typography>
-                            </Paper>
-                          </Grid>
-                        )}
-                      </Grid>
-                    </Box>
-                  )}
+                            </Box>
+                          </Box>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ p: 0 }}>
+                          {viewMode === "list" ? (
+                            <List dense>
+                              {division.paginatedProjects.length > 0 ? (
+                                division.paginatedProjects.map((project) => (
+                                  <ListItem
+                                    key={project.id}
+                                    secondaryAction={
+                                      <Box>
+                                        <IconButton
+                                          edge="end"
+                                          aria-label="edit"
+                                          onClick={() => handleEditProject(project)}
+                                          sx={{
+                                            color: "#09459E",
+                                            "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
+                                          }}
+                                        >
+                                          <EditIcon fontSize="small" />
+                                        </IconButton>
+                                        <IconButton
+                                          edge="end"
+                                          aria-label="delete"
+                                          onClick={() => handleDeleteProject(project.id)}
+                                          sx={{
+                                            color: "#d32f2f",
+                                            "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
+                                          }}
+                                        >
+                                          <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                      </Box>
+                                    }
+                                    sx={{
+                                      borderBottom: "1px solid #f0f0f0",
+                                      "&:hover": { backgroundColor: "#f9f9f9" },
+                                      "&:last-child": {
+                                        borderBottom: "none",
+                                      },
+                                    }}
+                                  >
+                                    <ListItemText primary={project.name} />
+                                  </ListItem>
+                                ))
+                              ) : (
+                                <ListItem>
+                                  <ListItemText
+                                    primary="No projects found for this service division"
+                                    sx={{ color: "text.secondary", fontStyle: "italic", textAlign: "center" }}
+                                  />
+                                </ListItem>
+                              )}
+                            </List>
+                          ) : (
+                            <Box sx={{ p: 2 }}>
+                              <Grid container spacing={2}>
+                                {division.paginatedProjects.length > 0 ? (
+                                  division.paginatedProjects.map((project) => (
+                                    <Grid item xs={12} sm={6} md={4} key={project.id}>
+                                      <Card
+                                        className="card-content"
+                                        sx={{
+                                          height: "100%",
+                                          gap: "12px",
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          transition: "transform 0.2s, box-shadow 0.2s",
+                                          borderRadius: "10px",
+                                          overflow: "hidden",
+                                          border: "1px solid #f0f0f0",
+                                          "&:hover": {
+                                            transform: "translateY(-4px)",
+                                            boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+                                          },
+                                        }}
+                                      >
+                                        <CardContent sx={{ flexGrow: 1, p: 2, mb: 10 }}>
+                                          <Typography
+                                            variant="h6"
+                                            component="div"
+                                            sx={{ mb: 1, fontSize: "1rem", fontWeight: 500 }}
+                                          >
+                                            {project.name}
+                                          </Typography>
+                                          <Typography variant="caption" color="text.secondary">
+                                            ID: {project.id}
+                                          </Typography>
+                                        </CardContent>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                            p: 1,
+                                            borderTop: "1px solid #f0f0f0",
+                                            backgroundColor: "#f9f9f9",
+                                          }}
+                                        >
+                                          <IconButton
+                                            size="small"
+                                            onClick={() => handleEditProject(project)}
+                                            sx={{
+                                              color: "#09459E",
+                                              "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
+                                            }}
+                                          >
+                                            <EditIcon fontSize="small" />
+                                          </IconButton>
+                                          <IconButton
+                                            size="small"
+                                            onClick={() => handleDeleteProject(project.id)}
+                                            sx={{
+                                              color: "#d32f2f",
+                                              "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
+                                            }}
+                                          >
+                                            <DeleteIcon fontSize="small" />
+                                          </IconButton>
+                                        </Box>
+                                      </Card>
+                                    </Grid>
+                                  ))
+                                ) : (
+                                  <Grid item xs={12}>
+                                    <Box sx={{ p: 3, textAlign: "center" }}>
+                                      <Typography color="text.secondary" sx={{ fontStyle: "italic" }}>
+                                        No projects found for this service division
+                                      </Typography>
+                                    </Box>
+                                  </Grid>
+                                )}
+                              </Grid>
+                            </Box>
+                          )}
 
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop:"5rem" }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Showing {paginatedProjects.length} of {filteredProjects.length} projects
-                    </Typography>
-                    <Pagination
-                      count={Math.ceil(filteredProjects.length / itemsPerPage)}
-                      page={page}
-                      onChange={handlePageChange}
-                      color="primary"
-                      size="small"
-                      sx={{
-                        "& .MuiPaginationItem-root": {
-                          color: "#09459E",
-                        },
-                        "& .Mui-selected": {
-                          backgroundColor: "rgba(9, 69, 158, 0.1) !important",
-                        },
-                      }}
-                    />
-                  </Box>
-                </>
+                          {division.totalPages > 1 && (
+                            <Box
+                              sx={{ display: "flex", justifyContent: "center", p: 2, borderTop: "1px solid #f0f0f0" }}
+                            >
+                              <Pagination
+                                count={division.totalPages}
+                                page={page[division.id] || 1}
+                                onChange={handlePageChange(division.id)}
+                                color="primary"
+                                size="small"
+                                sx={{
+                                  "& .MuiPaginationItem-root": {
+                                    color: "#09459E",
+                                  },
+                                  "& .Mui-selected": {
+                                    backgroundColor: "rgba(9, 69, 158, 0.1) !important",
+                                  },
+                                }}
+                              />
+                            </Box>
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
+                    ))
+                  )}
+                </Paper>
               )}
             </Box>
           )}
 
           {tabValue === 1 && (
-            <Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 500, color: "#333" }}>
-                  Service Division List
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => {
-                    setIsEditMode(false)
-                    setNewDivisionName("")
-                    setIsAddDivisionDialogOpen(true)
-                  }}
-                  sx={{
-                    backgroundColor: "#09459E",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    borderRadius: "25px",
-                    padding: "6px 20px",
-                    "&:hover": {
-                      backgroundColor: "#083a80",
-                      boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
-                    },
-                  }}
-                >
-                  Add Service Division
-                </Button>
-              </Box>
-
-              <TextField
-                placeholder="Search service divisions..."
-                variant="outlined"
-                size="small"
-                fullWidth
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "8px",
-                    fontSize: "11px",
-                    height: "36px",
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <Paper
-                elevation={0}
-                sx={{
-                  maxHeight: 400,
-                  overflow: "auto",
-                  mb: 3,
-                  border: "1px solid #f0f0f0",
-                  borderRadius: "10px",
-                }}
-              >
-                <List>
-                  {serviceDivisions.map((division) => (
-                    <ListItem
-                      key={division.id}
-                      secondaryAction={
-                        <Box>
-                          <IconButton
-                            edge="end"
-                            aria-label="edit"
-                            onClick={() => handleEditDivision(division)}
-                            sx={{
-                              color: "#09459E",
-                              "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
-                            }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => handleDeleteDivision(division.id)}
-                            sx={{
-                              color: "#d32f2f",
-                              "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      }
-                      sx={{
-                        borderBottom: "1px solid #f0f0f0",
-                        "&:hover": { backgroundColor: "#f9f9f9" },
-                        transition: "background-color 0.2s",
-                      }}
-                    >
-                      <ListItemText primary={<Typography sx={{ fontWeight: 500 }}>{division.name}</Typography>} />
-                    </ListItem>
-                  ))}
-                  {serviceDivisions.length === 0 && (
-                    <ListItem>
-                      <ListItemText
-                        primary="No service divisions found"
-                        sx={{ color: "text.secondary", fontStyle: "italic", textAlign: "center" }}
-                      />
-                    </ListItem>
-                  )}
-                </List>
-              </Paper>
-            </Box>
-          )}
-
-          {tabValue === 2 && (
             <Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 500, color: "#333" }}>
@@ -950,7 +1193,6 @@ const RequestFormEditor = () => {
                       "&:hover": {
                         borderColor: "#083a80",
                         backgroundColor: "rgba(9, 69, 158, 0.04)",
-                       
                       },
                     }}
                   >
@@ -970,7 +1212,7 @@ const RequestFormEditor = () => {
                       textTransform: "none",
                       boxShadow: "none",
                       borderRadius: "25px",
-                    padding: "6px 20px",
+                      padding: "6px 20px",
                       "&:hover": {
                         backgroundColor: "#083a80",
                         boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
@@ -1020,7 +1262,7 @@ const RequestFormEditor = () => {
                   <Accordion
                     key={techStack.id}
                     expanded={expandedTechStack === techStack.id}
-                    onChange={handleAccordionChange(techStack.id)}
+                    onChange={handleTechStackAccordionChange(techStack.id)}
                     sx={{
                       "&:before": { display: "none" },
                       boxShadow: "none",
@@ -1153,6 +1395,253 @@ const RequestFormEditor = () => {
               </Paper>
             </Box>
           )}
+
+          {tabValue === 2 && (
+            <Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 500, color: "#333" }}>
+                  Learning Objectives
+                </Typography>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<MenuBookIcon />}
+                    onClick={() => {
+                      setIsEditMode(false)
+                      setNewSourceName("")
+                      setIsAddSourceDialogOpen(true)
+                    }}
+                    sx={{
+                      borderColor: "#09459E",
+                      color: "#09459E",
+                      textTransform: "none",
+                      borderRadius: "25px",
+                      padding: "6px 20px",
+                      "&:hover": {
+                        borderColor: "#083a80",
+                        backgroundColor: "rgba(9, 69, 158, 0.04)",
+                      },
+                    }}
+                  >
+                    Add Source
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => {
+                      setIsEditMode(false)
+                      setNewLearningObjectiveName("")
+                      setSelectedSourceId("")
+                      setIsAddLearningObjectiveDialogOpen(true)
+                    }}
+                    sx={{
+                      backgroundColor: "#09459E",
+                      textTransform: "none",
+                      boxShadow: "none",
+                      borderRadius: "25px",
+                      padding: "6px 20px",
+                      "&:hover": {
+                        backgroundColor: "#083a80",
+                        boxShadow: "0 4px 8px rgba(9, 69, 158, 0.2)",
+                      },
+                    }}
+                  >
+                    Add Learning Objective
+                  </Button>
+                </Box>
+              </Box>
+
+              <TextField
+                placeholder="Search learning objectives..."
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={objectiveSearchTerm}
+                onChange={handleObjectiveSearchChange}
+                sx={{
+                  mb: 3,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    fontSize: "11px",
+                    height: "36px",
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <Paper
+                elevation={0}
+                sx={{
+                  maxHeight: 400,
+                  overflow: "auto",
+                  mb: 3,
+                  border: "1px solid #f0f0f0",
+                  borderRadius: "10px",
+                }}
+              >
+                {groupedObjectives.map((source) => (
+                  <Accordion
+                    key={source.id}
+                    expanded={expandedSource === source.id}
+                    onChange={handleSourceAccordionChange(source.id)}
+                    sx={{
+                      "&:before": { display: "none" },
+                      boxShadow: "none",
+                      borderBottom: "1px solid #e0e0e0",
+                      "&:last-child": {
+                        borderBottom: "none",
+                      },
+                      "&.Mui-expanded": {
+                        margin: 0,
+                      },
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{
+                        backgroundColor: "#f5f5f5",
+                        "&:hover": { backgroundColor: "#f0f0f0" },
+                        minHeight: "48px !important",
+                        "& .MuiAccordionSummary-content": {
+                          margin: "12px 0 !important",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          width: "100%",
+                          pr: 2,
+                        }}
+                      >
+                        <Typography sx={{ fontWeight: 500 }}>{source.name}</Typography>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Badge badgeContent={source.objectives.length} color="primary" sx={{ mr: 2 }} />
+                          <Box>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleEditSource(source)
+                              }}
+                              sx={{
+                                mr: 1,
+                                color: "#09459E",
+                                "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteSource(source.id)
+                              }}
+                              sx={{
+                                color: "#d32f2f",
+                                "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ p: 0 }}>
+                      <List dense>
+                        {source.paginatedObjectives.length > 0 ? (
+                          source.paginatedObjectives.map((objective) => (
+                            <ListItem
+                              key={objective.id}
+                              secondaryAction={
+                                <Box>
+                                  <IconButton
+                                    edge="end"
+                                    aria-label="edit"
+                                    onClick={() => handleEditLearningObjective(objective)}
+                                    sx={{
+                                      color: "#09459E",
+                                      "&:hover": { backgroundColor: "rgba(9, 69, 158, 0.08)" },
+                                    }}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    edge="end"
+                                    aria-label="delete"
+                                    onClick={() => handleDeleteLearningObjective(objective.id)}
+                                    sx={{
+                                      color: "#d32f2f",
+                                      "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)" },
+                                    }}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              }
+                              sx={{
+                                borderBottom: "1px solid #f0f0f0",
+                                "&:hover": { backgroundColor: "#f9f9f9" },
+                                "&:last-child": {
+                                  borderBottom: "none",
+                                },
+                              }}
+                            >
+                              <ListItemText primary={objective.name} />
+                            </ListItem>
+                          ))
+                        ) : (
+                          <ListItem>
+                            <ListItemText
+                              primary="No learning objectives found for this source"
+                              sx={{ color: "text.secondary", fontStyle: "italic", textAlign: "center" }}
+                            />
+                          </ListItem>
+                        )}
+                      </List>
+
+                      {source.totalPages > 1 && (
+                        <Box sx={{ display: "flex", justifyContent: "center", p: 2, borderTop: "1px solid #f0f0f0" }}>
+                          <Pagination
+                            count={source.totalPages}
+                            page={page[source.id] || 1}
+                            onChange={handlePageChange(source.id)}
+                            color="primary"
+                            size="small"
+                            sx={{
+                              "& .MuiPaginationItem-root": {
+                                color: "#09459E",
+                              },
+                              "& .Mui-selected": {
+                                backgroundColor: "rgba(9, 69, 158, 0.1) !important",
+                              },
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
+                {groupedObjectives.length === 0 && (
+                  <Box sx={{ p: 3, textAlign: "center" }}>
+                    <Typography color="text.secondary" sx={{ fontStyle: "italic" }}>
+                      No sources found
+                    </Typography>
+                  </Box>
+                )}
+              </Paper>
+            </Box>
+          )}
         </Box>
       </Paper>
 
@@ -1172,18 +1661,58 @@ const RequestFormEditor = () => {
           {isEditMode ? "Edit Project" : "Add New Project"}
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Project Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newProjectName}
-            onChange={(e) => setNewProjectName(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-        </DialogContent>
+  <label htmlFor="service-division-select" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+    Service Division
+  </label>
+  <select
+    id="service-division-select"
+    value={selectedServiceDivisionId}
+    onChange={handleServiceDivisionChange}
+    style={{
+      width: '98%',
+      height: '36px',
+      fontSize: '12px',
+      marginBottom: '1rem',
+      padding: '8px 12px',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      outline:"none"
+    }}
+  >
+    <option value="" disabled>
+      <em style={{ color: '#BDBDBD' }}>Select Service Division</em>
+    </option>
+    {serviceDivisions.map((division) => (
+      <option key={division.id} value={division.id}>
+        {division.name}
+      </option>
+    ))}
+    <option value="add_new" style={{ color: '#09459E', fontWeight: 'bold' }}>
+      + Add New Service Division
+    </option>
+  </select>
+
+  <label htmlFor="project-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+    Project Name
+  </label>
+  <input
+    id="project-name"
+    type="text"
+    placeholder="Project Name"
+    value={newProjectName}
+    onChange={(e) => setNewProjectName(e.target.value)}
+    style={{
+      width: '98%',
+      padding: '8px',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      marginBottom: '1rem',
+      fontSize: '12px',
+      outline:"none",
+    }}
+  />
+</DialogContent>
+
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
             onClick={() => setIsAddProjectDialogOpen(false)}
@@ -1200,6 +1729,7 @@ const RequestFormEditor = () => {
           <Button
             onClick={handleAddProject}
             variant="contained"
+            disabled={!selectedServiceDivisionId || !newProjectName.trim()}
             sx={{
               backgroundColor: "#09459E",
               textTransform: "none",
@@ -1214,10 +1744,13 @@ const RequestFormEditor = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Service Division Dialog */}
+      {/* Add New Service Division Dialog */}
       <Dialog
-        open={isAddDivisionDialogOpen}
-        onClose={() => setIsAddDivisionDialogOpen(false)}
+        open={isAddNewDivisionDialogOpen || isAddDivisionDialogOpen}
+        onClose={() => {
+          setIsAddNewDivisionDialogOpen(false)
+          setIsAddDivisionDialogOpen(false)
+        }}
         PaperProps={{
           sx: {
             borderRadius: "10px",
@@ -1230,20 +1763,33 @@ const RequestFormEditor = () => {
           {isEditMode ? "Edit Service Division" : "Add New Service Division"}
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Service Division Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newDivisionName}
-            onChange={(e) => setNewDivisionName(e.target.value)}
-          />
-        </DialogContent>
+  <label htmlFor="service-division-input" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+    Service Division
+  </label>
+  <input
+    id="service-division-input"
+    autoFocus
+    type="text"
+    placeholder="Service Division Name"
+    value={newDivisionName}
+    onChange={(e) => setNewDivisionName(e.target.value)}
+    style={{
+      width: '97%',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      padding: '6px 10px 8px 10px',
+      outline:"none",
+    }}
+  />
+</DialogContent>
+
+
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
-            onClick={() => setIsAddDivisionDialogOpen(false)}
+            onClick={() => {
+              setIsAddNewDivisionDialogOpen(false)
+              setIsAddDivisionDialogOpen(false)
+            }}
             sx={{
               color: "#09459E",
               textTransform: "none",
@@ -1257,6 +1803,7 @@ const RequestFormEditor = () => {
           <Button
             onClick={handleAddDivision}
             variant="contained"
+            disabled={!newDivisionName.trim()}
             sx={{
               backgroundColor: "#09459E",
               textTransform: "none",
@@ -1323,6 +1870,7 @@ const RequestFormEditor = () => {
           <Button
             onClick={handleAddTechStack}
             variant="contained"
+            disabled={!newTechStackName.trim()}
             sx={{
               backgroundColor: "#09459E",
               textTransform: "none",
@@ -1352,56 +1900,6 @@ const RequestFormEditor = () => {
         <DialogTitle sx={{ fontWeight: 500, borderBottom: "1px solid #f0f0f0", pb: 2 }}>
           {isEditMode ? "Edit Primary Skill" : "Add New Primary Skill"}
         </DialogTitle>
-        {/* <DialogContent sx={{ mt: 2 }}>
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel id="tech-stack-label">Tech Stack</InputLabel>
-              <Select
-                labelId="tech-stack-label"
-                value={selectedTechStackId}
-                onChange={handleTechStackChange}
-                label="Tech Stack"
-              >
-                {techStacks.map((techStack) => (
-                  <MenuItem key={techStack.id} value={techStack.id}>
-                    {techStack.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Tooltip title="Add New Tech Stack">
-              <Fab
-                size="small"
-                color="primary"
-                onClick={() => {
-                  setIsAddPrimarySkillDialogOpen(false)
-                  setIsAddTechStackDialogOpen(true)
-                }}
-                sx={{
-                  backgroundColor: "#09459E",
-                  "&:hover": { backgroundColor: "#083a80" },
-                }}
-              >
-                <AddIcon />
-              </Fab>
-            </Tooltip>
-          </Box>
-
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Primary Skill Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newPrimarySkillName}
-            onChange={(e) => setNewPrimarySkillName(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          
-        </DialogContent> */}
-        
         <DialogContent sx={{ mt: 2 }}>
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
     {/* Simple HTML input for Tech Stack */}
@@ -1411,7 +1909,7 @@ const RequestFormEditor = () => {
       </label>
       <select
         id="tech-stack-input"
-        placeholder="Select Tech Stack" 
+        placeholder="Select Tech Stack"
         value={selectedTechStackId}
         onChange={handleTechStackChange}
         style={{
@@ -1426,7 +1924,7 @@ const RequestFormEditor = () => {
          "&:hover": {
           backgroundColor: "#083a80",
         },
-          
+         
         }}
       >
         <option value="" disabled style={{color: '#BDBDBD'}} >Select Tech Stack</option>
@@ -1437,7 +1935,7 @@ const RequestFormEditor = () => {
         ))}
       </select>
     </div>
-
+ 
     {/* Add New Tech Stack Button */}
     <Tooltip title="Add New Tech Stack">
       <Fab
@@ -1450,23 +1948,23 @@ const RequestFormEditor = () => {
         sx={{
           marginTop: '1rem',
           backgroundColor: "#09459E",
-      
+     
           height: 'auto',
           width: '2.5rem',
           boxShadow: "none",
           marginBottom: '0.2rem',
           "&:hover": { backgroundColor: "#083a80" },
-          
+         
         }}
       >
         <AddIcon sx={{height:'2rem', width: '1rem'}} />
       </Fab>
     </Tooltip>
   </Box>
-
-
+ 
+ 
   <label htmlFor="tech-stack-input" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' , fontSize:"14px"}}>
-    Primary Skill 
+    Primary Skill
       </label>
   {/* Simple HTML input for Primary Skill Name */}
   <input
@@ -1478,18 +1976,18 @@ const RequestFormEditor = () => {
     style={{
       width: '89%',
       height: '30px',
-    
+   
       // padding: '10px',
       marginBottom: '16px',
       borderRadius: '4px',
       border: '1px solid #ccc',
       fontSize: '12px',
       outline: 'none',
-      
+     
     }}
   />
 </DialogContent>
-
+ 
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
             onClick={() => setIsAddPrimarySkillDialogOpen(false)}
@@ -1515,6 +2013,177 @@ const RequestFormEditor = () => {
               },
             }}
             disabled={!selectedTechStackId || !newPrimarySkillName.trim()}
+          >
+            {isEditMode ? "Update" : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Source Dialog */}
+      <Dialog
+        open={isAddSourceDialogOpen}
+        onClose={() => setIsAddSourceDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "10px",
+            maxWidth: "500px",
+            width: "100%",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 500, borderBottom: "1px solid #f0f0f0", pb: 2 }}>
+          {isEditMode ? "Edit Source" : "Add New Source"}
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Source Name"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newSourceName}
+            onChange={(e) => setNewSourceName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button
+            onClick={() => setIsAddSourceDialogOpen(false)}
+            sx={{
+              color: "#09459E",
+              textTransform: "none",
+              "&:hover": {
+                backgroundColor: "rgba(9, 69, 158, 0.04)",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddSource}
+            variant="contained"
+            disabled={!newSourceName.trim()}
+            sx={{
+              backgroundColor: "#09459E",
+              textTransform: "none",
+              borderRadius: "8px",
+              "&:hover": {
+                backgroundColor: "#083a80",
+              },
+            }}
+          >
+            {isEditMode ? "Update" : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Learning Objective Dialog */}
+      <Dialog
+        open={isAddLearningObjectiveDialogOpen}
+        onClose={() => setIsAddLearningObjectiveDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "10px",
+            maxWidth: "500px",
+            width: "100%",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 500, borderBottom: "1px solid #f0f0f0", pb: 2 }}>
+          {isEditMode ? "Edit Learning Objective" : "Add New Learning Objective"}
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <FormControl fullWidth>
+              <FormLabel htmlFor="source-input" sx={{ display: "block", mb: 1, fontWeight: 500, fontSize: "14px" }}>
+                Source
+              </FormLabel>
+              <Select
+                id="source-input"
+                value={selectedSourceId}
+                onChange={handleSourceChange}
+                displayEmpty
+                fullWidth
+                sx={{
+                  height: "36px",
+                  fontSize: "12px",
+                  "& .MuiSelect-select": {
+                    padding: "8px 12px",
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  <em style={{ color: "#BDBDBD" }}>Select Source</em>
+                </MenuItem>
+                {sources.map((source) => (
+                  <MenuItem key={source.id} value={source.id}>
+                    {source.name}
+                  </MenuItem>
+                ))}
+                <MenuItem value="add_new" sx={{ color: "#09459E", fontWeight: "bold" }}>
+                  + Add New Source
+                </MenuItem>
+              </Select>
+            </FormControl>
+
+            <Tooltip title="Add New Source">
+              <Fab
+                size="small"
+                color="primary"
+                onClick={() => {
+                  setIsAddLearningObjectiveDialogOpen(false)
+                  setIsAddSourceDialogOpen(true)
+                }}
+                sx={{
+                  marginTop: "1.5rem",
+                  backgroundColor: "#09459E",
+                  height: "36px",
+                  width: "36px",
+                  boxShadow: "none",
+                  "&:hover": { backgroundColor: "#083a80" },
+                }}
+              >
+                <AddIcon />
+              </Fab>
+            </Tooltip>
+          </Box>
+
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Learning Objective Name"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newLearningObjectiveName}
+            onChange={(e) => setNewLearningObjectiveName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button
+            onClick={() => setIsAddLearningObjectiveDialogOpen(false)}
+            sx={{
+              color: "#09459E",
+              textTransform: "none",
+              "&:hover": {
+                backgroundColor: "rgba(9, 69, 158, 0.04)",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddLearningObjective}
+            variant="contained"
+            sx={{
+              backgroundColor: "#09459E",
+              textTransform: "none",
+              borderRadius: "8px",
+              "&:hover": {
+                backgroundColor: "#083a80",
+              },
+            }}
+            disabled={!selectedSourceId || !newLearningObjectiveName.trim()}
           >
             {isEditMode ? "Update" : "Add"}
           </Button>

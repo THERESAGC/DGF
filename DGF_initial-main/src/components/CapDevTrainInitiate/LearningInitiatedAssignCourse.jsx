@@ -26,9 +26,10 @@ import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, ArrowForward } f
 import { useParams } from "react-router-dom"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import AssignCourseModal from "./AssignCourseModal"
-import CommentsSidebar from "./CommentsSidebar"
+// import CommentsSidebar from "./CommentsSidebar"
 import PropTypes from "prop-types"
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+import CommentsSidebar from "./commentsSidebar";
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {

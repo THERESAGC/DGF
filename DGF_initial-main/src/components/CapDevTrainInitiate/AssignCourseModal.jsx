@@ -1,4 +1,4 @@
-
+ 
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -104,7 +104,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
       }
       onClose();
      navigate(`/learning-initiated-details/${requestId}`, { replace: true }); // Navigate to the specific page
-    
+   
     } catch (error) {
       console.error('Error assigning courses:', error);
     } finally {
@@ -135,7 +135,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
     return true;
   };
  
-
+ 
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
@@ -154,10 +154,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
         <Typography variant="h6" sx={{ mb: 3 }}>
           Assign Course to {employeeIds.length > 1 ? `${employeeIds.length} Employees` : 'Employee'}
         </Typography>
- 
+       <Box style={{backgroundColor:"#FCFCFC ",border:"1px solid #C9C9C9",padding:"10px",borderRadius:"5px"}}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
           <Box sx={{ width: '48%' }}>
-            <Typography component="label" htmlFor="select-course" sx={{ mb: 1, display: 'block' }}>
+            <Typography component="label" htmlFor="select-course" sx={{ mb: 1.7, display: 'block' }}>
               Select Course
             </Typography>
             <Autocomplete
@@ -173,14 +173,23 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                   {...params}
                   fullWidth
                   placeholder="Search courses..."
+                 
                   InputProps={{
+                   
                     ...params.InputProps,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon />
+                        <SearchIcon sx={{fontSize:"20px"}} />
                       </InputAdornment>
+                     
                     ),
+                    sx: {
+                      height: '30px', // Adjust the height as needed
+                     padding: '0px 0px 0px 5px !important', // Adjust the padding as needed
+                      fontSize: '12px',
+                    },
                   }}
+                 
                 />
               )}
               onChange={(event, value) => {
@@ -344,7 +353,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
           <TextareaAutosize
             minRows={3}
             style={{
-              width: '100%',
+              width: '97%',
               padding: '8px',
               border: '1px solid #ddd',
               borderRadius: '4px'
@@ -356,7 +365,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
  
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button
-            variant="outlined"
+            // variant="outlined"
             onClick={onClose}
             disabled={submitting}
           >
@@ -372,6 +381,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
           </Button>
         </Box>
       </Box>
+      </Box>
     </Modal>
   );
 };
@@ -382,5 +392,7 @@ AssignCourseModal.propTypes = {
   requestId: PropTypes.string.isRequired,
   coursesAssigned:PropTypes.number.isRequired
 };
-
+ 
 export default AssignCourseModal;
+ 
+ 

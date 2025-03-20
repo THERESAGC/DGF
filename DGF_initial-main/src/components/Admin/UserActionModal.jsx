@@ -1,27 +1,42 @@
+"use client"
 
 import { useState, useEffect } from "react"
 import {
-  Box, Typography, Modal, Button, FormControl, FormLabel, Select, MenuItem,
-  Switch, Divider, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
+  Box,
+  Typography,
+  Modal,
+  Button,
+  FormControl,
+  FormLabel,
+  Select,
+  MenuItem,
+  Switch,
+  Divider,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import axios from "axios"
- 
+
 const UserActionModal = ({ open, onClose, user }) => {
   const [roles, setRoles] = useState([])
   const [selectedRole, setSelectedRole] = useState("")
   const [status, setStatus] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showRoleConfirmation, setShowRoleConfirmation] = useState(false)
-  const [newRole, setNewRole] = useState('')
-  const [oldRole, setOldRole] = useState('')
- 
+  const [newRole, setNewRole] = useState("")
+  const [oldRole, setOldRole] = useState("")
+
   useEffect(() => {
     if (open && user) {
       setSelectedRole(user.role || "")
       setStatus(user.status === "active")
-     
+
       const fetchRoles = async () => {
         try {
           const response = await axios.get("http://localhost:8000/api/getallroles/getAllRoles")
@@ -33,23 +48,23 @@ const UserActionModal = ({ open, onClose, user }) => {
       fetchRoles()
     }
   }, [open, user])
- 
+
   const handleRoleChange = (event) => {
     const selectedNewRole = event.target.value
     setNewRole(selectedNewRole)
     setOldRole(selectedRole)
     setShowRoleConfirmation(true)
   }
- 
+
   const handleStatusChange = (event) => {
     setStatus(event.target.checked)
   }
- 
+
   const handleConfirmRoleChange = () => {
     setSelectedRole(newRole)
     setShowRoleConfirmation(false)
   }
- 
+
   const handleSave = async () => {
     if (!user) return
     setLoading(true)
@@ -59,13 +74,13 @@ const UserActionModal = ({ open, onClose, user }) => {
         userId: user.id,
         status: status ? "active" : "inactive",
       })
-     
+
       // Update role
       await axios.put(`http://localhost:8000/api/users/update-role`, {
         emp_id: user.id,
         role_name: selectedRole,
       })
-     
+
       alert("User updated successfully")
       onClose()
     } catch (error) {
@@ -75,7 +90,7 @@ const UserActionModal = ({ open, onClose, user }) => {
       setLoading(false)
     }
   }
- 
+
   const handleResendInvitation = async () => {
     if (!user) return
     setLoading(true)
@@ -89,24 +104,26 @@ const UserActionModal = ({ open, onClose, user }) => {
       setLoading(false)
     }
   }
- 
+
   if (!user) return null
- 
+
   return (
     <>
       <Modal open={open} onClose={onClose} aria-labelledby="user-action-modal-title">
-        <Box sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          bgcolor: "background.paper",
-          borderRadius: "10px",
-          boxShadow: 24,
-          p: 3,
-          fontFamily: '"Poppins", sans-serif',
-        }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            borderRadius: "10px",
+            boxShadow: 24,
+            p: 3,
+            fontFamily: '"Poppins", sans-serif',
+          }}
+        >
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
             <Typography id="user-action-modal-title" variant="h6" component="h2" sx={{ fontWeight: 500 }}>
               Edit User
@@ -125,12 +142,15 @@ const UserActionModal = ({ open, onClose, user }) => {
             </Typography>
           </Box>
           <FormControl fullWidth sx={{ mb: 3 }}>
-            <FormLabel component="legend" sx={{
-              color: "black",
-              fontSize: "0.875rem",
-              mb: 1,
-              fontWeight: 500,
-            }}>
+            <FormLabel
+              component="legend"
+              sx={{
+                color: "black",
+                fontSize: "0.875rem",
+                mb: 1,
+                fontWeight: 500,
+              }}
+            >
               Role
             </FormLabel>
             <Select
@@ -144,24 +164,25 @@ const UserActionModal = ({ open, onClose, user }) => {
                 fontSize: "12px",
                 ".MuiOutlinedInput-notchedOutline": {
                   borderColor: "#e0e0e0",
-                  
-                  
                 },
               }}
             >
               {roles.map((role) => (
-                <MenuItem  key={role.role_id} value={role.role_name}>
+                <MenuItem key={role.role_id} value={role.role_name}>
                   {role.role_name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
           <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <FormLabel component="legend" sx={{
-              color: "black",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-            }}>
+            <FormLabel
+              component="legend"
+              sx={{
+                color: "black",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+              }}
+            >
               Status
             </FormLabel>
             <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -229,12 +250,9 @@ const UserActionModal = ({ open, onClose, user }) => {
           </Box>
         </Box>
       </Modal>
- 
+
       {/* Role Change Confirmation Dialog */}
-      <Dialog
-        open={showRoleConfirmation}
-        onClose={() => setShowRoleConfirmation(false)}
-      >
+      <Dialog open={showRoleConfirmation} onClose={() => setShowRoleConfirmation(false)}>
         <DialogTitle>Confirm Role Change</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -243,11 +261,7 @@ const UserActionModal = ({ open, onClose, user }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowRoleConfirmation(false)}>Cancel</Button>
-          <Button
-            onClick={handleConfirmRoleChange}
-            color="primary"
-            autoFocus
-          >
+          <Button onClick={handleConfirmRoleChange} color="primary" autoFocus>
             Confirm
           </Button>
         </DialogActions>
@@ -255,6 +269,6 @@ const UserActionModal = ({ open, onClose, user }) => {
     </>
   )
 }
- 
+
 export default UserActionModal
- 
+

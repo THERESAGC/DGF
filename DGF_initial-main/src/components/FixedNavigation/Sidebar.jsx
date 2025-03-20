@@ -4,13 +4,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AuthContext from '../Auth/AuthContext';
  
 // Import all images
-import DashboardIcon from '../../assets/dashboard.svg';
+// import DashboardIcon from '../../assets/dashboard.svg';
 import TrainingIcon from '../../assets/Training.svg';
 import MyCourseIcon from '../../assets/mycourse.svg';
 import EventIcon from '../../assets/event.svg';
 import Logo from '../../assets/harbinger-logo.svg';
 import SettingsIcon from '../../assets/setting.png';
- 
+import DashboardIcon from '../../assets/Dashboard.svg';
 import '../FixedNavigation/Sidebar.css';
  
 const Sidebar = () => {

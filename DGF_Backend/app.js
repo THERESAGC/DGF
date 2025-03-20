@@ -65,6 +65,9 @@ const deleteServiceDivisionRoutes = require('./routes/deleteServiceDivisionRoute
 const addTechStackRoutes = require('./routes/addTechStackRoutes');
 const deleteTechStackRoutes = require('./routes/deleteTechStackRoutes');    
 const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
+const deletePrimarySkillRoutes = require('./routes/deletePrimarySkillRoutes');
+
+
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
 const passwordForUserRoutes = require('./routes/passwordForUserRoutes'); //Routes for admin enable user and new password mail
@@ -274,7 +277,7 @@ app.use('/api', addTechStackRoutes);
 app.use('/api', addPrimarySkillRoutes); 
 
 app.use('/api/delete-tech-stack', deleteTechStackRoutes);
-
+app.use('/api', deletePrimarySkillRoutes);
 // Use routes for when the admin approves enable user from the setting 
 app.use('/api', passwordForUserRoutes);
 
