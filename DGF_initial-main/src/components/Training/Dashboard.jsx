@@ -55,7 +55,7 @@ const Dashboard = ({ roleId }) => {
  
     requests.forEach(request => {
       const status = request.requeststatus.toLowerCase().trim();
-      if (status === "approval requested") {
+      if (status === "approval requested" ||status === "capdev approval requested" ) {
         counts.approvalrequested++;
       }  else if (status === "learning initiated") {
         counts.learninginitiated++;
@@ -65,7 +65,7 @@ const Dashboard = ({ roleId }) => {
         counts.completed++;
       } else if (status === "completed with delay") {
         counts.completedwithdelay++;
-      } 
+      }
       else if (status === "incomplete") {
         counts.incomplete++;
       } else if (status === "rejected") {
@@ -81,7 +81,7 @@ const Dashboard = ({ roleId }) => {
   }, [requests]);
  
   const requestInProgress = {
-    labels: ["SPOC Approval Awaited", "Preparing Plan", "Learning In Progress", "Clarification Awaited"],
+    labels: ["Approval Awaited", "Preparing Plan", "Learning In Progress", "Clarification Awaited"],
     values: [statusCounts.approvalrequested, statusCounts.preparinglearningplan, statusCounts.learninginitiated, statusCounts.needclarification],
     colors: ["#003896", "#088EE7", "#2BB381", "#E25252"],
     hoverColors: ["#66BB6A", "#FFD54F", "#29B6F6", "#66BB6A"]
@@ -138,7 +138,7 @@ const Dashboard = ({ roleId }) => {
             title="In Progress"
             data={requestInProgress}
             details={[
-              `SPOC Approval<br />Awaited: ${statusCounts.approvalrequested}`,
+              `Approval<br />Awaited: ${statusCounts.approvalrequested}`,
               `Learning Plan<br />  Awaited: ${statusCounts.preparinglearningplan}`,
               `Learning<br /> In Progress: ${statusCounts.learninginitiated}`,
               `<span className='clarification-awaiting'>Clarification <br />Awaited: ${statusCounts.needclarification}</span>`
@@ -185,3 +185,4 @@ Dashboard.propTypes = {
 };
  
 export default Dashboard;
+ 

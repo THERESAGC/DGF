@@ -46,6 +46,7 @@ const RequestTable = ({ roleId }) => {
           "spoc approved",
           "capdev approved",
           "request suspended",
+          "capdev approval requested"
         ];
  
   //fetch learners data
@@ -331,7 +332,9 @@ const RequestTable = ({ roleId }) => {
             case "completed":
                   return{ text: ["Completed"], color: "#2BB381"}; //Completed" status is handled
             case "learning in progress":
-                  return { text: ["Learning", " In Progress"], color: "#06819E" };        
+                  return { text: ["Learning", " In Progress"], color: "#06819E" };
+            case "capdev approval requested":
+              return { text: ["CapDev Approval", " Requested"], color: "#AA1700" };      
               default:
               return { text: [status], color: "black" };
           }
@@ -349,7 +352,8 @@ const RequestTable = ({ roleId }) => {
               "initiate learning",
               "learning initiated",
               "clarification requested",
-              "learning in progress"
+              "learning in progress",
+              "capdev approval requested"
             ];
             return inProgressStatuses.includes(status); // Returns true if status is part of "In Progress"
           } else if (selectedStatus === "Completed") {
@@ -403,7 +407,7 @@ const RequestTable = ({ roleId }) => {
               navigate(`/requester-information/${requestId}`);
             }
  
-            if (status.toLowerCase() == 'approval requested'){
+            if (status.toLowerCase() == 'approval requested' || status.toLowerCase()=='capdev approval requested'){
               navigate(`/requester-information/${requestId}`)
             }
          
@@ -431,7 +435,7 @@ const RequestTable = ({ roleId }) => {
           console.log('Status: Arroe,Edit combo', status);
           console.log('Request ID:', requestId);
  
-          if (status.toLowerCase() === 'approval requested') {
+          if (status.toLowerCase() === 'approval requested'|| status.toLowerCase()=='capdev approval requested') {
             navigate(`/spoc-approval/${requestId}`);
           }
          
@@ -492,7 +496,7 @@ const RequestTable = ({ roleId }) => {
             }
           }, [selectedStatus]);
        
-        
+       
  
   return (
     <TableContainer component={Paper} className="table-container">
@@ -515,7 +519,8 @@ const RequestTable = ({ roleId }) => {
           "spoc approved",
           "capdev approved",
           "initiate learning",
-          "learning initiated","clarification requested","learning in progress"
+          "learning initiated","clarification requested","learning in progress",
+          "capdev approval requested"
         ];
         return inProgressStatuses.includes(statusInRow);
       } else if (status === "Completed") {
@@ -738,7 +743,17 @@ const RequestTable = ({ roleId }) => {
             </IconButton>
           )}
          
+         {(role === "CapDev") && (row.requeststatus.toLowerCase() === "capdev approval requested") &&  (
+            <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )}
  
+         {(role !== "CapDev") && (row.requeststatus.toLowerCase() === "capdev approval requested") &&  (
+            <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )}
          
            {/* { role === "requester" && (row.requeststatus.toLowerCase()==='completed'|| row.requeststatus.toLowerCase()==='completed with delay' || row.requeststatus.toLowerCase()==='rejected' || row.requeststatus.toLowerCase()==='learning suspended'|| row.requeststatus.toLowerCase()==='incomplete') && (
             <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
@@ -814,5 +829,6 @@ onStatusCountChange: PropTypes.func.isRequired,
 };
  
 export default RequestTable;
+ 
  
  

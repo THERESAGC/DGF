@@ -22,7 +22,12 @@ exports.createNewTrainingRequest = async (req, res) => {
 
     // Ensure projectid is set to 0 if null or undefined
     projectid = projectid ?? 0;
-
+    if(requestedbyid === requestonbehalfof)
+        {
+            requeststatus="Capdev Approval Requested"
+        }else{
+            requeststatus="Approval Requested"
+        }
     // Validate if all required fields are present
     if (
         !requestid ||
@@ -53,7 +58,8 @@ exports.createNewTrainingRequest = async (req, res) => {
             comments,
             servicedivision,
             requestedbyid,
-            org_level,  // Pass the requestedbyid here
+            org_level,
+            requeststatus  // Pass the requestedbyid here
         });
 
         res.status(201).json({ message: 'Training request created successfully', data: newRequest });
