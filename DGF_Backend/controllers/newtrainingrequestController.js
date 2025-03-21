@@ -1,8 +1,5 @@
-//controllers/newTrainingRequestController.js
- 
 const newTrainingRequestService = require('../services/newTrainingRequestService');
 
- 
 exports.createNewTrainingRequest = async (req, res) => {
     let {
         requestid, // Now included in the request body
@@ -22,17 +19,22 @@ exports.createNewTrainingRequest = async (req, res) => {
         requestedbyid,
         org_level,
     } = req.body;
- 
-    // If projectid is null, set it to 999 here
-    if (projectid == null) {
-        projectid = 0;
-    }
- 
+
+    // Ensure projectid is set to 0 if null or undefined
+    projectid = projectid ?? 0;
+
     // Validate if all required fields are present
-    if (!requestid || !requestonbehalfof || !source || !trainingobj || !projectid || !servicedivision || !requestedbyid) {
+    if (
+        !requestid ||
+        !requestonbehalfof ||
+        !source ||
+        !trainingobj ||
+        projectid === null || projectid === undefined || // Explicitly check for null or undefined
+        !servicedivision ||
+        !requestedbyid
+    ) {
         return res.status(400).json({ message: 'Missing required fields' });
     }
- 
     try {
         // Call the service to create the training request, passing the serialized employeelevel
         const newRequest = await newTrainingRequestService.createNewRequest({
@@ -53,7 +55,7 @@ exports.createNewTrainingRequest = async (req, res) => {
             requestedbyid,
             org_level,  // Pass the requestedbyid here
         });
- 
+
         res.status(201).json({ message: 'Training request created successfully', data: newRequest });
     } catch (err) {
         console.error(err);

@@ -36,7 +36,7 @@ const createNewRequest = ({
  
     return new Promise((resolve, reject) => {
         // If projectid is null, set it to 999
-        projectid = projectid ?? 999;
+        projectid = projectid ?? 0;
  
         const query = `
             INSERT INTO newtrainingrequest (
