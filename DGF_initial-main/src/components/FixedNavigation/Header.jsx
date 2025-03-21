@@ -1,117 +1,145 @@
-import { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, IconButton, InputBase, Menu, MenuItem, Avatar, Typography, Badge, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, List, ListItem, ListItemText, Divider } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import AuthContext from '../Auth/AuthContext';
-import './Header.css';
-import { toPascalCase } from '../../utils/stringUtils';
-import { arrayBufferToBase64 } from '../../utils/ImgConveter';
-import axios from 'axios';
 
-import NotificationIcon from '../../assets/Notification-icon.svg';
-import ArrowDownIcon from '../../assets/arrow-down.svg';
+import { useState, useContext, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  InputBase,
+  Menu,
+  MenuItem,
+  Avatar,
+  Typography,
+  Badge,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material"
+import SearchIcon from "@mui/icons-material/Search"
+import AuthContext from "../Auth/AuthContext"
+import "./Header.css"
+import { toPascalCase } from "../../utils/stringUtils"
+import { arrayBufferToBase64 } from "../../utils/ImgConveter"
+import axios from "axios"
+
+import NotificationIcon from "../../assets/Notification-icon.svg"
+import ArrowDownIcon from "../../assets/arrow-down.svg"
 
 const Header = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
-  const { user, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [profileImage, setProfileImage] = useState('');
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [selectedNotification, setSelectedNotification] = useState(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null)
+  const { user, logout } = useContext(AuthContext)
+  const navigate = useNavigate()
+  const [profileImage, setProfileImage] = useState("")
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [selectedNotification, setSelectedNotification] = useState(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [showAllNotifications, setShowAllNotifications] = useState(false)
 
   useEffect(() => {
     if (user && user.profile_image && user.profile_image.data) {
-      const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(user.profile_image.data)}`;
-      setProfileImage(base64Flag);
+      const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(user.profile_image.data)}`
+      setProfileImage(base64Flag)
     }
-  }, [user]);
+  }, [user])
 
   useEffect(() => {
     const fetchNotifications = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/notifications', {
-                params: { empId: user.emp_id, roleId: user.role_id }  // Fetch notifications based on role
-            });
-            setNotifications(response.data);
-            setUnreadCount(response.data.filter(notification => !notification.is_read).length);
-        } catch (err) {
-            console.error('Error fetching notifications:', err);
-        }
-    };
+      try {
+        const response = await axios.get("http://localhost:8000/api/notifications", {
+          params: { empId: user.emp_id, roleId: user.role_id }, // Fetch notifications based on role
+        })
+        setNotifications(response.data)
+        setUnreadCount(response.data.filter((notification) => !notification.is_read).length)
+      } catch (err) {
+        console.error("Error fetching notifications:", err)
+      }
+    }
 
     if (user) {
-        fetchNotifications();
+      fetchNotifications()
     }
-  }, [user]);
+  }, [user])
 
   const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   const handleNotificationMenuOpen = (event) => {
-    setNotificationAnchorEl(event.currentTarget);
-  };
+    setNotificationAnchorEl(event.currentTarget)
+  }
 
   const handleNotificationMenuClose = () => {
-    setNotificationAnchorEl(null);
-    setShowAllNotifications(false); // Reset to show only the first 5 notifications
-  };
+    setNotificationAnchorEl(null)
+    setShowAllNotifications(false) // Reset to show only the first 5 notifications
+  }
 
   const handleNotificationClick = async (notification) => {
-    setSelectedNotification(notification);
-    setDialogOpen(true);
+    setSelectedNotification(notification)
+    setDialogOpen(true)
 
     if (!notification.is_read) {
-        try {
-            await axios.post('http://localhost:8000/api/notifications/mark-as-read', {
-                notificationId: notification.id,
-                empId: user.emp_id  // Pass empId to mark it as read for the specific user
-            });
+      try {
+        await axios.post("http://localhost:8000/api/notifications/mark-as-read", {
+          notificationId: notification.id,
+          empId: user.emp_id, // Pass empId to mark it as read for the specific user
+        })
 
-            // Update the notification state locally, only change the read status for the clicked notification
-            setNotifications(prevNotifications =>
-                prevNotifications.map(n =>
-                    n.id === notification.id ? { ...n, is_read: true } : n
-                )
-            );
+        // Update the notification state locally, only change the read status for the clicked notification
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n)),
+        )
 
-            // Decrease unread count
-            setUnreadCount(prevCount => prevCount - 1);
-        } catch (err) {
-            console.error('Error marking notification as read:', err);
-        }
+        // Decrease unread count
+        setUnreadCount((prevCount) => prevCount - 1)
+      } catch (err) {
+        console.error("Error marking notification as read:", err)
+      }
     }
-  };
+  }
 
   const handleDialogClose = () => {
-    setDialogOpen(false);
-    setSelectedNotification(null);
-  };
+    setDialogOpen(false)
+    setSelectedNotification(null)
+  }
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    logout()
+    navigate("/login")
+  }
 
   const handleViewAllClick = () => {
-    setShowAllNotifications(true);
-  };
+    setShowAllNotifications(true)
+  }
+
+  const handleProfileClick = () => {
+    navigate("/profile")
+    handleMenuClose()
+  }
 
   return (
     <AppBar position="static" className="header">
       <Toolbar>
         {/* Search Bar */}
         <div className="search">
-          <SearchIcon className='icon' style={{ marginBottom: "30px",paddingBottom:"3px" }} />
-          <InputBase placeholder="Search courses" className="search-input" style={{ fontSize: 'smaller', marginbottom:" 0",marginLeft:" 0",paddingleft: "6px" }} />
+          <SearchIcon className="icon" style={{ marginBottom: "30px", paddingBottom: "3px" }} />
+          <InputBase
+            placeholder="Search courses"
+            className="search-input"
+            style={{ fontSize: "smaller", marginbottom: " 0", marginLeft: " 0", paddingleft: "6px" }}
+          />
           <IconButton type="submit" aria-label="search"></IconButton>
         </div>
 
@@ -119,21 +147,31 @@ const Header = () => {
         <div style={{ flexGrow: 1 }} />
 
         {/* Notification Icon */}
-        <IconButton color="inherit" style={{ marginRight:'30px' , marginBottom:'20px' }} onClick={handleNotificationMenuOpen}>
-          <Badge badgeContent={unreadCount}  sx={{
-      '& .MuiBadge-badge': {
-        backgroundColor: '#FE1F1F',
-        color: 'white',
-        marginTop: '4px',
-        marginRight: '-2px',
-        width: '18px',
-        height: '18px',
-        fontSize: '11px',
-        borderRadius: '50%',
-      },
-    }} >
-
-            <img src={NotificationIcon} alt="Notification" style={{ width: '18px', height: '18px'}} />
+        <IconButton
+          color="inherit"
+          style={{ marginRight: "30px", marginBottom: "20px" }}
+          onClick={handleNotificationMenuOpen}
+        >
+          <Badge
+            badgeContent={unreadCount}
+            sx={{
+              "& .MuiBadge-badge": {
+                backgroundColor: "#FE1F1F",
+                color: "white",
+                marginTop: "4px",
+                marginRight: "-2px",
+                width: "18px",
+                height: "18px",
+                fontSize: "11px",
+                borderRadius: "50%",
+              },
+            }}
+          >
+            <img
+              src={NotificationIcon || "/placeholder.svg"}
+              alt="Notification"
+              style={{ width: "18px", height: "18px" }}
+            />
           </Badge>
         </IconButton>
 
@@ -164,7 +202,10 @@ const Header = () => {
                         primary={`Request ID: ${notification.requestid}`}
                         secondary={`Status: ${notification.requeststatus}`}
                       />
-                      <div title="Click to Mark as Read" className={notification.is_read ? "read_noty" : "unread_noty"}></div>
+                      <div
+                        title="Click to Mark as Read"
+                        className={notification.is_read ? "read_noty" : "unread_noty"}
+                      ></div>
                     </ListItem>
                     <Divider />
                   </div>
@@ -173,7 +214,9 @@ const Header = () => {
             </List>
             {!showAllNotifications && notifications.length > 5 && (
               <div className="noty_btn_wrapper">
-                <Button className="view_all_btn" role="link" onClick={handleViewAllClick}>View All</Button>
+                <Button className="view_all_btn" role="link" onClick={handleViewAllClick}>
+                  View All
+                </Button>
               </div>
             )}
           </div>
@@ -197,7 +240,7 @@ const Header = () => {
                 <DialogContentText>
                   <strong>Requested By:</strong> {selectedNotification.requestedby_name}
                 </DialogContentText>
-                 {selectedNotification.requestonbehalfof_name && (
+                {selectedNotification.requestonbehalfof_name && (
                   <DialogContentText>
                     <strong>On Behalf Of:</strong> {selectedNotification.requestonbehalfof_name}
                   </DialogContentText>
@@ -207,7 +250,6 @@ const Header = () => {
                     <strong>Approved By:</strong> {selectedNotification.approvedby_name}
                   </DialogContentText>
                 )}
-               
               </>
             )}
           </DialogContent>
@@ -220,28 +262,26 @@ const Header = () => {
 
         {/* Profile Image and Dropdown */}
         <div className="profile" onClick={handleMenuOpen}>
-          <Avatar alt="User" src={profileImage} style={{ width: '200px', height: 100 }} /> {/* Use the base64-encoded image */}
-          <Typography variant="body1" style={{ marginLeft: '10px', color: 'black' }}>
-            {user ? toPascalCase(user.name) : 'User'}
+          <Avatar alt="User" src={profileImage} style={{ width: "200px", height: 100 }} />{" "}
+          {/* Use the base64-encoded image */}
+          <Typography variant="body1" style={{ marginLeft: "10px", color: "black" }}>
+            {user ? toPascalCase(user.name) : "User"}
           </Typography>
-
-          <img src={ArrowDownIcon} alt="Notification" style={{ width: '10px', height: '10px', paddingLeft: "10px", fill: "#707070" }} />
+          <img
+            src={ArrowDownIcon || "/placeholder.svg"}
+            alt="Notification"
+            style={{ width: "10px", height: "10px", paddingLeft: "10px", fill: "#707070" }}
+          />
         </div>
 
-
         {/* Dropdown Menu */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

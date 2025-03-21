@@ -1,10 +1,9 @@
-
-
 import { useContext, useEffect, useState } from "react"
 import AdminSetting from "./AdminSetting"
 import RequestFormEditor from "./RequestFormEditor"
 import AuthContext from "../Auth/AuthContext"
 import AdminHeaderBtn from "./AdminHeaderBtn"
+import DownloadReport from "./Download-report"
 
 const AdminContainer = () => {
   const { user } = useContext(AuthContext)
@@ -44,6 +43,8 @@ const AdminContainer = () => {
         return roleId && <AdminSetting roleId={roleId} />
       case "Data Field Management":
         return <RequestFormEditor />
+      case "Reports":
+        return <DownloadReport />
       default:
         return roleId && <AdminSetting roleId={roleId} />
     }

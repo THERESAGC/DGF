@@ -14,7 +14,8 @@ const createNewRequest = ({
     comments,
     servicedivision,
     requestedbyid, // Take requestedbyid from user input
-    org_level // Add org_level parameter
+    org_level,// Add org_level parameter
+    requeststatus 
 }) => {
     // Log the received data
     console.log('Received data:', {
@@ -31,12 +32,13 @@ const createNewRequest = ({
         comments,
         servicedivision,
         requestedbyid,
-        org_level
+        org_level,
+        requeststatus
     });
  
     return new Promise((resolve, reject) => {
         // If projectid is null, set it to 999
-        projectid = projectid ?? 999;
+        projectid = projectid ?? 0;
  
         const query = `
             INSERT INTO newtrainingrequest (
@@ -53,8 +55,9 @@ const createNewRequest = ({
                 comments,
                 service_division,
                 requestedbyid,
-                org_level
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                org_level,
+                requeststatus
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
  
         const params = [
@@ -71,7 +74,8 @@ const createNewRequest = ({
             comments ?? null,
             servicedivision ?? null,
             requestedbyid ?? null,  // Add requestedbyid to params
-            org_level ? 1 : 0  // Add org_level to params, default to 0 if null or false
+            org_level ? 1 : 0,// Add org_level to params, default to 0 if null or false
+            requeststatus ?? null
         ];
  
         // Log the query and params

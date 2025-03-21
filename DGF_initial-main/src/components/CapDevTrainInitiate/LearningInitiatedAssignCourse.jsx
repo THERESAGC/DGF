@@ -26,9 +26,10 @@ import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, ArrowForward } f
 import { useParams } from "react-router-dom"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import AssignCourseModal from "./AssignCourseModal"
-import CommentsSidebar from "./CommentsSidebar"
+// import CommentsSidebar from "./CommentsSidebar"
 import PropTypes from "prop-types"
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+import CommentsSidebar from "./commentsSidebar";
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -170,7 +171,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           <Checkbox checked={isSelected} onChange={onSelect} color="primary" disabled={row.coursesAssigned == 3} />
         </TableCell>
         <TableCell>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "-webkit-box", alignItems: "center", gap: 1 }}>
             <Avatar src={row.avatar} alt={row.name} />
             {row.name}
           </Box>
@@ -207,13 +208,13 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                     <TableRow>
                       <TableCell width="48px" style={{ paddingLeft: "0px !important" }} />
                       <TableCell padding="checkbox" width="48px" />
-                      <TableCell style={{ textAlign: "left", width: "164px" }}>Mentor</TableCell>
+                      <TableCell style={{ textAlign: "left", width: "100px" }}>Mentor</TableCell>
                       <TableCell style={{ textAlign: "left" }}>Course Name</TableCell>
                       <TableCell align="center">End Date</TableCell>
                       <TableCell align="center">Comments</TableCell>
 
                       <TableCell align="center">Status</TableCell>
-                      <TableCell style={{ textAlign: "left" }}>Actions</TableCell>
+                      <TableCell style={{ textAlign: "left", width:" 9%" }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

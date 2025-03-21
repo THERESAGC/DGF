@@ -1,4 +1,4 @@
-
+ 
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -9,6 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
  import{useNavigate} from 'react-router-dom';
+import { color } from 'chart.js/helpers';
  
 const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssigned}) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,7 +105,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
       }
       onClose();
      navigate(`/learning-initiated-details/${requestId}`, { replace: true }); // Navigate to the specific page
-    
+   
     } catch (error) {
       console.error('Error assigning courses:', error);
     } finally {
@@ -135,29 +136,32 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
     return true;
   };
  
-
+ 
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
         position: 'absolute',
         top: '50%',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 800,
+        transform: 'translate(-50%, -53%)',
+        width: 700,
         bgcolor: 'background.paper',
         boxShadow: 24,
         p: 4,
         borderRadius: 2,
-        maxHeight: '90vh',
-        overflowY: 'auto'
+        maxHeight: '85vh',
+        overflowY: 'auto',
+        outline: 'none',
+        resize: 'none',
+ 
       }}>
         <Typography variant="h6" sx={{ mb: 3 }}>
           Assign Course to {employeeIds.length > 1 ? `${employeeIds.length} Employees` : 'Employee'}
         </Typography>
- 
+       <Box style={{backgroundColor:"#FCFCFC ",border:"1px solid #C9C9C9",padding:"10px",borderRadius:"5px"}}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
           <Box sx={{ width: '48%' }}>
-            <Typography component="label" htmlFor="select-course" sx={{ mb: 1, display: 'block' }}>
+            <Typography component="label" htmlFor="select-course" sx={{ mb: 1.7, display: 'block' }}>
               Select Course
             </Typography>
             <Autocomplete
@@ -173,14 +177,23 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                   {...params}
                   fullWidth
                   placeholder="Search courses..."
+                 
                   InputProps={{
+                   
                     ...params.InputProps,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon />
+                        <SearchIcon sx={{fontSize:"20px"}} />
                       </InputAdornment>
+                     
                     ),
+                    sx: {
+                      height: '30px', // Adjust the height as needed
+                     padding: '0px 0px 0px 5px !important', // Adjust the padding as needed
+                      fontSize: '12px',
+                    },
                   }}
+                 
                 />
               )}
               onChange={(event, value) => {
@@ -208,7 +221,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                   <FormControlLabel
                     key={type}
                     value={type}
-                    control={<Radio />}
+                    control={<Radio  color=''/>}
                     label={type}
                   />
                 ))}
@@ -218,29 +231,30 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
         </Box>
         {console.log("Cousrsrs COunt",coursesAssigned)}
         {courses.length === 0 ? (
-          <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="body1" color="text.secondary">
+          <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center',height:"30px" }}>
+            <Typography variant="body1" color="text.secondary" mt={0.8}>
               No courses selected
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ mb: 3 }}>
+          <TableContainer component={Paper} sx={{ mb: 3 ,width:"97%"}}>
             <Table>
-              <TableHead>
+              <TableHead style={{font:"bold"}}>
                 <TableRow>
-                  <TableCell>Course Name</TableCell>
-                  <TableCell>Mentor</TableCell>
-                  <TableCell>Completion Date</TableCell>
-                  <TableCell>Course Type</TableCell>
+                  <TableCell style={{width:"25%",textAlign:"left"}}>Course Name</TableCell>
+                  <TableCell style={{width:"25%"}}>Mentor</TableCell>
+                  <TableCell style={{width:"20%",paddingRight:"0px"}}>Completion Date</TableCell>
+                  <TableCell style={{width:"20%"}}>Course Type</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {courses.map((course) => (
                   <TableRow key={course.course_id}>
-                    <TableCell>{course.name}</TableCell>
+                    <TableCell style={{textAlign:"left"}}>{course.name}</TableCell>
                     <TableCell>
                       <Autocomplete
+                      
                         freeSolo
                         options={mentors}
                         getOptionLabel={(option) => option.emp_name}
@@ -253,12 +267,23 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                             fullWidth
                             placeholder="Search mentors..."
                             InputProps={{
+                              sx: { fontSize: '12px', padding: '0px 0px 0px 5px !important' },
                               ...params.InputProps,
                               startAdornment: (
-                                <InputAdornment position="start">
-                                  <SearchIcon />
+                                
+
+ 
+                                <InputAdornment position="start" >
+                                  <SearchIcon sx={{fontSize:"18px"}}/>
                                 </InputAdornment>
                               ),
+                            }}
+                            sx={{
+                              width: '100%',
+                              '& .MuiInputBase-input::placeholder': {
+                                fontSize: '12px', // Set your desired font size here
+                                textAlign: 'left',
+                              },
                             }}
                           />
                         )}
@@ -281,14 +306,18 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                         type="date"
                         size="small"
                         fullWidth
+                        style={{ width: '80%'}}
                         inputProps={{
+                         
                           min: new Date().toISOString().split("T")[0], // Set the minimum date to today
                         }}
                         InputProps={{
-                         
+                          style: { fontSize: '12px',
+                            width:"125%" ,
+                            color: course.completionDate ? 'black' : '#BDBDBD', 
+                          },
                           startAdornment: (
-                            <InputAdornment position="start">
-                              <CalendarTodayIcon fontSize="small" />
+                            <InputAdornment position="start" >
                             </InputAdornment>
                           ),
                         }}
@@ -303,8 +332,9 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                       />
                     </TableCell>
                     <TableCell>
-                      <FormControl fullWidth size="small">
+                      <FormControl fullWidth size="small" >
                         <Select
+                        sx={{fontSize:"12px"}}
                           value={course.coursetype}
                           onChange={(e) => setCourses(prev =>
                             prev.map(c =>
@@ -326,8 +356,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                     <TableCell>
                       <IconButton
                         onClick={() => setCourses(prev =>
+                          
                           prev.filter(c => c.course_id !== course.course_id)
                         )}
+                        sx={{ color: 'red' }}
                       >
                         <CloseIcon />
                       </IconButton>
@@ -339,15 +371,18 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
           </TableContainer>
         )}
  
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3 ,mt:3}}>
           <Typography gutterBottom>Special Comments</Typography>
           <TextareaAutosize
             minRows={3}
             style={{
-              width: '100%',
-              padding: '8px',
+              width: '99%',
+             
               border: '1px solid #ddd',
-              borderRadius: '4px'
+              borderRadius: '4px',
+              resize: 'none',  // Disable resizing
+              overflowY: 'scroll',  // Enable scrolling if content overflows
+              outline: 'none',  // Remove outline
             }}
             value={specialComments}
             onChange={(e) => setSpecialComments(e.target.value)}
@@ -356,7 +391,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
  
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button
-            variant="outlined"
+            // variant="outlined"
             onClick={onClose}
             disabled={submitting}
           >
@@ -366,11 +401,13 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
             variant="contained"
             color="primary"
             onClick={handleAssign}
+            sx={{width:"auto",height:"35px",borderRadius:"20px"}}
             disabled={submitting ||courses.length === 0|| coursesAssigned+courses.length > 3||!isFormValid()}
           >
             {submitting ? <CircularProgress size={24} /> : 'Assign'}
           </Button>
         </Box>
+      </Box>
       </Box>
     </Modal>
   );
@@ -382,5 +419,8 @@ AssignCourseModal.propTypes = {
   requestId: PropTypes.string.isRequired,
   coursesAssigned:PropTypes.number.isRequired
 };
-
+ 
 export default AssignCourseModal;
+ 
+ 
+ 

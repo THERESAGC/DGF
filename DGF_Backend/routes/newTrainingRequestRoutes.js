@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const newTrainingRequestController = require('../controllers/newTrainingRequestController');
+const newTrainingRequestController = require('../controllers/newtrainingrequestController');
 
 // Route to handle creating new training requests
 router.post('/', newTrainingRequestController.createNewTrainingRequest);

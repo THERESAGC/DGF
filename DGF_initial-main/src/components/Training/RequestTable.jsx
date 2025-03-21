@@ -46,6 +46,7 @@ const RequestTable = ({ roleId }) => {
           "spoc approved",
           "capdev approved",
           "request suspended",
+          "capdev approval requested"
         ];
  
   //fetch learners data
@@ -331,7 +332,9 @@ const RequestTable = ({ roleId }) => {
             case "completed":
                   return{ text: ["Completed"], color: "#2BB381"}; //Completed" status is handled
             case "learning in progress":
-                  return { text: ["Learning", " In Progress"], color: "#06819E" };        
+                  return { text: ["Learning", " In Progress"], color: "#06819E" };
+            case "capdev approval requested":
+              return { text: ["CapDev Approval", " Requested"], color: "#AA1700" };      
               default:
               return { text: [status], color: "black" };
           }
@@ -349,7 +352,8 @@ const RequestTable = ({ roleId }) => {
               "initiate learning",
               "learning initiated",
               "clarification requested",
-              "learning in progress"
+              "learning in progress",
+              "capdev approval requested"
             ];
             return inProgressStatuses.includes(status); // Returns true if status is part of "In Progress"
           } else if (selectedStatus === "Completed") {
@@ -403,7 +407,7 @@ const RequestTable = ({ roleId }) => {
               navigate(`/requester-information/${requestId}`);
             }
  
-            if (status.toLowerCase() == 'approval requested'){
+            if (status.toLowerCase() == 'approval requested' || status.toLowerCase()=='capdev approval requested'){
               navigate(`/requester-information/${requestId}`)
             }
          
@@ -431,7 +435,7 @@ const RequestTable = ({ roleId }) => {
           console.log('Status: Arroe,Edit combo', status);
           console.log('Request ID:', requestId);
  
-          if (status.toLowerCase() === 'approval requested') {
+          if (status.toLowerCase() === 'approval requested'|| status.toLowerCase()=='capdev approval requested') {
             navigate(`/spoc-approval/${requestId}`);
           }
          
@@ -492,59 +496,7 @@ const RequestTable = ({ roleId }) => {
             }
           }, [selectedStatus]);
        
-        // Handle download report - Excel format
-        const handleDownloadReport = (startDate, endDate) => {
-          console.log("Downloading Excel report for date range:", startDate, "to", endDate)
- 
-          // Filter requests based on date range
-          const filteredByDate = requests.filter((request) => {
-            const requestDate = new Date(request.createddate)
-            return requestDate >= startDate && requestDate <= endDate
-          })
- 
-          // Prepare data for Excel export
-          const excelData = filteredByDate.map((row) => ({
-            "Request ID": row.requestid,
-            Project: row.newprospectname || row.project_name || "N/A",
-            Objective: row.trainingobj_name || "No Objective",
-            "Tech Stack": row.techstack_name || "No Tech Stack",
-            "Created Date": formatDate(row.createddate) || "No Date",
-            Status: row.requeststatus || "N/A",
-            "Assigned To": row.assignedto_name || "Not Assigned",
-            "Learners Count": learnersData[row.requestid]?.totalLearners || 0,
-            Completed: completionStatus[row.requestid]?.completedEmployees || 0,
-            "Total Employees": completionStatus[row.requestid]?.totalEmployees || 0,
-          }))
- 
-          // Create a worksheet
-          const worksheet = XLSX.utils.json_to_sheet(excelData)
- 
-          // Create a workbook
-          const workbook = XLSX.utils.book_new()
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Training Requests")
- 
-          // Generate Excel file
-          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" })
- 
-          // Save to file
-          const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
- 
-          // Create download link
-          const fileName = `training_requests_${formatDate(startDate)}_to_${formatDate(endDate)}.xlsx`
- 
-          // Create a download link and trigger the download
-          const url = window.URL.createObjectURL(data)
-          const link = document.createElement("a")
-          link.href = url
-          link.download = fileName
-          link.click()
- 
-          // Clean up
-          setTimeout(() => {
-            window.URL.revokeObjectURL(url)
-          }, 100)
-        }
- 
+       
  
   return (
     <TableContainer component={Paper} className="table-container">
@@ -567,7 +519,8 @@ const RequestTable = ({ roleId }) => {
           "spoc approved",
           "capdev approved",
           "initiate learning",
-          "learning initiated","clarification requested","learning in progress"
+          "learning initiated","clarification requested","learning in progress",
+          "capdev approval requested"
         ];
         return inProgressStatuses.includes(statusInRow);
       } else if (status === "Completed") {
@@ -607,11 +560,11 @@ const RequestTable = ({ roleId }) => {
     );
   })}
 </Tabs>
- 
+{/*  
 <div className="flex items-center ml-2 mr-2">
 {user.role_id === 4 && <DownloadReport onDownload={handleDownloadReport} />}
         </div>
- 
+  */}
         <TextField
           select
           value={selectedDays}
@@ -687,7 +640,7 @@ const RequestTable = ({ roleId }) => {
           height: 20,
         }}
       >
-        <Typography variant="body2">+{learnersData[row.requestid].totalLearners - 2}</Typography>
+        <Typography variant="body2" sx={{fontSize:"9px !important"}}>+{learnersData[row.requestid].totalLearners - 2}</Typography>
       </Box>
     )}
   </Box>
@@ -790,7 +743,17 @@ const RequestTable = ({ roleId }) => {
             </IconButton>
           )}
          
+         {(role === "CapDev") && (row.requeststatus.toLowerCase() === "capdev approval requested") &&  (
+            <IconButton onClick={() => handleEditClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )}
  
+         {(role !== "CapDev") && (row.requeststatus.toLowerCase() === "capdev approval requested") &&  (
+            <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
+              <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
+            </IconButton>
+          )}
          
            {/* { role === "requester" && (row.requeststatus.toLowerCase()==='completed'|| row.requeststatus.toLowerCase()==='completed with delay' || row.requeststatus.toLowerCase()==='rejected' || row.requeststatus.toLowerCase()==='learning suspended'|| row.requeststatus.toLowerCase()==='incomplete') && (
             <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
@@ -804,10 +767,10 @@ const RequestTable = ({ roleId }) => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 sx={{
                   '& .MuiBadge-badge': {
-                    fontSize: '8px',
+                    fontSize: '6.6px',
                     height: '12px',
                     minWidth: '12px',
-                    padding: '0 4px',
+                    padding: '6px 3px',
                     backgroundColor: '#FFDAB9',
                     color: 'black',
                     border: '1px solid #707070',
@@ -866,5 +829,6 @@ onStatusCountChange: PropTypes.func.isRequired,
 };
  
 export default RequestTable;
+ 
  
  

@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+
 const bodyParser = require('body-parser');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -54,7 +55,7 @@ const addUserRoutes = require('./routes/addUserRoutes');
 const userUpdateStatusRoutes = require('./routes/userUpdateStatusRoutes');
 const excelExportController = require('./controllers/excelExportController'); // Import the excel export controller
 const projectSearchRoutes = require('./routes/projectSearchRoutes');
-
+const sourceRoutes = require('./routes/sourceRoutes');
 const updateUserRoleRoutes = require('./routes/updateUserRoleRoutes');
 const addProjectRoutes = require('./routes/addProjectRoutes');
 const deleteProjectRoutes = require('./routes/deleteProjectRoutes');
@@ -65,11 +66,23 @@ const deleteServiceDivisionRoutes = require('./routes/deleteServiceDivisionRoute
 const addTechStackRoutes = require('./routes/addTechStackRoutes');
 const deleteTechStackRoutes = require('./routes/deleteTechStackRoutes');    
 const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
+const deletePrimarySkillRoutes = require('./routes/deletePrimarySkillRoutes');
+const addLearningObjectiveRoutes = require('./routes/addLearningObjectiveRoutes');
+
+const addSourceRoutes = require('./routes/addSourceRoutes');
+const deleteSourceRoutes = require('./routes/deleteSourceRoutes');
+const deleteLearningObjectiveRoutes = require('./routes/deleteLearningObjectiveRoutes');
+const profileRoutes = require('./routes/profileRoutes'); // Import the profile routes
+
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
 const passwordForUserRoutes = require('./routes/passwordForUserRoutes'); //Routes for admin enable user and new password mail
+const { checkCompletedTasksAndSendEmails } = require('./services/effectivenessFeedbackService'); // Effective feedback function
+
+
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
@@ -119,7 +132,10 @@ app.get('/api/sync-employees', async (req, res) => {
     }
 });
 
-
+// Use the profile routes
+app.use('/api/profiles', profileRoutes);
+ 
+ 
 // Fetch data from Academy API
 app.get('/api/fetch-courses', async (req, res) => {
     try {
@@ -243,6 +259,9 @@ app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
 //get all roles
 app.use('/api/getAllRoles', getAllRolesRoutes);
 
+//get all sources
+app.use('/api', sourceRoutes);
+
 app.use('/api/employee-completion-status', getEmpLearningCompletionRoutes);
 
 app.use('/api', loginRoutes)
@@ -273,10 +292,24 @@ app.use('/api', addTechStackRoutes);
 
 app.use('/api', addPrimarySkillRoutes); 
 
-app.use('/api/delete-tech-stack', deleteTechStackRoutes);
+app.use('/api', addSourceRoutes);
 
+app.use('/api', addLearningObjectiveRoutes);
+
+app.use('/api', deleteSourceRoutes);
+app.use('/api/delete-tech-stack', deleteTechStackRoutes);
+app.use('/api', deletePrimarySkillRoutes);
+
+app.use('/api', deleteLearningObjectiveRoutes);
 // Use routes for when the admin approves enable user from the setting 
 app.use('/api', passwordForUserRoutes);
+console.log('Triggering cron job manually...');
+// checkCompletedTasksAndSendEmails();
+// Effectiveness feedback routes
+cron.schedule('0 0 * * *', async () => {
+    console.log('Checking completed tasks and sending emails...');
+    await checkCompletedTasksAndSendEmails(); // Use the updated function here
+  });
 
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {

@@ -1,6 +1,6 @@
 // controllers/commentController.js
-const commentService = require('../services/CommentService')
-
+// const commentService = require('../services/CommentService')
+const commentService = require('../services/commentService')
 // Controller to get comments for a specific request
 const getComments = async (req, res) => {
   try {
