@@ -16,6 +16,9 @@ import RequestInfoContainer from './components/RequestInfoContainer.jsx';
 import DashboardContainer from './components/DashboardContainer.jsx'
 import AdminContainer from './components/Admin/AdminContainer.jsx';
 import PasswordUpdate from './components/Auth/PasswordUpdate.jsx';   
+import ManagerFeedbackForm from './components/Feedback/ManagerFeedbackForm.jsx';
+import UserFeedbackForm from './components/Feedback/UserFeedbackForm.jsx';
+ 
 
 function App() {
   const obj = {
@@ -41,6 +44,9 @@ function App() {
             <Route path='/dashboardgraph' element={<ProtectedRoute element={<FixedComponent><DashboardContainer  /></FixedComponent>} />} /> 
             <Route path='/admin-container' element={<ProtectedRoute element={<FixedComponent><AdminContainer /></FixedComponent>} />} />
             <Route path='/password-update' element={<PasswordUpdate />} />
+            <Route path='/feedback' element={<ManagerFeedbackForm/>} />
+            <Route path='/userfeedback' element={<UserFeedbackForm/>} />
+ 
           </Routes>
           </ChatProvider>
         </Router>
