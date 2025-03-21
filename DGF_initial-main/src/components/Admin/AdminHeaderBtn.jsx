@@ -88,7 +88,7 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
                     {[
                       { text: "User Management", path: "/admin-container" },
                       { text: "Data Field Management", path: "" },
-                      { text: "Download", path: "/download-report" },
+                      { text: "Reports", path: "/admin-container" },
                     ].map((item) => (
                       <Typography
                         key={item.text}

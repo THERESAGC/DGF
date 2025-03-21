@@ -126,12 +126,12 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
               <Table size="small" aria-label="details">
                 <TableHead>
                   <TableRow>
-                    <TableCell style={{textAlign:"justify"}}>Req No:</TableCell>
+                    <TableCell style={{textAlign:"justify",width:"65px"}}>Req No:</TableCell>
                     <TableCell style={{textAlign:"justify"}}>Project</TableCell>
                     <TableCell style={{textAlign:"justify"}}>Objective</TableCell>
                     <TableCell style={{textAlign:"justify"}}>Tech Stack</TableCell>
-                    <TableCell style={{textAlign:"justify"}}>Requested on</TableCell>
-                    <TableCell style={{textAlign:"justify",width:"30%"}}>Assigned by</TableCell>
+                    <TableCell style={{textAlign:"justify",width:"12%"}}>Requested on</TableCell>
+                    <TableCell style={{textAlign:"justify",width:"28%"}}>Assigned by</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

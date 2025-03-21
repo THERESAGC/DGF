@@ -171,7 +171,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           <Checkbox checked={isSelected} onChange={onSelect} color="primary" disabled={row.coursesAssigned == 3} />
         </TableCell>
         <TableCell>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "-webkit-box", alignItems: "center", gap: 1 }}>
             <Avatar src={row.avatar} alt={row.name} />
             {row.name}
           </Box>
@@ -214,7 +214,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                       <TableCell align="center">Comments</TableCell>
 
                       <TableCell align="center">Status</TableCell>
-                      <TableCell style={{ textAlign: "left" }}>Actions</TableCell>
+                      <TableCell style={{ textAlign: "left", width:" 9%" }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

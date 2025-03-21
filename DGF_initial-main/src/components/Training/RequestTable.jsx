@@ -767,10 +767,10 @@ const RequestTable = ({ roleId }) => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 sx={{
                   '& .MuiBadge-badge': {
-                    fontSize: '8px',
+                    fontSize: '6.6px',
                     height: '12px',
                     minWidth: '12px',
-                    padding: '0 4px',
+                    padding: '6px 3px',
                     backgroundColor: '#FFDAB9',
                     color: 'black',
                     border: '1px solid #707070',

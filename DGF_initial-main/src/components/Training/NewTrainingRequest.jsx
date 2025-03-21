@@ -1193,14 +1193,14 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                           style={{
                             height: "20px",
                             marginLeft: "2px",
-                            fontSize: "12px",
+                            fontSize: "12px ",
                             fontStyle: "normal",
                           }}
                           InputProps={{
                             ...params.InputProps,
                           }}
                           InputLabelProps={{
-                            style: { fontSize: "10px", opacity: "0.75" },
+                            style: { fontSize: "10px ", opacity: "0.75" },
                           }}
                         />
                       )}
@@ -2070,7 +2070,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       }
     }}
     displayEmpty
-    sx={{height:"30px"}}
+    sx={{height:"30px",fontSize:"12px"}}
     multiple
   >
     <MenuItem value="All" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>

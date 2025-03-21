@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+
 const bodyParser = require('body-parser');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -71,7 +72,7 @@ const addLearningObjectiveRoutes = require('./routes/addLearningObjectiveRoutes'
 const addSourceRoutes = require('./routes/addSourceRoutes');
 const deleteSourceRoutes = require('./routes/deleteSourceRoutes');
 const deleteLearningObjectiveRoutes = require('./routes/deleteLearningObjectiveRoutes');
-
+const profileRoutes = require('./routes/profileRoutes'); // Import the profile routes
 
 // Import the syncEmployees function
 const { syncEmployees } = require('./services/storeEmployeeService');
@@ -81,6 +82,7 @@ const { checkCompletedTasksAndSendEmails } = require('./services/effectivenessFe
 
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
@@ -130,7 +132,10 @@ app.get('/api/sync-employees', async (req, res) => {
     }
 });
 
-
+// Use the profile routes
+app.use('/api/profiles', profileRoutes);
+ 
+ 
 // Fetch data from Academy API
 app.get('/api/fetch-courses', async (req, res) => {
     try {
