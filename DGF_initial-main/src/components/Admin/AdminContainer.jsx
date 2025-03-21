@@ -1,5 +1,3 @@
-"use client"
-
 import { useContext, useEffect, useState } from "react"
 import AdminSetting from "./AdminSetting"
 import RequestFormEditor from "./RequestFormEditor"

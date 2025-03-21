@@ -191,25 +191,28 @@ const NewTrainingRequest = () => {
       fetch(`http://localhost:8000/api/role/sources?role_id=${user.role_id}`)
         .then((response) => response.json())
         .then((data) => {
+          const sortedSources = data.sort((a, b) => a.source_name.localeCompare(b.source_name));
           setFormData((prevFormData) => ({
             ...prevFormData,
-            sources: data,
+            sources: sortedSources,
             trainingPurpose: user.role_id === 8 || user.role_id === 4 ? prevFormData.trainingPurpose : "project",
-          }))
+          }));
         })
-        .catch((error) => console.error("Error fetching sources:", error))
+        .catch((error) => console.error("Error fetching sources:", error));
     }
     // Fetch tech stacks
     fetch(`http://localhost:8000/api/techstack/all`)
-      .then((response) => response.json())
-      .then((data) => {
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          techStacks: data,
-        }))
-      })
-      .catch((error) => console.error("Error fetching tech stacks:", error))
-  }, [user])
+    .then((response) => response.json())
+    .then((data) => {
+      const sortedTechStacks = data.sort((a, b) => a.stack_name.localeCompare(b.stack_name));
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        techStacks: sortedTechStacks,
+      }));
+    })
+    .catch((error) => console.error("Error fetching tech stacks:", error));
+}, [user]);
+ 
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/employee-level/all`)
@@ -228,13 +231,14 @@ const NewTrainingRequest = () => {
     fetch(`http://localhost:8000/api/services`)
       .then((response) => response.json())
       .then((data) => {
+        const sortedServices = data.services.sort((a, b) => a.service_name.localeCompare(b.service_name));
         setFormData((prevFormData) => ({
           ...prevFormData,
-          services: data.services,
-        }))
+          services: sortedServices,
+        }));
       })
-      .catch((error) => console.error("Error fetching services:", error))
-  }, [])
+      .catch((error) => console.error("Error fetching services:", error));
+  }, []);
 
   useEffect(() => {
     // Fetch employee levels data
@@ -298,27 +302,29 @@ const NewTrainingRequest = () => {
   }
 
   const handleSourceChange = (e) => {
-    const selectedSource = e.target.value
-    setFormData({ ...formData, selectedSource })
-    setIsFormValid(validateForm())
-
+    const selectedSource = e.target.value;
+    setFormData({ ...formData, selectedSource });
+    setIsFormValid(validateForm());
+ 
     // Clear dependent errors
-  setTrainingObjectiveError(false)
-  setTrainingObjectiveErrorMessage("")
-
+    setTrainingObjectiveError(false);
+    setTrainingObjectiveErrorMessage("");
+ 
     // Fetch training objectives based on the selected source
     fetch(`http://localhost:8000/api/training/objectives?source_id=${selectedSource}`)
       .then((response) => response.json())
       .then((data) => {
+        const sortedObjectives = data.sort((a, b) => a.training_name.localeCompare(b.training_name));
         setFormData((prevFormData) => ({
           ...prevFormData,
-          trainingObjectives: data,
+          trainingObjectives: sortedObjectives,
           selectedTrainingObjective: "",
-        }))
-        setIsFormValid(validateForm())
+        }));
+        setIsFormValid(validateForm());
       })
-      .catch((error) => console.error("Error fetching training objectives:", error))
-  }
+      .catch((error) => console.error("Error fetching training objectives:", error));
+  };
+  
   const handleOtherSkillChange = (value) => {
     const sanitizedValue = value === "<p><br></p>" ? "" : value
 
@@ -371,33 +377,34 @@ const NewTrainingRequest = () => {
 
   const handleTechStackChange = (e) => {
     if (!formData.selectedSource || !formData.selectedTrainingObjective) {
-      setSnackbarMessage("Please select Department/Group and Learning Objective first")
-      setSnackbarSeverity("error")
-      setSnackbarOpen(true)
-      return
+      setSnackbarMessage("Please select Department/Group and Learning Objective first");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
     }
-
-      const selectedTechStack = e.target.value
-      setFormData({ ...formData, selectedTechStack })
-      setIsFormValid(validateForm())
-      
-      // Clear dependent errors
-      setPrimarySkillError(false)
-      setPrimarySkillErrorMessage("")
-
+ 
+    const selectedTechStack = e.target.value;
+    setFormData({ ...formData, selectedTechStack });
+    setIsFormValid(validateForm());
+ 
+    // Clear dependent errors
+    setPrimarySkillError(false);
+    setPrimarySkillErrorMessage("");
+ 
     // Fetch primary skills based on the selected tech stack
     fetch(`http://localhost:8000/api/primaryskill/by-stack?stack_id=${selectedTechStack}`)
       .then((response) => response.json())
       .then((data) => {
+        const sortedPrimarySkills = data.sort((a, b) => a.skill_name.localeCompare(b.skill_name));
         setFormData((prevFormData) => ({
           ...prevFormData,
-          primarySkills: data,
+          primarySkills: sortedPrimarySkills,
           selectedPrimarySkill: [],
-        }))
-        setIsFormValid(validateForm())
+        }));
+        setIsFormValid(validateForm());
       })
-      .catch((error) => console.error("Error fetching primary skills:", error))
-  }
+      .catch((error) => console.error("Error fetching primary skills:", error));
+  };
 
   // Fetch projects data
   useEffect(() => {
@@ -706,6 +713,19 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
   };
    
 
+  const decodeHtmlEntities = (text) => {
+    if (!text) return ""; // Handle null or undefined input
+    const parser = new DOMParser();
+    let decodedString = text;
+ 
+    // Recursively decode until no more entities are left
+    while (decodedString !== parser.parseFromString(decodedString, "text/html").documentElement.textContent) {
+      decodedString = parser.parseFromString(decodedString, "text/html").documentElement.textContent;
+    }
+ 
+    return decodedString;
+  };
+ 
   const fetchProjects = async (serviceDivisionId) => {
     setLoading(true);
     try {
@@ -714,20 +734,20 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       );
       const data = await response.json();
  
-      if (Array.isArray(data) && data.length === 0) {
-        // If no projects are found, set an array with a placeholder
+      if (Array.isArray(data)) {
+        // Decode HTML entities and sort the projects in ascending order
+        const decodedAndSortedProjects = data
+          .map((project) => ({
+            ...project,
+            ProjectName: decodeHtmlEntities(project.ProjectName),
+          }))
+          .sort((a, b) => a.ProjectName.localeCompare(b.ProjectName));
+ 
         setFormData((prevFormData) => ({
           ...prevFormData,
-          projects: [{ ProjectID: "", ProjectName: "No projects found" }],
-        }));
-      } else if (Array.isArray(data)) {
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          projects: data,
+          projects: decodedAndSortedProjects,
         }));
       } else {
-        // Handle unexpected response format
-        console.error("Unexpected response format:", data);
         setFormData((prevFormData) => ({
           ...prevFormData,
           projects: [{ ProjectID: "", ProjectName: "No projects found" }],
@@ -743,6 +763,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       setLoading(false);
     }
   };
+ 
  
   // Add a useEffect to fetch projects when selectedServiceDivision changes
   useEffect(() => {
@@ -1512,7 +1533,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
                   <Autocomplete
   options={formData.projects || []} // Ensure options is always an array
-  getOptionLabel={(option) => option.ProjectName || ""}
+  getOptionLabel={(option) => decodeHtmlEntities(option.ProjectName || "")}
   value={formData.projects.find((project) => project.ProjectID === formData.selectedProject) || null}
   onChange={(event, value) =>
     setFormData({
@@ -1528,13 +1549,13 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       style={{ height: "30px", fontSize: "12px", minWidth: "100%" }}
       InputProps={{
         ...params.InputProps,
-        style: { fontSize: "12px" },
+        style: { fontSize: "12px",height: "30px" },
       }}
     />
   )}
   renderOption={(props, option) => (
     <li {...props} style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
-      {option.ProjectName}
+      {decodeHtmlEntities(option.ProjectName)}
     </li>
   )}
 />
@@ -1723,11 +1744,11 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
           <Grid container spacing={5} marginTop="1rem">
             {/* Other Skills Field */}
-            <Grid item size={4} style={{ maxWidth: "100%" }}>
+            <Grid item size={4} style={{ maxWidth: "400px" }}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
-                  style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949", maxWidth: "400px" }}
+                  style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949", maxWidth: "100%" }}
                 >
                   Enter any other relevant information<span className="required">*</span>
                 </Typography>
@@ -1750,7 +1771,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
             </Grid>
 
             {/* Completion Criteria Field */}
-            <Grid item size={4} style={{ maxWidth: "100%" }}>
+            <Grid item size={4} style={{ maxWidth: "400px" }}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
@@ -1777,7 +1798,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
             </Grid>
 
             {/* Comments Field */}
-            <Grid item size={4} style={{ maxWidth: "100%" }}>
+            <Grid item size={4} style={{ maxWidth: "400px" }}>
               <FormControl fullWidth>
                 <Typography
                   className="subheader"
@@ -1877,7 +1898,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                       }
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: "12.5px" },
+                        style: { fontSize: "12.5px" ,height: "30px" },
                       }}
                     />
                   )}
@@ -1975,7 +1996,9 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                     value={formData.emails}
                     onChange={handleChange}
                     InputProps={{
-                      style: { fontSize: "12.5px" },
+                      style: { fontSize: "12.5px",
+                        height: "30px"
+                       },
                     }}
                   />
                 </FormControl>
@@ -2020,7 +2043,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
             {/* Employee Level Section */}
             {formData.employeeDetails === "open" && role === "CapDev" && (
-              <Grid item size={4}>
+              <Grid item size={3.5}>
 
 <FormControl fullWidth className="formControl">
   <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
@@ -2047,12 +2070,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       }
     }}
     displayEmpty
-    style={{
-      height: "28px",
-      fontSize: "12px",
-      width: "285px",
-      overflow: "hidden",
-    }}
+    sx={{height:"30px"}}
     multiple
   >
     <MenuItem value="All" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
@@ -2084,7 +2102,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
             {/* Add Employees by Level Button */}
             {formData.employeeDetails === "open" && role === "CapDev" && (
-              <Grid item>
+              <Grid item size={1}>
                 <Box display="flex" justifyContent="flex-end" marginTop="1.7rem">
                   <Button
                     className="btn"

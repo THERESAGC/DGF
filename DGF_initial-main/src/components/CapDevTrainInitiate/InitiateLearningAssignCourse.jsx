@@ -138,7 +138,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                   {row.requests?.map((request, index) => (
                     <TableRow key={index}>
                       <TableCell style={{textAlign:"justify"}}>#{request.requestid}</TableCell>
-                      <TableCell style={{textAlign:"justify",width:"20%"}}>{request.project_name}</TableCell>
+                      <TableCell style={{textAlign:"left",width:"20%"}}>{request.project_name}</TableCell>
                       <TableCell style={{textAlign:"justify"}}>{request.training_objective}</TableCell>
                       <TableCell style={{textAlign:"justify"}}>{request.tech_stacks}</TableCell>
                       <TableCell style={{textAlign:"justify"}}>

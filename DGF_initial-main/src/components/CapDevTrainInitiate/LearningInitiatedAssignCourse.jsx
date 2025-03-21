@@ -208,7 +208,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                     <TableRow>
                       <TableCell width="48px" style={{ paddingLeft: "0px !important" }} />
                       <TableCell padding="checkbox" width="48px" />
-                      <TableCell style={{ textAlign: "left", width: "164px" }}>Mentor</TableCell>
+                      <TableCell style={{ textAlign: "left", width: "100px" }}>Mentor</TableCell>
                       <TableCell style={{ textAlign: "left" }}>Course Name</TableCell>
                       <TableCell align="center">End Date</TableCell>
                       <TableCell align="center">Comments</TableCell>

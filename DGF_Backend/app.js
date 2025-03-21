@@ -54,7 +54,7 @@ const addUserRoutes = require('./routes/addUserRoutes');
 const userUpdateStatusRoutes = require('./routes/userUpdateStatusRoutes');
 const excelExportController = require('./controllers/excelExportController'); // Import the excel export controller
 const projectSearchRoutes = require('./routes/projectSearchRoutes');
-
+const sourceRoutes = require('./routes/sourceRoutes');
 const updateUserRoleRoutes = require('./routes/updateUserRoleRoutes');
 const addProjectRoutes = require('./routes/addProjectRoutes');
 const deleteProjectRoutes = require('./routes/deleteProjectRoutes');
@@ -66,6 +66,11 @@ const addTechStackRoutes = require('./routes/addTechStackRoutes');
 const deleteTechStackRoutes = require('./routes/deleteTechStackRoutes');    
 const addPrimarySkillRoutes = require('./routes/addPrimarySkillRoutes'); // Import the addPrimarySkillRoutes
 const deletePrimarySkillRoutes = require('./routes/deletePrimarySkillRoutes');
+const addLearningObjectiveRoutes = require('./routes/addLearningObjectiveRoutes');
+
+const addSourceRoutes = require('./routes/addSourceRoutes');
+const deleteSourceRoutes = require('./routes/deleteSourceRoutes');
+const deleteLearningObjectiveRoutes = require('./routes/deleteLearningObjectiveRoutes');
 
 
 // Import the syncEmployees function
@@ -249,6 +254,9 @@ app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
 //get all roles
 app.use('/api/getAllRoles', getAllRolesRoutes);
 
+//get all sources
+app.use('/api', sourceRoutes);
+
 app.use('/api/employee-completion-status', getEmpLearningCompletionRoutes);
 
 app.use('/api', loginRoutes)
@@ -279,8 +287,15 @@ app.use('/api', addTechStackRoutes);
 
 app.use('/api', addPrimarySkillRoutes); 
 
+app.use('/api', addSourceRoutes);
+
+app.use('/api', addLearningObjectiveRoutes);
+
+app.use('/api', deleteSourceRoutes);
 app.use('/api/delete-tech-stack', deleteTechStackRoutes);
 app.use('/api', deletePrimarySkillRoutes);
+
+app.use('/api', deleteLearningObjectiveRoutes);
 // Use routes for when the admin approves enable user from the setting 
 app.use('/api', passwordForUserRoutes);
 console.log('Triggering cron job manually...');

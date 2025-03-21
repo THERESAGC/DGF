@@ -124,19 +124,35 @@ const RequestFormEditor = () => {
 
   const fetchProjects = async (serviceDivisionId) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/project/by-service-division?service_division_id=${serviceDivisionId}`,
-      )
-      const projectsData = response.data.map((project) => ({
-        id: project.ProjectID,
-        name: project.ProjectName,
-        serviceDivisionId: serviceDivisionId,
-      }))
-      setProjects(projectsData)
+        const response = await axios.get(
+            `http://localhost:8000/api/project/by-service-division?service_division_id=${serviceDivisionId}`
+        );
+
+        // Utility function to decode HTML entities
+        const decodeHtmlEntities = (text) => {
+            if (!text) return ""; // Handle null or undefined input
+            const parser = new DOMParser();
+            let decodedString = text;
+
+            // Recursively decode until no more entities are left
+            while (decodedString !== parser.parseFromString(decodedString, "text/html").documentElement.textContent) {
+                decodedString = parser.parseFromString(decodedString, "text/html").documentElement.textContent;
+            }
+
+            return decodedString;
+        };
+
+        const projectsData = response.data.map((project) => ({
+            id: project.ProjectID,
+            name: decodeHtmlEntities(project.ProjectName), // Decode HTML entities
+            serviceDivisionId: serviceDivisionId,
+        }));
+
+        setProjects(projectsData);
     } catch (error) {
-      console.error("Error fetching primary skills:", error)
+        console.error("Error fetching projects:", error);
     }
-  }
+};
 
   const fetchTechStacks = async () => {
     try {
@@ -168,51 +184,40 @@ const RequestFormEditor = () => {
   // Mock functions for sources and learning objectives
   const fetchSources = async () => {
     try {
-      // This would be replaced with an actual API call
-      // For now, using mock data
-      const mockSources = [
-        { id: 1, name: "Udemy" },
-        { id: 2, name: "Coursera" },
-        { id: 3, name: "Pluralsight" },
-        { id: 4, name: "LinkedIn Learning" },
-      ]
-      setSources(mockSources)
+        // Make an API call to fetch sources
+        const response = await axios.get("http://localhost:8000/api/sources");
+        
+        // Map the response data to match the expected structure
+        const sourcesData = response.data.map((source) => ({
+            id: source.source_id,
+            name: source.source_name,
+        }));
+        
+        setSources(sourcesData);
 
-      // Initialize pagination state for each source
-      const paginationState = {}
-      mockSources.forEach((source) => {
-        paginationState[source.id] = 1
-      })
-      setPage((prevState) => ({ ...prevState, ...paginationState }))
+        // Initialize pagination state for each source
+        const paginationState = {};
+        sourcesData.forEach((source) => {
+            paginationState[source.id] = 1;
+        });
+        setPage((prevState) => ({ ...prevState, ...paginationState }));
     } catch (error) {
-      console.error("Error fetching sources:", error)
+        console.error("Error fetching sources:", error);
     }
-  }
-
+};
   const fetchLearningObjectives = async (sourceId) => {
-    try {
-      // This would be replaced with an actual API call
-      // For now, using mock data
-      const mockObjectives = [
-        { id: 1, name: "Learn React Fundamentals", sourceId: 1 },
-        { id: 2, name: "Master JavaScript ES6", sourceId: 1 },
-        { id: 3, name: "Advanced CSS Techniques", sourceId: 1 },
-        { id: 4, name: "Node.js Basics", sourceId: 2 },
-        { id: 5, name: "MongoDB for Beginners", sourceId: 2 },
-        { id: 6, name: "TypeScript Essentials", sourceId: 3 },
-        { id: 7, name: "Angular Framework", sourceId: 3 },
-        { id: 8, name: "Vue.js Development", sourceId: 4 },
-      ].filter((obj) => obj.sourceId === sourceId)
-
-      setLearningObjectives((prevObjectives) => {
-        // Filter out objectives for this source and add new ones
-        const filteredObjectives = prevObjectives.filter((obj) => obj.sourceId !== sourceId)
-        return [...filteredObjectives, ...mockObjectives]
-      })
-    } catch (error) {
-      console.error("Error fetching learning objectives:", error)
-    }
-  }
+      try {
+        const response = await axios.get(`http://localhost:8000/api/training/objectives?source_id=${sourceId}`);
+        const objectives = response.data.map((objective) => ({
+          id: objective.training_id,
+          name: objective.training_name,
+          sourceId: sourceId,
+        }));
+        setLearningObjectives(objectives);
+      } catch (error) {
+        console.error("Error fetching objectives for source:", error);
+      }
+    };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue)
@@ -374,83 +379,92 @@ const RequestFormEditor = () => {
 
   // Functions for handling sources and learning objectives
   const handleAddSource = async () => {
-    if (!newSourceName.trim()) return
+    if (!newSourceName.trim()) return;
 
     try {
-      if (isEditMode && editItem) {
-        // Update existing source
-        // This would be an actual API call in production
-        setSources(sources.map((s) => (s.id === editItem.id ? { ...s, name: newSourceName } : s)))
-        setAlert({ open: true, message: "Source updated successfully", severity: "success" })
-      } else {
-        // Add new source
-        // This would be an actual API call in production
-        const newSource = {
-          id: Date.now(), // Simulate an ID
-          name: newSourceName,
+        if (isEditMode && editItem) {
+            // Update existing source (if needed, implement the update API call here)
+            setSources(sources.map((s) => (s.id === editItem.id ? { ...s, name: newSourceName } : s)));
+            setAlert({ open: true, message: "Source updated successfully", severity: "success" });
+        } else {
+            // Add new source using the API
+            const response = await axios.post("http://localhost:8000/api/add-source", {
+                source_name: newSourceName,
+            });
+
+            const newSource = {
+                id: response.data.insertId, // Use the ID returned by the API
+                name: newSourceName,
+            };
+
+            setSources([...sources, newSource]);
+
+            // Initialize pagination for the new source
+            setPage((prevState) => ({
+                ...prevState,
+                [newSource.id]: 1,
+            }));
+
+            setAlert({ open: true, message: "Source added successfully", severity: "success" });
+
+            // If adding from the Add Learning Objective dialog, select the new source
+            if (isAddNewSourceDialogOpen) {
+                setSelectedSourceId(newSource.id);
+            }
         }
-        setSources([...sources, newSource])
-
-        // Initialize pagination for the new source
-        setPage((prevState) => ({
-          ...prevState,
-          [newSource.id]: 1,
-        }))
-
-        setAlert({ open: true, message: "Source added successfully", severity: "success" })
-
-        // If adding from the Add Learning Objective dialog, select the new source
-        if (isAddNewSourceDialogOpen) {
-          setSelectedSourceId(newSource.id)
-        }
-      }
     } catch (error) {
-      console.error("Error saving source:", error)
-      setAlert({ open: true, message: "Error saving source", severity: "error" })
+        console.error("Error saving source:", error);
+        setAlert({ open: true, message: "Error saving source", severity: "error" });
     }
 
-    setNewSourceName("")
-    setIsAddSourceDialogOpen(false)
-    setIsAddNewSourceDialogOpen(false)
-    setIsEditMode(false)
-    setEditItem(null)
-  }
+    setNewSourceName("");
+    setIsAddSourceDialogOpen(false);
+    setIsAddNewSourceDialogOpen(false);
+    setIsEditMode(false);
+    setEditItem(null);
+};
 
-  const handleAddLearningObjective = async () => {
-    if (!newLearningObjectiveName.trim() || !selectedSourceId) return
+const handleAddLearningObjective = async () => {
+  if (!newLearningObjectiveName.trim() || !selectedSourceId) return;
 
-    try {
+  try {
       if (isEditMode && editItem) {
-        // Update existing learning objective
-        // This would be an actual API call in production
-        setLearningObjectives(
-          learningObjectives.map((o) =>
-            o.id === editItem.id ? { ...o, name: newLearningObjectiveName, sourceId: selectedSourceId } : o,
-          ),
-        )
-        setAlert({ open: true, message: "Learning objective updated successfully", severity: "success" })
+          // Update existing learning objective
+          setLearningObjectives(
+              learningObjectives.map((o) =>
+                  o.id === editItem.id
+                      ? { ...o, name: newLearningObjectiveName, sourceId: selectedSourceId }
+                      : o
+              )
+          );
+          setAlert({ open: true, message: "Learning objective updated successfully", severity: "success" });
       } else {
-        // Add new learning objective
-        // This would be an actual API call in production
-        const newObjective = {
-          id: Date.now(), // Simulate an ID
-          name: newLearningObjectiveName,
-          sourceId: selectedSourceId,
-        }
-        setLearningObjectives([...learningObjectives, newObjective])
-        setAlert({ open: true, message: "Learning objective added successfully", severity: "success" })
-      }
-    } catch (error) {
-      console.error("Error saving learning objective:", error)
-      setAlert({ open: true, message: "Error saving learning objective", severity: "error" })
-    }
+          // Add new learning objective using the API
+          const response = await axios.post("http://localhost:8000/api/add-learning-objective", {
+              training_name: newLearningObjectiveName,
+              source_id: selectedSourceId,
+          });
 
-    setNewLearningObjectiveName("")
-    setSelectedSourceId("")
-    setIsAddLearningObjectiveDialogOpen(false)
-    setIsEditMode(false)
-    setEditItem(null)
+          const newObjective = {
+              id: response.data.data.training_id, // Use the ID returned by the API
+              name: newLearningObjectiveName,
+              sourceId: selectedSourceId,
+          };
+
+          setLearningObjectives([...learningObjectives, newObjective]);
+          setAlert({ open: true, message: "Learning objective added successfully", severity: "success" });
+      }
+  } catch (error) {
+      console.error("Error saving learning objective:", error);
+      setAlert({ open: true, message: "Error saving learning objective", severity: "error" });
   }
+
+  setNewLearningObjectiveName("");
+  setSelectedSourceId("");
+  setIsAddLearningObjectiveDialogOpen(false);
+  setIsEditMode(false);
+  setEditItem(null);
+};
 
   const handleDeleteProject = async (id) => {
     try {
@@ -510,27 +524,42 @@ const RequestFormEditor = () => {
   // Functions for deleting sources and learning objectives
   const handleDeleteSource = async (id) => {
     try {
-      // This would be an actual API call in production
-      setSources(sources.filter((s) => s.id !== id))
-      // Also remove associated learning objectives
-      setLearningObjectives(learningObjectives.filter((o) => o.sourceId !== id))
-      setAlert({ open: true, message: "Source deleted successfully", severity: "success" })
-    } catch (error) {
-      console.error("Error deleting source:", error)
-      setAlert({ open: true, message: "Error deleting source", severity: "error" })
-    }
-  }
+        // Call the delete source API
+        await axios.delete(`http://localhost:8000/api/delete-source/${id}`);
 
-  const handleDeleteLearningObjective = async (id) => {
-    try {
-      // This would be an actual API call in production
-      setLearningObjectives(learningObjectives.filter((o) => o.id !== id))
-      setAlert({ open: true, message: "Learning objective deleted successfully", severity: "success" })
+        // Update the state to remove the deleted source
+        setSources(sources.filter((s) => s.id !== id));
+
+        // Also remove associated learning objectives
+        setLearningObjectives(learningObjectives.filter((o) => o.sourceId !== id));
+
+        // Show success alert
+        setAlert({ open: true, message: "Source deleted successfully", severity: "success" });
     } catch (error) {
-      console.error("Error deleting learning objective:", error)
-      setAlert({ open: true, message: "Error deleting learning objective", severity: "error" })
+        console.error("Error deleting source:", error);
+
+        // Show error alert
+        setAlert({ open: true, message: "Error deleting source", severity: "error" });
     }
+};
+
+const handleDeleteLearningObjective = async (id) => {
+  try {
+      // Call the delete learning objective API
+      await axios.delete(`http://localhost:8000/api/delete-learning-objective/${id}`);
+
+      // Update the state to remove the deleted learning objective
+      setLearningObjectives(learningObjectives.filter((o) => o.id !== id));
+
+      // Show success alert
+      setAlert({ open: true, message: "Learning objective deleted successfully", severity: "success" });
+  } catch (error) {
+      console.error("Error deleting learning objective:", error);
+
+      // Show error alert
+      setAlert({ open: true, message: "Error deleting learning objective", severity: "error" });
   }
+};
 
   const handleEditProject = (project) => {
     setEditItem(project)

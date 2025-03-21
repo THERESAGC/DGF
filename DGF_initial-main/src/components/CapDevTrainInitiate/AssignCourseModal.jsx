@@ -9,6 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
  import{useNavigate} from 'react-router-dom';
+import { color } from 'chart.js/helpers';
  
 const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssigned}) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -238,10 +239,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
         ) : (
           <TableContainer component={Paper} sx={{ mb: 3 ,width:"97%"}}>
             <Table>
-              <TableHead>
+              <TableHead style={{font:"bold"}}>
                 <TableRow>
-                  <TableCell style={{width:"25%"}}>Course Name</TableCell>
-                  <TableCell style={{width:"20%"}}>Mentor</TableCell>
+                  <TableCell style={{width:"25%",textAlign:"left"}}>Course Name</TableCell>
+                  <TableCell style={{width:"25%"}}>Mentor</TableCell>
                   <TableCell style={{width:"20%",paddingRight:"0px"}}>Completion Date</TableCell>
                   <TableCell style={{width:"20%"}}>Course Type</TableCell>
                   <TableCell>Actions</TableCell>
@@ -250,9 +251,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
               <TableBody>
                 {courses.map((course) => (
                   <TableRow key={course.course_id}>
-                    <TableCell >{course.name}</TableCell>
+                    <TableCell style={{textAlign:"left"}}>{course.name}</TableCell>
                     <TableCell>
                       <Autocomplete
+                      
                         freeSolo
                         options={mentors}
                         getOptionLabel={(option) => option.emp_name}
@@ -265,9 +267,11 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                             fullWidth
                             placeholder="Search mentors..."
                             InputProps={{
+                              sx: { fontSize: '12px', padding: '0px 0px 0px 5px !important' },
                               ...params.InputProps,
                               startAdornment: (
-                                 
+                                
+
  
                                 <InputAdornment position="start" >
                                   <SearchIcon sx={{fontSize:"18px"}}/>
@@ -308,9 +312,12 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                           min: new Date().toISOString().split("T")[0], // Set the minimum date to today
                         }}
                         InputProps={{
-                          style: { fontSize: '13px'},
+                          style: { fontSize: '12px',
+                            width:"125%" ,
+                            color: course.completionDate ? 'black' : '#BDBDBD', 
+                          },
                           startAdornment: (
-                            <InputAdornment position="start">
+                            <InputAdornment position="start" >
                             </InputAdornment>
                           ),
                         }}
@@ -325,8 +332,9 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                       />
                     </TableCell>
                     <TableCell>
-                      <FormControl fullWidth size="small">
+                      <FormControl fullWidth size="small" >
                         <Select
+                        sx={{fontSize:"12px"}}
                           value={course.coursetype}
                           onChange={(e) => setCourses(prev =>
                             prev.map(c =>
@@ -348,8 +356,10 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                     <TableCell>
                       <IconButton
                         onClick={() => setCourses(prev =>
+                          
                           prev.filter(c => c.course_id !== course.course_id)
                         )}
+                        sx={{ color: 'red' }}
                       >
                         <CloseIcon />
                       </IconButton>
@@ -391,6 +401,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
             variant="contained"
             color="primary"
             onClick={handleAssign}
+            sx={{width:"auto",height:"35px",borderRadius:"20px"}}
             disabled={submitting ||courses.length === 0|| coursesAssigned+courses.length > 3||!isFormValid()}
           >
             {submitting ? <CircularProgress size={24} /> : 'Assign'}
