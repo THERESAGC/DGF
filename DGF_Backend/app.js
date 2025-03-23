@@ -78,6 +78,7 @@ const profileRoutes = require('./routes/profileRoutes'); // Import the profile r
 const { syncEmployees } = require('./services/storeEmployeeService');
 const passwordForUserRoutes = require('./routes/passwordForUserRoutes'); //Routes for admin enable user and new password mail
 const { checkCompletedTasksAndSendEmails } = require('./services/effectivenessFeedbackService'); // Effective feedback function
+const feedbackRoutes = require('./routes/feedbackRoutes'); //  feedback Form APIs
 
 
 
@@ -303,13 +304,18 @@ app.use('/api', deletePrimarySkillRoutes);
 app.use('/api', deleteLearningObjectiveRoutes);
 // Use routes for when the admin approves enable user from the setting 
 app.use('/api', passwordForUserRoutes);
-console.log('Triggering cron job manually...');
+// console.log('Triggering cron job manually...');
 // checkCompletedTasksAndSendEmails();
+
 // Effectiveness feedback routes
 cron.schedule('0 0 * * *', async () => {
     console.log('Checking completed tasks and sending emails...');
     await checkCompletedTasksAndSendEmails(); // Use the updated function here
   });
+
+// Feedback Saving APIs
+app.use('/api', feedbackRoutes);
+
 
 // WebSocket connection for real-time updates
 io.on('connection', (socket) => {
