@@ -277,7 +277,9 @@ app.use('/api/course-status', courseStatusRoutes);
 app.use('/api', addUserRoutes);
 
 // Set up the route for exporting data to Excel
-app.get('/export-excel', excelExportController.exportExcelData);
+// Set up the route for exporting data to Excel
+app.get('/api/report/data', excelExportController.getReportData);
+app.get('/api/export-excel', excelExportController.exportExcel);
 
 app.use('/api/user', userUpdateStatusRoutes);
 
