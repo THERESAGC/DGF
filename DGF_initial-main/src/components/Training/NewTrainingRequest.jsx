@@ -2071,7 +2071,12 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       }
     }}
     displayEmpty
-    sx={{height:"30px",fontSize:"12px"}}
+    sx={{
+      height: "30px",
+      fontSize: "12px",
+      width: "250px", // Set a fixed width for the dropdown
+      overflow: "hidden", // Prevent content overflow
+    }}
     multiple
   >
     <MenuItem value="All" style={{ fontSize: "12px", padding: "4px 4px 4px 6px" }}>
@@ -2096,6 +2101,8 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     ))}
   </Select>
 </FormControl>
+ 
+ 
 
 
               </Grid>
