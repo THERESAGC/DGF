@@ -926,6 +926,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
       comments: formData.comment,
       servicedivision: formData.selectedServiceDivision,
       org_level: formData.employeeDetails === "open" ? 1 : 0, // Set org_level based on employeeDetails
+      role_id: user.role_id
     }
 
     console.log("Submitting request body to newtrainingrequest API:", requestBody) // Log the request body

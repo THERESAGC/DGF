@@ -18,11 +18,12 @@ exports.createNewTrainingRequest = async (req, res) => {
         servicedivision,
         requestedbyid,
         org_level,
+        role_id
     } = req.body;
 
     // Ensure projectid is set to 0 if null or undefined
     projectid = projectid ?? 0;
-    if(requestedbyid === requestonbehalfof)
+    if(requestedbyid === requestonbehalfof && role_id ===4)
         {
             requeststatus="Capdev Approval Requested"
         }else{
