@@ -301,23 +301,23 @@ const UserFeedbackForm = () => {
 
         <form onSubmit={handleSubmit}>
           <FormSection>
-            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Direct Name</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Participant's Name</Typography>
             <Typography>{username}</Typography>
           </FormSection>
 
           <FormSection>
-            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Requested By</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Learning Requested By</Typography>
             <Typography>{requestedby}</Typography>
           </FormSection>
 
           <FormSection>
-            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Course/Training Name</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Course/Learning Name</Typography>
             <TextField fullWidth size="small" variant="outlined" value={coursename} disabled sx={{ mt: 1 }} />
           </FormSection>
 
           {/* Instruction Rating */}
           <FormSection>
-            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>How were the instructions provided during the training? (4 is the highest)</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>How were the instructions provided during the Learning? (4 is the highest)</Typography>
             <RadioGroup name="instructionRating" value={formData.instructionRating} onChange={handleChange} row>
               <FormControlLabel value="4" control={<Radio />} label="4 - Very Good" />
               <FormControlLabel value="3" control={<Radio />} label="3 - Good" />
