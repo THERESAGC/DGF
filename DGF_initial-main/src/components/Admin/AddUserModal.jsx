@@ -125,12 +125,12 @@ const AddUserModal = ({ open, onClose }) => {
     }
   }
 
-  const capDevRole = roles.find((role) => role.role_name === "CapDev Role")
-  const spocRole = roles.find((role) => role.role_name === "SPOC")
-  const rmRole = roles.find((role) => role.role_name === "RM Role")
+  const capDevRole = roles.find((role) => role.role_name === "CapDev ");
+  const spocRole = roles.find((role) => role.role_name === "SPOC");
+  const rmRole = roles.find((role) => role.role_name === "Resource Manager");
   const userRoles = roles.filter(
-    (role) => role.role_name !== "CapDev Role" && role.role_name !== "SPOC" && role.role_name !== "RM Role",
-  )
+    (role) => role.role_name !== "CapDev " && role.role_name !== "SPOC" && role.role_name !== "Resource Manager"
+  );
 
   return (
     <>

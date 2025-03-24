@@ -75,21 +75,21 @@ const ManagerFeedbackForm = ({
         <form onSubmit={handleSubmit}>
           <FormSection>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-              Direct Name
+              Participant's Name
             </Typography>
             <Typography>{directName}</Typography>
           </FormSection>
 
           <FormSection>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-              Requested By
+            Learning Requested By
             </Typography>
             <Typography>{requestedBy}</Typography>
           </FormSection>
 
           <FormSection>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-              Course/Training Name
+              Course/Learning Name
             </Typography>
             <TextField fullWidth size="small" variant="outlined" value={courseName} disabled sx={{ mt: 1 }} />
           </FormSection>

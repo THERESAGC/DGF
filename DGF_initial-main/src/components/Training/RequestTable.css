@@ -76,11 +76,15 @@
  
 .MuiTableCell-root {
   padding: 8px !important; /* Decrease padding to reduce row height */
-  font-size: 12px !important; /* Adjust font size if needed */
+  font-size: 11px !important; /* Adjust font size if needed */
   height: 48px !important; /* Set a fixed height for table cells */
   font-family: 'Poppins',  !important;
   height: 25px  !important;
  
+}
+.table-container th:nth-child(1)
+{
+    width: 50px !important
 }
  
 .MuiTableRow-root {
@@ -166,7 +170,7 @@
   text-align: center;
   justify-content: space-between;
   padding-left: 15px !important;
-  padding-right: 30px !important;
+  
 }
  
 .no {

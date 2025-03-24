@@ -749,6 +749,20 @@ const handleDeleteLearningObjective = async (id) => {
     }
   })
 
+  const getIndicatorStyle = (tabValue) => {
+    switch (tabValue) {
+      case 0:
+        return { marginLeft: "25px"};
+      case 1:
+        return { marginLeft: "40px" };
+      case 2:
+        return { marginLeft: "55px"};
+      default:
+        return { marginLeft: "30px" };
+    }
+  };
+
+
   return (
     <Box
       sx={{
@@ -771,8 +785,10 @@ const handleDeleteLearningObjective = async (id) => {
               backgroundColor: "#FA5864",
               height: "3px",
               width: "40px !important",
-              marginLeft: "25px",
+              ...getIndicatorStyle(tabValue),
+              
             },
+            
             "& .Mui-selected": {
               color: "#09459E !important",
               fontWeight: "500",
@@ -888,56 +904,6 @@ const handleDeleteLearningObjective = async (id) => {
                     ),
                   }}
                 />
-
-                <ToggleButtonGroup
-                  value={viewMode}
-                  exclusive
-                  onChange={handleViewModeChange}
-                  size="small"
-                  sx={{
-                    "& .MuiToggleButton-root": {
-                      borderRadius: "8px",
-                      border: "1px solid #e0e0e0",
-                      "&.Mui-selected": {
-                        backgroundColor: "#f0f7ff",
-                        color: "#09459E",
-                      },
-                    },
-                    "& .MuiToggleButtonGroup-grouped:not(:first-of-type)": {
-                      borderRadius: "8px",
-                      marginLeft: "4px",
-                      borderLeft: "1px solid #e0e0e0",
-                    },
-                    "& .MuiToggleButtonGroup-grouped:first-of-type": {
-                      borderRadius: "8px",
-                    },
-                  }}
-                >
-                  <Tooltip title={sortOrder === "asc" ? "Sort Ascending" : "Sort Descending"}>
-                    <IconButton
-                      onClick={handleSortOrderChange}
-                      size="small"
-                      sx={{
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "8px",
-                        padding: "8px",
-                        color: sortOrder === "asc" ? "#09459E" : "#666",
-                      }}
-                    >
-                      {sortOrder === "asc" ? (
-                        <ArrowUpwardIcon fontSize="small" />
-                      ) : (
-                        <ArrowDownwardIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                  <ToggleButton value="list" aria-label="list view" style={{ marginRight: "4px", marginLeft: "8px" }}>
-                    <ViewListIcon fontSize="small" />
-                  </ToggleButton>
-                  <ToggleButton value="grid" aria-label="grid view">
-                    <GridViewIcon fontSize="small" />
-                  </ToggleButton>
-                </ToggleButtonGroup>
               </Box>
 
               {loading ? (
@@ -1170,7 +1136,7 @@ const handleDeleteLearningObjective = async (id) => {
 
                           {division.totalPages > 1 && (
                             <Box
-                              sx={{ display: "flex", justifyContent: "center", p: 2, borderTop: "1px solid #f0f0f0" }}
+                              sx={{ display: "flex", justifyContent: "end", p: 2, borderTop: "1px solid #f0f0f0" }}
                             >
                               <Pagination
                                 count={division.totalPages}
@@ -1179,11 +1145,13 @@ const handleDeleteLearningObjective = async (id) => {
                                 color="primary"
                                 size="small"
                                 sx={{
+                                  
                                   "& .MuiPaginationItem-root": {
                                     color: "#09459E",
                                   },
                                   "& .Mui-selected": {
                                     backgroundColor: "rgba(9, 69, 158, 0.1) !important",
+                                    color: "red",
                                   },
                                 }}
                               />
@@ -1640,7 +1608,7 @@ const handleDeleteLearningObjective = async (id) => {
                       </List>
 
                       {source.totalPages > 1 && (
-                        <Box sx={{ display: "flex", justifyContent: "center", p: 2, borderTop: "1px solid #f0f0f0" }}>
+                        <Box sx={{ display: "flex", justifyContent: "end", p: 2, borderTop: "1px solid #f0f0f0" }}>
                           <Pagination
                             count={source.totalPages}
                             page={page[source.id] || 1}
@@ -1653,6 +1621,7 @@ const handleDeleteLearningObjective = async (id) => {
                               },
                               "& .Mui-selected": {
                                 backgroundColor: "rgba(9, 69, 158, 0.1) !important",
+                                color:"red"
                               },
                             }}
                           />
@@ -1698,21 +1667,23 @@ const handleDeleteLearningObjective = async (id) => {
     value={selectedServiceDivisionId}
     onChange={handleServiceDivisionChange}
     style={{
-      width: '98%',
-      height: '36px',
+      width: '102%',
+      height: '30px',
       fontSize: '12px',
       marginBottom: '1rem',
-      padding: '8px 12px',
+    
       border: '1px solid #ccc',
       borderRadius: '4px',
-      outline:"none"
+      outline:"none",
+      color: selectedServiceDivisionId ? '#000000 ' : '#BDBDBD',
     }}
+    
   >
-    <option value="" disabled>
+    <option value="" disabled >
       <em style={{ color: '#BDBDBD' }}>Select Service Division</em>
     </option>
     {serviceDivisions.map((division) => (
-      <option key={division.id} value={division.id}>
+      <option key={division.id} value={division.id} style={{ color: 'black' }} >
         {division.name}
       </option>
     ))}
@@ -2063,18 +2034,28 @@ const handleDeleteLearningObjective = async (id) => {
         <DialogTitle sx={{ fontWeight: 500, borderBottom: "1px solid #f0f0f0", pb: 2 }}>
           {isEditMode ? "Edit Source" : "Add New Source"}
         </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Source Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newSourceName}
-            onChange={(e) => setNewSourceName(e.target.value)}
-          />
-        </DialogContent>
+        <DialogContent sx={{ mt: 2,overflow: "hidden" }}>
+        <label htmlFor="tech-stack-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+        Source Name
+  </label>
+  <input
+    autoFocus
+    style={{
+      margin: "dense",
+      width: "97%",
+      padding: "10px",
+      border: "1px solid #ccc",
+      borderRadius: "4px",
+      outline: "none",
+      fontSize: "12px",
+      
+    }}
+    type="text"
+    placeholder="Source Name"
+    value={newSourceName}
+    onChange={(e) => setNewSourceName(e.target.value)}
+  />
+</DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
             onClick={() => setIsAddSourceDialogOpen(false)}
@@ -2124,9 +2105,9 @@ const handleDeleteLearningObjective = async (id) => {
         <DialogContent sx={{ mt: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
             <FormControl fullWidth>
-              <FormLabel htmlFor="source-input" sx={{ display: "block", mb: 1, fontWeight: 500, fontSize: "14px" }}>
-                Source
-              </FormLabel>
+            <label htmlFor="tech-stack-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+        Source 
+  </label>
               <Select
                 id="source-input"
                 value={selectedSourceId}
@@ -2134,15 +2115,17 @@ const handleDeleteLearningObjective = async (id) => {
                 displayEmpty
                 fullWidth
                 sx={{
-                  height: "36px",
+                  height: "30px",
                   fontSize: "12px",
+                 
                   "& .MuiSelect-select": {
                     padding: "8px 12px",
+                    fontFamily:"Poppins",
                   },
                 }}
               >
                 <MenuItem value="" disabled>
-                  <em style={{ color: "#BDBDBD" }}>Select Source</em>
+                  <em style={{ color: "#8A8A8A" }}>Select Source</em>
                 </MenuItem>
                 {sources.map((source) => (
                   <MenuItem key={source.id} value={source.id}>
@@ -2164,29 +2147,42 @@ const handleDeleteLearningObjective = async (id) => {
                   setIsAddSourceDialogOpen(true)
                 }}
                 sx={{
-                  marginTop: "1.5rem",
+                  marginTop: "1.7rem",
                   backgroundColor: "#09459E",
-                  height: "36px",
-                  width: "36px",
+                  height: "25px",
+                  width: "40px",
                   boxShadow: "none",
                   "&:hover": { backgroundColor: "#083a80" },
                 }}
               >
-                <AddIcon />
+                <AddIcon sx={{height:'2rem', width: '1rem'}} />
               </Fab>
             </Tooltip>
           </Box>
-
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Learning Objective Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newLearningObjectiveName}
-            onChange={(e) => setNewLearningObjectiveName(e.target.value)}
-          />
+          
+          
+          <label htmlFor="tech-stack-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+          Learning Objective 
+  </label>
+          <input
+  autoFocus
+  style={{
+    margin: "dense",
+    width: "86.7%",
+    // padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    outline: "none",
+    height: "30px",
+    fontSize: "12px",
+    fontFamily:"Poppins",
+    paddingLeft: "12px",
+  }}
+  type="text"
+  placeholder="Learning Objective Name"
+  value={newLearningObjectiveName}
+  onChange={(e) => setNewLearningObjectiveName(e.target.value)}
+/>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button

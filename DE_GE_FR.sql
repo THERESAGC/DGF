@@ -35,7 +35,12 @@ CREATE TABLE `assigned_courses` (
   `learning_type` varchar(255) DEFAULT NULL,
   `progress` int DEFAULT '0',
   `status` varchar(50) DEFAULT 'Learning Initiated',
+  `status_assigned_date` timestamp NULL DEFAULT NULL,
+  `status_modified_date` timestamp NULL DEFAULT NULL,
+  `effectiveness_initiated` tinyint(1) DEFAULT '0',
+  `course_assigned_by_id` varchar(255) NOT NULL,
   PRIMARY KEY (`assignment_id`),
+  UNIQUE KEY `idx_reqid_course_employee` (`requestid`,`course_id`,`employee_id`),
   KEY `requestid` (`requestid`),
   KEY `employee_id` (`employee_id`),
   KEY `mentor_id` (`mentor_id`),
@@ -47,7 +52,7 @@ CREATE TABLE `assigned_courses` (
   CONSTRAINT `assigned_courses_ibfk_3` FOREIGN KEY (`mentor_id`) REFERENCES `employee` (`emp_id`),
   CONSTRAINT `assigned_courses_ibfk_4` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`),
   CONSTRAINT `assigned_courses_ibfk_5` FOREIGN KEY (`coursetype_id`) REFERENCES `course_type` (`type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +61,7 @@ CREATE TABLE `assigned_courses` (
 
 LOCK TABLES `assigned_courses` WRITE;
 /*!40000 ALTER TABLE `assigned_courses` DISABLE KEYS */;
-INSERT INTO `assigned_courses` VALUES (21,1,'HS1889','CONS043',1796,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed'),(22,1,'HS1889','HS1848',1500,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete'),(23,1,'HS1889','CONS072',1858,1,'2025-04-01','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed'),(24,1,'HS2721','CONS043',1796,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete'),(25,1,'HS2721','HS1848',1500,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete'),(26,1,'HS2721','CONS072',1858,1,'2025-04-01','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Learning Suspended'),(27,1,'HS2723','CONS043',1796,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed'),(28,1,'HS2723','HS1848',1500,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete'),(29,1,'HS2723','CONS072',1858,1,'2025-04-01','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed with Delay'),(30,5,'HS2330','HS1740',1976,4,'2025-03-28','comment','2025-03-20 13:26:54','Full Stack',0,'Learning Suspended');
+INSERT INTO `assigned_courses` VALUES (21,1,'HS1889','CONS043',1796,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed',NULL,NULL,0,''),(22,1,'HS1889','HS1848',1500,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete',NULL,NULL,0,''),(23,1,'HS1889','CONS072',1858,1,'2025-04-01','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed',NULL,NULL,0,''),(24,1,'HS2721','CONS043',1796,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete',NULL,NULL,0,''),(25,1,'HS2721','HS1848',1500,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete',NULL,NULL,0,''),(26,1,'HS2721','CONS072',1858,1,'2025-04-01','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Learning Suspended',NULL,NULL,0,''),(27,1,'HS2723','CONS043',1796,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed',NULL,NULL,0,''),(28,1,'HS2723','HS1848',1500,4,'2025-03-31','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Incomplete',NULL,NULL,0,''),(29,1,'HS2723','CONS072',1858,1,'2025-04-01','here is the comment.','2025-03-20 13:04:17','Upskill',0,'Completed with Delay',NULL,NULL,0,''),(30,5,'HS2330','HS1740',1976,4,'2025-03-28','comment','2025-03-20 13:26:54','Full Stack',0,'Completed',NULL,'2025-03-24 08:27:40',0,''),(31,4,'HS2330','HS1125',1869,4,'2025-03-28',NULL,'2025-03-21 07:17:05','Full Stack',0,'Learning Initiated',NULL,NULL,0,''),(32,4,'HS2330','CONS043',1516,4,'2025-03-28','bvchn nxvcjhsd hsabckahsn jbsakcahl jasgclhasoc jhxilhsaojb sjcbilsahdcilasncbksdbcikhsc jasckashcn sagsjkcgasicb asjciucj jagxiashcokn sacj,sagcxhisak.ncb cjsa,hcjl.','2025-03-21 07:17:37','Full Stack',0,'Learning Initiated',NULL,NULL,0,''),(33,8,'HS2721','CONS018',1608,1,'2025-03-29',NULL,'2025-03-22 07:34:44','Full Stack',0,'Completed',NULL,NULL,0,''),(34,10,'HS2721','CONS043',1052,4,'2025-03-26',NULL,'2025-03-24 05:16:30','Full Stack',0,'Completed',NULL,'2025-03-24 08:20:24',0,''),(35,7,'HS1082','CONS043',1393,4,'2025-03-28',NULL,'2025-03-24 05:51:19','Full Stack',0,'Incomplete',NULL,'2025-03-24 05:51:50',0,''),(36,3,'HS2690','CONS095',1824,1,'2025-03-27',NULL,'2025-03-24 05:53:12','Full Stack',0,'Incomplete',NULL,'2025-03-24 05:55:35',0,''),(37,6,'CONS055','CONS079',1608,4,'2025-03-27',NULL,'2025-03-24 06:12:41','Full Stack',0,'Completed with Delay','2025-03-24 06:13:01','2025-03-24 06:13:19',0,''),(38,9,'HS2721','HS1848',827,2,'2025-03-27',NULL,'2025-03-24 06:46:05','Full Stack',0,'Completed','2025-03-24 06:46:12','2025-03-24 06:46:58',0,''),(39,2,'HS2330','HS1848',1796,4,'2025-03-27',NULL,'2025-03-24 07:01:15','Cross Skill',0,'Completed',NULL,'2025-03-24 07:02:48',0,''),(40,2,'HS2032','HS1848',1796,4,'2025-03-27',NULL,'2025-03-24 07:01:15','Cross Skill',0,'Learning Suspended',NULL,'2025-03-24 07:02:13',0,''),(41,11,'HS1038','HS1848',1608,4,'2025-03-27',NULL,'2025-03-24 08:29:20','Full Stack',0,'Incomplete','2025-03-24 08:29:48','2025-03-24 08:30:26',0,''),(42,11,'HS2659','HS1848',1608,4,'2025-03-27',NULL,'2025-03-24 08:29:20','Full Stack',0,'Completed with Delay','2025-03-24 08:47:00','2025-03-24 08:48:17',0,'');
 /*!40000 ALTER TABLE `assigned_courses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -85,7 +90,7 @@ CREATE TABLE `comments` (
   CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `logintable` (`emp_id`),
   CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `logintable` (`emp_id`),
   CONSTRAINT `comments_ibfk_4` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`comment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +99,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES (4,1,NULL,'add pankaj ','HS1697','2025-03-20 12:59:45',NULL,'2025-03-20 12:59:45'),(5,1,NULL,'Added ','HS1856','2025-03-20 13:00:43',NULL,'2025-03-20 13:00:43'),(6,1,NULL,'Approved.','HS1697','2025-03-20 13:01:32',NULL,'2025-03-20 13:01:32'),(7,2,NULL,'approved.','HS609','2025-03-20 13:21:11',NULL,'2025-03-20 13:21:11'),(8,3,NULL,'approved','HS609','2025-03-20 13:23:31',NULL,'2025-03-20 13:23:31'),(9,4,NULL,'approve','HS609','2025-03-20 13:24:47',NULL,'2025-03-20 13:24:47'),(10,5,NULL,'approved','HS609','2025-03-20 13:26:10',NULL,'2025-03-20 13:26:10');
+INSERT INTO `comments` VALUES (4,1,NULL,'add pankaj ','HS1697','2025-03-20 12:59:45',NULL,'2025-03-20 12:59:45'),(5,1,NULL,'Added ','HS1856','2025-03-20 13:00:43',NULL,'2025-03-20 13:00:43'),(6,1,NULL,'Approved.','HS1697','2025-03-20 13:01:32',NULL,'2025-03-20 13:01:32'),(7,2,NULL,'approved.','HS609','2025-03-20 13:21:11',NULL,'2025-03-20 13:21:11'),(8,3,NULL,'approved','HS609','2025-03-20 13:23:31',NULL,'2025-03-20 13:23:31'),(9,4,NULL,'approve','HS609','2025-03-20 13:24:47',NULL,'2025-03-20 13:24:47'),(10,5,NULL,'approved','HS609','2025-03-20 13:26:10',NULL,'2025-03-20 13:26:10'),(11,7,NULL,'approved','HS609','2025-03-21 09:05:35',NULL,'2025-03-21 09:05:35'),(12,8,NULL,'approved.','HS2505','2025-03-22 07:32:50',NULL,'2025-03-22 07:32:50'),(13,10,NULL,'approved','HS1697','2025-03-24 04:43:05',NULL,'2025-03-24 04:43:05'),(14,6,NULL,'approved','HS2505','2025-03-24 06:12:25',NULL,'2025-03-24 06:12:25'),(15,9,NULL,'approved','HS2505','2025-03-24 06:15:49',NULL,'2025-03-24 06:15:49'),(16,11,NULL,'approved','HS2505','2025-03-24 08:28:57',NULL,'2025-03-24 08:28:57');
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -194,13 +199,15 @@ CREATE TABLE `emp_newtrainingrequested` (
   `status` varchar(50) DEFAULT 'Not Assigned',
   `courses_assigned` int NOT NULL DEFAULT '0',
   `createddate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `status_modified_date` timestamp NULL DEFAULT NULL,
+  `status_assigned_date` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_emp_id` (`emp_id`),
   KEY `requestid` (`requestid`),
   KEY `idx_emp_request` (`emp_id`,`requestid`),
   CONSTRAINT `emp_newtrainingrequested_ibfk_1` FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest` (`requestid`),
   CONSTRAINT `fk_emp_id` FOREIGN KEY (`emp_id`) REFERENCES `employee` (`emp_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -209,7 +216,7 @@ CREATE TABLE `emp_newtrainingrequested` (
 
 LOCK TABLES `emp_newtrainingrequested` WRITE;
 /*!40000 ALTER TABLE `emp_newtrainingrequested` DISABLE KEYS */;
-INSERT INTO `emp_newtrainingrequested` VALUES (27,'HS1889','2025-03-21','2 Hours',1,1,0,NULL,NULL,'Completed',3,'2025-03-20 12:55:49'),(28,'HS2721','2025-03-21','2 Hours',0,1,0,NULL,NULL,'Incomplete',3,'2025-03-20 13:00:43'),(29,'HS2723','2025-03-22','2 Hours',0,1,0,NULL,NULL,'Completed',3,'2025-03-20 13:00:43'),(30,'HS2330','2025-03-29','4 Hours',1,2,0,NULL,NULL,'Not Assigned',0,'2025-03-20 13:14:56'),(31,'HS2032','2025-03-29','4 Hours',1,2,0,NULL,NULL,'Not Assigned',0,'2025-03-20 13:14:56'),(32,'HS2690','2025-03-29','6 Hours',0,3,0,NULL,NULL,'Not Assigned',0,'2025-03-20 13:23:16'),(33,'HS2330','2025-03-21','4 Hours',1,4,0,NULL,NULL,'Not Assigned',0,'2025-03-20 13:24:36'),(34,'HS2330','2025-03-22','4 Hours',1,5,0,NULL,NULL,'Learning Suspended',1,'2025-03-20 13:26:00');
+INSERT INTO `emp_newtrainingrequested` VALUES (27,'HS1889','2025-03-21','2 Hours',1,1,0,NULL,NULL,'Completed',3,'2025-03-20 12:55:49',NULL,NULL),(28,'HS2721','2025-03-21','2 Hours',0,1,0,NULL,NULL,'Incomplete',3,'2025-03-20 13:00:43',NULL,NULL),(29,'HS2723','2025-03-22','2 Hours',0,1,0,NULL,NULL,'Completed',3,'2025-03-20 13:00:43',NULL,NULL),(30,'HS2330','2025-03-29','4 Hours',1,2,0,NULL,NULL,'Completed',1,'2025-03-20 13:14:56','2025-03-24 07:02:48',NULL),(31,'HS2032','2025-03-29','4 Hours',1,2,0,NULL,NULL,'Learning Suspended',1,'2025-03-20 13:14:56','2025-03-24 07:02:13',NULL),(32,'HS2690','2025-03-29','6 Hours',0,3,0,NULL,NULL,'Incomplete',1,'2025-03-20 13:23:16','2025-03-24 05:55:35',NULL),(33,'HS2330','2025-03-21','4 Hours',1,4,0,NULL,NULL,'Learning Initiated',2,'2025-03-20 13:24:36',NULL,NULL),(34,'HS2330','2025-03-22','4 Hours',1,5,0,NULL,NULL,'Completed',1,'2025-03-20 13:26:00','2025-03-24 08:27:40',NULL),(35,'CONS055','2025-03-28','2 Hours',1,6,0,NULL,NULL,'Completed with Delay',1,'2025-03-21 08:53:23','2025-03-24 06:13:19',NULL),(36,'HS1082','2025-03-27','4 Hours',1,7,0,NULL,NULL,'Incomplete',1,'2025-03-21 08:59:21','2025-03-24 05:51:50',NULL),(37,'HS2721','2025-03-23','2 Hours',0,8,0,NULL,NULL,'Completed',1,'2025-03-22 07:30:55',NULL,NULL),(38,'HS2721','2025-03-28','6 Hours',1,9,0,NULL,NULL,'Completed',1,'2025-03-24 04:34:00','2025-03-24 06:46:58',NULL),(39,'HS2721','2025-03-27','6 Hours',1,10,0,NULL,NULL,'Completed',1,'2025-03-24 04:42:36','2025-03-24 08:20:24',NULL),(40,'HS1038','2025-03-27','4 Hours',1,11,0,NULL,NULL,'Incomplete',1,'2025-03-24 08:28:48','2025-03-24 08:30:26',NULL),(41,'HS2659','2025-03-27','4 Hours',1,11,0,NULL,NULL,'Completed with Delay',1,'2025-03-24 08:28:48','2025-03-24 08:48:17',NULL);
 /*!40000 ALTER TABLE `emp_newtrainingrequested` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -277,6 +284,41 @@ LOCK TABLES `initate_training_comments` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `learner_feedback`
+--
+
+DROP TABLE IF EXISTS `learner_feedback`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `learner_feedback` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `reqid` int NOT NULL,
+  `course_id` int NOT NULL,
+  `employee_id` varchar(100) NOT NULL,
+  `instruction_rating` varchar(255) DEFAULT NULL,
+  `training_topic` varchar(255) DEFAULT NULL,
+  `engaged_rating` varchar(255) DEFAULT NULL,
+  `interactive` varchar(255) NOT NULL,
+  `interactive_components` varchar(255) NOT NULL DEFAULT '0',
+  `improved_comments` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `engaged_session_rating` varchar(255) DEFAULT NULL,
+  `other_suggestions` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reqid` (`reqid`,`course_id`,`employee_id`),
+  CONSTRAINT `learner_feedback_ibfk_1` FOREIGN KEY (`reqid`, `course_id`, `employee_id`) REFERENCES `assigned_courses` (`requestid`, `course_id`, `employee_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `learner_feedback`
+--
+
+LOCK TABLES `learner_feedback` WRITE;
+/*!40000 ALTER TABLE `learner_feedback` DISABLE KEYS */;
+/*!40000 ALTER TABLE `learner_feedback` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `logintable`
 --
 
@@ -305,7 +347,7 @@ CREATE TABLE `logintable` (
 
 LOCK TABLES `logintable` WRITE;
 /*!40000 ALTER TABLE `logintable` DISABLE KEYS */;
-INSERT INTO `logintable` VALUES ('HS1697','Dhara Masani','dhara.masani@harbingergroup.com','defaultPassword',10,'https://academy.harbingergroup.com/user/pix.php/2727/f1.jpg','2025-03-14 04:42:12','active'),('HS1856','Deepak Sahu','deepak.sahu@harbingergroup.com','defaultPassword',5,'https://academy.harbingergroup.com/user/pix.php/3011/f1.jpg','2025-03-17 03:46:33','active'),('HS1972','Amit A. Kulkarni','Amit.A.Kulkarni@harbingergroup.com','defaultPassword',6,'https://academy.harbingergroup.com/user/pix.php/2957/f1.jpg','2025-03-14 01:15:40','active'),('HS2321','Dr Santosh Iyer','Santosh.Iyer@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/3706/f1.jpg','2025-03-14 06:56:27','active'),('HS2505','Umesh Kanade','umeshk@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/220/f1.jpg','2025-03-14 04:34:14','active'),('HS2738','Deepali Uttekar','Deepali.Uttekar@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/4341/f1.jpg','2025-03-14 04:34:45','active'),('HS609','Satyabaji Sahu','satyabaji@harbingergroup.com','1234',4,'https://academy.harbingergroup.com/user/pix.php/117/f1.jpg','2025-03-14 01:07:59','active');
+INSERT INTO `logintable` VALUES ('CONS089','Atul Kumthekar','V-Atul.Kumthekar@harbingergroup.com','defaultPassword',8,'https://academy.harbingergroup.com/user/pix.php/4355/f1.jpg','2025-03-24 00:46:56','inactive'),('HS1697','Dhara Masani','dhara.masani@harbingergroup.com','defaultPassword',10,'https://academy.harbingergroup.com/user/pix.php/2727/f1.jpg','2025-03-14 04:42:12','active'),('HS1740','Ganesh Rajput','ganesh.rajput@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/2805/f1.jpg','2025-03-22 02:06:45','invited'),('HS1856','Deepak Sahu','deepak.sahu@harbingergroup.com','defaultPassword',5,'https://academy.harbingergroup.com/user/pix.php/3011/f1.jpg','2025-03-17 03:46:33','active'),('HS1972','Amit A. Kulkarni','Amit.A.Kulkarni@harbingergroup.com','defaultPassword',6,'https://academy.harbingergroup.com/user/pix.php/2957/f1.jpg','2025-03-14 01:15:40','active'),('HS2321','Dr Santosh Iyer','Santosh.Iyer@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/3706/f1.jpg','2025-03-14 06:56:27','active'),('HS2505','Umesh Kanade','umeshk@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/220/f1.jpg','2025-03-14 04:34:14','active'),('HS2738','Deepali Uttekar','Deepali.Uttekar@harbingergroup.com','defaultPassword',4,'https://academy.harbingergroup.com/user/pix.php/4341/f1.jpg','2025-03-14 04:34:45','active'),('HS609','Satyabaji Sahu','satyabaji@harbingergroup.com','1234',4,'https://academy.harbingergroup.com/user/pix.php/117/f1.jpg','2025-03-14 01:07:59','active');
 /*!40000 ALTER TABLE `logintable` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -369,6 +411,8 @@ CREATE TABLE `newtrainingrequest` (
   `skilldevelopment` bigint DEFAULT NULL,
   `AssignedTo` varchar(100) DEFAULT 'HS609',
   `org_level` tinyint(1) DEFAULT NULL,
+  `status_assigned_date` timestamp NULL DEFAULT NULL,
+  `status_modified_date` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`requestid`),
   KEY `source` (`source`),
   KEY `trainingobj` (`trainingobj`),
@@ -396,7 +440,7 @@ CREATE TABLE `newtrainingrequest` (
 
 LOCK TABLES `newtrainingrequest` WRITE;
 /*!40000 ALTER TABLE `newtrainingrequest` DISABLE KEYS */;
-INSERT INTO `newtrainingrequest` VALUES (1,8,71,'HS1856',NULL,6,'2025-03-26',6,'<p>sdfghbjn</p>','<p>xdcfvgbhnj</p>','<p>cfgvhbjn</p>',NULL,NULL,'HS1856','2025-03-20 12:55:49',NULL,'2025-03-20 13:06:47','Completed','HS1697',2,NULL,NULL,NULL,NULL,'HS609',0),(2,7,57,'HS609',NULL,93,'2025-03-27',9,'<p>relevant info</p>','<p>kachori</p>','<p>chole bhature</p>',NULL,NULL,'HS609','2025-03-20 13:14:56',NULL,'2025-03-20 13:21:11','capdev approved','HS609',3,NULL,NULL,NULL,NULL,'HS609',0),(3,4,35,'HS609',NULL,94,'2025-03-22',6,'<p>qwerty</p>','<p>qwertyu</p>','<p>qwertyuiop</p>',NULL,NULL,'HS609','2025-03-20 13:23:16',NULL,'2025-03-20 13:23:31','capdev approved','HS609',1,NULL,NULL,NULL,NULL,'HS609',0),(4,3,26,'HS609',NULL,93,'2025-03-22',7,'<p>werg</p>','<p>frgtyu</p>','<p>dwertgy</p>',NULL,NULL,'HS609','2025-03-20 13:24:36',NULL,'2025-03-20 13:24:47','capdev approved','HS609',3,NULL,NULL,NULL,NULL,'HS609',0),(5,7,58,'HS609',NULL,7,'2025-03-29',6,'<p>cfvgbhjn</p>','<p>fgvbhn</p>','<p>cfvgbh</p>',NULL,NULL,'HS609','2025-03-20 13:26:00',NULL,'2025-03-20 13:27:05','Learning Suspended','HS609',2,NULL,NULL,NULL,NULL,'HS609',0);
+INSERT INTO `newtrainingrequest` VALUES (1,8,71,'HS1856',NULL,6,'2025-03-26',6,'<p>sdfghbjn</p>','<p>xdcfvgbhnj</p>','<p>cfgvhbjn</p>',NULL,NULL,'HS1856','2025-03-20 12:55:49',NULL,'2025-03-20 13:06:47','Completed','HS1697',2,NULL,NULL,NULL,NULL,'HS609',0,NULL,NULL),(2,7,57,'HS609',NULL,93,'2025-03-27',9,'<p>relevant info</p>','<p>kachori</p>','<p>chole bhature</p>',NULL,NULL,'HS609','2025-03-20 13:14:56',NULL,'2025-03-24 07:02:48','Completed','HS609',3,NULL,NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 07:02:48'),(3,4,35,'HS609',NULL,94,'2025-03-22',6,'<p>qwerty</p>','<p>qwertyu</p>','<p>qwertyuiop</p>',NULL,NULL,'HS609','2025-03-20 13:23:16',NULL,'2025-03-24 05:55:35','Incomplete','HS609',1,NULL,NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 05:55:35'),(4,3,26,'HS609',NULL,93,'2025-03-22',7,'<p>werg</p>','<p>frgtyu</p>','<p>dwertgy</p>',NULL,NULL,'HS609','2025-03-20 13:24:36',NULL,'2025-03-21 07:17:05','Learning In Progress','HS609',3,NULL,NULL,NULL,NULL,'HS609',0,NULL,NULL),(5,7,58,'HS609',NULL,7,'2025-03-29',6,'<p>cfvgbhjn</p>','<p>fgvbhn</p>','<p>cfvgbh</p>',NULL,NULL,'HS609','2025-03-20 13:26:00',NULL,'2025-03-24 08:27:40','Completed','HS609',2,NULL,NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 08:27:40'),(6,11,101,'HS609',NULL,0,'2025-03-27',2,'<p>sxdcgfvbhnj</p>','<p>fcbhjnm</p>','<p>bhnjgbhnj</p>',NULL,NULL,'HS609','2025-03-21 08:53:23',NULL,'2025-03-24 06:13:19','Completed with Delay','HS2505',3,'azesxdcfgvhbjnkm',NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 06:13:19'),(7,1,6,'HS609',NULL,93,'2025-03-27',7,'<p>xghvhk</p>','<p>gghvkj</p>','<p>hgc gjv kb</p>',NULL,NULL,'HS609','2025-03-21 08:59:21',NULL,'2025-03-24 05:51:50','Incomplete','HS609',3,NULL,NULL,NULL,NULL,'HS2738',0,NULL,'2025-03-24 05:51:50'),(8,8,69,'HS1856',NULL,39,'2025-03-29',3,'<p>EDRFGTYHUJ</p>','<p>dghfghnjvb</p>','<p>dcfvgbhn</p>',NULL,NULL,'HS1856','2025-03-22 07:30:55',NULL,'2025-03-22 07:35:49','Completed','HS2505',2,NULL,NULL,NULL,NULL,'HS609',0,NULL,NULL),(9,8,71,'HS1856',NULL,95,'2025-03-27',12,'<p>szdxfcghbjn</p>','<p>dxfcgvhbj</p>','<p>xfcgvhbjn</p>',NULL,NULL,'HS1856','2025-03-24 04:34:00',NULL,'2025-03-24 06:46:58','Completed','HS2505',4,NULL,NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 06:46:58'),(10,8,73,'HS1856',NULL,94,'2025-03-26',4,'<p>efghj</p>','<p>rgcvhbjn</p>','<p>xdfcgvhbjnm</p>',NULL,NULL,'HS1856','2025-03-24 04:42:36',NULL,'2025-03-24 08:20:24','Completed','HS1697',1,NULL,NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 08:20:24'),(11,10,94,'HS1697',NULL,95,'2025-03-27',7,'<p>zxdgfcvhjbn</p>','<p>dxgfchgvbnm</p>','<p>rcthgvjbn</p>',NULL,NULL,'HS2505','2025-03-24 08:28:48',NULL,'2025-03-24 08:48:17','Completed with Delay','HS2505',4,NULL,NULL,NULL,NULL,'HS609',0,NULL,'2025-03-24 08:48:17');
 /*!40000 ALTER TABLE `newtrainingrequest` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -418,7 +462,7 @@ CREATE TABLE `notifications` (
   KEY `requestid` (`requestid`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`emp_id`) REFERENCES `logintable` (`emp_id`),
   CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest` (`requestid`)
-) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -427,7 +471,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (56,1,'HS2321',0,'2025-03-20 12:55:49'),(57,1,'HS2505',0,'2025-03-20 12:55:49'),(58,1,'HS2738',0,'2025-03-20 12:55:49'),(59,1,'HS609',1,'2025-03-20 12:55:49'),(60,1,'HS1856',1,'2025-03-20 12:55:49'),(61,1,'HS1972',0,'2025-03-20 12:55:49'),(62,1,'HS1697',1,'2025-03-20 12:55:49'),(63,2,'HS2321',0,'2025-03-20 13:14:56'),(64,2,'HS2505',0,'2025-03-20 13:14:56'),(65,2,'HS2738',0,'2025-03-20 13:14:56'),(66,2,'HS609',0,'2025-03-20 13:14:56'),(67,2,'HS1856',0,'2025-03-20 13:14:56'),(68,2,'HS1972',0,'2025-03-20 13:14:56'),(69,2,'HS1697',0,'2025-03-20 13:14:56'),(70,3,'HS2321',0,'2025-03-20 13:23:16'),(71,3,'HS2505',0,'2025-03-20 13:23:16'),(72,3,'HS2738',0,'2025-03-20 13:23:16'),(73,3,'HS609',0,'2025-03-20 13:23:16'),(74,3,'HS1856',0,'2025-03-20 13:23:16'),(75,3,'HS1972',0,'2025-03-20 13:23:16'),(76,3,'HS1697',0,'2025-03-20 13:23:16'),(77,4,'HS2321',0,'2025-03-20 13:24:36'),(78,4,'HS2505',0,'2025-03-20 13:24:36'),(79,4,'HS2738',0,'2025-03-20 13:24:36'),(80,4,'HS609',0,'2025-03-20 13:24:36'),(81,4,'HS1856',0,'2025-03-20 13:24:36'),(82,4,'HS1972',0,'2025-03-20 13:24:36'),(83,4,'HS1697',0,'2025-03-20 13:24:36'),(84,5,'HS2321',0,'2025-03-20 13:26:00'),(85,5,'HS2505',0,'2025-03-20 13:26:00'),(86,5,'HS2738',0,'2025-03-20 13:26:00'),(87,5,'HS609',0,'2025-03-20 13:26:00'),(88,5,'HS1856',0,'2025-03-20 13:26:00'),(89,5,'HS1972',0,'2025-03-20 13:26:00'),(90,5,'HS1697',0,'2025-03-20 13:26:00');
+INSERT INTO `notifications` VALUES (56,1,'HS2321',0,'2025-03-20 12:55:49'),(57,1,'HS2505',0,'2025-03-20 12:55:49'),(58,1,'HS2738',0,'2025-03-20 12:55:49'),(59,1,'HS609',1,'2025-03-20 12:55:49'),(60,1,'HS1856',1,'2025-03-20 12:55:49'),(61,1,'HS1972',0,'2025-03-20 12:55:49'),(62,1,'HS1697',1,'2025-03-20 12:55:49'),(63,2,'HS2321',0,'2025-03-20 13:14:56'),(64,2,'HS2505',0,'2025-03-20 13:14:56'),(65,2,'HS2738',0,'2025-03-20 13:14:56'),(66,2,'HS609',0,'2025-03-20 13:14:56'),(67,2,'HS1856',0,'2025-03-20 13:14:56'),(68,2,'HS1972',0,'2025-03-20 13:14:56'),(69,2,'HS1697',0,'2025-03-20 13:14:56'),(70,3,'HS2321',0,'2025-03-20 13:23:16'),(71,3,'HS2505',0,'2025-03-20 13:23:16'),(72,3,'HS2738',0,'2025-03-20 13:23:16'),(73,3,'HS609',0,'2025-03-20 13:23:16'),(74,3,'HS1856',0,'2025-03-20 13:23:16'),(75,3,'HS1972',0,'2025-03-20 13:23:16'),(76,3,'HS1697',0,'2025-03-20 13:23:16'),(77,4,'HS2321',0,'2025-03-20 13:24:36'),(78,4,'HS2505',0,'2025-03-20 13:24:36'),(79,4,'HS2738',0,'2025-03-20 13:24:36'),(80,4,'HS609',0,'2025-03-20 13:24:36'),(81,4,'HS1856',0,'2025-03-20 13:24:36'),(82,4,'HS1972',0,'2025-03-20 13:24:36'),(83,4,'HS1697',0,'2025-03-20 13:24:36'),(84,5,'HS2321',0,'2025-03-20 13:26:00'),(85,5,'HS2505',0,'2025-03-20 13:26:00'),(86,5,'HS2738',0,'2025-03-20 13:26:00'),(87,5,'HS609',0,'2025-03-20 13:26:00'),(88,5,'HS1856',0,'2025-03-20 13:26:00'),(89,5,'HS1972',0,'2025-03-20 13:26:00'),(90,5,'HS1697',0,'2025-03-20 13:26:00'),(91,6,'HS2321',0,'2025-03-21 08:53:23'),(92,6,'HS2505',0,'2025-03-21 08:53:23'),(93,6,'HS2738',0,'2025-03-21 08:53:23'),(94,6,'HS609',0,'2025-03-21 08:53:23'),(95,6,'HS1856',0,'2025-03-21 08:53:23'),(96,6,'HS1972',0,'2025-03-21 08:53:23'),(97,6,'HS1697',0,'2025-03-21 08:53:23'),(98,7,'HS2321',0,'2025-03-21 08:59:21'),(99,7,'HS2505',0,'2025-03-21 08:59:21'),(100,7,'HS2738',0,'2025-03-21 08:59:21'),(101,7,'HS609',0,'2025-03-21 08:59:21'),(102,7,'HS1856',0,'2025-03-21 08:59:21'),(103,7,'HS1972',0,'2025-03-21 08:59:21'),(104,7,'HS1697',0,'2025-03-21 08:59:21'),(105,8,'HS2321',0,'2025-03-22 07:30:55'),(106,8,'HS2505',1,'2025-03-22 07:30:55'),(107,8,'HS2738',0,'2025-03-22 07:30:55'),(108,8,'HS609',0,'2025-03-22 07:30:55'),(109,8,'HS1856',0,'2025-03-22 07:30:55'),(110,8,'HS1972',0,'2025-03-22 07:30:55'),(111,8,'HS1697',0,'2025-03-22 07:30:55'),(112,9,'HS1740',0,'2025-03-24 04:34:00'),(113,9,'HS2321',0,'2025-03-24 04:34:00'),(114,9,'HS2505',0,'2025-03-24 04:34:00'),(115,9,'HS2738',0,'2025-03-24 04:34:00'),(116,9,'HS609',0,'2025-03-24 04:34:00'),(117,9,'HS1856',0,'2025-03-24 04:34:00'),(118,9,'HS1972',0,'2025-03-24 04:34:00'),(119,9,'HS1697',0,'2025-03-24 04:34:00'),(127,10,'HS1740',0,'2025-03-24 04:42:36'),(128,10,'HS2321',0,'2025-03-24 04:42:36'),(129,10,'HS2505',0,'2025-03-24 04:42:36'),(130,10,'HS2738',0,'2025-03-24 04:42:36'),(131,10,'HS609',0,'2025-03-24 04:42:36'),(132,10,'HS1856',0,'2025-03-24 04:42:36'),(133,10,'HS1972',0,'2025-03-24 04:42:36'),(134,10,'HS1697',0,'2025-03-24 04:42:36'),(142,11,'HS1740',0,'2025-03-24 08:28:48'),(143,11,'HS2321',0,'2025-03-24 08:28:48'),(144,11,'HS2505',0,'2025-03-24 08:28:48'),(145,11,'HS2738',0,'2025-03-24 08:28:48'),(146,11,'HS609',0,'2025-03-24 08:28:48'),(147,11,'HS1856',0,'2025-03-24 08:28:48'),(148,11,'HS1972',0,'2025-03-24 08:28:48'),(149,11,'CONS089',0,'2025-03-24 08:28:48'),(150,11,'HS1697',0,'2025-03-24 08:28:48');
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -481,7 +525,7 @@ CREATE TABLE `projectname` (
 
 LOCK TABLES `projectname` WRITE;
 /*!40000 ALTER TABLE `projectname` DISABLE KEYS */;
-INSERT INTO `projectname` VALUES (0,'none',NULL),(1,'HSPL Pool Engineering',2),(2,'MIT Education Solutions MIT Consulting Phase',2),(3,'Ossur EmpowerX Hypercare',2),(4,'iCIMS SkillSurvey All',2),(5,'Heidrick &amp;amp; Struggles Core Platform Development',2),(6,'Apploi Apploi Integration',2),(7,'SafetyChain Digital Plant Management Platform ',2),(8,'ImagineBC ImagineBC',2),(9,'HSPL Internal Overhead',2),(10,'Heidrick &amp;amp; Struggles Edge Project',2),(11,'HSPL Internal Engineering Excellence',2),(12,'Reveleer (Dynamic Healthcare Systems Inc) Voyager',2),(13,'Ethico ComplianceLine Ethico',2),(14,'Careerminds Careerminds T&amp;M',2),(15,'Alpine CM Connect',2),(16,'Heidrick &amp;amp; Struggles Buffers',2),(17,'HEX Advisory Group HEX Index',2),(18,'DPU_Internal DPU_Strategic Bench',2),(19,'Macorva Macorva',2),(20,'HSPL Internal Adobe-Presales-loaned',2),(21,'Adobe_Partner_Mathworks Data Migration',2),(22,'Adobe_Partner_Mathworks Custom Email Functionality',2),(23,'FreeState Healthcare  FreeState Connect',2),(24,'MyInterview Ltd MyInterview - Integrations',2),(25,'Reveleer (Dynamic Healthcare Systems Inc) Voyager - Support-n-Operations',2),(26,'RAKE Digital PlatformHR',2),(27,'Relias Relias',2),(28,'Brooks Equipment Company, LLC CRM-V2.2 project - Sep24-Feb25',2),(29,'BUILD FamBiz, DC and BUILD.org Support',2),(30,'Energage Energage T&amp;M',2),(31,'Development Dimensions International, Inc. DDI T&amp;M',2),(32,'HSPL Internal CoE',2),(33,'Adobe_Partner_Inner Stance (SLL) Benelux ALM Headless Application ',2),(34,'Heidrick &amp;amp; Struggles Testing Automation',2),(35,'iCIMS Frontline Hiring',2),(36,'Illumina Interactive Syphilis App Development',2),(37,'Adobe_Partner_ZimVie Headless ALM With eCommerce (ZimVie Dental Division)',2),(38,'Ossur Mobile Application (iOS) development',2),(39,'Adobe_Partner_Highridge Headless ALM Development for Highridge',2),(40,'Cisive Cisive- Angular Assignment for HR side',2),(41,'iCIMS Video Interview',2),(42,'Heidrick &amp;amp; Struggles Analysis And Reporting ',2),(43,'Praxidata Praxi Data - Backend Development',2),(44,'iCIMS Video Studio',2),(45,'SafetyChain AI Work',2),(46,'Heidrick &amp;amp; Struggles H&amp;S Workflow Automation',2),(47,'Project Home Project HOME - Integration from Data Pipeline',2),(48,'Adobe_Partner_Inner Stance (SLL) SLL Phase2',2),(49,'OpenSesame Inc CourseCloud2.0',2),(50,'Adobe_Partner_Inner Stance (SLL) Headless ALM SLL',2),(51,'HSPL Internal HS Marketing',2),(52,'OneTouch HCM OneTouch HCM - T&amp;M',2),(53,'Skillsoft Skillsoft',2),(54,'Heidrick &amp;amp; Struggles Terraforms Automation',2),(55,'Adobe_Partner_Inner Stance (SLL) SLL Support',2),(56,'HKPPL Quillionz',2),(57,'Adobe ALM - Product Engineering ALM LTI Tool Consumer',2),(58,'HSPL Pool Non-Active',2),(59,'Adobe Captivate - Product Engineering Adobe - Captivate Widgets Development Phase II',2),(60,'HKPPL Raptivity 2020',2),(61,'Technical Toolboxes Technical ToolBoxes',2),(62,'Heidrick &amp;amp; Struggles Organization Dashboard',2),(63,'HSPL Internal HSPL Internal-Admin',2),(64,'AAO (American Association of Opthalmology) AAO',2),(65,'HKPPL SprinkleZone',2),(66,'MeridianLink (formerly TazWorks) Integration Services',2),(67,'Adobe_Partner_CoSo Cloud LLC CoSo Cloud Azure DevOps T&amp;M',2),(68,'Thomson Reuters International Services Private Limited (UK) TRTA',2),(69,'MeridianLink (formerly TazWorks)  Workato - Intergration Services',2),(70,'Caron Treatment Centers Caron - AWS hosting',2),(71,'Carnegie Speech LLC Carnegie Speech - UI Revamp - Maintenance and Support',2),(72,'Heidrick &amp;amp; Struggles Admin Project',2),(73,'Adobe_Partner_JLG customer JLG Headless LMS - Phase2.1',2),(74,'Betterworks Integration of BW &amp; HRMS (Workday)',2),(75,'Stemsave Inc StemSave',2),(76,'Adobe_Partner_JLG customer JLG headless LMS support and maintenance ',2),(77,'Heidrick &amp;amp; Struggles H&amp;S – HARBINGER TIME &amp; MATERIAL STATEMENT OF WORK for AWS DevOps Engineer',2),(78,'Technical Toolboxes Azure DevOps',2),(79,'College Contact College Contact',2),(80,'Adobe_Partner_ZimVie ALM - Infrastructure and Application Hosting Support',2),(81,'Adobe_Partner_Udemy MAINTENANCE SUPPORT',2),(82,'Heads Up Health Heads Up Health T&amp;M',2),(83,'Heidrick &amp;amp; Struggles H&amp;S-Harbinger Statement of Work for Jr. DevOps position',2),(84,'HSPL Internal CapDev StepUP Program',2),(85,'HSPL Internal - Demand Generation Framework',2),(86,'Heidrick &amp;amp; Struggles Product Owner T and M',2),(87,'Heidrick &amp;amp; Struggles Devops Tech Lead',2),(88,'Heidrick &amp;amp; Struggles Leadership Development',2),(89,'AdhereTech AdhereTech QA assignment',2),(90,'HSPL Internal Campus Jan 2025 Batch',2),(91,'Heidrick &amp;amp; Struggles Data Science',2),(93,'CIS Helpdesk',3),(94,'Becker',1),(95,'Adobe encora',4);
+INSERT INTO `projectname` VALUES (0,'none',NULL),(1,'HSPL Pool Engineering',2),(2,'MIT Education Solutions MIT Consulting Phase',2),(3,'Ossur EmpowerX Hypercare',2),(4,'iCIMS SkillSurvey All',2),(5,'Heidrick &amp;amp; Struggles Core Platform Development',2),(6,'Apploi Apploi Integration',2),(7,'SafetyChain Digital Plant Management Platform ',2),(8,'ImagineBC ImagineBC',2),(9,'HSPL Internal Overhead',2),(10,'Heidrick &amp;amp; Struggles Edge Project',2),(11,'HSPL Internal Engineering Excellence',2),(12,'Reveleer (Dynamic Healthcare Systems Inc) Voyager',2),(13,'Ethico ComplianceLine Ethico',2),(14,'Careerminds Careerminds T&amp;M',2),(15,'Alpine CM Connect',2),(16,'Heidrick &amp;amp; Struggles Buffers',2),(17,'HEX Advisory Group HEX Index',2),(18,'DPU_Internal DPU_Strategic Bench',2),(19,'Macorva Macorva',2),(20,'HSPL Internal Adobe-Presales-loaned',2),(21,'Adobe_Partner_Mathworks Data Migration',2),(22,'Adobe_Partner_Mathworks Custom Email Functionality',2),(23,'FreeState Healthcare  FreeState Connect',2),(24,'MyInterview Ltd MyInterview - Integrations',2),(25,'Reveleer (Dynamic Healthcare Systems Inc) Voyager - Support-n-Operations',2),(26,'RAKE Digital PlatformHR',2),(27,'Relias Relias',2),(28,'Brooks Equipment Company, LLC CRM-V2.2 project - Sep24-Feb25',2),(29,'BUILD FamBiz, DC and BUILD.org Support',2),(30,'Energage Energage T&amp;M',2),(31,'Development Dimensions International, Inc. DDI T&amp;M',2),(32,'HSPL Internal CoE',2),(33,'Adobe_Partner_Inner Stance (SLL) Benelux ALM Headless Application ',2),(34,'Heidrick &amp;amp; Struggles Testing Automation',2),(35,'iCIMS Frontline Hiring',2),(36,'Illumina Interactive Syphilis App Development',2),(37,'Adobe_Partner_ZimVie Headless ALM With eCommerce (ZimVie Dental Division)',2),(38,'Ossur Mobile Application (iOS) development',2),(39,'Adobe_Partner_Highridge Headless ALM Development for Highridge',2),(40,'Cisive Cisive- Angular Assignment for HR side',2),(41,'iCIMS Video Interview',2),(42,'Heidrick &amp;amp; Struggles Analysis And Reporting ',2),(43,'Praxidata Praxi Data - Backend Development',2),(44,'iCIMS Video Studio',2),(45,'SafetyChain AI Work',2),(46,'Heidrick &amp;amp; Struggles H&amp;S Workflow Automation',2),(47,'Project Home Project HOME - Integration from Data Pipeline',2),(48,'Adobe_Partner_Inner Stance (SLL) SLL Phase2',2),(49,'OpenSesame Inc CourseCloud2.0',2),(50,'Adobe_Partner_Inner Stance (SLL) Headless ALM SLL',2),(51,'HSPL Internal HS Marketing',2),(52,'OneTouch HCM OneTouch HCM - T&amp;M',2),(53,'Skillsoft Skillsoft',2),(54,'Heidrick &amp;amp; Struggles Terraforms Automation',2),(55,'Adobe_Partner_Inner Stance (SLL) SLL Support',2),(56,'HKPPL Quillionz',2),(57,'Adobe ALM - Product Engineering ALM LTI Tool Consumer',2),(58,'HSPL Pool Non-Active',2),(59,'Adobe Captivate - Product Engineering Adobe - Captivate Widgets Development Phase II',2),(60,'HKPPL Raptivity 2020',2),(61,'Technical Toolboxes Technical ToolBoxes',2),(62,'Heidrick &amp;amp; Struggles Organization Dashboard',2),(63,'HSPL Internal HSPL Internal-Admin',2),(64,'AAO (American Association of Opthalmology) AAO',2),(65,'HKPPL SprinkleZone',2),(66,'MeridianLink (formerly TazWorks) Integration Services',2),(68,'Thomson Reuters International Services Private Limited (UK) TRTA',2),(69,'MeridianLink (formerly TazWorks)  Workato - Intergration Services',2),(70,'Caron Treatment Centers Caron - AWS hosting',2),(71,'Carnegie Speech LLC Carnegie Speech - UI Revamp - Maintenance and Support',2),(72,'Heidrick &amp;amp; Struggles Admin Project',2),(73,'Adobe_Partner_JLG customer JLG Headless LMS - Phase2.1',2),(74,'Betterworks Integration of BW &amp; HRMS (Workday)',2),(75,'Stemsave Inc StemSave',2),(76,'Adobe_Partner_JLG customer JLG headless LMS support and maintenance ',2),(77,'Heidrick &amp;amp; Struggles H&amp;S – HARBINGER TIME &amp; MATERIAL STATEMENT OF WORK for AWS DevOps Engineer',2),(78,'Technical Toolboxes Azure DevOps',2),(79,'College Contact College Contact',2),(80,'Adobe_Partner_ZimVie ALM - Infrastructure and Application Hosting Support',2),(81,'Adobe_Partner_Udemy MAINTENANCE SUPPORT',2),(82,'Heads Up Health Heads Up Health T&amp;M',2),(83,'Heidrick &amp;amp; Struggles H&amp;S-Harbinger Statement of Work for Jr. DevOps position',2),(84,'HSPL Internal CapDev StepUP Program',2),(85,'HSPL Internal - Demand Generation Framework',2),(86,'Heidrick &amp;amp; Struggles Product Owner T and M',2),(87,'Heidrick &amp;amp; Struggles Devops Tech Lead',2),(88,'Heidrick &amp;amp; Struggles Leadership Development',2),(89,'AdhereTech AdhereTech QA assignment',2),(90,'HSPL Internal Campus Jan 2025 Batch',2),(91,'Heidrick &amp;amp; Struggles Data Science',2),(93,'CIS Helpdesk',3),(94,'Becker',1),(95,'Adobe encora',4);
 /*!40000 ALTER TABLE `projectname` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -527,7 +571,7 @@ CREATE TABLE `request_primary_skills` (
   KEY `primaryskill_id` (`primaryskill_id`),
   CONSTRAINT `request_primary_skills_ibfk_1` FOREIGN KEY (`requestid`) REFERENCES `newtrainingrequest` (`requestid`),
   CONSTRAINT `request_primary_skills_ibfk_2` FOREIGN KEY (`primaryskill_id`) REFERENCES `primaryskill` (`skill_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -536,7 +580,7 @@ CREATE TABLE `request_primary_skills` (
 
 LOCK TABLES `request_primary_skills` WRITE;
 /*!40000 ALTER TABLE `request_primary_skills` DISABLE KEYS */;
-INSERT INTO `request_primary_skills` VALUES (9,1,23),(10,2,35),(11,3,22),(12,4,26),(13,5,24);
+INSERT INTO `request_primary_skills` VALUES (9,1,23),(10,2,35),(11,3,22),(12,4,26),(13,5,24),(14,6,11),(15,7,26),(16,8,2),(17,9,43),(18,10,17),(19,11,30);
 /*!40000 ALTER TABLE `request_primary_skills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -560,7 +604,7 @@ CREATE TABLE `role` (
 
 LOCK TABLES `role` WRITE;
 /*!40000 ALTER TABLE `role` DISABLE KEYS */;
-INSERT INTO `role` VALUES (1,'Delivery Manager (DM) Role'),(2,'Account Growth Function (AGF) + DH'),(3,'Delivery Head (DH) Role'),(4,'CapDev Role'),(5,'COE Role'),(6,'DSU Role'),(7,'Function Owner Role'),(8,'RM Role'),(9,'Tech Function Role'),(10,'SPOC');
+INSERT INTO `role` VALUES (1,'Delivery Manager (DM) '),(2,'Account Growth Function (AGF) + DH'),(3,'Delivery Head (DH) '),(4,'CapDev '),(5,'COE'),(6,'DSU '),(7,'Function Owner '),(8,'Resource Manager'),(9,'Tech Function '),(10,'SPOC');
 /*!40000 ALTER TABLE `role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -628,7 +672,7 @@ CREATE TABLE `source` (
   `source_id` int NOT NULL AUTO_INCREMENT,
   `source_name` varchar(255) NOT NULL,
   PRIMARY KEY (`source_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -679,7 +723,7 @@ CREATE TABLE `training_obj` (
   PRIMARY KEY (`training_id`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `training_obj_ibfk_1` FOREIGN KEY (`source_id`) REFERENCES `source` (`source_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -701,4 +745,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-21 10:12:04
+-- Dump completed on 2025-03-24 14:29:21

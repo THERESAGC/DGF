@@ -43,7 +43,7 @@ const AdminContainer = () => {
         return roleId && <AdminSetting roleId={roleId} />
       case "Data Field Management":
         return <RequestFormEditor />
-      case "Reports":
+      case "Reports Management":
         return <DownloadReport />
       default:
         return roleId && <AdminSetting roleId={roleId} />
