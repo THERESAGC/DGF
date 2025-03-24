@@ -1,4 +1,3 @@
-
 const pool = require("../config/db"); // Import DB configuration
 const { sendEmail } = require("./mailService"); // Import email sending function
 const mysql = require('mysql2'); // Import mysql2 for query formatting
@@ -47,11 +46,13 @@ const getCourseName = (course_id) => {
     const query = "SELECT course_name FROM course WHERE course_id = ?";
     pool.query(query, [course_id], (error, results) => {
       if (error) {
+        console.error("Database error:", error); // Debug log
         return reject(error);
       }
       if (results.length > 0) {
         resolve(results[0].course_name);
       } else {
+        console.error("Course not found for course_id:", course_id); // Debug log
         reject("Course not found");
       }
     });
@@ -70,6 +71,23 @@ const getRequestedBy = (assignment_id) => {
         resolve(results[0].requested_by); // Assuming requested_by is the name
       } else {
         reject("Requested By not found");
+      }
+    });
+  });
+};
+
+// Function to fetch employee's name (if needed for email greeting)
+const getEmployeeName = (employee_id) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT emp_name FROM employee WHERE emp_id = ?";
+    pool.query(query, [employee_id], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      if (results.length > 0) {
+        resolve(results[0].emp_name);
+      } else {
+        reject("Employee not found");
       }
     });
   });
@@ -228,21 +246,9 @@ const checkCompletedTasksAndSendEmails = async () => {
   }
 };
 
-// Function to fetch employee's name (if needed for email greeting)
-const getEmployeeName = (employee_id) => {
-  return new Promise((resolve, reject) => {
-    const query = "SELECT emp_name FROM employee WHERE emp_id = ?";
-    pool.query(query, [employee_id], (error, results) => {
-      if (error) {
-        return reject(error);
-      }
-      if (results.length > 0) {
-        resolve(results[0].emp_name);
-      } else {
-        reject("Employee not found");
-      }
-    });
-  });
-};
 
-module.exports = { handleTaskCompletion, checkCompletedTasksAndSendEmails };
+module.exports = { handleTaskCompletion, 
+  checkCompletedTasksAndSendEmails,
+  getEmployeeName,
+  getCourseName,
+  getRequestedBy,};

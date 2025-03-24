@@ -78,7 +78,7 @@ const GraphDetails = ({ details, colors }) => (
         <Typography className="details"
           key={index}
           variant="body1"
-          sx={{ display: 'inline-flex', marginRight: 3, marginBottom: 1, whiteSpace: 'normal' }}
+          sx={{ display: 'inline-flex', marginRight: 3, marginBottom: 1.4, whiteSpace: 'normal' }}
           dangerouslySetInnerHTML={{ __html: `<span style="font-weight: bold; font-size: 1.5rem; color: ${colors[index]}; ${isFourthChild? 'padding-left: 4px;':''}">${value}</span><span style="margin-left: 5px;margin-top:7px; color: #555555; font-size: 0.7rem;">${label}</span>` }}
         />
       );

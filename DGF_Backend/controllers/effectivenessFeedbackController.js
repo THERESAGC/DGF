@@ -1,5 +1,4 @@
-// controllers/effectivenessFeedbackController.js
-const { handleTaskCompletion } = require("../services/effectivenessFeedbackService");
+const { handleTaskCompletion, getEmployeeName, getCourseName } = require("../services/effectivenessFeedbackService");
 
 const handleTaskCompletionRequest = async (req, res) => {
   const { assignment_id } = req.params; // Assuming the assignment_id is passed as a URL parameter
@@ -11,4 +10,21 @@ const handleTaskCompletionRequest = async (req, res) => {
   }
 };
 
-module.exports = { handleTaskCompletionRequest };
+// Controller to fetch feedback details
+const getFeedbackDetails = async (req, res) => {
+  const { course_id, employee_id } = req.query;
+
+  try {
+    // Fetch the required details using the service layer
+    const username = await getEmployeeName(employee_id);
+    const course_name = await getCourseName(course_id);
+
+    // Respond with the fetched details
+    res.status(200).json({ username, course_name });
+  } catch (error) {
+    console.error("Error fetching feedback details:", error);
+    res.status(500).json({ error: "Failed to fetch feedback details" });
+  }
+};
+
+module.exports = { handleTaskCompletionRequest, getFeedbackDetails };

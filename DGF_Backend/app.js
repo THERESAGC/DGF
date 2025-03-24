@@ -79,6 +79,7 @@ const { syncEmployees } = require('./services/storeEmployeeService');
 const passwordForUserRoutes = require('./routes/passwordForUserRoutes'); //Routes for admin enable user and new password mail
 const { checkCompletedTasksAndSendEmails } = require('./services/effectivenessFeedbackService'); // Effective feedback function
 const feedbackRoutes = require('./routes/feedbackRoutes'); //  feedback Form APIs
+const effectivenessFeedbackRoutes = require('./routes/effectivenessFeedbackRoutes');
 
 
 
@@ -306,6 +307,9 @@ app.use('/api', deletePrimarySkillRoutes);
 app.use('/api', deleteLearningObjectiveRoutes);
 // Use routes for when the admin approves enable user from the setting 
 app.use('/api', passwordForUserRoutes);
+
+app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
+
 // console.log('Triggering cron job manually...');
 // checkCompletedTasksAndSendEmails();
 

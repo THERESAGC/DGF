@@ -889,55 +889,7 @@ const handleDeleteLearningObjective = async (id) => {
                   }}
                 />
 
-                <ToggleButtonGroup
-                  value={viewMode}
-                  exclusive
-                  onChange={handleViewModeChange}
-                  size="small"
-                  sx={{
-                    "& .MuiToggleButton-root": {
-                      borderRadius: "8px",
-                      border: "1px solid #e0e0e0",
-                      "&.Mui-selected": {
-                        backgroundColor: "#f0f7ff",
-                        color: "#09459E",
-                      },
-                    },
-                    "& .MuiToggleButtonGroup-grouped:not(:first-of-type)": {
-                      borderRadius: "8px",
-                      marginLeft: "4px",
-                      borderLeft: "1px solid #e0e0e0",
-                    },
-                    "& .MuiToggleButtonGroup-grouped:first-of-type": {
-                      borderRadius: "8px",
-                    },
-                  }}
-                >
-                  <Tooltip title={sortOrder === "asc" ? "Sort Ascending" : "Sort Descending"}>
-                    <IconButton
-                      onClick={handleSortOrderChange}
-                      size="small"
-                      sx={{
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "8px",
-                        padding: "8px",
-                        color: sortOrder === "asc" ? "#09459E" : "#666",
-                      }}
-                    >
-                      {sortOrder === "asc" ? (
-                        <ArrowUpwardIcon fontSize="small" />
-                      ) : (
-                        <ArrowDownwardIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                  <ToggleButton value="list" aria-label="list view" style={{ marginRight: "4px", marginLeft: "8px" }}>
-                    <ViewListIcon fontSize="small" />
-                  </ToggleButton>
-                  <ToggleButton value="grid" aria-label="grid view">
-                    <GridViewIcon fontSize="small" />
-                  </ToggleButton>
-                </ToggleButtonGroup>
+               
               </Box>
 
               {loading ? (
@@ -1179,11 +1131,14 @@ const handleDeleteLearningObjective = async (id) => {
                                 color="primary"
                                 size="small"
                                 sx={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
                                   "& .MuiPaginationItem-root": {
                                     color: "#09459E",
                                   },
                                   "& .Mui-selected": {
                                     backgroundColor: "rgba(9, 69, 158, 0.1) !important",
+                                    color: "red",
                                   },
                                 }}
                               />

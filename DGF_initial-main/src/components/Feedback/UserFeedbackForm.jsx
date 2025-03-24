@@ -191,9 +191,9 @@
 
 // export default UserFeedbackForm;
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Box, Container, Typography, TextField, Paper, Button, Radio, RadioGroup, FormControlLabel, styled } from '@mui/material';
 import axios from 'axios'; // To make HTTP requests
+import PropTypes from 'prop-types'; // Import PropTypes
 
 const StyledPaper = styled(Paper)({
   padding: '24px',
@@ -201,15 +201,15 @@ const StyledPaper = styled(Paper)({
   margin: '0 auto',
   marginTop: '32px',
   marginBottom: '32px',
-  overflowY: 'auto', // Enable scrolling within the paper
-  maxHeight: 'calc(100vh - 64px)', // Adjust height to fit within the viewport
+  overflowY: 'auto',
+  maxHeight: 'calc(100vh - 64px)',
 });
 
 const FormSection = styled(Box)({
   marginBottom: '24px',
 });
 
-const UserFeedbackForm = ({ username = "John Doe", requestedby = "CAPDEV", coursename = "Advanced React" }) => {
+const UserFeedbackForm = () => {
   const [formData, setFormData] = useState({
     instructionRating: "",
     topicsCovered: "",
@@ -221,16 +221,41 @@ const UserFeedbackForm = ({ username = "John Doe", requestedby = "CAPDEV", cours
     topicSuggestions: ""
   });
 
-  // Extract query parameters from the URL
+  const [username, setUsername] = useState('');
+  const [requestedby] = useState('CAPDEV'); // Static value
+  const [coursename, setCoursename] = useState('');
+
   const [reqid, setReqid] = useState('');
   const [course_id, setCourseId] = useState('');
   const [employee_id, setEmployeeId] = useState('');
 
   useEffect(() => {
+    // Extract query parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    setReqid(urlParams.get('reqid'));
-    setCourseId(urlParams.get('course_id'));
-    setEmployeeId(urlParams.get('employee_id'));
+    const reqidParam = urlParams.get('reqid');
+    const courseIdParam = urlParams.get('course_id');
+    const employeeIdParam = urlParams.get('employee_id');
+
+    setReqid(reqidParam);
+    setCourseId(courseIdParam);
+    setEmployeeId(employeeIdParam);
+
+    // Fetch data from the backend
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/effectiveness-feedback/feedback/details', {
+          params: {course_id: courseIdParam, employee_id: employeeIdParam }
+        });
+
+        const { username, course_name } = response.data; // Adjusted to match API response
+        setUsername(username);
+        setCoursename(course_name);
+      } catch (error) {
+        console.error('Error fetching feedback details:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
