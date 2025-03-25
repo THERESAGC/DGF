@@ -166,7 +166,7 @@ const DownloadReport = () => {
           textAlign: "left",
         }}
       >
-        Training Program Report
+        Learning Program Report
       </Typography>
 
       {error && (
@@ -528,7 +528,7 @@ const DownloadReport = () => {
                       <TableCell>{row["Request Created By"]}</TableCell>
                       <TableCell>{row["Request Assigned To"]}</TableCell>
                       <TableCell>{row["Course Assigned By"] || "-"}</TableCell>
-                      <TableCell>{row["Training Duration"]}</TableCell>
+                      <TableCell>{row["Learning Duration"]}</TableCell>
                       <TableCell>{row["Faculty/Mentor Name"]}</TableCell>
                       <TableCell>{row["Faculty/Mentor Mail Id"]}</TableCell>
                       <TableCell>{row["Faculty/Mentor Designation"]}</TableCell>
