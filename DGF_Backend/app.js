@@ -311,7 +311,7 @@ app.use('/api', passwordForUserRoutes);
 app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
 
 // console.log('Triggering cron job manually...');
-// checkCompletedTasksAndSendEmails();
+checkCompletedTasksAndSendEmails();
 
 // Effectiveness feedback routes
 cron.schedule('0 0 * * *', async () => {

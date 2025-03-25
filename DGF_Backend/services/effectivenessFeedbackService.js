@@ -68,7 +68,7 @@ const getRequestedBy = (assignment_id) => {
         return reject(error);
       }
       if (results.length > 0) {
-        resolve(results[0].requested_by); // Assuming requested_by is the name
+        resolve(results[0].emp_name); // Correctly resolve emp_name
       } else {
         reject("Requested By not found");
       }
