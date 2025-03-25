@@ -222,7 +222,7 @@ const UserFeedbackForm = () => {
   });
 
   const [username, setUsername] = useState('');
-  const [requestedby] = useState('CAPDEV'); // Static value
+  const [requestedby, setRequestedby] = useState('');
   const [coursename, setCoursename] = useState('');
 
   const [reqid, setReqid] = useState('');
@@ -244,19 +244,20 @@ const UserFeedbackForm = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/effectiveness-feedback/feedback/details', {
-          params: {course_id: courseIdParam, employee_id: employeeIdParam }
+          params: { course_id: courseIdParam, employee_id: employeeIdParam,assignment_id: reqidParam }
         });
 
-        const { username, course_name } = response.data; // Adjusted to match API response
+        const { username, course_name, requested_by } = response.data; // Adjusted to match API response
         setUsername(username);
         setCoursename(course_name);
+        setRequestedby(requested_by); // Set the requested_by value
       } catch (error) {
         console.error('Error fetching feedback details:', error);
       }
     };
 
     fetchData();
-  }, []);
+}, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

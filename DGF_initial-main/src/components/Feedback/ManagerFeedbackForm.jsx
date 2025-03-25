@@ -220,7 +220,7 @@
 // };
 
 // export default ManagerFeedbackForm;
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   Box,
@@ -238,6 +238,7 @@ import {
   FormControl,
   styled,
 } from "@mui/material";
+import axios from "axios";
 
 const StyledPaper = styled(Paper)({
   padding: "24px",
@@ -245,20 +246,16 @@ const StyledPaper = styled(Paper)({
   margin: "0 auto",
   marginTop: "32px",
   marginBottom: "32px",
-  overflowY: "auto", // Enable scrolling within the paper
-  maxHeight: "calc(100vh - 64px)", // Adjust height to fit within the viewport
-  height: 600, // Set a fixed height for the paper container
+  overflowY: "auto",
+  maxHeight: "calc(100vh - 64px)",
+  height: 600,
 });
 
 const FormSection = styled(Box)({
   marginBottom: "24px",
 });
 
-const ManagerFeedbackForm = ({
-  directName = "Radhika Pathak",
-  requestedBy = "Smruti Adyalkar",
-  courseName = "Rebuild Your Basics- Project Management Blueprint",
-}) => {
+const ManagerFeedbackForm = () => {
   const [formData, setFormData] = useState({
     demonstrateSkill: "",
     skillDate: "",
@@ -266,6 +263,53 @@ const ManagerFeedbackForm = ({
     suggestions: "",
     opportunityDate: "",
   });
+
+  const [directName, setDirectName] = useState("");
+  const [requestedBy, setRequestedBy] = useState("");
+  const [courseName, setCourseName] = useState("");
+
+  const [reqid, setReqid] = useState("");
+  const [course_id, setCourseId] = useState("");
+  const [employee_id, setEmployeeId] = useState("");
+
+  useEffect(() => {
+    // Extract query parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const reqidParam = urlParams.get("reqid");
+    const courseIdParam = urlParams.get("course_id");
+    const employeeIdParam = urlParams.get("employee_id");
+
+    setReqid(reqidParam);
+    setCourseId(courseIdParam);
+    setEmployeeId(employeeIdParam);
+
+    // Fetch data from the backend
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/effectiveness-feedback/feedback/details",
+          {
+            params: {
+              course_id: courseIdParam,
+              employee_id: employeeIdParam,
+              assignment_id: reqidParam,
+            },
+          }
+        );
+
+        const { username, course_name, requested_by } = response.data;
+        setDirectName(username);
+        setCourseName(course_name);
+        setRequestedBy(requested_by);
+      } catch (error) {
+        console.error("Error fetching feedback details:", error);
+      }
+    };
+
+    if (reqidParam && courseIdParam && employeeIdParam) {
+      fetchData();
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -278,38 +322,33 @@ const ManagerFeedbackForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare the data to send
     const requestData = {
-      reqid: "REQ12345", // Static value
-      course_id: "CSE101", // Static value
-      employee_id: "EMP001", // Static value
+      reqid,
+      course_id,
+      employee_id,
       demonstrate_skill: formData.demonstrateSkill,
       skill_date: formData.skillDate,
       enhancement_rating: formData.enhancementRating,
       suggestions: formData.suggestions,
-      opportunity_date: formData.opportunityDate || null, // Set null if not available
+      opportunity_date: formData.opportunityDate || null,
     };
 
     try {
-      const response = await fetch("http://localhost:8000/api/manager-feedback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/manager-feedback",
+        requestData
+      );
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Feedback submitted successfully:", result);
-        alert("Feedback submitted successfully");
+      if (response.status === 200) {
+        console.log("Feedback submitted successfully:", response.data);
+        alert("Feedback submitted successfully!");
       } else {
-        console.error("Failed to submit feedback", response.statusText);
-        alert("Failed to submit feedback");
+        console.error("Failed to submit feedback:", response.statusText);
+        alert("Failed to submit feedback.");
       }
     } catch (error) {
       console.error("Error while submitting feedback:", error);
-      alert("Error while submitting feedback");
+      alert("Error while submitting feedback.");
     }
   };
 
