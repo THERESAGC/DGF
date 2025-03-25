@@ -21,6 +21,9 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  FormControlLabel,
+  Switch,
+  
 } from "@mui/material"
 import SearchIcon from "@mui/icons-material/Search"
 import AuthContext from "../Auth/AuthContext"
@@ -56,18 +59,24 @@ const Header = () => {
       try {
         const response = await axios.get("http://localhost:8000/api/notifications", {
           params: { empId: user.emp_id, roleId: user.role_id }, // Fetch notifications based on role
-        })
-        setNotifications(response.data)
-        setUnreadCount(response.data.filter((notification) => !notification.is_read).length)
+        });
+        setNotifications(response.data);
+        setUnreadCount(response.data.filter((notification) => !notification.is_read).length);
       } catch (err) {
-        console.error("Error fetching notifications:", err)
+        console.error("Error fetching notifications:", err);
       }
-    }
-
+    };
+  
     if (user) {
-      fetchNotifications()
+      fetchNotifications(); // Initial fetch
+  
+      const intervalId = setInterval(() => {
+        fetchNotifications(); // Periodic fetch
+      }, 30000); // Fetch every 30 seconds
+  
+      return () => clearInterval(intervalId); // Cleanup on component unmount
     }
-  }, [user])
+  }, [user]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget)
@@ -110,6 +119,39 @@ const Header = () => {
     }
   }
 
+
+// Mark all notifications as read
+const handleMarkAllAsRead = async () => {
+  try {
+    const unreadNotifications = notifications.filter((notification) => !notification.is_read);
+
+    if (unreadNotifications.length > 0) {
+      console.log("Marking notifications as read:", unreadNotifications.map(n => n.id));
+
+      const requests = unreadNotifications.map((notification) =>
+        axios.post("http://localhost:8000/api/notifications/mark-as-read", {
+          notificationId: notification.id,
+          empId: user.emp_id,
+        })
+      );
+
+      await Promise.all(requests);
+
+      // Update the notification state locally, mark all as read
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((n) => ({ ...n, is_read: true }))
+      );
+
+      // Reset unread count
+      setUnreadCount(0);
+    }
+  } catch (err) {
+    console.error("Error marking all notifications as read:", err);
+    if (err.response) {
+      console.error("Server response:", err.response.data);
+    }
+  }
+};
   const handleDialogClose = () => {
     setDialogOpen(false)
     setSelectedNotification(null)
@@ -177,51 +219,67 @@ const Header = () => {
 
         {/* Notification Dropdown Menu */}
         <Menu
-          anchorEl={notificationAnchorEl}
-          open={Boolean(notificationAnchorEl)}
-          onClose={handleNotificationMenuClose}
-        >
-          <div className="notification_wrapper">
-            <div className="noti_header">
-              <Typography variant="h6">Notifications</Typography>
-              <div className="unread_only">
-                Unread Only
-                <dbx-toggle-switch id="toggle" className="hydrated"></dbx-toggle-switch>
-              </div>
-            </div>
-            <List className="notifs__parent">
-              {notifications.length === 0 ? (
-                <ListItem>
-                  <ListItemText primary="No new notifications" />
-                </ListItem>
-              ) : (
-                (showAllNotifications ? notifications : notifications.slice(0, 5)).map((notification) => (
-                  <div key={notification.id}>
-                    <ListItem button onClick={() => handleNotificationClick(notification)}>
-                      <ListItemText
-                        primary={`Request ID: ${notification.requestid}`}
-                        secondary={`Status: ${notification.requeststatus}`}
-                      />
-                      <div
-                        title="Click to Mark as Read"
-                        className={notification.is_read ? "read_noty" : "unread_noty"}
-                      ></div>
-                    </ListItem>
-                    <Divider />
-                  </div>
-                ))
-              )}
-            </List>
-            {!showAllNotifications && notifications.length > 5 && (
-              <div className="noty_btn_wrapper">
-                <Button className="view_all_btn" role="link" onClick={handleViewAllClick}>
-                  View All
-                </Button>
-              </div>
-            )}
+  anchorEl={notificationAnchorEl}
+  open={Boolean(notificationAnchorEl)}
+  onClose={handleNotificationMenuClose}
+>
+  <div className="notification_wrapper">
+    <div className="noti_header">
+      <Typography variant="h6">Notifications</Typography>
+      {unreadCount > 0 && ( // Only show the toggle and button if there are unread notifications
+        <>
+          <div className="unread_only">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showAllNotifications}
+                  onChange={() => setShowAllNotifications(!showAllNotifications)}
+                  name="unreadOnly"
+                  color="primary"
+                />
+              }
+              label="Unread Only"
+            />
           </div>
-        </Menu>
-
+          <Button onClick={handleMarkAllAsRead}>Mark All as Read</Button>
+        </>
+      )}
+    </div>
+    <List className="notifs__parent">
+      {notifications.length === 0 || unreadCount === 0 ? ( // Show "No new notifications" if no unread notifications
+        <ListItem>
+          <ListItemText primary="No new notifications" />
+        </ListItem>
+      ) : (
+        (showAllNotifications
+          ? notifications
+          : notifications.filter((notification) => !notification.is_read).slice(0, 5)
+        ).map((notification) => (
+          <div key={notification.id}>
+            <ListItem button onClick={() => handleNotificationClick(notification)}>
+              <ListItemText
+                primary={`Request ID: ${notification.requestid}`}
+                secondary={`Status: ${notification.message}`}
+              />
+              <div
+                title="Click to Mark as Read"
+                className={notification.is_read ? "read_noty" : "unread_noty"}
+              ></div>
+            </ListItem>
+            <Divider />
+          </div>
+        ))
+      )}
+    </List>
+    {!showAllNotifications && notifications.length > 3 && unreadCount > 0 && (
+      <div className="noty_btn_wrapper">
+        <Button className="view_all_btn" role="link" onClick={handleViewAllClick}>
+          View All
+        </Button>
+      </div>
+    )}
+  </div>
+</Menu>
         {/* Notification Details Dialog */}
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogTitle>Notification Details</DialogTitle>
@@ -232,7 +290,7 @@ const Header = () => {
                   <strong>Request ID:</strong> {selectedNotification.requestid}
                 </DialogContentText>
                 <DialogContentText>
-                  <strong>Status:</strong> {selectedNotification.requeststatus}
+                  <strong>Status:</strong> {selectedNotification.message}
                 </DialogContentText>
                 <DialogContentText>
                   <strong>Modified Date:</strong> {new Date(selectedNotification.modifieddate).toLocaleString()}
