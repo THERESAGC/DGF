@@ -89,10 +89,10 @@ const createNewRequest = ({
             } else {
                 // If successful, now insert into notifications
                 const notificationQuery = `
-                    INSERT INTO notifications (emp_id, requestid, is_read)
-                    SELECT emp_id, ?, FALSE FROM logintable;
+                    INSERT INTO notifications (emp_id, requestid, is_read,message)
+                    SELECT emp_id, ?, FALSE,? FROM logintable;
                 `;
-                const notificationParams = [requestid]; // Only need requestid for this query
+                const notificationParams = [requestid,requeststatus]; // Only need requestid,requeststatus for this query
  
                 // Log the notification query and params
                 console.log('Executing notification query:', notificationQuery);
