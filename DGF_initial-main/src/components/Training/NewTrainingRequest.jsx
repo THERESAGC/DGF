@@ -2018,11 +2018,12 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                     fontSize: "21px",
                     fontWeight: "500",
                     minWidth: "40px",
+                    width:"40px",
                     backgroundColor: "white",
                     color: "#1C71FE",
                     boxShadow: "none",
                     border: "0.5px solid #1C71FE",
-                    marginLeft: "10px",
+                    // marginLeft: "10px",
                   }}
                 >
                   +
@@ -2044,7 +2045,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
             {/* Employee Level Section */}
             {formData.employeeDetails === "open" && role === "CapDev" && (
-              <Grid item size={3.5}>
+              <Grid item size={4}>
 
 <FormControl fullWidth className="formControl">
   <Typography className="subheader" style={{ display: "inline", marginBottom: "0.5rem", color: "#4F4949" }}>
@@ -2074,8 +2075,9 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     sx={{
       height: "30px",
       fontSize: "12px",
-      width: "250px", // Set a fixed width for the dropdown
+      width: "290px", // Set a fixed width for the dropdown
       overflow: "hidden", // Prevent content overflow
+      
     }}
     multiple
   >
@@ -2125,7 +2127,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                       color: "#1C71FE",
                       boxShadow: "none",
                       border: "0.5px solid #1C71FE",
-                      marginLeft: "10px",
+                      
                     }}
                   >
                     +

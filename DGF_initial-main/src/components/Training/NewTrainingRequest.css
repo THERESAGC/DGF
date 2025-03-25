@@ -101,7 +101,7 @@ padding: auto;
   .ButtonBox{
     justify-content: flex-end;
     display: flex;
-    margin-top: 70px;
+    margin-top: 15px;
     gap: 10px;
   }
  
