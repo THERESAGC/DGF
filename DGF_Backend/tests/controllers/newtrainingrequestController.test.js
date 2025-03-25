@@ -10,7 +10,7 @@ describe("createNewTrainingRequest Controller", () => {
     req = {
       body: {
         requestid: 1,
-        requestonbehalfof: "John Doe",
+        requestonbehalfof: 101,
         source: "Internal",
         trainingobj: "Advanced Java Training",
         projectid: null,
@@ -25,6 +25,7 @@ describe("createNewTrainingRequest Controller", () => {
         servicedivision: "IT",
         requestedbyid: 101,
         org_level: "Mid",
+        role_id: 4,
       },
     };
 
@@ -49,13 +50,13 @@ describe("createNewTrainingRequest Controller", () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Missing required fields" });
   });
 
-  test("should default projectid to 999 if null", async () => {
+  test("should default projectid to 0 if null", async () => {
     newTrainingRequestService.createNewRequest.mockResolvedValue({ id: 1 });
 
     await createNewTrainingRequest(req, res);
 
     expect(newTrainingRequestService.createNewRequest).toHaveBeenCalledWith(
-      expect.objectContaining({ projectid: 999 })
+      expect.objectContaining({ projectid: 0 })
     );
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
@@ -80,6 +81,37 @@ describe("createNewTrainingRequest Controller", () => {
     });
   });
   
+  test("should set requeststatus to 'Capdev Approval Requested' when requestedbyid matches requestonbehalfof and role_id is 4", async () => {
+    newTrainingRequestService.createNewRequest.mockResolvedValue({ id: 1 });
+
+    await createNewTrainingRequest(req, res);
+
+    expect(newTrainingRequestService.createNewRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ requeststatus: "Capdev Approval Requested" })
+    );
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Training request created successfully",
+      data: { id: 1 },
+    });
+  });
+
+  test("should set requeststatus to 'Approval Requested' when requestedbyid is different from requestonbehalfof or role_id is not 4", async () => {
+    req.body.requestonbehalfof = 102; // Different from requestedbyid
+    req.body.role_id = 3; // Not 4
+    newTrainingRequestService.createNewRequest.mockResolvedValue({ id: 1 });
+
+    await createNewTrainingRequest(req, res);
+
+    expect(newTrainingRequestService.createNewRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ requeststatus: "Approval Requested" })
+    );
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Training request created successfully",
+      data: { id: 1 },
+    });
+  });
 
   test("should return 500 if an error occurs", async () => {
     newTrainingRequestService.createNewRequest.mockRejectedValue(new Error("Database error"));
