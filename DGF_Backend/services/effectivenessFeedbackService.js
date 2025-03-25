@@ -139,16 +139,47 @@ const sendFeedbackToEmployee = async (employee_id, course_name, requested_by, as
     // Prepare the URL with just reqid, course_id, and employee_id as query parameters
     const feedbackURL = `http://localhost:5173/userfeedback?reqid=${request_id}&course_id=${course_id}&employee_id=${employee_id}`;
     
-    const subject = "Training Feedback Request";
-    const text = `
+    // const subject = "Request for Learning Feedback";
+    // const text = `
+    //   <p>Dear ${employeeName},</p>
+    //   <p>We kindly request you to provide your feedback regarding the ${course_name} training.</p>
+    //   <p>This feedback was requested by: ${requested_by}</p>
+    //   <p>Please click the link below to provide your feedback:</p>
+    //   <a href="${feedbackURL}">Provide Feedback</a>
+    //   <p>Best regards,</p>
+    //   <p>Training Team</p>
+    // `;
+    const subject = "Request for Learning Feedback";
+const text = `
+  <html>
+    <body>
+      <!-- Header Image -->
+      <img src="cid:headerImage" alt="Header Image" style="width:100%; max-width:600px;">
+
       <p>Dear ${employeeName},</p>
-      <p>We kindly request you to provide your feedback regarding the ${course_name} training.</p>
-      <p>This feedback was requested by: ${requested_by}</p>
-      <p>Please click the link below to provide your feedback:</p>
-      <a href="${feedbackURL}">Provide Feedback</a>
-      <p>Best regards,</p>
-      <p>Training Team</p>
-    `;
+
+      <p>We wanted to take a moment to thank you for participating in the recent Learning session <strong>${course_name}</strong>. Your engagement was truly appreciated, and we trust that you found the content valuable and relevant to your learning path.</p>
+
+      <p>We value your feedback on the Learning experience. Your insights will not only help us assess the effectiveness of the session but also tailor future Learning initiatives to better meet the needs of our team.</p>
+
+      <p>Would you be willing to take a few moments to share your thoughts? Kindly click on the link below to share your thoughts and feedback.</p>
+
+      <p><a href="${feedbackURL}">Provide Feedback</a></p>
+
+      <p>Your feedback is invaluable to us. Please feel free to connect if you have any further feedback that is not captured/covered in the feedback form.</p>
+
+      <p>Once again, thanks for being part of this Learning. And congratulations on completing this Learning successfully.</p>
+
+      <p>Warm regards,</p>
+      <p>Best Regards,</p>
+      <p>CapDev Team</p>
+
+      <!-- Footer Image -->
+      <img src="cid:footerImage" alt="Footer Image" style="width:100%; max-width:600px;">
+    </body>
+  </html>
+`;
+
 
     await sendEmail(employeeEmail, subject, text);
     console.log("Feedback email sent to employee");
@@ -158,17 +189,66 @@ const sendFeedbackToEmployee = async (employee_id, course_name, requested_by, as
 };
 
 // Send request for feedback to manager
+// const sendFeedbackRequestToManager = async (manager_email, employee_id, course_name) => {
+//   const subject = "Request for Employee Feedback";
+//   const text = `
+//   <p>Dear Manager,</p>
+//   <p>We kindly request you to provide feedback for the employee who completed the ${course_name} training. Please share your valuable feedback regarding the employee's performance in the training.</p>
+//   <p>Employee ID: ${employee_id}</p>
+//   <a href="http://localhost:5173/feedback?employee_id=${employee_id}&course_name=${course_name}">Provide Feedback</a>
+// `;
+
+//   try {
+//     await sendEmail(manager_email, subject, text);
+//     console.log("Request for feedback email sent to manager");
+//   } catch (error) {
+//     console.error("Error sending feedback request to manager:", error);
+//   }
+// };
+
 const sendFeedbackRequestToManager = async (manager_email, employee_id, course_name) => {
-  const subject = "Request for Employee Feedback";
+  const subject = "Feedback Request for Completed Learning: " + course_name + " for <<Facilitator Name>>";
+  
+  // Dynamic email body with HTML, including header and footer images
   const text = `
-  <p>Dear Manager,</p>
-  <p>We kindly request you to provide feedback for the employee who completed the ${course_name} training. Please share your valuable feedback regarding the employee's performance in the training.</p>
-  <p>Employee ID: ${employee_id}</p>
-  <a href="http://localhost:5173/feedback?employee_id=${employee_id}&course_name=${course_name}">Provide Feedback</a>
-`;
+    <html>
+      <body>
+        <!-- Header Image -->
+        <img src="cid:headerImage" alt="Header Image" style="width:100%; max-width:600px;">
+
+        <p>Dear Manager,</p>
+
+        <p>We hope this email finds you well.</p>
+
+        <p>We are reaching out regarding the completion of the <strong>${course_name}</strong> for your team, which was initiated by <<Requester>>/<<You>>.</p>
+
+        <p>As part of our ongoing commitment to improvement, we are seeking feedback on the recently completed Learning. Given that the Learning process was initiated by your predecessor, we understand that you may not have had direct involvement in the planning or execution.</p>
+
+        <p>Please take a moment to complete this brief survey:</p>
+        <a href="http://localhost:5173/feedback?employee_id=${employee_id}&course_name=${course_name}">Provide Feedback</a>
+
+        <p>To provide accurate insights, we kindly request your cooperation in coordinating with the direct manager/peer who was overseeing the Learning request. Their valuable perspective will contribute to a comprehensive evaluation of the Learning's impact and effectiveness.</p>
+
+        <p>If you have any questions or if there's anything we can assist you with in this regard, please do not hesitate to reach out. We value your input and look forward to hearing from you.</p>
+
+        <p>Thank you for your cooperation.</p>
+
+        <p>Best Regards,</p>
+        <p>CapDev</p>
+
+        <!-- Footer Image -->
+        <img src="cid:footerImage" alt="Footer Image" style="width:100%; max-width:600px;">
+      </body>
+    </html>
+  `;
+
+  // Specify paths for the header and footer images (replace with actual paths)
+  const headerImagePath = 'assets/MailHeader.png'; // Path to your header image
+  const footerImagePath = 'assets/MailFooter.png'; // Path to your footer image
 
   try {
-    await sendEmail(manager_email, subject, text);
+    // Send the email with embedded images
+    await sendEmail(manager_email, subject, text, headerImagePath, footerImagePath);
     console.log("Request for feedback email sent to manager");
   } catch (error) {
     console.error("Error sending feedback request to manager:", error);

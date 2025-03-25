@@ -156,6 +156,18 @@ export default function UserTable() {
           onChange={handlePageChange}
           size="small"
           shape="rounded"
+
+          sx={{
+            "& .Mui-selected": {
+              color: "red",
+              borderRadius: "50%",
+              "&:hover": {
+                backgroundColor: "rgb(223, 241, 249)",
+               
+              },
+            },
+          }}
+          
         />
       </Box>
 

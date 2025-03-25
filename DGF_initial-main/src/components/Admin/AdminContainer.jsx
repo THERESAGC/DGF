@@ -30,7 +30,7 @@ const AdminContainer = () => {
     mainContent: {
       flex: "auto",
       boxSizing: "border-box",
-      padding: "2px 30px 0 30px",
+      padding: "2px 25px 0 30px",
       marginright: "0",
       marginBottom: "50px",
       maxWidth: "100%",
