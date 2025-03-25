@@ -1,4 +1,3 @@
- 
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -10,7 +9,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
  import{useNavigate} from 'react-router-dom';
 import { color } from 'chart.js/helpers';
- 
+import { useContext } from 'react';
+import AuthContext from '../Auth/AuthContext';
 const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssigned}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [availableCourses, setAvailableCourses] = useState([]);
@@ -24,6 +24,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
   const [mentors, setMentors] = useState([]);
   const [mentorLoading, setMentorLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   useEffect(() => {
     const fetchCourseTypes = async () => {
       try {
@@ -72,7 +73,8 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
           mentor: '',
           coursetype: '',
           completionDate: '',
-          learning_type: learningType
+          learning_type: learningType,
+          course_assigned_by_id: user?.emp_id // Pass the logged-in user's ID
         }
       ]);
     }
@@ -92,6 +94,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
             completion_date: course.completionDate,
             comments: specialComments,
             learning_type: learningType,
+            course_assigned_by_id: user?.emp_id // Pass the logged-in user's ID
           };
  
           console.log('Payload:', payload); // Log the payload to verify its content
@@ -254,7 +257,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                     <TableCell style={{textAlign:"left"}}>{course.name}</TableCell>
                     <TableCell>
                       <Autocomplete
-                      
+                     
                         freeSolo
                         options={mentors}
                         getOptionLabel={(option) => option.emp_name}
@@ -270,8 +273,8 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                               sx: { fontSize: '12px', padding: '0px 0px 0px 5px !important' },
                               ...params.InputProps,
                               startAdornment: (
-                                
-
+                               
+ 
  
                                 <InputAdornment position="start" >
                                   <SearchIcon sx={{fontSize:"18px"}}/>
@@ -314,7 +317,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                         InputProps={{
                           style: { fontSize: '12px',
                             width:"125%" ,
-                            color: course.completionDate ? 'black' : '#BDBDBD', 
+                            color: course.completionDate ? 'black' : '#BDBDBD',
                           },
                           startAdornment: (
                             <InputAdornment position="start" >
@@ -356,7 +359,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
                     <TableCell>
                       <IconButton
                         onClick={() => setCourses(prev =>
-                          
+                         
                           prev.filter(c => c.course_id !== course.course_id)
                         )}
                         sx={{ color: 'red' }}
@@ -421,6 +424,3 @@ AssignCourseModal.propTypes = {
 };
  
 export default AssignCourseModal;
- 
- 
- 

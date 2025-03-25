@@ -1,7 +1,5 @@
 //controller/assignCourseController.js
-
 const { assignCourse } = require('../services/assignCourseService');
-
 const createAssignment = async (req, res) => {
   const {
     requestid,
@@ -11,14 +9,15 @@ const createAssignment = async (req, res) => {
     coursetype_id,
     completion_date,
     comments,
-    learning_type
+    learning_type,
+    course_assigned_by_id // Add this field
   } = req.body;
-
+ 
   // Validate required fields
   if (!requestid || !employee_id || !mentor_id || !course_id || !coursetype_id) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-
+ 
   try {
     const result = await assignCourse({
       requestid,
@@ -28,9 +27,10 @@ const createAssignment = async (req, res) => {
       coursetype_id,
       completion_date,
       comments,
-      learning_type
+      learning_type,
+      course_assigned_by_id
     });
-
+ 
     res.status(201).json({
       message: 'Course assigned and statuses updated successfully',
       assignmentId: result.insertResult.insertId,
@@ -45,7 +45,8 @@ const createAssignment = async (req, res) => {
     });
   }
 };
-
+ 
 module.exports = {
   createAssignment
 };
+ 

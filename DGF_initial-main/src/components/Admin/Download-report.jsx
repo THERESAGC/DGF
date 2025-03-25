@@ -155,7 +155,7 @@ const DownloadReport = () => {
   const paginatedData = reportData.slice((page - 1) * rowsPerPage, page * rowsPerPage)
 
   return (
-    <Paper elevation={3} sx={{ p: 4, m: 2, bgcolor: "background.paper" }}>
+    <Paper elevation={3} sx={{ p: 4, bgcolor: "background.paper",maxWidth:"92%",borderRadius:"15px"}}>
       <Typography
         variant="h5"
         gutterBottom
@@ -192,7 +192,7 @@ const DownloadReport = () => {
           >
             {/* Improved date picker styling */}
             <Box sx={{ flex: 1, minWidth: 180, maxWidth: 220 }}>
-              <Typography variant="body2" sx={{ mb: 0.5, color: "#4F4949", fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ mb: 1, color: "#4F4949", fontWeight: 500 }}>
                 Start Date
               </Typography>
               <DatePicker
@@ -205,9 +205,10 @@ const DownloadReport = () => {
                     fullWidth: true,
                     size: "small",
                     sx: {
+                      
                       "& .MuiInputBase-root": {
-                        height: 36,
-                        fontSize: "0.875rem",
+                        height: "30px",
+                        fontSize: "12px",
                       },
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
@@ -240,7 +241,7 @@ const DownloadReport = () => {
                         fontSize: "0.85rem",
                       },
                       "& .MuiPickersCalendarHeader-switchViewButton": {
-                        width: "24px",
+                        width: "20px",
                         height: "24px",
                       },
                       "& .MuiPickersArrowSwitcher-button": {
@@ -254,7 +255,7 @@ const DownloadReport = () => {
             </Box>
 
             <Box sx={{ flex: 1, minWidth: 180, maxWidth: 220 }}>
-              <Typography variant="body2" sx={{ mb: 0.5, color: "#4F4949", fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ mb: 1, color: "#4F4949", fontWeight: 500 }}>
                 End Date
               </Typography>
               <DatePicker
@@ -269,8 +270,8 @@ const DownloadReport = () => {
                     size: "small",
                     sx: {
                       "& .MuiInputBase-root": {
-                        height: 36,
-                        fontSize: "0.875rem",
+                        height: "30px",
+                        fontSize: "12px",
                       },
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
@@ -401,18 +402,21 @@ const DownloadReport = () => {
             component={Paper}
             sx={{
               maxHeight: 500,
-              border: "1px solid",
+              // border: "1px solid",
+              width:"98.5%",
               borderColor: "divider",
               mb: 2,
               boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
               "& .MuiTableCell-root": {
                 fontSize: "12px !important",
+              
               },
+            
             }}
           >
-            <Table stickyHeader size="small">
+            <Table stickyHeader size="small" sx={{ padding:"0px"}} >
               <TableHead>
-                <TableRow sx={{ borderBottom: "2px solid #8FBEF8" }}>
+                <TableRow sx={{ borderBottom: "5px solid #8FBEF8" }}>
                   <TableCell sx={{ minWidth: 100, fontWeight: "600", backgroundColor: "white" }}>Request ID</TableCell>
                   <TableCell sx={{ minWidth: 100, fontWeight: "600", backgroundColor: "white" }}>
                     Project Name
@@ -528,7 +532,7 @@ const DownloadReport = () => {
                       <TableCell>{row["Request Created By"]}</TableCell>
                       <TableCell>{row["Request Assigned To"]}</TableCell>
                       <TableCell>{row["Course Assigned By"] || "-"}</TableCell>
-                      <TableCell>{row["Learning Duration"]}</TableCell>
+                      <TableCell>{row["Training Duration"]}</TableCell>
                       <TableCell>{row["Faculty/Mentor Name"]}</TableCell>
                       <TableCell>{row["Faculty/Mentor Mail Id"]}</TableCell>
                       <TableCell>{row["Faculty/Mentor Designation"]}</TableCell>
@@ -573,11 +577,10 @@ const DownloadReport = () => {
                 "& .MuiPaginationItem-root": {
                   fontWeight: 500,
                   "&.Mui-selected": {
-                    backgroundColor: "primary.main",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "primary.dark",
-                    },
+                    borderRadius: "50%",
+                    color: "red",
+                   
+                  
                   },
                 },
               }}
