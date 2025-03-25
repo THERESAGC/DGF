@@ -15,6 +15,10 @@ describe("addTechStack Controller", () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
+
   test("should return 400 if stackName is missing", async () => {
     await addTechStack(req, res);
 

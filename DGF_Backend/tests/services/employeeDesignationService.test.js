@@ -10,6 +10,10 @@ describe('getEmployeesByDesignation Service', () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
+
   test('should successfully return employees for given designation IDs', async () => {
     const mockResult = [
       { emp_id: 1, emp_name: 'John Doe', emp_email: 'john@example.com', profile_image: 'image1.jpg' },

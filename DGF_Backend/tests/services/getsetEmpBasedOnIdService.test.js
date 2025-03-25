@@ -11,6 +11,10 @@ describe('getsetEmpBasedOnIdService', () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
+
   describe('getEmployeeById', () => {
     test('should return employee details when emp_id is found', async () => {
       const mockResults = [{ name: 'John Doe' }];
