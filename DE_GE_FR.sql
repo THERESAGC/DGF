@@ -353,6 +353,37 @@ INSERT INTO `logintable` VALUES ('CONS089','Atul Kumthekar','V-Atul.Kumthekar@ha
 UNLOCK TABLES;
 
 --
+-- Table structure for table `manager_feedback`
+--
+
+DROP TABLE IF EXISTS `manager_feedback`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `manager_feedback` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `reqid` varchar(255) DEFAULT NULL,
+  `course_id` varchar(255) DEFAULT NULL,
+  `employee_id` varchar(255) DEFAULT NULL,
+  `demonstrate_skill` varchar(10) DEFAULT NULL,
+  `skill_date` date DEFAULT NULL,
+  `enhancement_rating` int DEFAULT NULL,
+  `suggestions` text,
+  `opportunity_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `manager_feedback`
+--
+
+LOCK TABLES `manager_feedback` WRITE;
+/*!40000 ALTER TABLE `manager_feedback` DISABLE KEYS */;
+INSERT INTO `manager_feedback` VALUES (1,NULL,NULL,NULL,'yes','2025-03-29',4,'1234',NULL),(2,NULL,NULL,NULL,'yes','2025-03-31',3,'12344567',NULL);
+/*!40000 ALTER TABLE `manager_feedback` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `mentor_request_assign`
 --
 
@@ -747,4 +778,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-25 15:05:00
+-- Dump completed on 2025-03-26 10:20:39
