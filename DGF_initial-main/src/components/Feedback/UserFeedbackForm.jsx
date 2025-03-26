@@ -198,7 +198,7 @@ import Divider from '@mui/material/Divider';
  
 const StyledPaper = styled(Paper)({
   padding: '24px',
-  maxWidth: 600,
+  maxWidth: "622px",
   margin: '0 auto',
   marginTop: '100px',
   marginBottom: '100px',
@@ -370,10 +370,10 @@ const UserFeedbackForm = () => {
           <FormSection>
             <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 1,fontSize:"12px !important" }}>How engaged were you during the session? (4 is the highest)</Typography>
             <RadioGroup name="engagementRating" value={formData.engagementRating} onChange={handleChange} row>
-              <FormControlLabel value="4"  sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="4 - Very Good" />
-              <FormControlLabel value="3"  sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="3 - Good" />
-              <FormControlLabel value="2" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="2 - Interesting" />
-              <FormControlLabel value="1"sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="1 - Average" />
+              <FormControlLabel value="4"  sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="4 - Totally Engaged" />
+              <FormControlLabel value="3"  sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="3 - Very Engaged" />
+              <FormControlLabel value="2" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="2 - Engaged" />
+              <FormControlLabel value="1"sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="1 - Somewhat Engaged" />
             </RadioGroup>
           </FormSection>
  
@@ -390,9 +390,11 @@ const UserFeedbackForm = () => {
           <FormSection>
             <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 1 ,fontSize:"12px !important"}}>How was the interaction in the program?</Typography>
             <RadioGroup name="interactionRating" value={formData.interactionRating} onChange={handleChange} row>
-              <FormControlLabel value="3" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color='' />} label="3 - More" />
-              <FormControlLabel value="2"  sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="2 - Less" />
-              <FormControlLabel value="1" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="1 - Some" />
+              <FormControlLabel value="4" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color='' />} label="4 - Very Interactive" />
+              <FormControlLabel value="3"  sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="3 - Interactive" />
+              <FormControlLabel value="2" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="2 - Somewhat Interactive" />
+              <FormControlLabel value="1" sx={{color:"#4F4949", '& .MuiFormControlLabel-label': { fontSize: '12px !important'}}} control={<Radio size="6" color=''/>} label="1 - less Interactive" />
+
             </RadioGroup>
           </FormSection>
  
