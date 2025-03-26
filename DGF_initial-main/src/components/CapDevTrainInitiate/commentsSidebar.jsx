@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import AuthContext from "../Auth/AuthContext";
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import formatDate from "../../utils/dateUtils"
+import CapdevReminder from "./CapdevReminder";
 const CommentsSidebar = ({ open, onClose, assignmentId}) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [newMessage, setNewMessage] = useState("");
@@ -167,9 +168,9 @@ console.log(commentdata);
            
           </Box>
         )}
-        {tabIndex === 1 && (
-          <Box sx={{ p: 2 }}>
-          
+         {tabIndex === 1 && (
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <CapdevReminder />
           </Box>
         )}
       </Box>
