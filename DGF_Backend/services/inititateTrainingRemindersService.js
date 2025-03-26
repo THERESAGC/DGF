@@ -31,34 +31,34 @@ const deleteReminder = (reminder_id) => {
     });
 };
 
-const updateReminder = (reminder_id, updatedFields) => {
-    return new Promise((resolve, reject) => {
-        const query = `
-            UPDATE initiate_training_reminders
-            SET reminder_date = ?, reminder_text = ?
-            WHERE reminder_id = ?
-        `;
-        const values = [updatedFields.reminder_date, updatedFields.reminder_text, reminder_id];
-        db.query(query, values, (err, result) => {
-            if (err) {
-                console.error('Error executing query:', err.message);
-                return reject(err); // Reject the promise with the error
-            }
-            resolve(result); // Resolve the promise with the result
-        });
-    });
-};
+// const updateReminder = (reminder_id, updatedFields) => {
+//     return new Promise((resolve, reject) => {
+//         const query = `
+//             UPDATE initiate_training_reminders
+//             SET reminder_date = ?, reminder_text = ?
+//             WHERE reminder_id = ?
+//         `;
+//         const values = [updatedFields.reminder_date, updatedFields.reminder_text, reminder_id];
+//         db.query(query, values, (err, result) => {
+//             if (err) {
+//                 console.error('Error executing query:', err.message);
+//                 return reject(err); // Reject the promise with the error
+//             }
+//             resolve(result); // Resolve the promise with the result
+//         });
+//     });
+// };
 
-const getRemindersByDate = () => {
+const getRemindersByDateandByAssignmentId = (assignment_id) => {
     return new Promise((resolve, reject) => {
         const currentDate = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
         const query = `
-            SELECT reminder_id, assignment_id, DATE_FORMAT(reminder_date, '%Y-%m-%d') AS reminder_date, 
+            SELECT reminder_id, DATE_FORMAT(reminder_date, '%Y-%m-%d') AS reminder_date, 
                    reminder_text, created_by, created_date 
             FROM initiate_training_reminders 
-            WHERE reminder_date >= ?
+            WHERE reminder_date >= ? and assignment_id=?
         `;
-        db.query(query, [currentDate], (err, rows) => {
+        db.query(query, [currentDate,assignment_id], (err, rows) => {
             if (err) {
                 console.error('Error executing query:', err.message);
                 return reject(err); // Reject the promise with the error
@@ -67,10 +67,28 @@ const getRemindersByDate = () => {
         });
     });
 };
-
+const getRemindersByDateandByEmpId = (emp_id) => {
+    return new Promise((resolve, reject) => {
+        const currentDate = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        const query = `
+            SELECT reminder_id, DATE_FORMAT(reminder_date, '%Y-%m-%d') AS reminder_date, 
+                   reminder_text, created_by, created_date 
+            FROM initiate_training_reminders 
+            WHERE reminder_date >= ? and created_by=?
+        `;
+        db.query(query, [currentDate,emp_id], (err, rows) => {
+            if (err) {
+                console.error('Error executing query:', err.message);
+                return reject(err); // Reject the promise with the error
+            }
+            resolve(rows); // Resolve the promise with the rows
+        });
+    });
+};
 module.exports = {
     createReminder,
     deleteReminder,
-    updateReminder,
-    getRemindersByDate,
+    // updateReminder,
+    getRemindersByDateandByAssignmentId,
+    getRemindersByDateandByEmpId
 };

@@ -49,7 +49,7 @@ function App() {
             <Route path='/userfeedback' element={<UserFeedbackForm/>} />
             <Route path='/profile' element={<ProtectedRoute element={<FixedComponent><Profile /></FixedComponent>} />} />
             <Route path='/feedback-dashboard' element={<ProtectedRoute element={<FixedComponent><FeedbackDashboard /></FixedComponent>} />} />
- 
+           
           </Routes>
           </ChatProvider>
         </Router>

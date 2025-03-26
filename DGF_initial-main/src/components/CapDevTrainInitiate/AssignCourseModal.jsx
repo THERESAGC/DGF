@@ -232,7 +232,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
             </FormControl>
           </Box>
         </Box>
-        {console.log("Cousrsrs COunt",coursesAssigned)}
+      
         {courses.length === 0 ? (
           <Box sx={{ bgcolor: '#F5F5F5', p: 3, borderRadius: 2, textAlign: 'center',height:"30px" }}>
             <Typography variant="body1" color="text.secondary" mt={0.8}>

@@ -20,21 +20,31 @@ const deleteReminder = async (req, res) => {
     }
 };
 
-const updateReminder = async (req, res) => {
+// const updateReminder = async (req, res) => {
+//     try {
+//         const { reminder_id } = req.params;
+//         const updatedFields = req.body;
+//         await remindersService.updateReminder(reminder_id, updatedFields);
+//         res.status(200).json({ message: 'Reminder updated successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
+const getRemindersByDateandByAssignmentId = async (req, res) => {
     try {
-        const { reminder_id } = req.params;
-        const updatedFields = req.body;
-        await remindersService.updateReminder(reminder_id, updatedFields);
-        res.status(200).json({ message: 'Reminder updated successfully' });
+        const { assignment_id } = req.query;
+        const reminders = await remindersService.getRemindersByDateandByAssignmentId(assignment_id); // No destructuring needed here
+        res.status(200).json(reminders);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-const getRemindersByDate = async (req, res) => {
+const getRemindersByDateandByEmpId = async (req, res) => {
     try {
-        
-        const reminders = await remindersService.getRemindersByDate(); // No destructuring needed here
+        const { emp_id } = req.query;
+        const reminders = await remindersService.getRemindersByDateandByEmpId(emp_id); // No destructuring needed here
         res.status(200).json(reminders);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -42,11 +52,10 @@ const getRemindersByDate = async (req, res) => {
 };
 
 
-
 module.exports = {
     createReminder,
     deleteReminder,
-    updateReminder,
-    getRemindersByDate,
- 
+    // updateReminder,
+    getRemindersByDateandByAssignmentId,
+    getRemindersByDateandByEmpId
 };

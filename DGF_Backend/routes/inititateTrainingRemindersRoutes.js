@@ -4,8 +4,8 @@ const remindersController = require('../controllers/inititateTrainingRemindersCo
 
 router.post('/reminders', remindersController.createReminder);
 router.delete('/reminders/:reminder_id', remindersController.deleteReminder);
-router.put('/reminders/:reminder_id', remindersController.updateReminder);
-router.get('/reminders/date', remindersController.getRemindersByDate);
-
+// router.put('/reminders/:reminder_id', remindersController.updateReminder);
+router.get('/reminders/date', remindersController.getRemindersByDateandByAssignmentId);
+router.get('/reminders/emp', remindersController.getRemindersByDateandByEmpId);
 
 module.exports = router;

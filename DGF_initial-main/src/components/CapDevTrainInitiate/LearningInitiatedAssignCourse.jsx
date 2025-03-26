@@ -403,6 +403,34 @@ export default function CourseTracker() {
     setCoursesAssigned(coursesAssigned) // Set the coursesAssigned state
     setShowAssignModal(true)
   }
+
+  const handleSendEmails = async (empIds) => {
+    console.log("Send Reminder Clicked");
+  
+    const learningInitiatedAssignments = [];
+  
+    // Fetch assigned courses for all selected employees
+    for (const empId of empIds) {
+      try {
+        const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`);
+        const data = await response.json();
+  
+        // Filter assignment IDs with status "Learning Initiated"
+        const initiatedAssignments = (data.data || [])
+          .filter((course) => course.status === "Learning Initiated")
+          .map((course) => course.assignment_id);
+  
+        learningInitiatedAssignments.push(...initiatedAssignments);
+      } catch (error) {
+        console.error(`Error fetching assigned courses for employee ${empId}:`, error);
+      }
+    }
+  
+    console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
+  };
+
+
+
   const handleModalClose = () => {
     setShowAssignModal(false)
     setSelectedEmployees([])
@@ -423,7 +451,10 @@ export default function CourseTracker() {
           Assign Courses & Track Progress
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
-          <HeaderButton variant="outlined">Send Reminder</HeaderButton>
+          <HeaderButton variant="outlined"
+           onClick={() => handleSendEmails(selectedEmployees)}
+           disabled={selectedEmployees.length === 0}
+          >Send Reminder ({selectedEmployees.length})</HeaderButton>
           <HeaderButton
             variant="outlined"
             onClick={() => handleAssignCourse(selectedEmployees, 0)}

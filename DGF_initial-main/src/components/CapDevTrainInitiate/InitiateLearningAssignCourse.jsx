@@ -7,7 +7,7 @@ import { KeyboardArrowDown, KeyboardArrowUp, NavigateBefore, NavigateNext } from
 import { useParams } from "react-router-dom"
 import AssignCourseModal from "./AssignCourseModal"
 import PropTypes from "prop-types"
-import { he } from "date-fns/locale"
+
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
     padding: "16px",
@@ -282,7 +282,7 @@ function CourseTracker() {
           Assign Courses & Track the Learning Progress
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
-          <HeaderButton variant="outlined">Send Reminder</HeaderButton>
+          {/* <HeaderButton variant="outlined">Send Reminder </HeaderButton> */}
           <HeaderButton
             variant="outlined"
             onClick={() => setShowAssignModal(true)}

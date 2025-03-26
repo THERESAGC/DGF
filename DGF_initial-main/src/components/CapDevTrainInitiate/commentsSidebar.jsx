@@ -170,7 +170,7 @@ console.log(commentdata);
         )}
          {tabIndex === 1 && (
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <CapdevReminder />
+            <CapdevReminder assignmentId={assignmentId} />
           </Box>
         )}
       </Box>
