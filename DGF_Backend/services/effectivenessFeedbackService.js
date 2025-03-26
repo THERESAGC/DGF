@@ -329,6 +329,66 @@ const sendFeedbackRequestToManager = async (manager_email, employee_id, course_n
 
 
 // Main function to handle sending emails for a completed task
+// const handleTaskCompletion = async (assignment_id) => {
+//   try {
+//     const query = "SELECT * FROM assigned_courses WHERE assignment_id = ?";
+
+//     pool.query(query, [assignment_id], async (error, results) => {
+//       if (error) {
+//         console.error("Error fetching task details:", error);
+//         return;
+//       }
+
+//       if (results.length === 0) {
+//         console.log("No task found for assignment_id:", assignment_id);
+//         return;
+//       }
+
+//       const task = results[0];
+//       const employee_id = task.employee_id;
+//       const course_id = task.course_id;
+//       const assignment_id = task.assignment_id;
+//       const completion_date = task.completion_date;
+//       const requested_by = await getRequestedBy(assignment_id); // Fetch requested by
+//       const currentDate = new Date();
+//       const daysSinceCompletion = Math.floor((currentDate - new Date(completion_date)) / (1000 * 3600 * 24));
+      
+//       // Fetch course name dynamically
+//       const course_name = await getCourseName(course_id).catch((err) => {
+//         console.error("Error fetching course name:", err);
+//         return "Unknown Course"; // Fallback if no course is found
+//       });
+      
+//       // Send feedback to the employee (after task completion)
+//       await sendFeedbackToEmployee(employee_id, course_name, requested_by, assignment_id);
+
+//       // Send feedback request to the manager (after a certain time)
+//       await getManagerEmail(employee_id).then(async (manager_email) => {
+//         if (daysSinceCompletion >= 60 && daysSinceCompletion < 180) {
+//           await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id,assignment_id);
+//         } else if (daysSinceCompletion >= 180) {
+//           await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id,assignment_id);
+//         }
+//       }).catch(err => {
+//         console.error("Error fetching manager email:", err);
+//       });
+//     });
+//   } catch (error) {
+//     console.error("Error handling task completion:", error);
+//   }
+// };
+const updateEmailStatus = (assignment_id, column, dateColumn) => {
+  return new Promise((resolve, reject) => {
+    const query = `UPDATE assigned_courses SET ${column} = TRUE, ${dateColumn} = NOW() WHERE assignment_id = ?`;
+    pool.query(query, [assignment_id], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(results);
+    });
+  });
+};
+
 const handleTaskCompletion = async (assignment_id) => {
   try {
     const query = "SELECT * FROM assigned_courses WHERE assignment_id = ?";
@@ -347,41 +407,93 @@ const handleTaskCompletion = async (assignment_id) => {
       const task = results[0];
       const employee_id = task.employee_id;
       const course_id = task.course_id;
-      const assignment_id = task.assignment_id;
       const completion_date = task.completion_date;
       const requested_by = await getRequestedBy(assignment_id); // Fetch requested by
       const currentDate = new Date();
       const daysSinceCompletion = Math.floor((currentDate - new Date(completion_date)) / (1000 * 3600 * 24));
-      
+
+      console.log(`Processing task for assignment_id: ${assignment_id}`);
+      console.log(`Days since completion: ${daysSinceCompletion}`);
+      console.log(`Employee email sent status: ${task.employee_email_sent}`);
+      console.log(`Manager email sent status: ${task.manager_email_sent}`);
+      console.log(`Manager second email sent status: ${task.manager_second_email_sent}`);
+
       // Fetch course name dynamically
       const course_name = await getCourseName(course_id).catch((err) => {
         console.error("Error fetching course name:", err);
         return "Unknown Course"; // Fallback if no course is found
       });
-      
-      // Send feedback to the employee (after task completion)
-      await sendFeedbackToEmployee(employee_id, course_name, requested_by, assignment_id);
 
-      // Send feedback request to the manager (after a certain time)
-      await getManagerEmail(employee_id).then(async (manager_email) => {
-        if (daysSinceCompletion >= 60 && daysSinceCompletion < 180) {
-          await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id,assignment_id);
-        } else if (daysSinceCompletion >= 180) {
-          await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id,assignment_id);
+      // Send feedback to the employee (if not already sent)
+      if (!task.employee_email_sent) {
+        console.log("Sending feedback email to employee...");
+        await sendFeedbackToEmployee(employee_id, course_name, requested_by, assignment_id);
+        await updateEmailStatus(assignment_id, "employee_email_sent", "employee_email_sent_date");
+        console.log("Employee email status updated.");
+      }
+
+      // Send the first feedback request to the manager (if not already sent)
+      if (!task.manager_email_sent && daysSinceCompletion >= 60 && daysSinceCompletion < 180) {
+        const manager_email = await getManagerEmail(employee_id).catch((err) => {
+          console.error("Error fetching manager email:", err);
+          return null;
+        });
+
+        if (manager_email) {
+          console.log(`Sending first feedback request to manager: ${manager_email}`);
+          await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id, assignment_id);
+          await updateEmailStatus(assignment_id, "manager_email_sent", "manager_email_sent_date");
+          console.log("Manager email status updated for 60 days.");
         }
-      }).catch(err => {
-        console.error("Error fetching manager email:", err);
-      });
+      }
+
+      // Send the second feedback request to the manager (if not already sent)
+      if (!task.manager_second_email_sent && daysSinceCompletion >= 180) {
+        const manager_email = await getManagerEmail(employee_id).catch((err) => {
+          console.error("Error fetching manager email:", err);
+          return null;
+        });
+
+        if (manager_email) {
+          console.log(`Sending second feedback request to manager: ${manager_email}`);
+          await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id, assignment_id);
+          await updateEmailStatus(assignment_id, "manager_second_email_sent", "manager_second_email_sent_date");
+          console.log("Manager second email status updated for 180 days.");
+        }
+      }
     });
   } catch (error) {
     console.error("Error handling task completion:", error);
   }
 };
-
 // Function to check for completed tasks and send emails to employees and managers
+// const checkCompletedTasksAndSendEmails = async () => {
+//   try {
+//     const query = "SELECT * FROM assigned_courses WHERE status = 'Completed'";
+
+//     pool.query(query, async (error, results) => {
+//       if (error) {
+//         console.error("Error fetching completed tasks:", error);
+//         return;
+//       }
+
+//       // Loop through each completed task and handle it
+//       for (let task of results) {
+//         await handleTaskCompletion(task.assignment_id);
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error in checking completed tasks:", error);
+//   }
+// };
 const checkCompletedTasksAndSendEmails = async () => {
   try {
-    const query = "SELECT * FROM assigned_courses WHERE status = 'Completed'";
+    const query = `
+      SELECT * 
+      FROM assigned_courses 
+      WHERE status = 'Completed' 
+      AND (employee_email_sent = FALSE OR manager_email_sent = FALSE OR manager_second_email_sent = FALSE)
+    `;
 
     pool.query(query, async (error, results) => {
       if (error) {
@@ -389,7 +501,6 @@ const checkCompletedTasksAndSendEmails = async () => {
         return;
       }
 
-      // Loop through each completed task and handle it
       for (let task of results) {
         await handleTaskCompletion(task.assignment_id);
       }
