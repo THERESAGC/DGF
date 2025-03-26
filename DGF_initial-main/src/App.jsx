@@ -19,7 +19,7 @@ import PasswordUpdate from './components/Auth/PasswordUpdate.jsx';
 import ManagerFeedbackForm from './components/Feedback/ManagerFeedbackForm.jsx';
 import UserFeedbackForm from './components/Feedback/UserFeedbackForm.jsx';
 import Profile from './components/FixedNavigation/Profile.jsx';
- 
+import FeedbackDashboard from './components/Admin/feedback-dashboard.jsx'; 
 
 function App() {
   const obj = {
@@ -48,6 +48,7 @@ function App() {
             <Route path='/feedback' element={<ManagerFeedbackForm/>} />
             <Route path='/userfeedback' element={<UserFeedbackForm/>} />
             <Route path='/profile' element={<ProtectedRoute element={<FixedComponent><Profile /></FixedComponent>} />} />
+            <Route path='/feedback-dashboard' element={<ProtectedRoute element={<FixedComponent><FeedbackDashboard /></FixedComponent>} />} />
  
           </Routes>
           </ChatProvider>

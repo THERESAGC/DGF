@@ -81,6 +81,9 @@ const { checkCompletedTasksAndSendEmails } = require('./services/effectivenessFe
 const feedbackRoutes = require('./routes/feedbackRoutes'); //  feedback Form APIs
 const effectivenessFeedbackRoutes = require('./routes/effectivenessFeedbackRoutes');
 
+const learnerFeedbackRoutes = require('./routes/getAllLearnerFeedbackRoutes');
+const managerFeedbackRoutes = require('./routes/getAllManagerFeedbackRoutes');
+
 
 
 const app = express();
@@ -151,6 +154,12 @@ app.get('/api/fetch-courses', async (req, res) => {
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
+
+// Add this with your other route declarations
+app.use('/api/learner-feedback', learnerFeedbackRoutes);
+
+// Add with other route declarations
+app.use('/api/manager-feedback', managerFeedbackRoutes);
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
@@ -311,7 +320,7 @@ app.use('/api', passwordForUserRoutes);
 app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
 
 // console.log('Triggering cron job manually...');
-checkCompletedTasksAndSendEmails();
+// checkCompletedTasksAndSendEmails();
 
 // Effectiveness feedback routes
 cron.schedule('0 0 * * *', async () => {
