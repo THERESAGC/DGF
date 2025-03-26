@@ -84,6 +84,7 @@ const effectivenessFeedbackRoutes = require('./routes/effectivenessFeedbackRoute
 const learnerFeedbackRoutes = require('./routes/getAllLearnerFeedbackRoutes');
 const managerFeedbackRoutes = require('./routes/getAllManagerFeedbackRoutes');
 
+const remindersRoutes = require('./routes/inititateTrainingRemindersRoutes');
 
 
 const app = express();
@@ -321,6 +322,9 @@ app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
 
 // console.log('Triggering cron job manually...');
 // checkCompletedTasksAndSendEmails();
+
+// Initiate training reminders routes
+app.use('/api',remindersRoutes );
 
 // Effectiveness feedback routes
 cron.schedule('0 0 * * *', async () => {
