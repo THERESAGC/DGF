@@ -22,7 +22,7 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { Download, Refresh } from "@mui/icons-material"
-import "./calendar-styles.css"
+// import "./calendar-styles.css"
 
 const statusFilters = [
   { value: "all", label: "All" },

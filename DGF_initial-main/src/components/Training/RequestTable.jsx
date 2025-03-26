@@ -10,7 +10,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Badge from '@mui/material/Badge';
 import AuthContext from "../Auth/AuthContext";
 import formatDate from "../../utils/dateUtils";
-import DownloadReport from "../Training/DownloadReport";
+// import DownloadReport from "../Training/DownloadReport";
  
 const statuses = ["In Progress", "Completed", "Incomplete", "Rejected", "Suspended"];
 const daysOptions = ["Last 7 days", "Last 30 days", "Last 90 days", "All"];
