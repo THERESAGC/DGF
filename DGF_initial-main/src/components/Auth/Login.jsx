@@ -143,6 +143,10 @@ const Login = () => {
                 "& .MuiOutlinedInput-input": {
                   padding: "10px 14px", // Reduced padding
                 },
+                "& input:-webkit-autofill": {
+                  transition: "background-color 5000s ease-in-out 0s", // Prevents autofill background color
+                  },
+ 
               },
             }}
             InputProps={{
