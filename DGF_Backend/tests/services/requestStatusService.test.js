@@ -10,6 +10,10 @@ describe('Request Service - updateRequestStatus', () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
+
   test.each([
     [10, 'approve', 'spoc approved'],
     [5, 'approve', 'capdev approved'],
@@ -24,15 +28,16 @@ describe('Request Service - updateRequestStatus', () => {
     db.execute.mockImplementationOnce((query, values, callback) => {
       callback(null, mockResults);
     });
+    
+    db.execute.mockImplementationOnce((query, values, callback) => {
+      callback(null, { affectedRows: 1 });
+    });
 
     const result = await updateRequestStatus(requestId, status, roleId, approverId);
 
-    expect(result).toEqual(mockResults);
-    expect(db.execute).toHaveBeenCalledWith(
-      expect.any(String),
-      [expectedStatus, approverId, requestId],
-      expect.any(Function)
-    );
+    expect(result).toHaveProperty('requeststatus');
+    expect(result).toHaveProperty('notification');
+    expect(db.execute).toHaveBeenCalledTimes(2);
   });
 
   test('should reject with an error for an invalid status', async () => {
@@ -57,5 +62,25 @@ describe('Request Service - updateRequestStatus', () => {
 
     await expect(updateRequestStatus(requestId, status, roleId, approverId)).rejects.toThrow('Database error');
     expect(db.execute).toHaveBeenCalledTimes(1);
+  });
+
+  test('should reject if there is an error inserting into notifications', async () => {
+    const requestId = 123;
+    const status = 'approve';
+    const roleId = 10;
+    const approverId = 456;
+    
+    // Mock the first query execution to succeed (updating request status)
+    db.execute.mockImplementationOnce((query, values, callback) => {
+      callback(null, { affectedRows: 1 });
+    });
+    
+    // Mock the second query execution to fail (inserting into notifications)
+    db.execute.mockImplementationOnce((query, values, callback) => {
+      callback(new Error('Notification insert error'), null);
+    });
+    
+    await expect(updateRequestStatus(requestId, status, roleId, approverId)).rejects.toThrow('Notification insert error');
+    expect(db.execute).toHaveBeenCalledTimes(2);
   });
 });

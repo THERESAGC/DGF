@@ -7,6 +7,10 @@ describe("updateUserRole Service", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
   
   test("should update user role successfully", async () => {
     // Mocking role ID fetch

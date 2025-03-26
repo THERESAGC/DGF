@@ -16,6 +16,14 @@ describe("deleteServiceDivisionController", () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test("should return 200 when service division is deleted successfully", async () => {
     deleteServiceDivisionService.deleteServiceDivision.mockResolvedValue();
 

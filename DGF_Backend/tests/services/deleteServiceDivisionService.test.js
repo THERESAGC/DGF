@@ -4,6 +4,14 @@ const { deleteServiceDivision } = require("../../services/deleteServiceDivisionS
 jest.mock("../../config/db");
 
 describe("deleteServiceDivisionService", () => {
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  
   test("should execute DELETE query with the correct ID", async () => {
     const id = 123;
     db.execute.mockResolvedValue();

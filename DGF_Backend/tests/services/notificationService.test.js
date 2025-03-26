@@ -1,4 +1,4 @@
-const { getNotifications, markNotificationAsRead, createNotificationOnStatusChange } = require('../../services/notificationService');
+const { getNotifications, markNotificationAsRead, createNotificationOnStatusChange, fetchNotificationDetailsOnAssignment } = require('../../services/notificationService');
 const db = require('../../config/db');
 
 jest.mock('../../config/db', () => ({
@@ -8,6 +8,10 @@ jest.mock('../../config/db', () => ({
 describe('Notification Service', () => {
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
   });
 
   test('should fetch notifications for CapDev role', async () => {
@@ -118,6 +122,25 @@ describe('Notification Service', () => {
   
     const result = await createNotificationOnStatusChange(101, 3);
     expect(result).toEqual([]);
+    expect(db.execute).toHaveBeenCalledTimes(1);
+  });
+
+  test('should insert a notification when a request is assigned', async () => {
+    db.execute.mockImplementationOnce((query, params, callback) => {
+      callback(null, { affectedRows: 1 });
+    });
+
+    const result = await fetchNotificationDetailsOnAssignment(101, 5);
+    expect(result).toEqual({ emp_id: 5 });
+    expect(db.execute).toHaveBeenCalledWith(expect.any(String), [101, 5], expect.any(Function));
+  });
+
+  test('should handle database error when inserting a notification for assignment', async () => {
+    db.execute.mockImplementationOnce((query, params, callback) => {
+      callback(new Error('Insert error'), null);
+    });
+
+    await expect(fetchNotificationDetailsOnAssignment(101, 5)).rejects.toThrow('Failed to insert notification into the database.');
     expect(db.execute).toHaveBeenCalledTimes(1);
   });
   

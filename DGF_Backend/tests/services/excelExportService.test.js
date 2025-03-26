@@ -14,6 +14,75 @@ describe('exportToExcel Service', () => {
     jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
   });
 
+  test('should apply Completed status condition', async () => {
+    const expectedFilter = `AND (ac.status = 'Completed' OR ac.status = 'Completed with Delay')`;
+  
+    connection.query.mockImplementationOnce((query, values, callback) => {
+      expect(query.replace(/\s+/g, ' ')).toContain(expectedFilter.replace(/\s+/g, ' '));
+      callback(null, [{ requestid: 1, 'Project Name': 'Test Project' }]);
+    });
+  
+    await new Promise((resolve) => {
+      exportToExcel('2024-01-01', '2024-01-31', 'Completed', (err) => {
+        expect(connection.query).toHaveBeenCalled();
+        resolve();
+      });
+    });
+  });
+  
+  test('should apply Overdue status condition', async () => {
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    const expectedFilter = `AND ac.status = 'Learning Initiated' AND ac.completion_date < '${formattedToday}'`;
+  
+    connection.query.mockImplementationOnce((query, values, callback) => {
+      expect(query.replace(/\s+/g, ' ')).toContain(expectedFilter.replace(/\s+/g, ' '));
+      callback(null, [{ requestid: 1, 'Project Name': 'Test Project' }]);
+    });
+  
+    await new Promise((resolve) => {
+      exportToExcel('2024-01-01', '2024-01-31', 'Overdue', (err) => {
+        expect(connection.query).toHaveBeenCalled();
+        resolve();
+      });
+    });
+  });
+  
+  test('should apply DueForCompletion status condition', async () => {
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+  
+    const expectedFilter = `AND ac.status = 'Learning Initiated' AND ac.completion_date BETWEEN '${formattedToday}' AND DATE_ADD('${formattedToday}', INTERVAL 7 DAY)`;
+  
+    connection.query.mockImplementationOnce((query, values, callback) => {
+      expect(query.replace(/\s+/g, ' ')).toContain(expectedFilter.replace(/\s+/g, ' '));
+      callback(null, [{ requestid: 1, 'Project Name': 'Test Project' }]);
+    });
+  
+    await new Promise((resolve) => {
+      exportToExcel('2024-01-01', '2024-01-31', 'DueForCompletion', (err) => {
+        expect(connection.query).toHaveBeenCalled();
+        resolve();
+      });
+    });
+  });
+  
+  test('should apply Rejected status condition', async () => {
+    const expectedFilter = `WHERE ntr.requeststatus = 'rejected' AND DATE(ntr.expecteddeadline) BETWEEN ? AND ?`;
+  
+    connection.query.mockImplementationOnce((query, values, callback) => {
+      expect(query.replace(/\s+/g, ' ')).toContain(expectedFilter.replace(/\s+/g, ' '));
+      callback(null, [{ requestid: 1, 'Project Name': 'Test Project' }]);
+    });
+  
+    await new Promise((resolve) => {
+      exportToExcel('2024-01-01', '2024-01-31', 'Rejected', (err) => {
+        expect(connection.query).toHaveBeenCalled();
+        resolve();
+      });
+    });
+  });
+
   test('should return an error if the database query fails', (done) => {
     connection.query.mockImplementationOnce((query, values, callback) => callback(new Error('Database error')));
     exportToExcel('2024-01-01', '2024-01-31', 'all', (err, result) => {
@@ -113,5 +182,12 @@ describe('exportToExcel Service', () => {
       done();
     });
   });
+
+  test('should return an empty array if results is null', (done) => {
+    connection.query.mockImplementationOnce((query, values, callback) => callback(null, null));
   
+    exportToExcel('2024-01-01', '2024-01-31', 'all', (err, result) => {
+      done();
+    });
+  });
 });

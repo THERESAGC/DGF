@@ -156,6 +156,19 @@ describe('Excel Export Controller', () => {
   });
 
   describe('getReportData', () => {
+    test('should default status to "all" when not provided', async () => {
+      req.query = { fromDate: '2024-01-01', toDate: '2024-01-31' }; // No status provided
+      const mockResults = [{ RequestID: 1, ProjectName: 'Project A' }];
+
+      excelExportService.getReportData.mockImplementation((fromDate, toDate, status, callback) => {
+        callback(null, mockResults);
+      });
+
+      await getReportData(req, res);
+
+      expect(excelExportService.getReportData).toHaveBeenCalledWith('2024-01-01', '2024-01-31', 'all', expect.any(Function));
+    });
+    
     test('should return 400 if fromDate or toDate is missing', async () => {
       req.query = { fromDate: '2024-01-01' }; // Missing toDate
 
@@ -168,15 +181,32 @@ describe('Excel Export Controller', () => {
       });
     });
 
-    test('should return 500 if database query fails', async () => {
+    test('should call excelExportService.getReportData with correct parameters', async () => {
+      req.query = { fromDate: '2024-01-01', toDate: '2024-01-31', status: 'completed' };
+      const mockResults = [{ RequestID: 1, ProjectName: 'Project A' }];
+
+      excelExportService.getReportData.mockImplementation((fromDate, toDate, status, callback) => {
+        callback(null, mockResults);
+      });
+
+      await getReportData(req, res);
+
+      expect(excelExportService.getReportData).toHaveBeenCalledWith('2024-01-01', '2024-01-31', 'completed', expect.any(Function));
+    });
+
+    test('should return 500 if excelExportService.getReportData fails', async () => {
       req.query = { fromDate: '2024-01-01', toDate: '2024-01-31', status: 'completed' };
 
-      connection.promise().query.mockRejectedValue(new Error('Database error'));
+      excelExportService.getReportData.mockImplementation((fromDate, toDate, status, callback) => {
+        callback(new Error('Database error'), null);
+      });
 
       await getReportData(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Failed to fetch report data' }));
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Failed to fetch report data' })
+      );
     });
 
     test('should return report data successfully', async () => {
@@ -193,15 +223,35 @@ describe('Excel Export Controller', () => {
         },
       ];
 
-      connection.promise().query.mockResolvedValue([mockResults]);
+      excelExportService.getReportData.mockImplementation((fromDate, toDate, status, callback) => {
+        callback(null, mockResults);
+      });
 
       await getReportData(req, res);
 
+      expect(res.status).not.toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
         count: mockResults.length,
         data: mockResults,
       });
+    });
+
+    test('should return 500 and log error if an unexpected error occurs', async () => {
+      req.query = { fromDate: '2024-01-01', toDate: '2024-01-31', status: 'all' };
+      const unexpectedError = new Error('Unexpected server failure');
+      
+      jest.spyOn(excelExportService, 'getReportData').mockImplementation(() => {
+        throw unexpectedError;
+      });
+
+      await getReportData(req, res);
+
+      expect(console.error).toHaveBeenCalledWith('Controller error:', unexpectedError);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Internal server error', details: unexpectedError.message })
+      );
     });
   });
 });

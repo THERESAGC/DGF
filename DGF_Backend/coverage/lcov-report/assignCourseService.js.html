@@ -186,7 +186,17 @@
 <a name='L121'></a><a href='#L121'>121</a>
 <a name='L122'></a><a href='#L122'>122</a>
 <a name='L123'></a><a href='#L123'>123</a>
-<a name='L124'></a><a href='#L124'>124</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -205,6 +215,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -308,30 +327,40 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//service/assignCourseService.js
-&nbsp;
+ 
 const db = require('../config/db');
-&nbsp;
+ 
 const assignCourse = (assignmentData) =&gt; {
   return new Promise((resolve, reject) =&gt; {
     // Get a connection from the pool
     db.getConnection((err, connection) =&gt; {
       if (err) return reject(err);
-&nbsp;
+ 
       // Begin transaction
       connection.beginTransaction((err) =&gt; {
         if (err) {
           connection.release();
           return reject(err);
         }
-&nbsp;
+ 
         // Insert into assigned_courses
         const insertQuery = `
-          INSERT INTO assigned_courses
-            (requestid, employee_id, mentor_id, course_id, coursetype_id, completion_date, comments, learning_type)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          INSERT INTO assigned_courses (
+            requestid,
+            employee_id,
+            mentor_id,
+            course_id,
+            coursetype_id,
+            completion_date,
+            comments,
+            learning_type,
+            course_assigned_by_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
+ 
         const values = [
           assignmentData.requestid,
           assignmentData.employee_id,
@@ -340,9 +369,9 @@ const assignCourse = (assignmentData) =&gt; {
           assignmentData.coursetype_id,
           assignmentData.completion_date || null,
           assignmentData.comments || null,
-          assignmentData.learning_type || null
+          assignmentData.learning_type || null,
+          assignmentData.course_assigned_by_id // Added user ID from session
         ];
-&nbsp;
         connection.query(insertQuery, values, (err, insertResult) =&gt; {
           if (err) {
             return connection.rollback(() =&gt; {
@@ -350,16 +379,16 @@ const assignCourse = (assignmentData) =&gt; {
               return reject(err);
             });
           }
-&nbsp;
+ 
           // Increment the number of courses assigned to the employee for this request
           const incrementCourseCountQuery = `
-            UPDATE emp_newtrainingrequested 
-            SET courses_assigned = courses_assigned + 1 
+            UPDATE emp_newtrainingrequested
+            SET courses_assigned = courses_assigned + 1
             WHERE emp_id = ? AND requestid = ?;
           `;
-&nbsp;
-          connection.query(incrementCourseCountQuery, 
-            [assignmentData.employee_id, assignmentData.requestid], 
+ 
+          connection.query(incrementCourseCountQuery,
+            [assignmentData.employee_id, assignmentData.requestid],
             (err, incrementResult) =&gt; {
               if (err) {
                 return connection.rollback(() =&gt; {
@@ -367,16 +396,16 @@ const assignCourse = (assignmentData) =&gt; {
                   return reject(err);
                 });
               }
-&nbsp;
+ 
               // Update employee status in emp_newtrainingrequested to "Learning Initiated"
               const updateEmpQuery = `
                 UPDATE emp_newtrainingrequested
                 SET status = 'Learning Initiated'
                 WHERE emp_id = ? AND requestid = ?;
               `;
-&nbsp;
-              connection.query(updateEmpQuery, 
-                [assignmentData.employee_id, assignmentData.requestid], 
+ 
+              connection.query(updateEmpQuery,
+                [assignmentData.employee_id, assignmentData.requestid],
                 (err, updateEmpResult) =&gt; {
                   if (err) {
                     return connection.rollback(() =&gt; {
@@ -384,16 +413,16 @@ const assignCourse = (assignmentData) =&gt; {
                       return reject(err);
                     });
                   }
-&nbsp;
+ 
                   // Update overall request status in newtrainingrequest to "Learning In progress"
                   const updateRequestQuery = `
                     UPDATE newtrainingrequest
                     SET requeststatus = 'Learning In Progress'
                     WHERE requestid = ?;
                   `;
-&nbsp;
-                  connection.query(updateRequestQuery, 
-                    [assignmentData.requestid], 
+ 
+                  connection.query(updateRequestQuery,
+                    [assignmentData.requestid],
                     (err, updateRequestResult) =&gt; {
                       if (err) {
                         return connection.rollback(() =&gt; {
@@ -401,7 +430,7 @@ const assignCourse = (assignmentData) =&gt; {
                           return reject(err);
                         });
                       }
-&nbsp;
+ 
                       // Commit the transaction
                       connection.commit((err) =&gt; {
                         if (err) {
@@ -429,17 +458,18 @@ const assignCourse = (assignmentData) =&gt; {
     });
   });
 };
-&nbsp;
+ 
 module.exports = {
   assignCourse
-};</pre></td></tr></table></pre>
+};
+ </pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-08T00:50:30.463Z
+                at 2025-03-26T18:42:39.207Z
             </div>
         <script src="prettify.js"></script>
         <script>
