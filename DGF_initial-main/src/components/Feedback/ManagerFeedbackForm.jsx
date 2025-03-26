@@ -239,7 +239,7 @@ import {
   styled,
 } from "@mui/material";
 import axios from "axios";
-
+ 
 const StyledPaper = styled(Paper)({
   padding: "24px",
   maxWidth: 600,
@@ -250,11 +250,11 @@ const StyledPaper = styled(Paper)({
   maxHeight: "calc(100vh - 64px)",
   height: 600,
 });
-
+ 
 const FormSection = styled(Box)({
   marginBottom: "24px",
 });
-
+ 
 const ManagerFeedbackForm = () => {
   const [formData, setFormData] = useState({
     demonstrateSkill: "",
@@ -263,54 +263,65 @@ const ManagerFeedbackForm = () => {
     suggestions: "",
     opportunityDate: "",
   });
-
+ 
   const [directName, setDirectName] = useState("");
   const [requestedBy, setRequestedBy] = useState("");
   const [courseName, setCourseName] = useState("");
-
+ 
   const [reqid, setReqid] = useState("");
   const [course_id, setCourseId] = useState("");
   const [employee_id, setEmployeeId] = useState("");
-
+ 
   useEffect(() => {
     // Extract query parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const reqidParam = urlParams.get("reqid");
     const courseIdParam = urlParams.get("course_id");
     const employeeIdParam = urlParams.get("employee_id");
-
+ 
     setReqid(reqidParam);
     setCourseId(courseIdParam);
     setEmployeeId(employeeIdParam);
-
-    // Fetch data from the backend
+ 
+    // Fetch data from the new backend API
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8000/api/effectiveness-feedback/feedback/details",
-          {
-            params: {
-              course_id: courseIdParam,
-              employee_id: employeeIdParam,
-              assignment_id: reqidParam,
-            },
-          }
-        );
-
-        const { username, course_name, requested_by } = response.data;
+        if (!reqidParam || !courseIdParam || !employeeIdParam) {
+          console.error("Missing required query parameters: reqid, course_id, or employee_id.");
+          alert("Invalid request. Missing required parameters.");
+          return;
+        }
+ 
+        const response = await axios.get("http://localhost:8000/api/effectiveness-feedback/feedback/details", {
+          params: { reqid: reqidParam, course_id: courseIdParam, employee_id: employeeIdParam },
+        });
+ 
+        const { username, course_name, requested_by } = response.data; // Adjusted to match the new API response
         setDirectName(username);
         setCourseName(course_name);
         setRequestedBy(requested_by);
       } catch (error) {
         console.error("Error fetching feedback details:", error);
+ 
+        // Handle specific error codes
+        if (error.response) {
+          if (error.response.status === 500) {
+            alert("Internal Server Error. Please try again later.");
+          } else if (error.response.status === 404) {
+            alert("Feedback details not found. Please check the parameters.");
+          } else {
+            alert(`Error: ${error.response.status} - ${error.response.data.message}`);
+          }
+        } else {
+          alert("Failed to fetch feedback details. Please check your network connection.");
+        }
       }
     };
-
+ 
     if (reqidParam && courseIdParam && employeeIdParam) {
       fetchData();
     }
   }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -318,10 +329,10 @@ const ManagerFeedbackForm = () => {
       [name]: value,
     }));
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ 
     const requestData = {
       reqid,
       course_id,
@@ -332,13 +343,13 @@ const ManagerFeedbackForm = () => {
       suggestions: formData.suggestions,
       opportunity_date: formData.opportunityDate || null,
     };
-
+ 
     try {
       const response = await axios.post(
         "http://localhost:8000/api/manager-feedback",
         requestData
       );
-
+ 
       if (response.status === 200) {
         console.log("Feedback submitted successfully:", response.data);
         alert("Feedback submitted successfully!");

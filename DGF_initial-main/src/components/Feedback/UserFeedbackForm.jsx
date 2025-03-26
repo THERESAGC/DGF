@@ -194,7 +194,7 @@ import { useState, useEffect } from 'react';
 import { Box, Container, Typography, TextField, Paper, Button, Radio, RadioGroup, FormControlLabel, styled } from '@mui/material';
 import axios from 'axios'; // To make HTTP requests
 import PropTypes from 'prop-types'; // Import PropTypes
-
+ 
 const StyledPaper = styled(Paper)({
   padding: '24px',
   maxWidth: 600,
@@ -204,11 +204,11 @@ const StyledPaper = styled(Paper)({
   overflowY: 'auto',
   maxHeight: 'calc(100vh - 64px)',
 });
-
+ 
 const FormSection = styled(Box)({
   marginBottom: '24px',
 });
-
+ 
 const UserFeedbackForm = () => {
   const [formData, setFormData] = useState({
     instructionRating: "",
@@ -220,45 +220,64 @@ const UserFeedbackForm = () => {
     overallExperience: "",
     topicSuggestions: ""
   });
-
+ 
   const [username, setUsername] = useState('');
   const [requestedby, setRequestedby] = useState('');
   const [coursename, setCoursename] = useState('');
-
+ 
   const [reqid, setReqid] = useState('');
   const [course_id, setCourseId] = useState('');
   const [employee_id, setEmployeeId] = useState('');
-
+ 
   useEffect(() => {
     // Extract query parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const reqidParam = urlParams.get('reqid');
     const courseIdParam = urlParams.get('course_id');
     const employeeIdParam = urlParams.get('employee_id');
-
+ 
     setReqid(reqidParam);
     setCourseId(courseIdParam);
     setEmployeeId(employeeIdParam);
-
-    // Fetch data from the backend
+ 
+    // Fetch data from the new backend API
     const fetchData = async () => {
       try {
+        if (!reqidParam || !courseIdParam || !employeeIdParam) {
+          console.error('Missing required query parameters: reqid, course_id, or employee_id.');
+          alert('Invalid request. Missing required parameters.');
+          return;
+        }
+ 
         const response = await axios.get('http://localhost:8000/api/effectiveness-feedback/feedback/details', {
-          params: { course_id: courseIdParam, employee_id: employeeIdParam,assignment_id: reqidParam }
+          params: { reqid: reqidParam, course_id: courseIdParam, employee_id: employeeIdParam },
         });
-
-        const { username, course_name, requested_by } = response.data; // Adjusted to match API response
+ 
+        const { username, course_name, requested_by } = response.data; // Adjusted to match the new API response
         setUsername(username);
         setCoursename(course_name);
-        setRequestedby(requested_by); // Set the requested_by value
+        setRequestedby(requested_by);
       } catch (error) {
         console.error('Error fetching feedback details:', error);
+ 
+        // Handle specific error codes
+        if (error.response) {
+          if (error.response.status === 500) {
+            alert('Internal Server Error. Please try again later.');
+          } else if (error.response.status === 404) {
+            alert('Feedback details not found. Please check the parameters.');
+          } else {
+            alert(`Error: ${error.response.status} - ${error.response.data.message}`);
+          }
+        } else {
+          alert('Failed to fetch feedback details. Please check your network connection.');
+        }
       }
     };
-
+ 
     fetchData();
-}, []);
-
+  }, []);
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -266,7 +285,7 @@ const UserFeedbackForm = () => {
       [name]: value,
     }));
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const feedbackPayload = {
@@ -282,7 +301,7 @@ const UserFeedbackForm = () => {
       engaged_session_rating: formData.overallExperience,
       other_suggestions: formData.topicSuggestions
     };
-
+ 
     try {
       const response = await axios.post('http://localhost:8000/api/feedback', feedbackPayload);
       console.log('Feedback submitted successfully:', response.data);

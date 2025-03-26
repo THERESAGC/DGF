@@ -59,6 +59,29 @@ const getCourseName = (course_id) => {
   });
 };
 
+// Query to fetch requested_by name using reqid
+const getRequestedByUsingReqId = (reqid) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT e.emp_name 
+      FROM newtrainingrequest ntr 
+      JOIN employee e ON e.emp_id = ntr.requestonbehalfof 
+      WHERE ntr.requestid = ?
+    `;
+    pool.query(query, [reqid], (error, results) => {
+      if (error) {
+        console.error("Error fetching requested_by using reqid:", error);
+        return reject(error);
+      }
+      if (results.length > 0) {
+        resolve(results[0].emp_name); // Resolve the requested_by name
+      } else {
+        reject("Requested By not found for reqid: " + reqid);
+      }
+    });
+  });
+};
+
 // Query to fetch requested_by name from the assigned_courses table
 const getRequestedBy = (assignment_id) => {
   return new Promise((resolve, reject) => {
@@ -206,9 +229,58 @@ const text = `
 //   }
 // };
 
-const sendFeedbackRequestToManager = async (manager_email, employee_id, course_name) => {
-  const subject = "Feedback Request for Completed Learning: " + course_name + " for <<Facilitator Name>>";
+// const sendFeedbackRequestToManager = async (manager_email, employee_id, course_name) => {
+//   const subject = "Feedback Request for Completed Learning: " + course_name + " for <<Facilitator Name>>";
   
+//   // Dynamic email body with HTML, including header and footer images
+//   const text = `
+//     <html>
+//       <body>
+//         <!-- Header Image -->
+//         <img src="cid:headerImage" alt="Header Image" style="width:100%; max-width:600px;">
+
+//         <p>Dear Manager,</p>
+
+//         <p>We hope this email finds you well.</p>
+
+//         <p>We are reaching out regarding the completion of the <strong>${course_name}</strong> for your team, which was initiated by <<Requester>>/<<You>>.</p>
+
+//         <p>As part of our ongoing commitment to improvement, we are seeking feedback on the recently completed Learning. Given that the Learning process was initiated by your predecessor, we understand that you may not have had direct involvement in the planning or execution.</p>
+
+//         <p>Please take a moment to complete this brief survey:</p>
+//         <a href="http://localhost:5173/feedback?employee_id=${employee_id}&course_name=${course_name}">Provide Feedback</a>
+
+//         <p>To provide accurate insights, we kindly request your cooperation in coordinating with the direct manager/peer who was overseeing the Learning request. Their valuable perspective will contribute to a comprehensive evaluation of the Learning's impact and effectiveness.</p>
+
+//         <p>If you have any questions or if there's anything we can assist you with in this regard, please do not hesitate to reach out. We value your input and look forward to hearing from you.</p>
+
+//         <p>Thank you for your cooperation.</p>
+
+//         <p>Best Regards,</p>
+//         <p>CapDev</p>
+
+//         <!-- Footer Image -->
+//         <img src="cid:footerImage" alt="Footer Image" style="width:100%; max-width:600px;">
+//       </body>
+//     </html>
+//   `;
+
+//   // Specify paths for the header and footer images (replace with actual paths)
+//   const headerImagePath = 'assets/MailHeader.png'; // Path to your header image
+//   const footerImagePath = 'assets/MailFooter.png'; // Path to your footer image
+
+//   try {
+//     // Send the email with embedded images
+//     await sendEmail(manager_email, subject, text, headerImagePath, footerImagePath);
+//     console.log("Request for feedback email sent to manager");
+//   } catch (error) {
+//     console.error("Error sending feedback request to manager:", error);
+//   }
+// };
+
+const sendFeedbackRequestToManager = async (manager_email, employee_id, course_name, requested_by, course_id,assignment_id) => {
+  const subject = "Feedback Request for Completed Learning: " + course_name + " for <<Facilitator Name>>";
+  const request_id = await getRequestId(assignment_id);
   // Dynamic email body with HTML, including header and footer images
   const text = `
     <html>
@@ -225,7 +297,7 @@ const sendFeedbackRequestToManager = async (manager_email, employee_id, course_n
         <p>As part of our ongoing commitment to improvement, we are seeking feedback on the recently completed Learning. Given that the Learning process was initiated by your predecessor, we understand that you may not have had direct involvement in the planning or execution.</p>
 
         <p>Please take a moment to complete this brief survey:</p>
-        <a href="http://localhost:5173/feedback?employee_id=${employee_id}&course_name=${course_name}">Provide Feedback</a>
+        <a href="http://localhost:5173/feedback?employee_id=${employee_id}&reqid=${request_id}&course_id=${course_id}">Provide Feedback</a>
 
         <p>To provide accurate insights, we kindly request your cooperation in coordinating with the direct manager/peer who was overseeing the Learning request. Their valuable perspective will contribute to a comprehensive evaluation of the Learning's impact and effectiveness.</p>
 
@@ -247,13 +319,14 @@ const sendFeedbackRequestToManager = async (manager_email, employee_id, course_n
   const footerImagePath = 'assets/MailFooter.png'; // Path to your footer image
 
   try {
-    // Send the email with embedded images
+    // Send the email with embedded images and the additional query parameters
     await sendEmail(manager_email, subject, text, headerImagePath, footerImagePath);
     console.log("Request for feedback email sent to manager");
   } catch (error) {
     console.error("Error sending feedback request to manager:", error);
   }
 };
+
 
 // Main function to handle sending emails for a completed task
 const handleTaskCompletion = async (assignment_id) => {
@@ -292,9 +365,9 @@ const handleTaskCompletion = async (assignment_id) => {
       // Send feedback request to the manager (after a certain time)
       await getManagerEmail(employee_id).then(async (manager_email) => {
         if (daysSinceCompletion >= 60 && daysSinceCompletion < 180) {
-          await sendFeedbackRequestToManager(manager_email, employee_id, course_name);
+          await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id,assignment_id);
         } else if (daysSinceCompletion >= 180) {
-          await sendFeedbackRequestToManager(manager_email, employee_id, course_name);
+          await sendFeedbackRequestToManager(manager_email, employee_id, course_name, requested_by, course_id,assignment_id);
         }
       }).catch(err => {
         console.error("Error fetching manager email:", err);
@@ -331,4 +404,4 @@ module.exports = { handleTaskCompletion,
   checkCompletedTasksAndSendEmails,
   getEmployeeName,
   getCourseName,
-  getRequestedBy,};
+  getRequestedByUsingReqId,};
