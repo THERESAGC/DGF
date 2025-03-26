@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.26, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: dgf_dummy
+-- Host: localhost    Database: dgf_dummy
 -- ------------------------------------------------------
 -- Server version	8.0.26
 
@@ -285,6 +285,37 @@ INSERT INTO `initate_training_comments` VALUES (3,31,'HS609','This is comments\n
 UNLOCK TABLES;
 
 --
+-- Table structure for table `initiate_training_reminders`
+--
+
+DROP TABLE IF EXISTS `initiate_training_reminders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `initiate_training_reminders` (
+  `reminder_id` int NOT NULL AUTO_INCREMENT,
+  `assignment_id` int NOT NULL,
+  `reminder_date` date NOT NULL,
+  `reminder_text` text NOT NULL,
+  `created_by` varchar(50) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`reminder_id`),
+  KEY `assignment_id` (`assignment_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`assignment_id`) REFERENCES `assigned_courses` (`assignment_id`),
+  CONSTRAINT `reminders_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `logintable` (`emp_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `initiate_training_reminders`
+--
+
+LOCK TABLES `initiate_training_reminders` WRITE;
+/*!40000 ALTER TABLE `initiate_training_reminders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `initiate_training_reminders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `learner_feedback`
 --
 
@@ -304,10 +335,11 @@ CREATE TABLE `learner_feedback` (
   `improved_comments` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `engaged_session_rating` varchar(255) DEFAULT NULL,
   `other_suggestions` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `feedback_submitted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `reqid` (`reqid`,`course_id`,`employee_id`),
   CONSTRAINT `learner_feedback_ibfk_1` FOREIGN KEY (`reqid`, `course_id`, `employee_id`) REFERENCES `assigned_courses` (`requestid`, `course_id`, `employee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -316,6 +348,7 @@ CREATE TABLE `learner_feedback` (
 
 LOCK TABLES `learner_feedback` WRITE;
 /*!40000 ALTER TABLE `learner_feedback` DISABLE KEYS */;
+INSERT INTO `learner_feedback` VALUES (2,2,1796,'HS2330','4','React JS','4','Yes','3','Great training!','4','More real-life examples','2025-03-26 07:20:58'),(4,2,1796,'HS2330','1','SafetyChain project specific- User Persona self-learning program','1','1','2','sadas','1','s','2025-03-26 08:43:11'),(6,1,1500,'HS1889','3','Figma Self-learning','3','1','2','sds','2','ss','2025-03-26 08:49:25'),(7,6,1608,'CONS055','4','SAFe Scrum Master 6.0- Apr 2023','4','2','3','ascas','4','ascasc','2025-03-26 09:09:26'),(8,11,1608,'HS1038','3','SAFe Scrum Master 6.0- Apr 2023','3','1','2','cascas','3','ascasc','2025-03-26 09:10:23'),(9,12,1921,'HS948','2','BA Knowledge Sharing session Dec 2024','2','1','1','pokkk','2','pokkk','2025-03-26 09:11:19');
 /*!40000 ALTER TABLE `learner_feedback` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -369,8 +402,9 @@ CREATE TABLE `manager_feedback` (
   `enhancement_rating` int DEFAULT NULL,
   `suggestions` text,
   `opportunity_date` date DEFAULT NULL,
+  `feedback_submitted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -379,7 +413,7 @@ CREATE TABLE `manager_feedback` (
 
 LOCK TABLES `manager_feedback` WRITE;
 /*!40000 ALTER TABLE `manager_feedback` DISABLE KEYS */;
-INSERT INTO `manager_feedback` VALUES (1,NULL,NULL,NULL,'yes','2025-03-29',4,'1234',NULL),(2,NULL,NULL,NULL,'yes','2025-03-31',3,'12344567',NULL);
+INSERT INTO `manager_feedback` VALUES (1,'6','1610','HS2735','yes','2025-03-29',4,'1234',NULL,NULL),(2,'11','1608','HS1038','yes','2025-03-31',3,'12344567',NULL,NULL),(3,'12','1921','3','yes','2025-03-20',4,'The learner demonstrated excellent skill enhancement.',NULL,'2025-03-26 07:26:56'),(4,'2','791','HS2735','yes','2025-03-21',3,'sacac',NULL,'2025-03-26 08:57:16'),(5,'2','1500','HS2735','yes','2025-03-28',4,'adqadxs',NULL,'2025-03-26 09:03:18'),(6,'4','1869','HS2330','yes','2025-04-02',1,'sadasd',NULL,'2025-03-26 09:19:03'),(7,'4','1869','HS2330','yes','2025-04-03',2,'sadasd',NULL,'2025-03-26 09:20:53');
 /*!40000 ALTER TABLE `manager_feedback` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -778,4 +812,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-26 10:20:39
+-- Dump completed on 2025-03-26 15:00:15
