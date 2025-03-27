@@ -20,7 +20,7 @@ import ManagerFeedbackForm from './components/Feedback/ManagerFeedbackForm.jsx';
 import UserFeedbackForm from './components/Feedback/UserFeedbackForm.jsx';
 import Profile from './components/FixedNavigation/Profile.jsx';
 import FeedbackDashboard from './components/Admin/feedback-dashboard.jsx'; 
-
+import Reminders from './components/Training/Reminders.jsx';
 function App() {
   const obj = {
     color: "black",
@@ -49,7 +49,7 @@ function App() {
             <Route path='/userfeedback' element={<UserFeedbackForm/>} />
             <Route path='/profile' element={<ProtectedRoute element={<FixedComponent><Profile /></FixedComponent>} />} />
             <Route path='/feedback-dashboard' element={<ProtectedRoute element={<FixedComponent><FeedbackDashboard /></FixedComponent>} />} />
-           
+            <Route path='/reminders' element={<ProtectedRoute element={<FixedComponent><TrainingContainer ><Reminders /></TrainingContainer></FixedComponent>} />} />
           </Routes>
           </ChatProvider>
         </Router>

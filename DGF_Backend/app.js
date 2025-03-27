@@ -86,6 +86,7 @@ const managerFeedbackRoutes = require('./routes/getAllManagerFeedbackRoutes');
 
 const remindersRoutes = require('./routes/inititateTrainingRemindersRoutes');
 
+const emailReminderRoutes = require('./routes/emailReminderRoutes'); // Import the email reminder routes
 
 const app = express();
 app.use(cors());
@@ -326,6 +327,9 @@ app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
 // Initiate training reminders routes
 app.use('/api',remindersRoutes );
 
+//Email routes
+app.use('/api/email-reminders', emailReminderRoutes); // Add this line to use the email reminder routes
+ 
 // Effectiveness feedback routes
 cron.schedule('0 0 * * *', async () => {
     console.log('Checking completed tasks and sending emails...');

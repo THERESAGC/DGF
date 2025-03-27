@@ -72,7 +72,7 @@ const getRemindersByDateandByEmpId = (emp_id) => {
         const currentDate = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
         const query = `
             SELECT reminder_id, DATE_FORMAT(reminder_date, '%Y-%m-%d') AS reminder_date, 
-                   reminder_text, created_by, created_date 
+                   reminder_text, created_by, created_date ,assignment_id
             FROM initiate_training_reminders 
             WHERE reminder_date >= ? and created_by=?
         `;

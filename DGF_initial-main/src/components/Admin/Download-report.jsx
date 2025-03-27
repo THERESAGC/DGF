@@ -224,7 +224,7 @@ const DownloadReport = () => {
             }}
           />
           <Tab
-            label="shruti rename this"
+            label="Program Feedback Report"
             sx={{
               textTransform: "none",
               fontSize: "1rem",
