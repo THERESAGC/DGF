@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import {
   Box,
@@ -344,11 +346,19 @@ const ManagerFeedbackDashboard = () => {
 
     const avgEnhancementRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0
 
+    // Add the new metrics for feedback tracking
+    const totalFeedbackTriggered = totalFeedbacks
+    const totalFeedbackReceived = data.filter((item) => item.feedback_submitted_date).length
+    const pendingFeedback = totalFeedbackTriggered - totalFeedbackReceived
+
     setDashboardStats({
       totalFeedbacks,
       demonstratedSkill,
       pendingDemonstration,
       avgEnhancementRating,
+      totalFeedbackTriggered,
+      totalFeedbackReceived,
+      pendingFeedback,
     })
   }
 
@@ -517,7 +527,7 @@ const ManagerFeedbackDashboard = () => {
   // Colors for charts
   const COLORS = {
     enhancement: ["#ffa07a", "#ff725e", "#e65c4d", "#cc4a3d"], // Lighter reds/oranges
-    demonstration: [ "#7b5ea5",  "#bfa3db","#9b7fc1","#5a3e85"],
+    demonstration: ["#7b5ea5", "#bfa3db", "#9b7fc1", "#5a3e85"],
     opportunity: "#5a9bd8",
   }
 
@@ -734,19 +744,36 @@ const ManagerFeedbackDashboard = () => {
             </Typography>
 
             <Grid container spacing={3}>
-              {/* Total Feedback Card */}
+              {/* Feedback Tracking Card */}
               <Grid item xs={12} sm={6} md={3}>
                 <Card sx={{ bgcolor: "#a6dcef", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Total Feedback
+                      Feedback Tracking
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
-                      {dashboardStats.totalFeedbacks}
-                    </Typography>
-                    <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
-                      manager feedback entries
-                    </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Typography variant="body2">Total Triggered:</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                          {dashboardStats.totalFeedbackTriggered}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Typography variant="body2">Total Received:</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                          {dashboardStats.totalFeedbackReceived}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Typography variant="body2">Pending Feedback:</Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: "bold", color: dashboardStats.pendingFeedback > 0 ? "#d32f2f" : "inherit" }}
+                        >
+                          {dashboardStats.pendingFeedback}
+                        </Typography>
+                      </Box>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
@@ -855,47 +882,47 @@ const ManagerFeedbackDashboard = () => {
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                          <Pie
-  data={enhancementRatings}
-  cx="50%"
-  cy="50%"
-  innerRadius={0}
-  outerRadius={65}
-  fill="#8884d8"
-  dataKey="value"
-  nameKey="name"
-  label={({ name, percent, x, y }) => (
-    <text
-      x={x}
-      y={y}
-      textAnchor={x > 200 ? "start" : "end"}
-      dominantBaseline="central"
-      style={{
-        fontSize: "10px", // Adjust font size here
-        fill: "#333", // Adjust text color
-        fontWeight: "500", // Optional: Adjust font weight
-      }}
-    >
-      {`${name}: ${(percent * 100).toFixed(0)}%`}
-    </text>
-  )}
-  isAnimationActive={false}
->
-  {enhancementRatings.map((entry, index) => (
-    <Cell
-      key={`cell-${index}`}
-      fill={COLORS.enhancement[index % COLORS.enhancement.length]}
-    />
-  ))}
-</Pie>
+                            <Pie
+                              data={enhancementRatings}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={0}
+                              outerRadius={65}
+                              fill="#8884d8"
+                              dataKey="value"
+                              nameKey="name"
+                              label={({ name, percent, x, y }) => (
+                                <text
+                                  x={x}
+                                  y={y}
+                                  textAnchor={x > 200 ? "start" : "end"}
+                                  dominantBaseline="central"
+                                  style={{
+                                    fontSize: "10px", // Adjust font size here
+                                    fill: "#333", // Adjust text color
+                                    fontWeight: "500", // Optional: Adjust font weight
+                                  }}
+                                >
+                                  {`${name}: ${(percent * 100).toFixed(0)}%`}
+                                </text>
+                              )}
+                              isAnimationActive={false}
+                            >
+                              {enhancementRatings.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS.enhancement[index % COLORS.enhancement.length]}
+                                />
+                              ))}
+                            </Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend 
-                            wrapperStyle={{
-                              fontSize: "11px", // Adjust font size
-                              color: "#333", // Adjust text color
-                              fontWeight: "600", // Optional: Adjust font weight
-                              textAlign: "center", // Optional: Align legend text
-                            }}
+                            <Legend
+                              wrapperStyle={{
+                                fontSize: "11px", // Adjust font size
+                                color: "#333", // Adjust text color
+                                fontWeight: "600", // Optional: Adjust font weight
+                                textAlign: "center", // Optional: Align legend text
+                              }}
                             />
                           </PieChart>
                         </ResponsiveContainer>
@@ -913,7 +940,7 @@ const ManagerFeedbackDashboard = () => {
                         mb: 2,
                         display: "flex",
                         flexDirection: "column",
-                        minWidth:"114%"
+                        minWidth: "114%",
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
@@ -922,47 +949,47 @@ const ManagerFeedbackDashboard = () => {
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                          <Pie
-  data={demonstrationStatus}
-  cx="50%"
-  cy="50%"
-  innerRadius={0}
-  outerRadius={65}
-  fill="#8884d8"
-  dataKey="value"
-  nameKey="name"
-  label={({ name, percent, x, y }) => (
-    <text
-      x={x}
-      y={y}
-      textAnchor={x > 200 ? "start" : "end"}
-      dominantBaseline="central"
-      style={{
-        fontSize: "10px", // Adjust font size here
-        fill: "#333", // Adjust text color
-        fontWeight: "500", // Optional: Adjust font weight
-      }}
-    >
-      {`${name}: ${(percent * 100).toFixed(0)}%`}
-    </text>
-  )}
-  isAnimationActive={false}
->
-  {demonstrationStatus.map((entry, index) => (
-    <Cell
-      key={`cell-${index}`}
-      fill={COLORS.demonstration[index % COLORS.demonstration.length]}
-    />
-  ))}
-</Pie>
+                            <Pie
+                              data={demonstrationStatus}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={0}
+                              outerRadius={65}
+                              fill="#8884d8"
+                              dataKey="value"
+                              nameKey="name"
+                              label={({ name, percent, x, y }) => (
+                                <text
+                                  x={x}
+                                  y={y}
+                                  textAnchor={x > 200 ? "start" : "end"}
+                                  dominantBaseline="central"
+                                  style={{
+                                    fontSize: "10px", // Adjust font size here
+                                    fill: "#333", // Adjust text color
+                                    fontWeight: "500", // Optional: Adjust font weight
+                                  }}
+                                >
+                                  {`${name}: ${(percent * 100).toFixed(0)}%`}
+                                </text>
+                              )}
+                              isAnimationActive={false}
+                            >
+                              {demonstrationStatus.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS.demonstration[index % COLORS.demonstration.length]}
+                                />
+                              ))}
+                            </Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend 
-                            wrapperStyle={{
-                              fontSize: "11px", // Adjust font size
-                              color: "#333", // Adjust text color
-                              fontWeight: "600", // Optional: Adjust font weight
-                              textAlign: "center", // Optional: Align legend text
-                            }}
+                            <Legend
+                              wrapperStyle={{
+                                fontSize: "11px", // Adjust font size
+                                color: "#333", // Adjust text color
+                                fontWeight: "600", // Optional: Adjust font weight
+                                textAlign: "center", // Optional: Align legend text
+                              }}
                             />
                           </PieChart>
                         </ResponsiveContainer>
