@@ -178,7 +178,7 @@ const handleMarkAllAsRead = async () => {
         <div className="search">
           <SearchIcon className="icon" style={{ marginBottom: "30px", paddingBottom: "3px" }} />
           <InputBase
-            placeholder="Search courses"
+            placeholder="Search requests"
             className="search-input"
             style={{ fontSize: "smaller", marginbottom: " 0", marginLeft: " 0", paddingleft: "6px" }}
           />

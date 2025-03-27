@@ -749,7 +749,7 @@ const ManagerFeedbackDashboard = () => {
                 <Card sx={{ bgcolor: "#a6dcef", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Feedback Tracking
+                      Feedback
                     </Typography>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -783,7 +783,7 @@ const ManagerFeedbackDashboard = () => {
                 <Card sx={{ bgcolor: "#8fd3b6", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Demonstrated Skill
+                      Skill Demonstrated 
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
                       <ThumbUp sx={{ fontSize: 40, mr: 1 }} />
@@ -803,7 +803,7 @@ const ManagerFeedbackDashboard = () => {
                 <Card sx={{ bgcolor: "#ffb6b9", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Pending Demonstration
+                      Awaiting Opportunity
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
                       <ThumbDown sx={{ fontSize: 40, mr: 1 }} />
@@ -823,7 +823,7 @@ const ManagerFeedbackDashboard = () => {
                 <Card sx={{ bgcolor: "#c7ceea", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Avg. Enhancement Rating
+                      Avg. Skill Enhancement
                     </Typography>
                     <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
                       {dashboardStats.avgEnhancementRating}
