@@ -57,7 +57,7 @@ const Dashboard = ({ roleId }) => {
       const status = request.requeststatus.toLowerCase().trim();
       if (status === "approval requested" ||status === "capdev approval requested" ) {
         counts.approvalrequested++;
-      }  else if (status === "learning initiated") {
+      }  else if (status === "learning in progress") {
         counts.learninginitiated++;
       } else if (status === "clarification requested") {
         counts.needclarification++;
@@ -186,3 +186,4 @@ Dashboard.propTypes = {
  
 export default Dashboard;
  
+
