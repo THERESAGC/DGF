@@ -60,8 +60,8 @@ import { exportData } from "../../utils/learners-export-utils"
 const mapRatingToText = (field, value) => {
   const mappings = {
     instruction_rating: {
-      4: "Very Good",
-      3: "Good",
+      4: "Good",
+      3: "Very Good",
       2: "Interesting",
       1: "Average",
     },
@@ -112,6 +112,12 @@ const RatingChip = ({ rating, field }) => {
         backgroundColor: color,
         color: "#333",
         fontWeight: "bold",
+        fontSize: "8px !important", // Decreased font size
+        height: "20px !important", // Adjusted height to match smaller font
+        padding: "0 8px !important",
+        "& .MuiChip-label": {
+      fontSize: "5px !important", // Set your desired font size here
+    },
       }}
     />
   )
@@ -122,6 +128,7 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
   if (!feedback) return null
 
   return (
+    
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6">Detailed Feedback</Typography>
@@ -349,33 +356,62 @@ const FeedbackDashboard = () => {
   useEffect(() => {
     const fetchFeedbackData = async () => {
       try {
-        setLoading(true)
-        const response = await axios.get("http://localhost:8000/api/learner-feedback")
-        setFeedbackData(response.data)
-        setFilteredData(response.data) // Initially set filtered data to all data
-
-        // Set mock stats based on the data
-        // In a real application, you would get this from your API
-        const totalReceived = response.data.length
-        const totalTriggered = totalReceived + Math.floor(totalReceived * 0.3) // Just for demonstration
-        const totalPending = totalTriggered - totalReceived
-
+        setLoading(true);
+  
+        // Fetch learner feedback data for total received
+        const learnerFeedbackResponse = await axios.get("http://localhost:8000/api/learner-feedback");
+        const learnerFeedbackData = learnerFeedbackResponse.data;
+  
+        // Fetch total triggered feedbacks
+        const triggeredFeedbackResponse = await axios.get("http://localhost:8000/api/total-feedbacks-triggered");
+        const triggeredFeedbackData = triggeredFeedbackResponse.data;
+  
+        // Filter data based on the selected date range
+        let filteredTriggeredData = triggeredFeedbackData;
+        let filteredReceivedData = learnerFeedbackData;
+  
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999); // Set to end of the day
+  
+          // Filter triggered feedbacks by employee_email_sent_date
+          filteredTriggeredData = triggeredFeedbackData.filter((item) => {
+            const sentDate = new Date(item.employee_email_sent_date);
+            return sentDate >= start && sentDate <= end;
+          });
+  
+          // Filter received feedbacks by feedback_submitted_date
+          filteredReceivedData = learnerFeedbackData.filter((item) => {
+            const submittedDate = new Date(item.feedback_submitted_date);
+            return submittedDate >= start && submittedDate <= end;
+          });
+        }
+  
+        // Calculate stats
+        const totalTriggered = filteredTriggeredData.reduce((sum, item) => sum + item.total_feedbacks_triggered, 0);
+        const totalReceived = filteredReceivedData.length;
+        const totalPending = totalTriggered - totalReceived;
+  
+        // Update state
+        setFeedbackData(filteredReceivedData); // Set filtered received data
+        setFilteredData(filteredReceivedData); // Initially set filtered data to all data
         setFeedbackStats({
           totalTriggered,
           totalReceived,
           totalPending,
-        })
-
-        setLoading(false)
+        });
+  
+        setLoading(false);
       } catch (err) {
-        setError("Failed to fetch feedback data")
-        setLoading(false)
-        console.error("Error fetching feedback data:", err)
+        setError("Failed to fetch feedback data");
+        setLoading(false);
+        console.error("Error fetching feedback data:", err);
       }
-    }
-
-    fetchFeedbackData()
-  }, [])
+    };
+  
+    fetchFeedbackData();
+  }, [startDate, endDate]); // Re-run when date range changes
 
   // Apply date filters
   useEffect(() => {
@@ -560,7 +596,7 @@ const FeedbackDashboard = () => {
 
   // Updated pastel colors for charts
   const COLORS = {
-    instruction: ["#a3c9f1", "#7fb3e6", "#5a9bd8", "#3d82c4"], // Lighter blues
+    instruction: ["#a3c9f1", "#3d82c4" ,"#5a9bd8","#7fb3e6"], // Lighter blues
     engagement: ["#ffa07a", "#ff725e", "#e65c4d", "#cc4a3d"], // Lighter reds/oranges
     overall: ["#5a3e85", "#7b5ea5", "#9b7fc1", "#bfa3db"], // Professional muted purples
     interaction: ["#f9d36e", "#a6dcef", "#ffcb91", "#ffb6b9"], // Soft neutrals and light blues
@@ -966,28 +1002,51 @@ const FeedbackDashboard = () => {
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={instructionRatings}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0} // Reduced inner radius
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {instructionRatings.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS.instruction[index % COLORS.instruction.length]}
-                                />
-                              ))}
-                            </Pie>
+                          <PieChart sx={{ width: "100%", height: "87%" }}>
+                          <Pie
+  data={instructionRatings}
+  cx="50%"
+  cy="50%"
+  innerRadius={0} // Reduced inner radius
+  outerRadius={65}
+  fill="#8884d8"
+  dataKey="value"
+  nameKey="name"
+  label={({ name, percent, x, y }) => (
+    <text
+      x={x}
+      y={y}
+      textAnchor={x > 200 ? "start" : "end"}
+      dominantBaseline="central"
+      style={{
+        fontSize: "12px", // Adjust font size here
+        fill: "#333", // Adjust text color
+        fontWeight: "500", // Optional: Adjust font weight
+        
+      }}
+    >
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  )}
+  isAnimationActive={false}
+>
+  {instructionRatings.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={COLORS.instruction[index % COLORS.instruction.length]}
+    />
+  ))}
+</Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Legend 
+                             wrapperStyle={{
+                              fontSize: "12px", // Adjust font size
+                              color: "#333", // Adjust text color
+                              fontWeight: "600", // Optional: Adjust font weight
+                              textAlign: "center", // Optional: Align legend text
+                              marginBottom: "5px" // Optional: Adjust margin bottom
+                            }}
+                             />
                           </PieChart>
                         </ResponsiveContainer>
                       </Box>
@@ -1004,35 +1063,57 @@ const FeedbackDashboard = () => {
                         mb: 2,
                         display: "flex",
                         flexDirection: "column",
+                         minWidth: "118%"
                       }}
                     >
-                      <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
+                      <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2,marginRight:"100px" }}>
                         Engagement Distribution
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                            <Pie
-                              data={engagementRatings}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {engagementRatings.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS.engagement[index % COLORS.engagement.length]}
-                                />
-                              ))}
-                            </Pie>
+                          <Pie
+  data={engagementRatings}
+  cx="40%"
+  cy="50%"
+  innerRadius={0}
+  outerRadius={65}
+  fill="#8884d8"
+  dataKey="value"
+  nameKey="name"
+  label={({ name, percent, x, y }) => (
+    <text
+      x={x}
+      y={y}
+      textAnchor={x > 200 ? "start" : "end"}
+      dominantBaseline="central"
+      style={{
+        fontSize: "10px", // Adjust font size here
+        fill: "#333", // Adjust text color
+        fontWeight: "500", // Optional: Adjust font weight
+      }}
+    >
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  )}
+  isAnimationActive={false}
+>
+  {engagementRatings.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={COLORS.engagement[index % COLORS.engagement.length]}
+    />
+  ))}
+</Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Legend 
+                             wrapperStyle={{
+                              fontSize: "11px", // Adjust font size
+                              color: "#333", // Adjust text color
+                              fontWeight: "600", // Optional: Adjust font weight
+                              textAlign: "center", // Optional: Align legend text
+                            }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </Box>
@@ -1056,24 +1137,48 @@ const FeedbackDashboard = () => {
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                            <Pie
-                              data={overallRatings}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {overallRatings.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS.overall[index % COLORS.overall.length]} />
-                              ))}
-                            </Pie>
+                          <Pie
+  data={overallRatings}
+  cx="50%"
+  cy="50%"
+  innerRadius={0}
+  outerRadius={65}
+  fill="#8884d8"
+  dataKey="value"
+  nameKey="name"
+  label={({ name, percent, x, y }) => (
+    <text
+      x={x}
+      y={y}
+      textAnchor={x > 200 ? "start" : "end"}
+      dominantBaseline="central"
+      style={{
+        fontSize: "10px", // Adjust font size here
+        fill: "#333", // Adjust text color
+        fontWeight: "500", // Optional: Adjust font weight
+      }}
+    >
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  )}
+  isAnimationActive={false}
+>
+  {overallRatings.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={COLORS.overall[index % COLORS.overall.length]}
+    />
+  ))}
+</Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Legend 
+                             wrapperStyle={{
+                              fontSize: "12px", // Adjust font size
+                              color: "#333", // Adjust text color
+                              fontWeight: "600", // Optional: Adjust font weight
+                              textAlign: "center", // Optional: Align legend text
+                             }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </Box>
@@ -1089,6 +1194,7 @@ const FeedbackDashboard = () => {
                         height: 350,
                         display: "flex",
                         flexDirection: "column",
+                        minWidth: "114%"
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
@@ -1097,27 +1203,48 @@ const FeedbackDashboard = () => {
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                            <Pie
-                              data={interactionData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {interactionData.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS.interaction[index % COLORS.interaction.length]}
-                                />
-                              ))}
-                            </Pie>
+                          <Pie
+    data={interactionData}
+    cx="50%"
+    cy="50%"
+    innerRadius={0}
+    outerRadius={65}
+    fill="#8884d8"
+    dataKey="value"
+    nameKey="name"
+    label={({ name, percent, x, y }) => (
+      <text
+        x={x}
+        y={y}
+        textAnchor={x > 200 ? "start" : "end"}
+        dominantBaseline="central"
+        style={{
+          fontSize: "10px", // Adjust font size here
+          fill: "#333", // Adjust text color
+          fontWeight: "500", // Optional: Adjust font weight
+        }}
+      >
+        {`${name}: ${(percent * 100).toFixed(0)}%`}
+      </text>
+    )}
+    isAnimationActive={false}
+  >
+    {interactionData.map((entry, index) => (
+      <Cell
+        key={`cell-${index}`}
+        fill={COLORS.interaction[index % COLORS.interaction.length]}
+      />
+    ))}
+  </Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Legend 
+                             wrapperStyle={{
+                              fontSize: "12px", // Adjust font size
+                              color: "#333", // Adjust text color
+                              fontWeight: "600", // Optional: Adjust font weight
+                              textAlign: "center", // Optional: Align legend text
+                             }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </Box>

@@ -87,7 +87,7 @@ const managerFeedbackRoutes = require('./routes/getAllManagerFeedbackRoutes');
 const remindersRoutes = require('./routes/inititateTrainingRemindersRoutes');
 
 const emailReminderRoutes = require('./routes/emailReminderRoutes'); // Import the email reminder routes
-
+const triggeredFeedbackCountRoutes = require('./routes/feedbackTriggeredCountRoutes');
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
@@ -278,6 +278,8 @@ app.use('/api', sourceRoutes);
 app.use('/api/employee-completion-status', getEmpLearningCompletionRoutes);
 
 app.use('/api', loginRoutes)
+
+app.use('/api', triggeredFeedbackCountRoutes);
 //capdev courses Assign and status update routes
 
 app.use('/api/courses', courseSearchRoutes);
