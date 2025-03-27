@@ -246,6 +246,22 @@ const RequestTable = ({ roleId }) => {
             .then((response) => response.json())
             .then((data) => {
               console.log('Request updated successfully:', data);
+        
+              // Trigger notification to the assigned user
+              return fetch(`http://localhost:8000/api/notifications/assignment?requestId=${requestid}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({emp_id }), // Send the employee ID in the body
+              })
+                .then((notificationResponse) => notificationResponse.json())
+                .then((notificationData) => {
+                  console.log('Notification sent successfully:', notificationData);
+                })
+                .catch((notificationError) => {
+                  console.error('Error sending notification:', notificationError);
+                });
             })
             .catch((error) => {
               console.error('Error updating request:', error);
