@@ -404,6 +404,31 @@ export default function CourseTracker() {
     setShowAssignModal(true)
   }
 
+  // const handleSendEmails = async (empIds) => {
+  //   console.log("Send Reminder Clicked");
+  
+  //   const learningInitiatedAssignments = [];
+  
+  //   // Fetch assigned courses for all selected employees
+  //   for (const empId of empIds) {
+  //     try {
+  //       const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`);
+  //       const data = await response.json();
+  
+  //       // Filter assignment IDs with status "Learning Initiated"
+  //       const initiatedAssignments = (data.data || [])
+  //         .filter((course) => course.status === "Learning Initiated")
+  //         .map((course) => course.assignment_id);
+  
+  //       learningInitiatedAssignments.push(...initiatedAssignments);
+  //     } catch (error) {
+  //       console.error(`Error fetching assigned courses for employee ${empId}:`, error);
+  //     }
+  //   }
+  
+  //   console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
+  // };
+
   const handleSendEmails = async (empIds) => {
     console.log("Send Reminder Clicked");
   
@@ -421,14 +446,37 @@ export default function CourseTracker() {
           .map((course) => course.assignment_id);
   
         learningInitiatedAssignments.push(...initiatedAssignments);
+  
       } catch (error) {
         console.error(`Error fetching assigned courses for employee ${empId}:`, error);
       }
     }
   
     console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
+  
+    if (learningInitiatedAssignments.length > 0) {
+      try {
+        const response = await fetch("http://localhost:8000/api/email-reminders/send-reminder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            learningInitiatedAssignments, // Pass the assignments
+            empId: 1234, // Example of sending empId (assuming this is logged in user ID)
+          }),
+        });
+  
+        const data = await response.json();
+        console.log(data.message);
+        alert('Reminder emails have been sent successfully!');
+      } catch (error) {
+        console.error('Error sending reminders:', error);
+        alert('There was an error sending the reminders.');
+      }
+    }
   };
-
+  
 
 
   const handleModalClose = () => {
