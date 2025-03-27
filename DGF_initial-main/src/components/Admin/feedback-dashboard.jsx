@@ -116,7 +116,7 @@ const RatingChip = ({ rating, field }) => {
         height: "20px !important", // Adjusted height to match smaller font
         padding: "0 8px !important",
         "& .MuiChip-label": {
-      fontSize: "5px !important", // Set your desired font size here
+      fontSize: "12px !important", // Set your desired font size here
     },
       }}
     />

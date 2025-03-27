@@ -71,11 +71,24 @@ const getRemindersByDateandByEmpId = (emp_id) => {
     return new Promise((resolve, reject) => {
         const currentDate = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
         const query = `
-            SELECT reminder_id, DATE_FORMAT(reminder_date, '%Y-%m-%d') AS reminder_date, 
-                   reminder_text, created_by, created_date ,assignment_id
-            FROM initiate_training_reminders 
-            WHERE reminder_date >= ? and created_by=?
-        `;
+        SELECT 
+            itr.reminder_id, 
+            DATE_FORMAT(itr.reminder_date, '%Y-%m-%d') AS reminder_date, 
+            itr.reminder_text, 
+            itr.created_by, 
+            itr.created_date, 
+            itr.assignment_id,
+            ac.course_id,
+            c.course_name,
+            ac.employee_id,
+            ac.requestid,
+            e.emp_name
+        FROM initiate_training_reminders itr
+        JOIN assigned_courses ac ON itr.assignment_id = ac.assignment_id
+        JOIN course c ON ac.course_id = c.course_id
+        JOIN employee e ON ac.employee_id = e.emp_id
+        WHERE itr.reminder_date >= ? AND itr.created_by = ?
+    `;
         db.query(query, [currentDate,emp_id], (err, rows) => {
             if (err) {
                 console.error('Error executing query:', err.message);

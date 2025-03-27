@@ -101,7 +101,7 @@ const Reminders = () => {
   const [reminders, setReminders] = useState([])
   const [weeklyReminders, setWeeklyReminders] = useState([])
   const [allReminders, setAllReminders] = useState([])
-  const [reminderDetailsMap, setReminderDetailsMap] = useState({})
+  // const [reminderDetailsMap, setReminderDetailsMap] = useState({})
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [order, setOrder] = useState("desc")
@@ -133,7 +133,10 @@ const Reminders = () => {
         // Fetch reminders created by the logged-in user
         const response = await axios.get(`http://localhost:8000/api/reminders/emp`, {
           params: { emp_id: user.emp_id },
+
         })
+          
+       console.log("Response:", response.data)
 
         if (Array.isArray(response.data)) {
           const fetchedReminders = response.data
@@ -172,21 +175,22 @@ const Reminders = () => {
 
         if (Array.isArray(response.data)) {
           setAllReminders(response.data)
-
+        console.log("All reminders:", response.data)
           // Create a map of assignment_id to reminder details
-          const detailsMap = {}
-          response.data.forEach((reminder) => {
-            detailsMap[reminder.assignment_id] = {
-              employee_name: reminder.employee_name,
-              course_name: reminder.course_name,
-              request_id: reminder.request_id,
-            }
-          })
-          console.log("Reminder details map:", detailsMap)
-          setReminderDetailsMap(detailsMap)
-        } else {
-          console.log("No reminders found")
-        }
+        //   const detailsMap = {}
+        //   response.data.forEach((reminder) => {
+        //     detailsMap[reminder.assignment_id] = {
+        //       employee_name: reminder.employee_name,
+        //       course_name: reminder.course_name,
+        //       request_id: reminder.request_id,
+        //     }
+        //   })
+        //   console.log("Reminder details map:", detailsMap)
+        //   setReminderDetailsMap(detailsMap)
+        // } else {
+        //   console.log("No reminders found")
+        // }
+}
         setLoading(false)
       } catch (error) {
         console.error("Error fetching all reminders:", error)
@@ -243,9 +247,6 @@ const Reminders = () => {
 
   // Custom tooltip content renderer
   const renderTooltipContent = (reminder) => {
-    const details = reminderDetailsMap[reminder.assignment_id]
-    if (!details) return "No additional details"
-
     return (
       <Box sx={{ p: 1 }}>
         <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
@@ -255,20 +256,21 @@ const Reminders = () => {
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             Employee:
           </Typography>
-          <Typography variant="body2">{details.employee_name || "N/A"}</Typography>
+          <Typography variant="body2">{reminder.emp_name || "N/A"}</Typography>
 
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             Course:
           </Typography>
-          <Typography variant="body2">{details.course_name || "N/A"}</Typography>
+          <Typography variant="body2">{reminder.course_name || "N/A"}</Typography>
 
           <Typography variant="body2" sx={{ fontWeight: "bold" }}>
             Request ID:
           </Typography>
-          <Typography variant="body2">{details.request_id || "N/A"}</Typography>
+          <Typography variant="body2">{reminder.requestid || "N/A"}</Typography>
         </Box>
       </Box>
     )
+ 
   }
 
   return (
@@ -284,6 +286,8 @@ const Reminders = () => {
           pb: 1,
           "&::-webkit-scrollbar": {
             height: "8px",
+            scrollBehavior: "smooth",
+            display: "none",
           },
           "&::-webkit-scrollbar-track": {
             backgroundColor: "#f1f1f1",
@@ -373,9 +377,9 @@ const Reminders = () => {
               <TableRow sx={{ borderBottom: "2px solid #8FBEF8" }}>
                 <StyledTableCell>
                   <TableSortLabel
-                    active={orderBy === "assignment_id"}
-                    direction={orderBy === "assignment_id" ? order : "asc"}
-                    onClick={createSortHandler("assignment_id")}
+                    active={orderBy === "request_id"}
+                    direction={orderBy === "request_id" ? order : "asc"}
+                    onClick={createSortHandler("request_id")}
                   >
                     Request ID
                   </TableSortLabel>
@@ -445,7 +449,7 @@ const Reminders = () => {
               ) : (
                 sortedReminders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((reminder, index) => (
                   <StyledTableRow key={reminder.emailreminder_id} index={index}>
-                    <TableCell sx={{ fontFamily: "inherit" }}>{reminder.assignment_id}</TableCell>
+                    <TableCell sx={{ fontFamily: "inherit" }}>{reminder.request_id}</TableCell>
                     <TableCell sx={{ fontFamily: "inherit" }}>{reminder.employee_name || "N/A"}</TableCell>
                     <TableCell sx={{ fontFamily: "inherit" }}>{reminder.course_name || "N/A"}</TableCell>
                     <TableCell sx={{ fontFamily: "inherit" }}>

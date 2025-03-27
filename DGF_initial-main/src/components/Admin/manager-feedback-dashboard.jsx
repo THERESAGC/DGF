@@ -855,27 +855,48 @@ const ManagerFeedbackDashboard = () => {
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                            <Pie
-                              data={enhancementRatings}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {enhancementRatings.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS.enhancement[index % COLORS.enhancement.length]}
-                                />
-                              ))}
-                            </Pie>
+                          <Pie
+  data={enhancementRatings}
+  cx="50%"
+  cy="50%"
+  innerRadius={0}
+  outerRadius={65}
+  fill="#8884d8"
+  dataKey="value"
+  nameKey="name"
+  label={({ name, percent, x, y }) => (
+    <text
+      x={x}
+      y={y}
+      textAnchor={x > 200 ? "start" : "end"}
+      dominantBaseline="central"
+      style={{
+        fontSize: "10px", // Adjust font size here
+        fill: "#333", // Adjust text color
+        fontWeight: "500", // Optional: Adjust font weight
+      }}
+    >
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  )}
+  isAnimationActive={false}
+>
+  {enhancementRatings.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={COLORS.enhancement[index % COLORS.enhancement.length]}
+    />
+  ))}
+</Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Legend 
+                            wrapperStyle={{
+                              fontSize: "11px", // Adjust font size
+                              color: "#333", // Adjust text color
+                              fontWeight: "600", // Optional: Adjust font weight
+                              textAlign: "center", // Optional: Align legend text
+                            }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </Box>
@@ -892,6 +913,7 @@ const ManagerFeedbackDashboard = () => {
                         mb: 2,
                         display: "flex",
                         flexDirection: "column",
+                        minWidth:"114%"
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
@@ -900,27 +922,48 @@ const ManagerFeedbackDashboard = () => {
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
-                            <Pie
-                              data={demonstrationStatus}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {demonstrationStatus.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS.demonstration[index % COLORS.demonstration.length]}
-                                />
-                              ))}
-                            </Pie>
+                          <Pie
+  data={demonstrationStatus}
+  cx="50%"
+  cy="50%"
+  innerRadius={0}
+  outerRadius={65}
+  fill="#8884d8"
+  dataKey="value"
+  nameKey="name"
+  label={({ name, percent, x, y }) => (
+    <text
+      x={x}
+      y={y}
+      textAnchor={x > 200 ? "start" : "end"}
+      dominantBaseline="central"
+      style={{
+        fontSize: "10px", // Adjust font size here
+        fill: "#333", // Adjust text color
+        fontWeight: "500", // Optional: Adjust font weight
+      }}
+    >
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  )}
+  isAnimationActive={false}
+>
+  {demonstrationStatus.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={COLORS.demonstration[index % COLORS.demonstration.length]}
+    />
+  ))}
+</Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Legend 
+                            wrapperStyle={{
+                              fontSize: "11px", // Adjust font size
+                              color: "#333", // Adjust text color
+                              fontWeight: "600", // Optional: Adjust font weight
+                              textAlign: "center", // Optional: Align legend text
+                            }}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </Box>
