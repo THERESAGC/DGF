@@ -22,6 +22,9 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { Download, Refresh } from "@mui/icons-material"
+
+import FeedbackDashboard from "./feedback-dashboard"
+import ManagerFeedbackDashboard from "./manager-feedback-dashboard"
 // import "./calendar-styles.css"
 
 const statusFilters = [
@@ -172,7 +175,7 @@ const DownloadReport = () => {
       case 1:
         return { marginLeft: "70px" };
       case 2:
-        return { marginLeft: "55px"};
+        return { marginLeft: "70px"};
       default:
         return { marginLeft: "30px" };
     }
@@ -221,6 +224,15 @@ const DownloadReport = () => {
             }}
           />
           <Tab
+            label="shruti rename this"
+            sx={{
+              textTransform: "none",
+              fontSize: "1rem",
+              fontWeight: "400",
+              minWidth: "120px",
+            }}
+          />
+          <Tab
             label="Effectiveness Reports"
             sx={{
               textTransform: "none",
@@ -229,15 +241,6 @@ const DownloadReport = () => {
               minWidth: "120px",
             }}
           />
-          {/* <Tab
-            label="Learning Objectives"
-            sx={{
-              textTransform: "none",
-              fontSize: "1rem",
-              fontWeight: "400",
-              minWidth: "120px",
-            }}
-          /> */}
         </Tabs> 
 
         <Box sx={{ p: 3 }}>
@@ -678,15 +681,16 @@ const DownloadReport = () => {
           )}
 
           {tabValue === 1 && (
-            <Box>
-            </Box>
+            <>
+              <FeedbackDashboard />
+            </>
           )}
 
-          {/* {tabValue === 2 && (
-            <Box>
-              Tab 2
-            </Box>
-          )} */}
+          {tabValue === 2 && (
+            <>
+              <ManagerFeedbackDashboard />
+            </>
+          )}
         </Box>
       </Paper>
     </Box>

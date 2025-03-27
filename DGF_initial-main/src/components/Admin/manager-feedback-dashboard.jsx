@@ -36,7 +36,19 @@ import {
 } from "@mui/material"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers"
-import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts"
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts"
 import {
   Assessment,
   Close,
@@ -44,56 +56,37 @@ import {
   School,
   Star,
   Comment,
-  Lightbulb,
   CalendarMonth,
   PictureAsPdf,
   TableView,
   InsertDriveFile,
-  HourglassEmpty,
-  CheckCircle,
-  PendingActions,
+  ThumbUp,
+  ThumbDown,
+  Timeline,
 } from "@mui/icons-material"
 import axios from "axios"
-import { exportData } from "../../utils/learners-export-utils"
+import { exportData } from "../../utils/manager-export-utils"
 
-// Utility function to map numeric ratings to text
-const mapRatingToText = (field, value) => {
-  const mappings = {
-    instruction_rating: {
-      4: "Very Good",
-      3: "Good",
-      2: "Interesting",
-      1: "Average",
-    },
-    engaged_rating: {
-      4: "Totally Engaged",
-      3: "Very Engaged",
-      2: "Engaged",
-      1: "Somewhat Engaged",
-    },
-    interactive: {
-      2: "Yes",
-      1: "No",
-    },
-    interactive_components: {
-      4: "Very Interactive",
-      3: "Interactive",
-      2: "Somewhat Interactive",
-      1: "Less Interactive",
-    },
-    engaged_session_rating: {
-      4: "Very Good",
-      3: "Good",
-      2: "Interesting",
-      1: "Average",
-    },
+// Utility function to format dates
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A"
+  const date = new Date(dateString)
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+}
+
+// Utility function to map enhancement ratings to text
+const mapEnhancementRating = (rating) => {
+  const ratings = {
+    4: "Very Good Enhancement",
+    3: "Good enhancement",
+    2: "Some enhancement",
+    1: "No Enhancement",
   }
-
-  return mappings[field]?.[value] || value
+  return ratings[rating] || rating
 }
 
 // Rating chip component with appropriate colors
-const RatingChip = ({ rating, field }) => {
+const RatingChip = ({ rating }) => {
   const theme = useTheme()
   const colors = {
     4: "#8fd3b6", // Pastel green
@@ -102,7 +95,7 @@ const RatingChip = ({ rating, field }) => {
     1: "#ffb6b9", // Pastel red
   }
 
-  const text = mapRatingToText(field, rating)
+  const text = mapEnhancementRating(rating)
   const color = colors[rating] || theme.palette.primary.main
 
   return (
@@ -124,7 +117,7 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6">Detailed Feedback</Typography>
+        <Typography variant="h6">Detailed Manager Feedback</Typography>
         <IconButton onClick={handleClose}>
           <Close />
         </IconButton>
@@ -136,7 +129,7 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
               <CardContent>
                 <Typography variant="subtitle1" color="primary" gutterBottom>
                   <Person sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Participant Information
+                  Employee Information
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ mb: 2 }}>
@@ -177,12 +170,6 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
                 </Box>
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Training Topic
-                  </Typography>
-                  <Typography variant="body1">{feedback.training_topic}</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
                     Request ID
                   </Typography>
                   <Typography variant="body1">{feedback.reqid}</Typography>
@@ -196,40 +183,20 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
               <CardContent>
                 <Typography variant="subtitle1" color="primary" gutterBottom>
                   <Star sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Ratings
+                  Skill Demonstration
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={12} sm={6}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Instruction Rating
-                      </Typography>
-                      <Box sx={{ mt: 1 }}>
-                        <RatingChip rating={feedback.instruction_rating} field="instruction_rating" />
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Engagement Rating
-                      </Typography>
-                      <Box sx={{ mt: 1 }}>
-                        <RatingChip rating={feedback.engaged_rating} field="engaged_rating" />
-                      </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Program Engaging
+                        Demonstrated Skill
                       </Typography>
                       <Box sx={{ mt: 1 }}>
                         <Chip
-                          label={mapRatingToText("interactive", feedback.interactive)}
+                          label={feedback.demonstrate_skill === "yes" ? "Yes" : "No"}
                           sx={{
-                            backgroundColor: feedback.interactive === "2" ? "#8fd3b6" : "#ffb6b9",
+                            backgroundColor: feedback.demonstrate_skill === "yes" ? "#8fd3b6" : "#ffb6b9",
                             color: "#333",
                             fontWeight: "medium",
                           }}
@@ -237,40 +204,38 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
                       </Box>
                     </Box>
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Interaction Level
-                      </Typography>
-                      <Box sx={{ mt: 1 }}>
-                        <Chip
-                          label={mapRatingToText("interactive_components", feedback.interactive_components)}
-                          sx={{
-                            backgroundColor:
-                              feedback.interactive_components === "4"
-                                ? "#8fd3b6"
-                                : feedback.interactive_components === "3"
-                                  ? "#a6dcef"
-                                  : feedback.interactive_components === "2"
-                                    ? "#ffcb91"
-                                    : "#ffb6b9",
-                            color: "#333",
-                            fontWeight: "medium",
-                          }}
-                        />
+                  {feedback.demonstrate_skill === "yes" && (
+                    <>
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Skill Demonstration Date
+                          </Typography>
+                          <Typography variant="body1">{formatDate(feedback.skill_date)}</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Enhancement Rating
+                          </Typography>
+                          <Box sx={{ mt: 1 }}>
+                            <RatingChip rating={feedback.enhancement_rating} />
+                          </Box>
+                        </Box>
+                      </Grid>
+                    </>
+                  )}
+                  {feedback.demonstrate_skill === "no" && (
+                    <Grid item xs={12} sm={6}>
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Opportunity Date
+                        </Typography>
+                        <Typography variant="body1">{formatDate(feedback.opportunity_date)}</Typography>
                       </Box>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Overall Experience
-                      </Typography>
-                      <Box sx={{ mt: 1 }}>
-                        <RatingChip rating={feedback.engaged_session_rating} field="engaged_session_rating" />
-                      </Box>
-                    </Box>
-                  </Grid>
+                    </Grid>
+                  )}
                 </Grid>
               </CardContent>
             </Card>
@@ -281,23 +246,15 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
               <CardContent>
                 <Typography variant="subtitle1" color="primary" gutterBottom>
                   <Comment sx={{ verticalAlign: "middle", mr: 1 }} />
-                  Comments
+                  Suggestions & Comments
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Areas for Improvement
-                  </Typography>
-                  <Paper variant="outlined" sx={{ p: 2, bgcolor: "background.default" }}>
-                    <Typography variant="body1">{feedback.improved_comments || "No comments provided"}</Typography>
-                  </Paper>
-                </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Other Suggestions
+                    Manager Suggestions
                   </Typography>
                   <Paper variant="outlined" sx={{ p: 2, bgcolor: "background.default" }}>
-                    <Typography variant="body1">{feedback.other_suggestions || "No suggestions provided"}</Typography>
+                    <Typography variant="body1">{feedback.suggestions || "No suggestions provided"}</Typography>
                   </Paper>
                 </Box>
               </CardContent>
@@ -314,7 +271,7 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
   )
 }
 
-const FeedbackDashboard = () => {
+const ManagerFeedbackDashboard = () => {
   const [feedbackData, setFeedbackData] = useState([])
   const [filteredData, setFilteredData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -338,44 +295,62 @@ const FeedbackDashboard = () => {
   // Add a state for alerts
   const [alert, setAlert] = useState({ open: false, message: "", severity: "success" })
 
-  // Mock data for total feedbacks triggered and pending
-  // In a real application, you would fetch this from your API
-  const [feedbackStats, setFeedbackStats] = useState({
-    totalTriggered: 0,
-    totalReceived: 0,
-    totalPending: 0,
+  // Stats for dashboard
+  const [dashboardStats, setDashboardStats] = useState({
+    totalFeedbacks: 0,
+    demonstratedSkill: 0,
+    pendingDemonstration: 0,
+    avgEnhancementRating: 0,
   })
 
   useEffect(() => {
     const fetchFeedbackData = async () => {
       try {
         setLoading(true)
-        const response = await axios.get("http://localhost:8000/api/learner-feedback")
+        const response = await axios.get("http://localhost:8000/api/manager-feedback")
         setFeedbackData(response.data)
         setFilteredData(response.data) // Initially set filtered data to all data
 
-        // Set mock stats based on the data
-        // In a real application, you would get this from your API
-        const totalReceived = response.data.length
-        const totalTriggered = totalReceived + Math.floor(totalReceived * 0.3) // Just for demonstration
-        const totalPending = totalTriggered - totalReceived
-
-        setFeedbackStats({
-          totalTriggered,
-          totalReceived,
-          totalPending,
-        })
+        // Calculate dashboard stats
+        calculateDashboardStats(response.data)
 
         setLoading(false)
       } catch (err) {
-        setError("Failed to fetch feedback data")
+        setError("Failed to fetch manager feedback data")
         setLoading(false)
-        console.error("Error fetching feedback data:", err)
+        console.error("Error fetching manager feedback data:", err)
       }
     }
 
     fetchFeedbackData()
   }, [])
+
+  // Calculate dashboard statistics
+  const calculateDashboardStats = (data) => {
+    const totalFeedbacks = data.length
+    const demonstratedSkill = data.filter((item) => item.demonstrate_skill === "yes").length
+    const pendingDemonstration = totalFeedbacks - demonstratedSkill
+
+    // Calculate average enhancement rating for those who demonstrated skill
+    let totalRating = 0
+    let ratingCount = 0
+
+    data.forEach((item) => {
+      if (item.demonstrate_skill === "yes" && item.enhancement_rating) {
+        totalRating += Number.parseInt(item.enhancement_rating)
+        ratingCount++
+      }
+    })
+
+    const avgEnhancementRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0
+
+    setDashboardStats({
+      totalFeedbacks,
+      demonstratedSkill,
+      pendingDemonstration,
+      avgEnhancementRating,
+    })
+  }
 
   // Apply date filters
   useEffect(() => {
@@ -389,20 +364,42 @@ const FeedbackDashboard = () => {
       end.setHours(23, 59, 59, 999) // Set to end of day
 
       filtered = feedbackData.filter((item) => {
-        // Assuming there's a date field in the feedback data
-        // You might need to adjust this based on your actual data structure
-        const itemDate = new Date(item.created_at || item.date || new Date())
+        // Filter by skill_date or opportunity_date depending on demonstrate_skill
+        let itemDate
+        if (item.demonstrate_skill === "yes" && item.skill_date) {
+          itemDate = new Date(item.skill_date)
+        } else if (item.demonstrate_skill === "no" && item.opportunity_date) {
+          itemDate = new Date(item.opportunity_date)
+        } else if (item.feedback_submitted_date) {
+          itemDate = new Date(item.feedback_submitted_date)
+        } else {
+          return false // Skip items without relevant dates
+        }
+
         return itemDate >= start && itemDate <= end
       })
     } else if (filterType === "month" && selectedMonth && selectedYear) {
       const month = Number.parseInt(selectedMonth)
       filtered = feedbackData.filter((item) => {
-        const itemDate = new Date(item.created_at || item.date || new Date())
+        // Filter by skill_date or opportunity_date depending on demonstrate_skill
+        let itemDate
+        if (item.demonstrate_skill === "yes" && item.skill_date) {
+          itemDate = new Date(item.skill_date)
+        } else if (item.demonstrate_skill === "no" && item.opportunity_date) {
+          itemDate = new Date(item.opportunity_date)
+        } else if (item.feedback_submitted_date) {
+          itemDate = new Date(item.feedback_submitted_date)
+        } else {
+          return false // Skip items without relevant dates
+        }
+
         return itemDate.getMonth() === month - 1 && itemDate.getFullYear() === selectedYear
       })
     }
 
     setFilteredData(filtered)
+    // Update dashboard stats based on filtered data
+    calculateDashboardStats(filtered)
     setPage(1) // Reset to first page when filters change
   }, [feedbackData, filterType, startDate, endDate, selectedMonth, selectedYear])
 
@@ -427,13 +424,23 @@ const FeedbackDashboard = () => {
     setPage(newPage)
   }
 
-  // Updated download functionality using the export-utils
+  // Download functionality using the export-utils
   const downloadReport = (format) => {
     setLoading(true)
 
     try {
+      // Format data for export
+      const exportableData = filteredData.map((item) => ({
+        ...item,
+        demonstrate_skill: item.demonstrate_skill === "yes" ? "Yes" : "No",
+        skill_date: formatDate(item.skill_date),
+        opportunity_date: formatDate(item.opportunity_date),
+        feedback_submitted_date: formatDate(item.feedback_submitted_date),
+        enhancement_rating_text: mapEnhancementRating(item.enhancement_rating),
+      }))
+
       // Use the exportData function from export-utils
-      exportData(filteredData, format, "feedback_report")
+      exportData(exportableData, format, "manager_feedback_report")
 
       setAlert({
         open: true,
@@ -454,116 +461,64 @@ const FeedbackDashboard = () => {
 
   // Prepare data for charts
   const prepareChartData = () => {
-    if (!filteredData.length)
-      return { instructionRatings: [], engagementRatings: [], overallRatings: [], interactionData: [] }
+    if (!filteredData.length) return { enhancementRatings: [], demonstrationStatus: [], opportunityTimeline: [] }
 
-    // Count ratings for instruction
-    const instructionCounts = filteredData.reduce((acc, item) => {
-      const rating = item.instruction_rating
-      acc[rating] = (acc[rating] || 0) + 1
-      return acc
-    }, {})
-
-    // Count ratings for engagement
-    const engagementCounts = filteredData.reduce((acc, item) => {
-      const rating = item.engaged_rating
-      acc[rating] = (acc[rating] || 0) + 1
-      return acc
-    }, {})
-
-    // Count ratings for overall experience
-    const overallCounts = filteredData.reduce((acc, item) => {
-      const rating = item.engaged_session_rating
-      acc[rating] = (acc[rating] || 0) + 1
-      return acc
-    }, {})
-
-    // Count for interaction components
-    const interactionCounts = filteredData.reduce((acc, item) => {
-      const rating = item.interactive_components
-      const label = mapRatingToText("interactive_components", rating)
-      acc[label] = (acc[label] || 0) + 1
-      return acc
-    }, {})
-
-    // Declare ionRatings before assigning it
-    const ionRatings = Object.keys(instructionCounts).map((key) => ({
-      name: mapRatingToText("instruction_rating", key),
-      value: instructionCounts[key],
-      rating: key,
-    }))
-
-    const engagementRatings = Object.keys(engagementCounts).map((key) => ({
-      name: mapRatingToText("engaged_rating", key),
-      value: engagementCounts[key],
-      rating: key,
-    }))
-
-    const overallRatings = Object.keys(overallCounts).map((key) => ({
-      name: mapRatingToText("engaged_session_rating", key),
-      value: overallCounts[key],
-      rating: key,
-    }))
-
-    const interactionData = Object.keys(interactionCounts).map((key) => ({
-      name: key,
-      value: interactionCounts[key],
-    }))
-
-    return { instructionRatings: ionRatings, engagementRatings, overallRatings, interactionData }
-  }
-
-  const { instructionRatings, engagementRatings, overallRatings, interactionData } = prepareChartData()
-
-  // Calculate summary statistics
-  const calculateSummary = () => {
-    if (!filteredData.length)
-      return {
-        totalFeedbacks: 0,
-        avgInstructionRating: 0,
-        avgEngagementRating: 0,
-        avgOverallRating: 0,
-        avgInteractionRating: 0,
+    // Count enhancement ratings
+    const enhancementCounts = filteredData.reduce((acc, item) => {
+      if (item.demonstrate_skill === "yes" && item.enhancement_rating) {
+        const rating = item.enhancement_rating
+        acc[rating] = (acc[rating] || 0) + 1
       }
+      return acc
+    }, {})
 
-    const totalFeedbacks = filteredData.length
+    // Count demonstration status
+    const demonstrationStatus = [
+      { name: "Demonstrated", value: filteredData.filter((item) => item.demonstrate_skill === "yes").length },
+      { name: "Not Demonstrated", value: filteredData.filter((item) => item.demonstrate_skill === "no").length },
+    ]
 
-    const sumInstructionRating = filteredData.reduce((sum, item) => sum + Number.parseInt(item.instruction_rating), 0)
-    const avgInstructionRating = (sumInstructionRating / totalFeedbacks).toFixed(1)
+    // Group opportunity dates by month for timeline
+    const opportunityDates = filteredData
+      .filter((item) => item.demonstrate_skill === "no" && item.opportunity_date)
+      .reduce((acc, item) => {
+        const date = new Date(item.opportunity_date)
+        const monthYear = `${date.toLocaleString("default", { month: "short" })} ${date.getFullYear()}`
+        acc[monthYear] = (acc[monthYear] || 0) + 1
+        return acc
+      }, {})
 
-    const sumEngagementRating = filteredData.reduce((sum, item) => sum + Number.parseInt(item.engaged_rating), 0)
-    const avgEngagementRating = (sumEngagementRating / totalFeedbacks).toFixed(1)
+    const opportunityTimeline = Object.keys(opportunityDates).map((key) => ({
+      month: key,
+      count: opportunityDates[key],
+    }))
 
-    const sumOverallRating = filteredData.reduce((sum, item) => sum + Number.parseInt(item.engaged_session_rating), 0)
-    const avgOverallRating = (sumOverallRating / totalFeedbacks).toFixed(1)
+    // Sort timeline by date
+    opportunityTimeline.sort((a, b) => {
+      const dateA = new Date(a.month)
+      const dateB = new Date(b.month)
+      return dateA - dateB
+    })
 
-    const sumInteractionRating = filteredData.reduce(
-      (sum, item) => sum + Number.parseInt(item.interactive_components),
-      0,
-    )
-    const avgInteractionRating = (sumInteractionRating / totalFeedbacks).toFixed(1)
+    const enhancementRatings = Object.keys(enhancementCounts).map((key) => ({
+      name: mapEnhancementRating(key),
+      value: enhancementCounts[key],
+      rating: key,
+    }))
 
-    const engagingYesCount = filteredData.filter((item) => item.interactive === "2").length
-    const engagingPercentage = ((engagingYesCount / totalFeedbacks) * 100).toFixed(0)
-
-    return {
-      totalFeedbacks,
-      avgInstructionRating,
-      avgEngagementRating,
-      avgOverallRating,
-      avgInteractionRating,
-      engagingPercentage,
-    }
+    return { enhancementRatings, demonstrationStatus, opportunityTimeline }
   }
 
-  const summary = calculateSummary()
+  const { enhancementRatings, demonstrationStatus, opportunityTimeline } = prepareChartData()
 
-  // Updated pastel colors for charts
+  // Get current page of data for the table
+  const paginatedData = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+
+  // Colors for charts
   const COLORS = {
-    instruction: ["#a3c9f1", "#7fb3e6", "#5a9bd8", "#3d82c4"], // Lighter blues
-    engagement: ["#ffa07a", "#ff725e", "#e65c4d", "#cc4a3d"], // Lighter reds/oranges
-    overall: ["#5a3e85", "#7b5ea5", "#9b7fc1", "#bfa3db"], // Professional muted purples
-    interaction: ["#f9d36e", "#a6dcef", "#ffcb91", "#ffb6b9"], // Soft neutrals and light blues
+    enhancement: ["#ffa07a", "#ff725e", "#e65c4d", "#cc4a3d"], // Lighter reds/oranges
+    demonstration: [ "#7b5ea5",  "#bfa3db","#9b7fc1","#5a3e85"],
+    opportunity: "#5a9bd8",
   }
 
   // Custom tooltip for charts
@@ -580,9 +535,6 @@ const FeedbackDashboard = () => {
 
   // Generate years for dropdown (last 5 years)
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
-
-  // Get current page of data for the table
-  const paginatedData = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage)
 
   if (loading) {
     return (
@@ -620,7 +572,7 @@ const FeedbackDashboard = () => {
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Assessment sx={{ color: "#09459e", mr: 1 }} />
                 <Typography variant="h5" component="h1" sx={{ fontWeight: "bold", color: "#09459e" }}>
-                  Learning Feedback Dashboard
+                  Manager Feedback Dashboard
                 </Typography>
               </Box>
               <ButtonGroup variant="outlined" size="small">
@@ -654,7 +606,7 @@ const FeedbackDashboard = () => {
               </ButtonGroup>
             </Box>
             <Typography variant="body2" color="text.secondary">
-              Comprehensive analysis of participant feedback for training sessions
+              Comprehensive analysis of manager feedback on skill enhancement
             </Typography>
           </Box>
 
@@ -781,148 +733,84 @@ const FeedbackDashboard = () => {
               Summary Statistics
             </Typography>
 
-            {/* Summary Cards Section - Three cards per row with centered titles */}
             <Grid container spacing={3}>
-              {/* Total Feedback Card with 3 fields */}
-              <Grid item xs={12} sm={6} md={4}>
+              {/* Total Feedback Card */}
+              <Grid item xs={12} sm={6} md={3}>
                 <Card sx={{ bgcolor: "#a6dcef", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
                       Total Feedback
                     </Typography>
-                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mt: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <HourglassEmpty fontSize="small" />
-                        <Typography variant="body1">
-                          Triggered: <strong>{feedbackStats.totalTriggered}</strong>
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <CheckCircle fontSize="small" />
-                        <Typography variant="body1">
-                          Received: <strong>{feedbackStats.totalReceived}</strong>
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <PendingActions fontSize="small" />
-                        <Typography variant="body1">
-                          Pending: <strong>{feedbackStats.totalPending}</strong>
-                        </Typography>
-                      </Box>
-                    </Box>
+                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
+                      {dashboardStats.totalFeedbacks}
+                    </Typography>
+                    <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
+                      manager feedback entries
+                    </Typography>
                   </CardContent>
                 </Card>
               </Grid>
 
-              {/* Average Instruction Rating Card */}
-              <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ bgcolor: "#b5ead7", color: "#333", borderRadius: 2, height: 180 }}>
+              {/* Demonstrated Skill Card */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ bgcolor: "#8fd3b6", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Avg. Instruction Rating
+                      Demonstrated Skill
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
-                      {summary.avgInstructionRating}
-                    </Typography>
-                    <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-                      {[...Array(4)].map((_, i) => (
-                        <Star
-                          key={i}
-                          sx={{
-                            opacity: i < Math.round(Number.parseFloat(summary.avgInstructionRating)) ? 1 : 0.5,
-                          }}
-                        />
-                      ))}
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
+                      <ThumbUp sx={{ fontSize: 40, mr: 1 }} />
+                      <Typography variant="h2" sx={{ fontWeight: "bold" }}>
+                        {dashboardStats.demonstratedSkill}
+                      </Typography>
                     </Box>
+                    <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
+                      employees demonstrated skills
+                    </Typography>
                   </CardContent>
                 </Card>
               </Grid>
 
-              {/* Average Engagement Rating Card */}
-              <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ bgcolor: "#c7ceea", color: "#333", borderRadius: 2, height: 180 }}>
-                  <CardContent>
-                    <Typography variant="h6" align="center" gutterBottom>
-                      Avg. Engagement Rating
-                    </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
-                      {summary.avgEngagementRating}
-                    </Typography>
-                    <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-                      {[...Array(4)].map((_, i) => (
-                        <Star
-                          key={i}
-                          sx={{
-                            opacity: i < Math.round(Number.parseFloat(summary.avgEngagementRating)) ? 1 : 0.5,
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Average Overall Experience Rating Card - NEW */}
-              <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ bgcolor: "#ffdac1", color: "#333", borderRadius: 2, height: 180 }}>
-                  <CardContent>
-                    <Typography variant="h6" align="center" gutterBottom>
-                      Avg. Overall Experience
-                    </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
-                      {summary.avgOverallRating}
-                    </Typography>
-                    <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-                      {[...Array(4)].map((_, i) => (
-                        <Star
-                          key={i}
-                          sx={{
-                            opacity: i < Math.round(Number.parseFloat(summary.avgOverallRating)) ? 1 : 0.5,
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Average Interaction Rating Card - NEW */}
-              <Grid item xs={12} sm={6} md={4}>
+              {/* Pending Demonstration Card */}
+              <Grid item xs={12} sm={6} md={3}>
                 <Card sx={{ bgcolor: "#ffb6b9", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
                     <Typography variant="h6" align="center" gutterBottom>
-                      Avg. Interaction Rating
+                      Pending Demonstration
+                    </Typography>
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
+                      <ThumbDown sx={{ fontSize: 40, mr: 1 }} />
+                      <Typography variant="h2" sx={{ fontWeight: "bold" }}>
+                        {dashboardStats.pendingDemonstration}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
+                      employees yet to demonstrate
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Average Enhancement Rating Card */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Card sx={{ bgcolor: "#c7ceea", color: "#333", borderRadius: 2, height: 180 }}>
+                  <CardContent>
+                    <Typography variant="h6" align="center" gutterBottom>
+                      Avg. Enhancement Rating
                     </Typography>
                     <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
-                      {summary.avgInteractionRating}
+                      {dashboardStats.avgEnhancementRating}
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
                       {[...Array(4)].map((_, i) => (
                         <Star
                           key={i}
                           sx={{
-                            opacity: i < Math.round(Number.parseFloat(summary.avgInteractionRating)) ? 1 : 0.5,
+                            opacity: i < Math.round(Number.parseFloat(dashboardStats.avgEnhancementRating)) ? 1 : 0.5,
                           }}
                         />
                       ))}
                     </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Program Engaging Card */}
-              <Grid item xs={12} sm={6} md={4}>
-                <Card sx={{ bgcolor: "#a3c9f1", color: "#333", borderRadius: 2, height: 180 }}>
-                  <CardContent>
-                    <Typography variant="h6" align="center" gutterBottom>
-                      Program Engaging
-                    </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
-                      {summary.engagingPercentage}%
-                    </Typography>
-                    <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
-                      of participants found the program engaging
-                    </Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -962,16 +850,16 @@ const FeedbackDashboard = () => {
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                        Instruction Rating Distribution
+                        Enhancement Rating Distribution
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
-                              data={instructionRatings}
+                              data={enhancementRatings}
                               cx="50%"
                               cy="50%"
-                              innerRadius={0} // Reduced inner radius
+                              innerRadius={0}
                               outerRadius={80}
                               fill="#8884d8"
                               dataKey="value"
@@ -979,10 +867,10 @@ const FeedbackDashboard = () => {
                               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                               isAnimationActive={false}
                             >
-                              {instructionRatings.map((entry, index) => (
+                              {enhancementRatings.map((entry, index) => (
                                 <Cell
                                   key={`cell-${index}`}
-                                  fill={COLORS.instruction[index % COLORS.instruction.length]}
+                                  fill={COLORS.enhancement[index % COLORS.enhancement.length]}
                                 />
                               ))}
                             </Pie>
@@ -1007,13 +895,13 @@ const FeedbackDashboard = () => {
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                        Engagement Distribution
+                        Skill Demonstration Status
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
-                              data={engagementRatings}
+                              data={demonstrationStatus}
                               cx="50%"
                               cy="50%"
                               innerRadius={0}
@@ -1024,10 +912,10 @@ const FeedbackDashboard = () => {
                               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                               isAnimationActive={false}
                             >
-                              {engagementRatings.map((entry, index) => (
+                              {demonstrationStatus.map((entry, index) => (
                                 <Cell
                                   key={`cell-${index}`}
-                                  fill={COLORS.engagement[index % COLORS.engagement.length]}
+                                  fill={COLORS.demonstration[index % COLORS.demonstration.length]}
                                 />
                               ))}
                             </Pie>
@@ -1039,7 +927,7 @@ const FeedbackDashboard = () => {
                     </Paper>
                   </Grid>
 
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12}>
                     <Paper
                       elevation={0}
                       sx={{
@@ -1051,74 +939,17 @@ const FeedbackDashboard = () => {
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                        Overall Experience Rating
+                        Upcoming Skill Demonstration Timeline
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={overallRatings}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {overallRatings.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS.overall[index % COLORS.overall.length]} />
-                              ))}
-                            </Pie>
-                            <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </Box>
-                    </Paper>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        borderRadius: 2,
-                        height: 350,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
-                        Interaction Level Distribution
-                      </Typography>
-                      <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={interactionData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={0}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                              nameKey="name"
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              isAnimationActive={false}
-                            >
-                              {interactionData.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS.interaction[index % COLORS.interaction.length]}
-                                />
-                              ))}
-                            </Pie>
-                            <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend />
-                          </PieChart>
+                          <BarChart data={opportunityTimeline}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis />
+                            <RechartsTooltip />
+                            <Bar dataKey="count" fill={COLORS.opportunity} name="Upcoming Demonstrations" />
+                          </BarChart>
                         </ResponsiveContainer>
                       </Box>
                     </Paper>
@@ -1132,8 +963,8 @@ const FeedbackDashboard = () => {
               <Box sx={{ px: 3, py: 3 }}>
                 <Paper elevation={0} sx={{ px: 3, py: 3, borderRadius: 2 }}>
                   <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center" }}>
-                    <Lightbulb sx={{ mr: 1, color: "#09459e" }} />
-                    Feedback Records
+                    <Timeline sx={{ mr: 1, color: "#09459e" }} />
+                    Manager Feedback Records
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     Click on "View Details" to see the complete feedback record
@@ -1146,15 +977,15 @@ const FeedbackDashboard = () => {
                             Employee
                           </TableCell>
                           <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
-                            Training Topic
+                            Course ID
                           </TableCell>
                           <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
-                            Instruction
+                            Skill Demonstrated
                           </TableCell>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Date</TableCell>
                           <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
-                            Engagement
+                            Enhancement
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Overall</TableCell>
                           <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
@@ -1171,15 +1002,30 @@ const FeedbackDashboard = () => {
                                 </Typography>
                               </Box>
                             </TableCell>
-                            <TableCell>{feedback.training_topic}</TableCell>
+                            <TableCell>{feedback.course_id}</TableCell>
                             <TableCell>
-                              <RatingChip rating={feedback.instruction_rating} field="instruction_rating" />
+                              <Chip
+                                label={feedback.demonstrate_skill === "yes" ? "Yes" : "No"}
+                                sx={{
+                                  backgroundColor: feedback.demonstrate_skill === "yes" ? "#8fd3b6" : "#ffb6b9",
+                                  color: "#333",
+                                  fontWeight: "medium",
+                                }}
+                              />
                             </TableCell>
                             <TableCell>
-                              <RatingChip rating={feedback.engaged_rating} field="engaged_rating" />
+                              {feedback.demonstrate_skill === "yes"
+                                ? formatDate(feedback.skill_date)
+                                : formatDate(feedback.opportunity_date)}
                             </TableCell>
                             <TableCell>
-                              <RatingChip rating={feedback.engaged_session_rating} field="engaged_session_rating" />
+                              {feedback.demonstrate_skill === "yes" && feedback.enhancement_rating ? (
+                                <RatingChip rating={feedback.enhancement_rating} />
+                              ) : (
+                                <Typography variant="body2" color="text.secondary">
+                                  N/A
+                                </Typography>
+                              )}
                             </TableCell>
                             <TableCell>
                               <Button
@@ -1210,7 +1056,6 @@ const FeedbackDashboard = () => {
                         },
                         "& .Mui-selected": {
                           backgroundColor: "rgba(9, 69, 158, 0.1) !important",
-                          color: "red",
                         },
                       }}
                     />
@@ -1240,5 +1085,5 @@ const FeedbackDashboard = () => {
   )
 }
 
-export default FeedbackDashboard
+export default ManagerFeedbackDashboard
 
