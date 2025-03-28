@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useState, useEffect } from "react"
 import {
@@ -1031,7 +1031,7 @@ const ManagerFeedbackDashboard = () => {
             {/* Table View */}
             {activeTab === 1 && (
               <Box sx={{ px: 3, py: 3 }}>
-                <Paper elevation={0} sx={{ px: 3, py: 3, borderRadius: 2 }}>
+                <Paper elevation={0} sx={{ px: 3, py: 3, borderRadius: 2,padding:"0px",marginBottom:"-66px" }}>
                   <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center" }}>
                     <Timeline sx={{ mr: 1, color: "#09459e" }} />
                     Manager Feedback Records
@@ -1041,22 +1041,22 @@ const ManagerFeedbackDashboard = () => {
                   </Typography>
                   <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 440 }}>
                     <Table stickyHeader>
-                      <TableHead>
+                      <TableHead sx={{ bgcolor: "#8FBEF8" }}>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black",textAlign: "left !important" }}>
                             Employee
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>
                             Course ID
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black",marginLeft:"-20px" }}>
                             Skill Demonstrated
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Date</TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>Date</TableCell>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>
                             Enhancement
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Actions</TableCell>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1064,24 +1064,23 @@ const ManagerFeedbackDashboard = () => {
                           <TableRow key={feedback.id} hover>
                             <TableCell>
                               <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                                <Typography variant="body2" sx={{ fontWeight: "medium",textAlign: "left" }}>
                                   {feedback.emp_name}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography variant="caption" color="text.secondary" sx={{ textAlign: "left" }}>
                                   {feedback.employee_id}
                                 </Typography>
                               </Box>
                             </TableCell>
-                            <TableCell>{feedback.course_id}</TableCell>
-                            <TableCell>
-                              <Chip
-                                label={feedback.demonstrate_skill === "yes" ? "Yes" : "No"}
-                                sx={{
-                                  backgroundColor: feedback.demonstrate_skill === "yes" ? "#8fd3b6" : "#ffb6b9",
-                                  color: "#333",
-                                  fontWeight: "medium",
-                                }}
-                              />
+                            <TableCell sx={{textAlign:"center"}}>{feedback.course_id}</TableCell>
+                            <TableCell sx={{textAlign:"center"}}>
+                            <Typography
+  sx={{
+    color: feedback.demonstrate_skill === "yes" ? "green" : "red", // Pastel green for "yes", pastel red for "no"
+  }}
+>
+  {feedback.demonstrate_skill === "yes" ? "Yes" : "No"}
+</Typography>
                             </TableCell>
                             <TableCell>
                               {feedback.demonstrate_skill === "yes"
@@ -1102,7 +1101,7 @@ const ManagerFeedbackDashboard = () => {
                                 variant="contained"
                                 size="small"
                                 onClick={() => handleOpenDialog(feedback)}
-                                sx={{ textTransform: "none", bgcolor: "#09459e" }}
+                                sx={{ textTransform: "none", bgcolor: "#8FBEF8" ,color:"black", borderRadius: "24px",fontSize: "10px",width:"80px"}}
                               >
                                 View Details
                               </Button>
@@ -1114,7 +1113,7 @@ const ManagerFeedbackDashboard = () => {
                   </TableContainer>
 
                   {/* Pagination for feedback table */}
-                  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
                     <Pagination
                       count={Math.ceil(filteredData.length / rowsPerPage)}
                       page={page}
@@ -1126,6 +1125,7 @@ const ManagerFeedbackDashboard = () => {
                         },
                         "& .Mui-selected": {
                           backgroundColor: "rgba(9, 69, 158, 0.1) !important",
+                          color:"red !important",
                         },
                       }}
                     />

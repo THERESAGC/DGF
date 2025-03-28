@@ -1279,23 +1279,23 @@ const FeedbackDashboard = () => {
                     Click on &quot;View Details&quot; to see the complete feedback record
                   </Typography>
                   <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 440 }}>
-                    <Table stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                    <Table stickyHeader >
+                      <TableHead >
+                        <TableRow >
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black",textAlign: "left !important" }}>
                             Employee
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>
                             Training Topic
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>
                             Instruction
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>
                             Engagement
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Overall</TableCell>
-                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#09459e", color: "white" }}>Actions</TableCell>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>Overall</TableCell>
+                          <TableCell sx={{ fontWeight: "bold", bgcolor: "#8FBEF8", color: "black" }}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1303,10 +1303,10 @@ const FeedbackDashboard = () => {
                           <TableRow key={feedback.id} hover>
                             <TableCell>
                               <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                                <Typography variant="body2" sx={{ fontWeight: "medium" ,textAlign: "left"}}>
                                   {feedback.emp_name}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography variant="caption" color="text.secondary" sx={{ textAlign: "left" }}>
                                   {feedback.employee_id}
                                 </Typography>
                               </Box>
@@ -1326,7 +1326,7 @@ const FeedbackDashboard = () => {
                                 variant="contained"
                                 size="small"
                                 onClick={() => handleOpenDialog(feedback)}
-                                sx={{ textTransform: "none", bgcolor: "#09459e" }}
+                                sx={{ textTransform: "none", bgcolor: "#8FBEF8" ,color:"black", borderRadius: "15px",fontSize: "11px",width:"90px",fontWeight:"700"}}
                               >
                                 View Details
                               </Button>
@@ -1350,7 +1350,7 @@ const FeedbackDashboard = () => {
                         },
                         "& .Mui-selected": {
                           backgroundColor: "rgba(9, 69, 158, 0.1) !important",
-                          color: "red",
+                          color: "red !important",
                         },
                       }}
                     />
