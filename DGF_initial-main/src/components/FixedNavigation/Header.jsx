@@ -176,7 +176,7 @@ const handleMarkAllAsRead = async () => {
       <Toolbar>
         {/* Search Bar */}
         {/* Conditionally render the Search Bar */}
-        {location.pathname === "/training-container" && (
+        {/* {location.pathname === "/training-container" && (
           <div className="search">
             <SearchIcon className="icon" style={{ marginBottom: "30px", paddingBottom: "3px" }} />
             <InputBase
@@ -186,7 +186,7 @@ const handleMarkAllAsRead = async () => {
             />
             <IconButton type="submit" aria-label="search"></IconButton>
           </div>
-        )}
+        )} */}
  
         {/* Spacer to push items to the right */}
         <div style={{ flexGrow: 1 }} />
