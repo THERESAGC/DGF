@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import {
   Box,
   Typography,
@@ -22,7 +22,7 @@ import {
   Alert,
 } from "@mui/material"
 import { styled } from "@mui/material/styles"
-import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, ArrowForward } from "@mui/icons-material"
+import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, } from "@mui/icons-material"
 import { useParams } from "react-router-dom"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import AssignCourseModal from "./AssignCourseModal"
@@ -30,6 +30,7 @@ import AssignCourseModal from "./AssignCourseModal"
 import PropTypes from "prop-types"
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import CommentsSidebar from "./commentsSidebar";
+import AuthContext from "../Auth/AuthContext"
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -102,6 +103,8 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" })
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [currentAssignmentId, setCurrentAssignmentId] = useState(null)
+
+
 
   const handleMenuClick = (event, assignmentId) => {
     setAnchorElMap((prev) => ({ ...prev, [assignmentId]: event.currentTarget }))
@@ -429,8 +432,10 @@ export default function CourseTracker() {
   //   console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
   // };
 
+  const user = useContext(AuthContext)?.user; // Retrieve user from AuthContext
+  
   const handleSendEmails = async (empIds) => {
-    console.log("Send Reminder Clicked");
+      console.log("Send Reminder Clicked");
   
     const learningInitiatedAssignments = [];
   
@@ -463,7 +468,7 @@ export default function CourseTracker() {
           },
           body: JSON.stringify({
             learningInitiatedAssignments, // Pass the assignments
-            empId: 1234, // Example of sending empId (assuming this is logged in user ID)
+            empId: user?.empId, // Example of sending empId (assuming this is logged in user ID)
           }),
         });
   

@@ -940,14 +940,14 @@ const ManagerFeedbackDashboard = () => {
                         mb: 2,
                         display: "flex",
                         flexDirection: "column",
-                        minWidth: "114%",
+                        
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
                         Skill Demonstration Status
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth="120%"  >
                           <PieChart>
                             <Pie
                               data={demonstrationStatus}

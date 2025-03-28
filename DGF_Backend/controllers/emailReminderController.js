@@ -8,7 +8,7 @@ const fetchEmailReminders = async (req, res) => {
         res.status(200).json(reminders);
         console.log("______________")
     } catch (error) {
-        console.error('Error fetching email reminders:', error);
+        // console.error('Error fetching email reminders:', error);
         res.status(500).json({ error: 'Failed to fetch reminders' });
     }
 };

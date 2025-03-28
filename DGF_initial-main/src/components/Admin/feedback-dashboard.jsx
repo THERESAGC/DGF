@@ -34,6 +34,7 @@ import {
   Alert,
   Pagination,
 } from "@mui/material"
+import PropTypes from "prop-types"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers"
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts"
@@ -60,8 +61,8 @@ import { exportData } from "../../utils/learners-export-utils"
 const mapRatingToText = (field, value) => {
   const mappings = {
     instruction_rating: {
-      4: "Good",
-      3: "Very Good",
+      4: "Very Good",
+      3: "Good",
       2: "Interesting",
       1: "Average",
     },
@@ -596,23 +597,35 @@ const FeedbackDashboard = () => {
 
   // Updated pastel colors for charts
   const COLORS = {
-    instruction: ["#a3c9f1", "#3d82c4" ,"#5a9bd8","#7fb3e6"], // Lighter blues
+    instruction: ["#a3c9f1","#7fb3e6","#5a9bd8" ,"#3d82c4" ], // Lighter blues
     engagement: ["#ffa07a", "#ff725e", "#e65c4d", "#cc4a3d"], // Lighter reds/oranges
-    overall: ["#5a3e85", "#7b5ea5", "#9b7fc1", "#bfa3db"], // Professional muted purples
+    overall: [ "#bfa3db","#9b7fc1","#7b5ea5", "#5a3e85"], // Professional muted purples
     interaction: ["#f9d36e", "#a6dcef", "#ffcb91", "#ffb6b9"], // Soft neutrals and light blues
   }
 
   // Custom tooltip for charts
+
+  
   const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <Paper sx={{ p: 1.5, boxShadow: 3, bgcolor: "white" }}>
-          <Typography variant="body2">{`${payload[0].name}: ${payload[0].value}`}</Typography>
-        </Paper>
-      )
+      if (active && payload && payload.length) {
+        return (
+          <Paper sx={{ p: 1.5, boxShadow: 3, bgcolor: "white" }}>
+            <Typography variant="body2">{`${payload[0].name}: ${payload[0].value}`}</Typography>
+          </Paper>
+        )
+      }
+      return null
     }
-    return null
-  }
+  
+  CustomTooltip.propTypes = {
+    active: PropTypes.bool,
+    payload: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      })
+    ),
+  };
 
   // Generate years for dropdown (last 5 years)
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
@@ -1001,7 +1014,7 @@ const FeedbackDashboard = () => {
                         Instruction Rating Distribution
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth="105%">
                           <PieChart sx={{ width: "100%", height: "87%" }}>
                           <Pie
   data={instructionRatings}
@@ -1063,14 +1076,14 @@ const FeedbackDashboard = () => {
                         mb: 2,
                         display: "flex",
                         flexDirection: "column",
-                         minWidth: "118%"
+                      
                       }}
                     >
-                      <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2,marginRight:"100px" }}>
+                      <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
                         Engagement Distribution
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth="130%">
                           <PieChart>
                           <Pie
   data={engagementRatings}
@@ -1135,7 +1148,7 @@ const FeedbackDashboard = () => {
                         Overall Experience Rating
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth="100%">
                           <PieChart>
                           <Pie
   data={overallRatings}
@@ -1194,14 +1207,14 @@ const FeedbackDashboard = () => {
                         height: 350,
                         display: "flex",
                         flexDirection: "column",
-                        minWidth: "114%"
+                      
                       }}
                     >
                       <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 2 }}>
                         Interaction Level Distribution
                       </Typography>
                       <Box sx={{ height: 280, display: "flex", justifyContent: "center", flexGrow: 1 }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth="120%">
                           <PieChart>
                           <Pie
     data={interactionData}
@@ -1263,7 +1276,7 @@ const FeedbackDashboard = () => {
                     Feedback Records
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Click on "View Details" to see the complete feedback record
+                    Click on &quot;View Details&quot; to see the complete feedback record
                   </Typography>
                   <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 440 }}>
                     <Table stickyHeader>

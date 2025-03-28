@@ -7,7 +7,6 @@ import AuthContext from '../Auth/AuthContext';
 // import DashboardIcon from '../../assets/dashboard.svg';
 import TrainingIcon from '../../assets/Training.svg';
 import MyCourseIcon from '../../assets/mycourse.svg';
-import EventIcon from '../../assets/event.svg';
 import Logo from '../../assets/harbinger-logo.svg';
 import SettingsIcon from '../../assets/setting.png';
 import DashboardIcon from '../../assets/Dashboard.svg';
@@ -25,7 +24,7 @@ const Sidebar = () => {
       '/training-container': 'Learnings',
       '/new-request': 'Learnings',
       '/my-courses': 'My Courses',
-      '/my-events': 'Events',
+      // '/my-events': 'Events',
       '/admin-container': 'Admin Settings',
       '/learning-initiated-details/:requestId': 'Learnings', // Added new route
       '/initiate-learning-details/:requestId': 'Learnings', // Added new route
@@ -62,11 +61,11 @@ const Sidebar = () => {
       icon: <img src={MyCourseIcon} alt="My Courses" style={{ width: 15, height: 15, paddingLeft: 25 }} />,
       path: '/my-courses',
     },
-    {
-      text: 'Events',
-      icon: <img src={EventIcon} alt="Events" style={{ width: 15, height: 15, paddingLeft: 25 }} />,
-      path: '/my-events',
-    },
+    // {
+    //   text: 'Events',
+    //   icon: <img src={EventIcon} alt="Events" style={{ width: 15, height: 15, paddingLeft: 25 }} />,
+    //   path: '/my-events',
+    // },
   ];
  
   if (user?.role_id === 4) {

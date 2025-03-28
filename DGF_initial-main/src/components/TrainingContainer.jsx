@@ -48,7 +48,7 @@ const TrainingContainer = () => {
     <div style={styles.mainContent}>
       <TrainingHeaderBtn />
       {roleId && activeTab === "My Learning Requests" && <RequestTable roleId={roleId} />}
-      {roleId && activeTab === "Reminders" && <Reminders  />}
+      {roleId && activeTab === "Reminders" && <Reminders roleId={roleId}   />}
        
     </div>
   )
