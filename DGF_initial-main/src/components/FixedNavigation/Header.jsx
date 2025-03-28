@@ -1,6 +1,6 @@
-
+ 
 import { useState, useContext, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate ,useLocation} from "react-router-dom"
 import {
   AppBar,
   Toolbar,
@@ -23,7 +23,7 @@ import {
   Divider,
   FormControlLabel,
   Switch,
-  
+ 
 } from "@mui/material"
 import SearchIcon from "@mui/icons-material/Search"
 import AuthContext from "../Auth/AuthContext"
@@ -31,10 +31,10 @@ import "./Header.css"
 import { toPascalCase } from "../../utils/stringUtils"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import axios from "axios"
-
+ 
 import NotificationIcon from "../../assets/Notification-icon.svg"
 import ArrowDownIcon from "../../assets/arrow-down.svg"
-
+ 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null)
@@ -46,14 +46,14 @@ const Header = () => {
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [showAllNotifications, setShowAllNotifications] = useState(false)
-
+  const location = useLocation(); // Get the current location
   useEffect(() => {
     if (user && user.profile_image && user.profile_image.data) {
       const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(user.profile_image.data)}`
       setProfileImage(base64Flag)
     }
   }, [user])
-
+ 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -66,51 +66,51 @@ const Header = () => {
         console.error("Error fetching notifications:", err);
       }
     };
-  
+ 
     if (user) {
       fetchNotifications(); // Initial fetch
-  
+ 
       const intervalId = setInterval(() => {
         fetchNotifications(); // Periodic fetch
       }, 30000); // Fetch every 30 seconds
-  
+ 
       return () => clearInterval(intervalId); // Cleanup on component unmount
     }
   }, [user]);
-
+ 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget)
   }
-
+ 
   const handleMenuClose = () => {
     setAnchorEl(null)
   }
-
+ 
   const handleNotificationMenuOpen = (event) => {
     setNotificationAnchorEl(event.currentTarget)
   }
-
+ 
   const handleNotificationMenuClose = () => {
     setNotificationAnchorEl(null)
     setShowAllNotifications(false) // Reset to show only the first 5 notifications
   }
-
+ 
   const handleNotificationClick = async (notification) => {
     setSelectedNotification(notification)
     setDialogOpen(true)
-
+ 
     if (!notification.is_read) {
       try {
         await axios.post("http://localhost:8000/api/notifications/mark-as-read", {
           notificationId: notification.id,
           empId: user.emp_id, // Pass empId to mark it as read for the specific user
         })
-
+ 
         // Update the notification state locally, only change the read status for the clicked notification
         setNotifications((prevNotifications) =>
           prevNotifications.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n)),
         )
-
+ 
         // Decrease unread count
         setUnreadCount((prevCount) => prevCount - 1)
       } catch (err) {
@@ -118,30 +118,30 @@ const Header = () => {
       }
     }
   }
-
-
+ 
+ 
 // Mark all notifications as read
 const handleMarkAllAsRead = async () => {
   try {
     const unreadNotifications = notifications.filter((notification) => !notification.is_read);
-
+ 
     if (unreadNotifications.length > 0) {
       console.log("Marking notifications as read:", unreadNotifications.map(n => n.id));
-
+ 
       const requests = unreadNotifications.map((notification) =>
         axios.post("http://localhost:8000/api/notifications/mark-as-read", {
           notificationId: notification.id,
           empId: user.emp_id,
         })
       );
-
+ 
       await Promise.all(requests);
-
+ 
       // Update the notification state locally, mark all as read
       setNotifications((prevNotifications) =>
         prevNotifications.map((n) => ({ ...n, is_read: true }))
       );
-
+ 
       // Reset unread count
       setUnreadCount(0);
     }
@@ -156,38 +156,41 @@ const handleMarkAllAsRead = async () => {
     setDialogOpen(false)
     setSelectedNotification(null)
   }
-
+ 
   const handleLogout = () => {
     logout()
     navigate("/login")
   }
-
+ 
   const handleViewAllClick = () => {
     setShowAllNotifications(true)
   }
-
+ 
   const handleProfileClick = () => {
     navigate("/profile")
     handleMenuClose()
   }
-
+ 
   return (
     <AppBar position="static" className="header">
       <Toolbar>
         {/* Search Bar */}
-        <div className="search">
-          <SearchIcon className="icon" style={{ marginBottom: "30px", paddingBottom: "3px" }} />
-          <InputBase
-            placeholder="Search requests"
-            className="search-input"
-            style={{ fontSize: "smaller", marginbottom: " 0", marginLeft: " 0", paddingleft: "6px" }}
-          />
-          <IconButton type="submit" aria-label="search"></IconButton>
-        </div>
-
+        {/* Conditionally render the Search Bar */}
+        {location.pathname === "/training-container" && (
+          <div className="search">
+            <SearchIcon className="icon" style={{ marginBottom: "30px", paddingBottom: "3px" }} />
+            <InputBase
+              placeholder="Search requests"
+              className="search-input"
+              style={{ fontSize: "smaller", marginbottom: "0", marginLeft: "0", paddingleft: "6px" }}
+            />
+            <IconButton type="submit" aria-label="search"></IconButton>
+          </div>
+        )}
+ 
         {/* Spacer to push items to the right */}
         <div style={{ flexGrow: 1 }} />
-
+ 
         {/* Notification Icon */}
         <IconButton
           color="inherit"
@@ -216,7 +219,7 @@ const handleMarkAllAsRead = async () => {
             />
           </Badge>
         </IconButton>
-
+ 
         {/* Notification Dropdown Menu */}
         <Menu
   anchorEl={notificationAnchorEl}
@@ -317,7 +320,7 @@ const handleMarkAllAsRead = async () => {
             </Button>
           </DialogActions>
         </Dialog>
-
+ 
         {/* Profile Image and Dropdown */}
         <div className="profile" onClick={handleMenuOpen}>
           <Avatar alt="User" src={profileImage} style={{ width: "200px", height: 100 }} />{" "}
@@ -331,7 +334,7 @@ const handleMarkAllAsRead = async () => {
             style={{ width: "10px", height: "10px", paddingLeft: "10px", fill: "#707070" }}
           />
         </div>
-
+ 
         {/* Dropdown Menu */}
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
@@ -341,5 +344,7 @@ const handleMarkAllAsRead = async () => {
     </AppBar>
   )
 }
-
+ 
 export default Header
+ 
+ 

@@ -22,6 +22,7 @@ const Sidebar = () => {
     const pathToTab = {
       '/dashboardgraph': 'Dashboard',
       '/training-container': 'Learnings',
+      '/reminders': 'Learnings',
       '/new-request': 'Learnings',
       '/my-courses': 'My Courses',
       // '/my-events': 'Events',

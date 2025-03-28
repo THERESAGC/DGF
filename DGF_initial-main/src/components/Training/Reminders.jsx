@@ -276,6 +276,8 @@ const Reminders = () => {
   return (
     <Box sx={{ width: "100%", mt: 2, px: 3 }}>
       {/* Weekly Reminders Section */}
+      {user?.role_id === 4 && (
+        <>
       <SectionTitle variant="h6">Your Reminders for this week !</SectionTitle>
 
       <Box
@@ -359,7 +361,8 @@ const Reminders = () => {
           ))
         )}
       </Box>
-
+</>
+      )}
       {/* Reminders Table Section */}
       <SectionTitle variant="h6">All Email Reminders</SectionTitle>
 

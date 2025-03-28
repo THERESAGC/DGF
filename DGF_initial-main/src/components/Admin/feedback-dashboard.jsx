@@ -836,7 +836,7 @@ const FeedbackDashboard = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <Card sx={{ bgcolor: "#a6dcef", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
-                    <Typography variant="h6" align="center" gutterBottom>
+                    <Typography variant="h6" align="center" gutterBottom >
                       Total Feedback
                     </Typography>
                     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mt: 2 }}>
@@ -870,7 +870,7 @@ const FeedbackDashboard = () => {
                     <Typography variant="h6" align="center" gutterBottom>
                       Avg. Instruction Rating
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
+                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 5 }}>
                       {summary.avgInstructionRating}
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
@@ -894,7 +894,7 @@ const FeedbackDashboard = () => {
                     <Typography variant="h6" align="center" gutterBottom>
                       Avg. Engagement Rating
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
+                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 5 }}>
                       {summary.avgEngagementRating}
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
@@ -918,7 +918,7 @@ const FeedbackDashboard = () => {
                     <Typography variant="h6" align="center" gutterBottom>
                       Avg. Overall Experience
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
+                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 5 }}>
                       {summary.avgOverallRating}
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
@@ -942,7 +942,7 @@ const FeedbackDashboard = () => {
                     <Typography variant="h6" align="center" gutterBottom>
                       Avg. Interaction Rating
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
+                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 5 }}>
                       {summary.avgInteractionRating}
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
@@ -966,7 +966,7 @@ const FeedbackDashboard = () => {
                     <Typography variant="h6" align="center" gutterBottom>
                       Program Engaging
                     </Typography>
-                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 2 }}>
+                    <Typography variant="h2" sx={{ fontWeight: "bold", textAlign: "center", mt: 4 }}>
                       {summary.engagingPercentage}%
                     </Typography>
                     <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
@@ -1270,7 +1270,7 @@ const FeedbackDashboard = () => {
             {/* Table View */}
             {activeTab === 1 && (
               <Box sx={{ px: 3, py: 3 }}>
-                <Paper elevation={0} sx={{ px: 3, py: 3, borderRadius: 2 }}>
+                <Paper elevation={0} sx={{ px: 3, py: 3, borderRadius: 2,padding:"0px",marginBottom:"-66px" }}>
                   <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center" }}>
                     <Lightbulb sx={{ mr: 1, color: "#09459e" }} />
                     Feedback Records
@@ -1338,7 +1338,7 @@ const FeedbackDashboard = () => {
                   </TableContainer>
 
                   {/* Pagination for feedback table */}
-                  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
                     <Pagination
                       count={Math.ceil(filteredData.length / rowsPerPage)}
                       page={page}
