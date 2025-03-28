@@ -32,6 +32,7 @@ const Sidebar = () => {
       '/spoc-approval/:requestId': 'Learnings', // Added new route
       '/requester-information/:requestId': 'Learnings', // Added new route
       '/clarification-requested/:requestId': 'Learnings', // Added new route
+      
     };
  
     const matchedPath = Object.keys(pathToTab).find(path =>

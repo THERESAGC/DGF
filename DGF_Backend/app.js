@@ -60,6 +60,9 @@ const updateUserRoleRoutes = require('./routes/updateUserRoleRoutes');
 const addProjectRoutes = require('./routes/addProjectRoutes');
 const deleteProjectRoutes = require('./routes/deleteProjectRoutes');
 
+const assignedCoursesByEmployeeRoutes = require('./routes/assignedCoursesByEmployeeRoutes');
+
+
 const addServiceDivisionRoute = require('./routes/addServiceDivisionRoutes');
 
 const deleteServiceDivisionRoutes = require('./routes/deleteServiceDivisionRoutes');
@@ -141,7 +144,8 @@ app.get('/api/sync-employees', async (req, res) => {
 
 // Use the profile routes
 app.use('/api/profiles', profileRoutes);
- 
+
+app.use('/api/employee-courses', assignedCoursesByEmployeeRoutes);
  
 // Fetch data from Academy API
 app.get('/api/fetch-courses', async (req, res) => {
