@@ -80,6 +80,42 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
     }
   };
  
+  // const handleAssign = async () => {
+  //   try {
+  //     setSubmitting(true);
+  //     for (const employeeId of employeeIds) {
+  //       for (const course of courses) {
+  //         const payload = {
+  //           requestid: requestId,
+  //           employee_id: employeeId,
+  //           mentor_id: course.mentor,
+  //           course_id: course.course_id,
+  //           coursetype_id: course.coursetype,
+  //           completion_date: course.completionDate,
+  //           comments: specialComments,
+  //           learning_type: learningType,
+  //           course_assigned_by_id: user?.emp_id // Pass the logged-in user's ID
+  //         };
+ 
+  //         console.log('Payload:', payload); // Log the payload to verify its content
+ 
+  //         await fetch('http://localhost:8000/api/assign-courses/assign', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify(payload)
+  //         });
+  //       }
+  //     }
+  //     onClose();
+  //    navigate(`/learning-initiated-details/${requestId}`, { replace: true }); // Navigate to the specific page
+   
+  //   } catch (error) {
+  //     console.error('Error assigning courses:', error);
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+ 
   const handleAssign = async () => {
     try {
       setSubmitting(true);
@@ -94,28 +130,45 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
             completion_date: course.completionDate,
             comments: specialComments,
             learning_type: learningType,
-            course_assigned_by_id: user?.emp_id // Pass the logged-in user's ID
+            course_assigned_by_id: user?.emp_id, // Pass the logged-in user's ID
+            employee_email: course.employee_email, // Employee email to send the mail to
+            course_name: course.course_name, // Course name to display in the email
           };
- 
+  
           console.log('Payload:', payload); // Log the payload to verify its content
- 
-          await fetch('http://localhost:8000/api/assign-courses/assign', {
+  
+          const response = await fetch('http://localhost:8000/api/assign-courses/assign', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
+  
+          if (response.ok) {
+            // After assigning the course, trigger email to the employee
+            const emailResponse = await fetch('http://localhost:8000/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            
+            if (emailResponse.ok) {
+              console.log("Email successfully sent!");
+            } else {
+              console.error("Failed to send email.");
+            }
+          }
         }
       }
       onClose();
-     navigate(`/learning-initiated-details/${requestId}`, { replace: true }); // Navigate to the specific page
-   
+      navigate(`/learning-initiated-details/${requestId}`, { replace: true });
+  
     } catch (error) {
       console.error('Error assigning courses:', error);
     } finally {
       setSubmitting(false);
     }
   };
- 
+  
   const handleMentorSearch = async (query) => {
     try {
       setMentorLoading(true);

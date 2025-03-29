@@ -88,6 +88,7 @@ const learnerFeedbackRoutes = require('./routes/getAllLearnerFeedbackRoutes');
 const managerFeedbackRoutes = require('./routes/getAllManagerFeedbackRoutes');
 
 const remindersRoutes = require('./routes/inititateTrainingRemindersRoutes');
+const assignCoursesRouter = require('./routes/assignCoursesMail'); // While Assigning course route for mail
 
 const emailReminderRoutes = require('./routes/emailReminderRoutes'); // Import the email reminder routes
 const triggeredFeedbackCountRoutes = require('./routes/feedbackTriggeredCountRoutes');
@@ -344,6 +345,9 @@ cron.schedule('0 0 * * *', async () => {
 
 // Feedback Saving APIs
 app.use('/api', feedbackRoutes);
+
+// Mail Routes for the Assign Courses
+app.use('/api', assignCoursesRouter);
 
 
 // WebSocket connection for real-time updates
