@@ -52,10 +52,25 @@ const sendEmail = (to, subject, text, headerImagePath, footerImagePath, cc = "")
         cid: 'footerImage',
       },
       {
-               filename: 'image.jpg', // Name of the image
-                 path: 'assets/image.jpg', // Path to your image
-               cid: 'signatureImage' // CID reference that matches the HTML image source
-         }
+        filename: 'image.jpg', // Name of the image
+        path: 'assets/Capdevlogo.png', // Path to your image
+        cid: 'signatureImage' // CID reference that matches the HTML image source
+      },
+         {
+          filename: 'feedback-header.jpg',
+          path: 'assets/Feedback.png',
+          cid: 'feedback-headerImage',
+        },
+        {
+          filename: 'ProgramStatusUpdate.png',
+          path: 'assets/ProgramStatusUpdate.png',
+          cid: 'programstatus-headerImage',
+        },
+        {
+          filename: 'Reminder.png',
+          path: 'assets/Reminder.png',
+          cid: 'Reminder-headerImage',
+        },
     ]
   };
   
