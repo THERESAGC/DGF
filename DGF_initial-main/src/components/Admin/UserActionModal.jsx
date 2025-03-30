@@ -89,19 +89,41 @@ const UserActionModal = ({ open, onClose, user }) => {
     }
   }
 
+  // const handleResendInvitation = async () => {
+  //   if (!user) return
+  //   setLoading(true)
+  //   try {
+  //     await axios.post(`http://localhost:8000/api/users/${user.id}/resend-invitation`)
+  //     alert("Invitation sent successfully")
+  //   } catch (error) {
+  //     console.error("Error sending invitation:", error)
+  //     alert("Error sending invitation")
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
   const handleResendInvitation = async () => {
-    if (!user) return
-    setLoading(true)
+    if (!user) return;
+    setLoading(true);
+    
     try {
-      await axios.post(`http://localhost:8000/api/users/${user.id}/resend-invitation`)
-      alert("Invitation sent successfully")
+      // Request password change using the user's email
+      const { email } = user; // Assuming `user.email` contains the email
+      const passwordChangeResponse = await axios.post("http://localhost:8000/api/request-password-change", { email });
+  
+      if (passwordChangeResponse.status === 200) {
+        alert("Password change request sent successfully");
+      } else {
+        alert("Failed to request password change");
+      }
     } catch (error) {
-      console.error("Error sending invitation:", error)
-      alert("Error sending invitation")
+      console.error("Error sending password change request:", error);
+      alert(error.response?.data?.message || "Error sending password change request");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+  
 
   if (!user) return null
 

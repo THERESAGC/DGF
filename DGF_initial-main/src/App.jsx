@@ -22,6 +22,7 @@ import Profile from './components/FixedNavigation/Profile.jsx';
 import FeedbackDashboard from './components/Admin/feedback-dashboard.jsx'; 
 import Reminders from './components/Training/Reminders.jsx';
 import MyCourses from './components/MyCourses/MyCourses.jsx';
+import ForgotPassword from './components/Auth/ForgotPassword.jsx';
 function App() {
   const obj = {
     color: "black",
@@ -52,6 +53,7 @@ function App() {
             <Route path='/feedback-dashboard' element={<ProtectedRoute element={<FixedComponent><FeedbackDashboard /></FixedComponent>} />} />
             <Route path='/reminders' element={<ProtectedRoute element={<FixedComponent><TrainingContainer ><Reminders /></TrainingContainer></FixedComponent>} />} />
             <Route path='/my-courses' element={<ProtectedRoute element={<FixedComponent><MyCourses /></FixedComponent>} />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
           </Routes>
           </ChatProvider>
         </Router>

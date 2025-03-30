@@ -63,6 +63,11 @@ const Login = () => {
       alert("Login failed")
     }
   }
+
+  const handleForgotPassword = () => {
+    navigate("/forgot-password"); // Navigate to Forgot Password page
+  };
+
  
   return (
     <Box
@@ -220,10 +225,11 @@ const Login = () => {
           Login
         </Button>
  
-        {/* <Box sx={{ textAlign: "center" }}>
+        {<Box sx={{ textAlign: "center" }}>
           <Typography
             component="a"
             href="#"
+            onClick={handleForgotPassword} // Call the handleForgotPassword function when clicked
             sx={{
               color: "#0288d1",
               textDecoration: "none",
@@ -235,7 +241,7 @@ const Login = () => {
           >
             Forgot Password
           </Typography>
-        </Box> */}
+        </Box> }
       </Paper>
     </Box>
   )

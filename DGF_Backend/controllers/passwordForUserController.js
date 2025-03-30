@@ -60,6 +60,65 @@ const requestPasswordChange = async (req, res) => {
   }
 };
 
+// const changePassword = async (req, res) => {
+//   const { token, existingPassword, newPassword } = req.body;
+
+//   // Validate if token and newPassword are present
+//   if (!token || !newPassword) {
+//     return res.status(400).json({ message: 'Token and new password are required' });
+//   }
+
+//   // Validate that newPassword is not empty
+//   if (newPassword.trim() === "") {
+//     return res.status(400).json({ message: 'New password cannot be empty' });
+//   }
+
+//   try {
+//     // Decode the JWT token
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const { emp_id } = decoded;
+
+//     // Query to fetch the current password from the login table
+//     pool.execute('SELECT password FROM logintable WHERE emp_id = ?', [emp_id], async (err, rows) => {
+//       if (err) {
+//         console.error('Database query error:', err);
+//         return res.status(500).json({ message: 'Database query error' });
+//       }
+
+//       if (rows.length === 0) {
+//         return res.status(400).json({ message: 'User not found in login table' });
+//       }
+
+//       const user = rows[0];
+
+//       // If the existing password is provided, check it against the stored password (plain text)
+//       if (existingPassword) {
+//         if (existingPassword.trim() === "") {
+//           return res.status(400).json({ message: 'Existing password cannot be empty' });
+//         }
+
+//         // If the password in the database is plain text, compare it directly
+//         if (existingPassword !== user.password) {
+//           return res.status(400).json({ message: 'Incorrect existing password' });
+//         }
+//       }
+
+//       // Update the password in the database without hashing
+//       pool.execute('UPDATE logintable SET password = ? WHERE emp_id = ?', [newPassword, emp_id], (updateErr) => {
+//         if (updateErr) {
+//           console.error('Error updating password:', updateErr);
+//           return res.status(500).json({ message: 'Failed to update password' });
+//         }
+
+//         res.status(200).json({ message: 'Password changed successfully' });
+//       });
+//     });
+//   } catch (error) {
+//     console.error('Error in changing password:', error);
+//     res.status(500).json({ message: 'Failed to change password' });
+//   }
+// };
+
 const changePassword = async (req, res) => {
   const { token, existingPassword, newPassword } = req.body;
 
@@ -78,8 +137,8 @@ const changePassword = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { emp_id } = decoded;
 
-    // Query to fetch the current password from the login table
-    pool.execute('SELECT password FROM logintable WHERE emp_id = ?', [emp_id], async (err, rows) => {
+    // Query to fetch the current password and status from the login table
+    pool.execute('SELECT password, status FROM logintable WHERE emp_id = ?', [emp_id], async (err, rows) => {
       if (err) {
         console.error('Database query error:', err);
         return res.status(500).json({ message: 'Database query error' });
@@ -103,8 +162,8 @@ const changePassword = async (req, res) => {
         }
       }
 
-      // Update the password in the database without hashing
-      pool.execute('UPDATE logintable SET password = ? WHERE emp_id = ?', [newPassword, emp_id], (updateErr) => {
+      // Update the password and set status to "active" in the database
+      pool.execute('UPDATE logintable SET password = ?, status = "active" WHERE emp_id = ?', [newPassword, emp_id], (updateErr) => {
         if (updateErr) {
           console.error('Error updating password:', updateErr);
           return res.status(500).json({ message: 'Failed to update password' });
@@ -118,7 +177,6 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: 'Failed to change password' });
   }
 };
-
 
 
 module.exports = { requestPasswordChange, changePassword };
