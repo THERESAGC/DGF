@@ -22,7 +22,10 @@ import {
 import axios from "axios"
 import AuthContext from "../Auth/AuthContext"
 import { format, startOfWeek, addDays, isToday } from "date-fns"
-
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ArrowDownward from '@mui/icons-material/ArrowDownward';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
 // Styled components for consistent design
 const StyledTableCell = styled(TableCell)({
   fontFamily: "inherit",
@@ -377,34 +380,38 @@ const Reminders = () => {
           <Table stickyHeader aria-label="reminders table">
             <TableHead>
               <TableRow sx={{ borderBottom: "2px solid #8FBEF8" }}>
-                <StyledTableCell
-                >
-                  <TableSortLabel
-                    active={orderBy === "request_id"}
-                    direction={orderBy === "request_id" ? order : "asc"}
-                    onClick={createSortHandler("request_id")}
-                  >
-                    Request ID
-                  </TableSortLabel>
-                </StyledTableCell>
-                <StyledTableCell>
-                  <TableSortLabel
-                    active={orderBy === "employee_name"}
-                    direction={orderBy === "employee_name" ? order : "asc"}
-                    onClick={createSortHandler("employee_name")}
-                  >
-                    Employee Name
-                  </TableSortLabel>
-                </StyledTableCell>
-                <StyledTableCell>
-                  <TableSortLabel
-                    active={orderBy === "course_name"}
-                    direction={orderBy === "course_name" ? order : "asc"}
-                    onClick={createSortHandler("course_name")}
-                  >
-                    Course Name
-                  </TableSortLabel>
-                </StyledTableCell>
+              <StyledTableCell>
+  <TableSortLabel
+    active={orderBy === "request_id"}
+    direction={orderBy === "request_id" ? order : "asc"}
+    onClick={createSortHandler("request_id")}
+    IconComponent={orderBy === "request_id" && order === "asc" ? KeyboardArrowUpIcon : KeyboardArrowDownIcon} // Add the arrow icons
+  >
+    Request ID
+  </TableSortLabel>
+</StyledTableCell>
+<StyledTableCell>
+  <TableSortLabel
+    active={orderBy === "employee_name"}
+    direction={orderBy === "employee_name" ? order : "asc"}
+    onClick={createSortHandler("employee_name")}
+    IconComponent={orderBy === "employee_name" && order === "asc" ? KeyboardArrowUpIcon : KeyboardArrowDownIcon}
+  >
+    Employee Name
+  </TableSortLabel>
+</StyledTableCell>
+<StyledTableCell>
+      <div onClick={createSortHandler("course_name")} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+        <span>Course Name</span>
+        {orderBy === "course_name" && (
+          order === "asc" ? (
+            <KeyboardArrowDownIcon style={{ marginLeft: 8 }} />
+          ) : (
+            <KeyboardArrowUpIcon style={{ marginLeft: 8 }} />
+          )
+        )}
+      </div>
+    </StyledTableCell>
                 <StyledTableCell>
                   <TableSortLabel
                     active={orderBy === "last_notified"}

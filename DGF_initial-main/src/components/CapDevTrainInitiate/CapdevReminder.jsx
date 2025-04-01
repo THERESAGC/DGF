@@ -1,4 +1,4 @@
-
+ 
 import { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -26,9 +26,9 @@ import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PropTypes from "prop-types";
-
+ 
 import { styled } from "@mui/material/styles";
-
+ 
 // Define ReminderPaper
 const ReminderPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -38,7 +38,7 @@ const ReminderPaper = styled(Paper)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
 }));
-
+ 
 const CapdevReminder = ({ assignmentId }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [reminderText, setReminderText] = useState("");
@@ -46,18 +46,19 @@ const CapdevReminder = ({ assignmentId }) => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [loading, setLoading] = useState(false);
-
+  const [selectedDateStr, setSelectedDateStr] = useState(null);
+ 
   const [filterDays, setFilterDays] = useState(7); // Default filter for 7 days
-
+ 
   const createdBy = JSON.parse(localStorage.getItem("user"))?.emp_id;
-
+ 
   // Fetch reminders from the API when the component mounts or assignmentId changes
   useEffect(() => {
     const fetchReminders = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/reminders/date?assignment_id=${assignmentId}`);
         const remindersData = response.data;
-
+ 
         // Group reminders by date
         const groupedReminders = remindersData.reduce((acc, reminder) => {
           const date = reminder.reminder_date;
@@ -70,69 +71,82 @@ const CapdevReminder = ({ assignmentId }) => {
           });
           return acc;
         }, {});
-
+ 
         setReminders(groupedReminders);
       } catch (error) {
         console.error("Error fetching reminders:", error);
         setSnackbar({ open: true, message: "Failed to fetch reminders", severity: "error" });
       }
     };
-
+ 
     if (assignmentId) {
       fetchReminders();
     }
   }, [assignmentId]);
-
+ 
   useEffect(() => {
     updateUpcomingEvents();
   }, [reminders, filterDays]);
-
+ 
   const updateUpcomingEvents = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
+ 
     const allEvents = [];
     Object.keys(reminders).forEach((dateStr) => {
-      reminders[dateStr].forEach((reminder) => {
-        const reminderDate = new Date(dateStr);
+       reminders[dateStr].forEach((reminder) => {
+      const reminderDate = new Date(dateStr) // Ensure consistent parsing
+     
         const daysDifference = (reminderDate - today) / (1000 * 60 * 60 * 24);
         if (daysDifference >= 0 && daysDifference <= filterDays) {
           allEvents.push({
             date: reminderDate,
-            text: reminder.text,
+             text:  reminder.text, // Combine texts if multiple reminders  text: reminders[dateStr].text,
             isPast: reminderDate < today,
           });
         }
       });
     });
-
+ 
+ 
     allEvents.sort((a, b) => a.date - b.date);
     setUpcomingEvents(allEvents);
   };
-
+ 
   const isDateValid = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date > today;
   };
-
+ 
   const handleDateChange = (date) => {
-    setSelectedDate(date);
+    if (date) {
+      // Normalize the selected date to match the stored format
+      const normalizedDateStr = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split("T")[0];
+      setSelectedDate(date); // Keep the original date for UI purposes
+      setSelectedDateStr(normalizedDateStr); // Use the normalized date string for fetching reminders
+    }
   };
-
+ 
   const saveReminder = async () => {
+    setLoading(true);
     if (!selectedDate) {
       setSnackbar({ open: true, message: "Please select a future date", severity: "error" });
+      setLoading(false);
       return;
     }
-  
+ 
     if (!reminderText.trim()) {
       setSnackbar({ open: true, message: "Please enter reminder text", severity: "error" });
+      setLoading(false);
       return;
+ 
     }
-  
-    setLoading(true);
-  
+ 
+    // setLoading(true);
+ 
     try {
       const dateStr = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000)
       .toISOString()
@@ -143,11 +157,11 @@ const CapdevReminder = ({ assignmentId }) => {
         reminder_text: reminderText,
         created_by: createdBy,
       };
-  
+ 
       const response = await axios.post("http://localhost:8000/api/reminders", payload);
       console.log("New Reminder Response:", response.data);
       const newReminder = response.data;
-  
+ 
       const updatedReminders = { ...reminders };
       if (!updatedReminders[dateStr]) {
         updatedReminders[dateStr] = [];
@@ -156,10 +170,12 @@ const CapdevReminder = ({ assignmentId }) => {
         id: newReminder.reminder_id,
         text: newReminder.reminder_text || reminderText, // Fallback to reminderText
       });
-  
+      console.log("Updated Reminders:", updatedReminders);
+ 
       setReminders(updatedReminders);
       setReminderText("");
       setSnackbar({ open: true, message: "Reminder saved successfully", severity: "success" });
+   
     } catch (error) {
       console.error("Error saving reminder:", error);
       setSnackbar({ open: true, message: "Failed to save reminder", severity: "error" });
@@ -169,41 +185,52 @@ const CapdevReminder = ({ assignmentId }) => {
   };
   const deleteReminder = async (dateStr, index, reminderId) => {
     try {
+      // Delete the reminder from the backend
       await axios.delete(`http://localhost:8000/api/reminders/${reminderId}`);
-
-      const updatedReminders = { ...reminders };
-      updatedReminders[dateStr].splice(index, 1);
-
-      if (updatedReminders[dateStr].length === 0) {
-        delete updatedReminders[dateStr];
-      }
-
-      setReminders(updatedReminders);
+ 
+      // Update the local reminders state immutably
+      setReminders((prevReminders) => {
+        const updatedReminders = { ...prevReminders };
+ 
+        // Create a new array for the specific date
+        const updatedDateReminders = [...updatedReminders[dateStr]];
+        updatedDateReminders.splice(index, 1);
+ 
+        if (updatedDateReminders.length === 0) {
+          // Remove the date key if no reminders remain
+          delete updatedReminders[dateStr];
+        } else {
+          // Update the reminders for the specific date
+          updatedReminders[dateStr] = updatedDateReminders;
+        }
+ 
+        return updatedReminders;
+      });
+ 
       setSnackbar({ open: true, message: "Reminder deleted successfully", severity: "success" });
+      setLoading(false);
     } catch (error) {
       console.error("Error deleting reminder:", error);
       setSnackbar({ open: true, message: "Failed to delete reminder", severity: "error" });
     }
   };
-
- 
-
   const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
     const options = { weekday: "short", month: "short", day: "numeric" };
-    return new Date(dateStr).toLocaleDateString(undefined, options);
+    return date.toLocaleDateString('en-IN', options);
   };
-
+ 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
-
+ 
   const handleFilterChange = (event) => {
     setFilterDays(event.target.value);
   };
-
-  const selectedDateStr = selectedDate ? selectedDate.toISOString().split("T")[0] : null;
+ 
+  // const selectedDateStr = selectedDate ? selectedDate.toISOString().split("T")[0] : null;
   const selectedDateReminders = selectedDateStr && reminders[selectedDateStr] ? reminders[selectedDateStr] : [];
-
+ 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 2, p: 1 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 1, paddingTop: "10px" }}>
@@ -212,7 +239,7 @@ const CapdevReminder = ({ assignmentId }) => {
           Select Date for Reminders
         </Typography>
       </Box>
-
+ 
       <ReminderPaper elevation={0}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateCalendar
@@ -229,14 +256,14 @@ const CapdevReminder = ({ assignmentId }) => {
           />
         </LocalizationProvider>
       </ReminderPaper>
-
+ 
       <ReminderPaper elevation={0}>
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600, display: "flex", alignItems: "center", mb: 1 }}>
             <EventIcon sx={{ mr: 1, fontSize: "1rem", color: "primary.main" }} />
             {selectedDate ? formatDate(selectedDate) : "Select a date"}
           </Typography>
-
+ 
           <TextField
             fullWidth
             variant="outlined"
@@ -254,7 +281,7 @@ const CapdevReminder = ({ assignmentId }) => {
             }}
             disabled={!selectedDate || !isDateValid(selectedDate)}
           />
-
+ 
           <Button
             variant="contained"
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
@@ -271,7 +298,7 @@ const CapdevReminder = ({ assignmentId }) => {
             Save Reminder
           </Button>
         </Box>
-
+ 
         {selectedDateReminders.length > 0 && (
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
@@ -297,7 +324,7 @@ const CapdevReminder = ({ assignmentId }) => {
           </Box>
         )}
       </ReminderPaper>
-
+ 
       <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}>
@@ -315,7 +342,7 @@ const CapdevReminder = ({ assignmentId }) => {
             <MenuItem value={30}>Next 30 Days</MenuItem>
           </Select>
         </Box>
-
+ 
         <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>
           {upcomingEvents.length > 0 ? (
             <List sx={{ p: 0 }}>
@@ -352,7 +379,7 @@ const CapdevReminder = ({ assignmentId }) => {
           )}
         </Box>
       </Box>
-
+ 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -366,9 +393,10 @@ const CapdevReminder = ({ assignmentId }) => {
     </Box>
   );
 };
-
+ 
 CapdevReminder.propTypes = {
   assignmentId: PropTypes.string.isRequired,
 };
-
+ 
 export default CapdevReminder;
+ 
