@@ -841,10 +841,16 @@ const RequestTable = ({ roleId }) => {
                       </IconButton>
                     )}
 
-                  {role === "spoc" &&
+                    {role === "spoc" &&
                     (row.requeststatus.toLowerCase() === "learning in progress" ||
                       row.requeststatus.toLowerCase() === "spoc approved" ||
-                      row.requeststatus.toLowerCase() === "capdev approved") && (
+                      row.requeststatus.toLowerCase() === "capdev approved"||
+                      row.requeststatus.toLowerCase() === "completed" ||
+                      row.requeststatus.toLowerCase() === "completed with delay"||
+                      row.requeststatus.toLowerCase() === "incomplete"||
+                      row.requeststatus.toLowerCase() === "rejected"||
+                      row.requeststatus.toLowerCase() === "learning suspended"||
+                      row.requeststatus.toLowerCase() === "request suspended") && (
                       <IconButton onClick={() => handleArrowClick(row.requeststatus, row.requestid)}>
                         <ArrowCircleRightOutlinedIcon style={{ height: "20px" }} />
                       </IconButton>

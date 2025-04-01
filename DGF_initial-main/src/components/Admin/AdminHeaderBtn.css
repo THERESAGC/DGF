@@ -27,7 +27,7 @@
   margin-right: -7px;
 }
 
-.typography {
+.typograph {
   font-size: 1.5rem;
   font-weight: 500 !important;
   margin-right: 6px !important;
@@ -37,11 +37,11 @@
   /* transition: background-color 0.3s, color 0.3s; */
 }
 
-.typography:first-child {
+.typograph:first-child {
   margin-left: 0 !important; /* Remove left margin for the first button */
 }
 
-.typography:hover {
+.typograph:hover {
   /* color: white !important; */
   color: #0056b3 !important;
   border-radius: 20px !important;
@@ -49,22 +49,24 @@
   cursor: pointer !important;
 }
 
-.typography.selected {
+.typograph.selected {
   position: sticky; /* Ensure the pseudo-element is positioned relative to the text */
   color: #0544a1; /* Ensure text color is white */
   /* text-decoration: none; Remove the default underline */
 }
 
-.typography.selected::after {
+.typograph.selected::after {
   content: "";
   position: absolute;
   bottom: 0px; /* Adjust the space between text and the underline */
-  left: 10px;
-  width: 65%; /* Adjust the length of the underline (e.g., 50% of the text width) */
+  left: 45px;
+  width: 30%; /* Adjust the length of the underline (e.g., 50% of the text width) */
   height: 2px; /* Set the thickness of the underline */
   background-color: #fa5864; /* Set the color of the underline */
   border-radius: 20px; /* Adjust the radius of the underline */
+  
 }
+
 
 .button {
   background-color: #09459e !important;

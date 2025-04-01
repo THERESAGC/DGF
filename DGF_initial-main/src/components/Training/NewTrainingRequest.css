@@ -78,7 +78,14 @@
     align-items: center;
     justify-content: space-between;
   }
- 
+ .summary ::after{
+    margin-top: -67px !important;
+  }
+
+ .total{
+   margin-top: 10px !important;
+   margin-left: 10px !important;
+ }
   .MuiBox-root {
     padding: 0 0 0 0;
     margin-left: 0;
@@ -99,9 +106,10 @@ padding: auto;
   }
  
   .ButtonBox{
+    
     justify-content: flex-end;
     display: flex;
-    margin-top: 15px;
+    margin-top: 60px;
     gap: 10px;
   }
  

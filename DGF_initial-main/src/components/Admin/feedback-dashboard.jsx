@@ -97,28 +97,23 @@ const mapRatingToText = (field, value) => {
 const RatingChip = ({ rating, field }) => {
   const theme = useTheme()
   const colors = {
-    4: "#8fd3b6", // Pastel green
-    3: "#a6dcef", // Pastel blue
-    2: "#ffcb91", // Pastel orange
-    1: "#ffb6b9", // Pastel red
+    4: "green", // Pastel green
+    3: "#088F8F", // Pastel blue
+    2: "orange", // Pastel orange
+    1: "rgb(250, 99, 124)", // Pastel red
   }
 
   const text = mapRatingToText(field, rating)
   const color = colors[rating] || theme.palette.primary.main
 
-  return (
+ return (
     <Chip
       label={text}
       sx={{
-        backgroundColor: color,
-        color: "#333",
-        fontWeight: "bold",
-        fontSize: "8px !important", // Decreased font size
-        height: "20px !important", // Adjusted height to match smaller font
-        padding: "0 8px !important",
-        "& .MuiChip-label": {
-      fontSize: "12px !important", // Set your desired font size here
-    },
+        color: color, // Apply color to the text
+        fontWeight: "500",
+        backgroundColor: "transparent", // No background color
+       
       }}
     />
   )
@@ -130,7 +125,7 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
 
   return (
     
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth sx={{marginBottom:"15px"}}>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6">Detailed Feedback</Typography>
         <IconButton onClick={handleClose}>
@@ -200,7 +195,7 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
           </Grid>
 
           <Grid item xs={12}>
-            <Card variant="outlined">
+            <Card variant="outlined"  sx={{mt: 1}}>
               <CardContent>
                 <Typography variant="subtitle1" color="primary" gutterBottom>
                   <Star sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -237,9 +232,10 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
                         <Chip
                           label={mapRatingToText("interactive", feedback.interactive)}
                           sx={{
-                            backgroundColor: feedback.interactive === "2" ? "#8fd3b6" : "#ffb6b9",
-                            color: "#333",
+                            color: feedback.interactive === "2" ? "green" : "red",
+                            
                             fontWeight: "medium",
+                            backgroundColor: "transparent", // Remove background color
                           }}
                         />
                       </Box>
@@ -254,16 +250,16 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
                         <Chip
                           label={mapRatingToText("interactive_components", feedback.interactive_components)}
                           sx={{
-                            backgroundColor:
+                            color:
                               feedback.interactive_components === "4"
                                 ? "#8fd3b6"
                                 : feedback.interactive_components === "3"
-                                  ? "#a6dcef"
+                                  ? "	#088F8F"
                                   : feedback.interactive_components === "2"
                                     ? "#ffcb91"
                                     : "#ffb6b9",
-                            color: "#333",
-                            fontWeight: "medium",
+                            backgroundColor: "transparent", // Remove background color
+                            fontWeight: "500",
                           }}
                         />
                       </Box>
@@ -723,7 +719,7 @@ const FeedbackDashboard = () => {
                     Filter Type
                   </Typography>
                   <FormControl fullWidth size="small">
-                    <Select value={filterType} onChange={handleFilterTypeChange}>
+                    <Select value={filterType} onChange={handleFilterTypeChange} sx={{color:"#707070",fontSize:"13px"}}>
                       <MenuItem value="range">Date Range</MenuItem>
                       <MenuItem value="month">Month & Year</MenuItem>
                     </Select>
@@ -737,12 +733,22 @@ const FeedbackDashboard = () => {
                         From
                       </Typography>
                       <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                          value={startDate}
-                          onChange={setStartDate}
-                          slotProps={{ textField: { fullWidth: true, size: "small" } }}
-                        />
-                      </LocalizationProvider>
+  <DatePicker
+    value={startDate}
+    onChange={setStartDate}
+    slotProps={{
+      textField: {
+        fullWidth: true,
+        size: "small",
+        InputProps: {
+          sx: {
+            fontSize: "13px", // Adjust the font size of the date
+          },
+        },
+      },
+    }}
+  />
+</LocalizationProvider>
                     </Grid>
                     <Grid item xs={12} sm={4}>
                       <Typography variant="body2" sx={{ mb: 1 }}>
@@ -752,7 +758,15 @@ const FeedbackDashboard = () => {
                         <DatePicker
                           value={endDate}
                           onChange={setEndDate}
-                          slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                          slotProps={{ textField: {
+                             fullWidth: true, 
+                             size: "small", 
+                            InputProps: {
+                              sx: {
+                                fontSize: "13px", // Adjust the font size of the date
+                              }
+                            }
+                            } }}
                         />
                       </LocalizationProvider>
                     </Grid>

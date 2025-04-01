@@ -38,7 +38,7 @@ const AdminHeaderBtn = ({ onSelectComponent }) => {
                         key={item.text}
                         variant="h6"
                         component="div"
-                        className={`typography ${selectedButton === item.text ? "selected" : ""}`}
+                        className={`typograph ${selectedButton === item.text ? "selected" : ""}`}
                         onClick={() => {
                           handleButtonClick(item.text)
                           if (item.path) {

@@ -67,6 +67,7 @@ async function syncEmployees() {
         manager_id: null,
         manager12_id: null,
         designation_name: designationName,
+        userId: emp.id || null, 
       };
  
       if (!employeeData.emp_id || !employeeData.emp_name || !employeeData.emp_email) {
@@ -76,13 +77,14 @@ async function syncEmployees() {
  
       await connection.query(
         `INSERT INTO employee
-        (emp_id, emp_name, emp_email, profile_image, manager_id, manager12_id, designation_name)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (emp_id, emp_name, emp_email, profile_image, manager_id, manager12_id, designation_name,userId)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           emp_name = VALUES(emp_name),
           emp_email = VALUES(emp_email),
           profile_image = VALUES(profile_image),
-          designation_name = VALUES(designation_name)`,
+          designation_name = VALUES(designation_name),
+          userId = VALUES(userId)`, 
         [
           employeeData.emp_id,
           employeeData.emp_name,
@@ -91,6 +93,7 @@ async function syncEmployees() {
           employeeData.manager_id,
           employeeData.manager12_id,
           employeeData.designation_name,
+          employeeData.userId,
         ]
       );
  

@@ -38,7 +38,7 @@
       /* transition: background-color 0.3s, color 0.3s; */
     }
     .typography:first-child {
-      margin-left: 0 !important; /* Remove left margin for the first button */
+      margin-left: 0px !important; /* Remove left margin for the first button */
     }
     
     
@@ -52,7 +52,7 @@
     }
     
     .typography.selected {
-      position: relative; /* Ensure the pseudo-element is positioned relative to the text */
+      position: sticky; /* Ensure the pseudo-element is positioned relative to the text */
       color: #0544A1; /* Ensure text color is white */
       text-decoration: none; /* Remove the default underline */
     }
@@ -64,11 +64,16 @@
       left: 55px !important;
       width: 30% !important; /* Adjust the length of the underline (e.g., 50% of the text width) */
       height: 2px; /* Set the thickness of the underline */
-      background-color: #FA5864; /* Set the color of the underline */
+      background-color: #FA5864 !important; /* Set the color of the underline */
       border-radius: 20px; /* Adjust the radius of the underline */
     }
+  
     
-    
+    .typography.selected:nth-child(2)::after {
+      left: 30px !important; /* Adjust the left value for the second button */
+      width: 30% !important; /* Length of the underline */
+    }
+  
 
     .button {
       background-color: #09459E!important;

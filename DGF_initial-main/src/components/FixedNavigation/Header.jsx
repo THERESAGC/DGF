@@ -1,11 +1,10 @@
  
 import { useState, useContext, useEffect } from "react"
-import { useNavigate ,useLocation} from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   AppBar,
   Toolbar,
   IconButton,
-  InputBase,
   Menu,
   MenuItem,
   Avatar,
@@ -23,9 +22,7 @@ import {
   Divider,
   FormControlLabel,
   Switch,
- 
 } from "@mui/material"
-import SearchIcon from "@mui/icons-material/Search"
 import AuthContext from "../Auth/AuthContext"
 import "./Header.css"
 import { toPascalCase } from "../../utils/stringUtils"
@@ -46,7 +43,7 @@ const Header = () => {
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [showAllNotifications, setShowAllNotifications] = useState(false)
-  const location = useLocation(); // Get the current location
+  const location = useLocation() // Get the current location
   useEffect(() => {
     if (user && user.profile_image && user.profile_image.data) {
       const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(user.profile_image.data)}`
@@ -59,24 +56,24 @@ const Header = () => {
       try {
         const response = await axios.get("http://localhost:8000/api/notifications", {
           params: { empId: user.emp_id, roleId: user.role_id }, // Fetch notifications based on role
-        });
-        setNotifications(response.data);
-        setUnreadCount(response.data.filter((notification) => !notification.is_read).length);
+        })
+        setNotifications(response.data)
+        setUnreadCount(response.data.filter((notification) => !notification.is_read).length)
       } catch (err) {
-        console.error("Error fetching notifications:", err);
+        console.error("Error fetching notifications:", err)
       }
-    };
+    }
  
     if (user) {
-      fetchNotifications(); // Initial fetch
+      fetchNotifications() // Initial fetch
  
       const intervalId = setInterval(() => {
-        fetchNotifications(); // Periodic fetch
-      }, 30000); // Fetch every 30 seconds
+        fetchNotifications() // Periodic fetch
+      }, 30000) // Fetch every 30 seconds
  
-      return () => clearInterval(intervalId); // Cleanup on component unmount
+      return () => clearInterval(intervalId) // Cleanup on component unmount
     }
-  }, [user]);
+  }, [user])
  
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget)
@@ -119,39 +116,39 @@ const Header = () => {
     }
   }
  
+  // Mark all notifications as read
+  const handleMarkAllAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter((notification) => !notification.is_read)
  
-// Mark all notifications as read
-const handleMarkAllAsRead = async () => {
-  try {
-    const unreadNotifications = notifications.filter((notification) => !notification.is_read);
+      if (unreadNotifications.length > 0) {
+        console.log(
+          "Marking notifications as read:",
+          unreadNotifications.map((n) => n.id),
+        )
  
-    if (unreadNotifications.length > 0) {
-      console.log("Marking notifications as read:", unreadNotifications.map(n => n.id));
+        const requests = unreadNotifications.map((notification) =>
+          axios.post("http://localhost:8000/api/notifications/mark-as-read", {
+            notificationId: notification.id,
+            empId: user.emp_id,
+          }),
+        )
  
-      const requests = unreadNotifications.map((notification) =>
-        axios.post("http://localhost:8000/api/notifications/mark-as-read", {
-          notificationId: notification.id,
-          empId: user.emp_id,
-        })
-      );
+        await Promise.all(requests)
  
-      await Promise.all(requests);
+        // Update the notification state locally, mark all as read
+        setNotifications((prevNotifications) => prevNotifications.map((n) => ({ ...n, is_read: true })))
  
-      // Update the notification state locally, mark all as read
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((n) => ({ ...n, is_read: true }))
-      );
- 
-      // Reset unread count
-      setUnreadCount(0);
-    }
-  } catch (err) {
-    console.error("Error marking all notifications as read:", err);
-    if (err.response) {
-      console.error("Server response:", err.response.data);
+        // Reset unread count
+        setUnreadCount(0)
+      }
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err)
+      if (err.response) {
+        console.error("Server response:", err.response.data)
+      }
     }
   }
-};
   const handleDialogClose = () => {
     setDialogOpen(false)
     setSelectedNotification(null)
@@ -174,19 +171,17 @@ const handleMarkAllAsRead = async () => {
   return (
     <AppBar position="static" className="header">
       <Toolbar>
-        {/* Search Bar */}
-        {/* Conditionally render the Search Bar */}
-        {/* {location.pathname === "/training-container" && (
-          <div className="search">
-            <SearchIcon className="icon" style={{ marginBottom: "30px", paddingBottom: "3px" }} />
-            <InputBase
-              placeholder="Search requests"
-              className="search-input"
-              style={{ fontSize: "smaller", marginbottom: "0", marginLeft: "0", paddingleft: "6px" }}
-            />
-            <IconButton type="submit" aria-label="search"></IconButton>
-          </div>
-        )} */}
+        <Typography
+          variant="h6"
+          style={{
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 600,
+            color: "#333333",
+            marginBottom: "20px",
+          }}
+        >
+          Demand Generation Framework <span style={{ fontSize: "0.8em", color: "#707070" }}>(DGF)</span>
+        </Typography>
  
         {/* Spacer to push items to the right */}
         <div style={{ flexGrow: 1 }} />
@@ -222,67 +217,67 @@ const handleMarkAllAsRead = async () => {
  
         {/* Notification Dropdown Menu */}
         <Menu
-  anchorEl={notificationAnchorEl}
-  open={Boolean(notificationAnchorEl)}
-  onClose={handleNotificationMenuClose}
->
-  <div className="notification_wrapper">
-    <div className="noti_header">
-      <Typography variant="h6">Notifications</Typography>
-      {unreadCount > 0 && ( // Only show the toggle and button if there are unread notifications
-        <>
-          <div className="unread_only">
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showAllNotifications}
-                  onChange={() => setShowAllNotifications(!showAllNotifications)}
-                  name="unreadOnly"
-                  color="primary"
-                />
-              }
-              label="Unread Only"
-            />
+          anchorEl={notificationAnchorEl}
+          open={Boolean(notificationAnchorEl)}
+          onClose={handleNotificationMenuClose}
+        >
+          <div className="notification_wrapper">
+            <div className="noti_header">
+              <Typography variant="h6">Notifications</Typography>
+              {unreadCount > 0 && ( // Only show the toggle and button if there are unread notifications
+                <>
+                  <div className="unread_only">
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={showAllNotifications}
+                          onChange={() => setShowAllNotifications(!showAllNotifications)}
+                          name="unreadOnly"
+                          color="primary"
+                        />
+                      }
+                      label="Unread Only"
+                    />
+                  </div>
+                  <Button onClick={handleMarkAllAsRead}>Mark All as Read</Button>
+                </>
+              )}
+            </div>
+            <List className="notifs__parent">
+              {notifications.length === 0 || unreadCount === 0 ? ( // Show "No new notifications" if no unread notifications
+                <ListItem>
+                  <ListItemText primary="No new notifications" />
+                </ListItem>
+              ) : (
+                (showAllNotifications
+                  ? notifications
+                  : notifications.filter((notification) => !notification.is_read).slice(0, 5)
+                ).map((notification) => (
+                  <div key={notification.id}>
+                    <ListItem button onClick={() => handleNotificationClick(notification)}>
+                      <ListItemText
+                        primary={`Request ID: ${notification.requestid}`}
+                        secondary={`Status: ${notification.message}`}
+                      />
+                      <div
+                        title="Click to Mark as Read"
+                        className={notification.is_read ? "read_noty" : "unread_noty"}
+                      ></div>
+                    </ListItem>
+                    <Divider />
+                  </div>
+                ))
+              )}
+            </List>
+            {!showAllNotifications && notifications.length > 3 && unreadCount > 0 && (
+              <div className="noty_btn_wrapper">
+                <Button className="view_all_btn" role="link" onClick={handleViewAllClick}>
+                  View All
+                </Button>
+              </div>
+            )}
           </div>
-          <Button onClick={handleMarkAllAsRead}>Mark All as Read</Button>
-        </>
-      )}
-    </div>
-    <List className="notifs__parent">
-      {notifications.length === 0 || unreadCount === 0 ? ( // Show "No new notifications" if no unread notifications
-        <ListItem>
-          <ListItemText primary="No new notifications" />
-        </ListItem>
-      ) : (
-        (showAllNotifications
-          ? notifications
-          : notifications.filter((notification) => !notification.is_read).slice(0, 5)
-        ).map((notification) => (
-          <div key={notification.id}>
-            <ListItem button onClick={() => handleNotificationClick(notification)}>
-              <ListItemText
-                primary={`Request ID: ${notification.requestid}`}
-                secondary={`Status: ${notification.message}`}
-              />
-              <div
-                title="Click to Mark as Read"
-                className={notification.is_read ? "read_noty" : "unread_noty"}
-              ></div>
-            </ListItem>
-            <Divider />
-          </div>
-        ))
-      )}
-    </List>
-    {!showAllNotifications && notifications.length > 3 && unreadCount > 0 && (
-      <div className="noty_btn_wrapper">
-        <Button className="view_all_btn" role="link" onClick={handleViewAllClick}>
-          View All
-        </Button>
-      </div>
-    )}
-  </div>
-</Menu>
+        </Menu>
         {/* Notification Details Dialog */}
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogTitle>Notification Details</DialogTitle>
@@ -346,5 +341,4 @@ const handleMarkAllAsRead = async () => {
 }
  
 export default Header
- 
  

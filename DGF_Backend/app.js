@@ -335,7 +335,7 @@ app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
 app.use('/api',remindersRoutes );
 
 //Email routes
-app.use('/api/email-reminders', emailReminderRoutes); // Add this line to use the email reminder routes
+app.use('/api', emailReminderRoutes); // Add this line to use the email reminder routes
  
 // Effectiveness feedback routes
 cron.schedule('0 0 * * *', async () => {

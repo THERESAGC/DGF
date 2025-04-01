@@ -87,26 +87,26 @@ const mapEnhancementRating = (rating) => {
   return ratings[rating] || rating
 }
 
-// Rating chip component with appropriate colors
+// Rating chip component with appropriate text colors
 const RatingChip = ({ rating }) => {
-  const theme = useTheme()
   const colors = {
-    4: "#8fd3b6", // Pastel green
-    3: "#a6dcef", // Pastel blue
-    2: "#ffcb91", // Pastel orange
-    1: "#ffb6b9", // Pastel red
+    4: "green", // Pastel green
+    3: "	#088F8F", // Pastel blue
+    2: "ffcb91", // Pastel orange
+    1: "rgb(250, 99, 124)", // Pastel red
   }
 
   const text = mapEnhancementRating(rating)
-  const color = colors[rating] || theme.palette.primary.main
+  const color = colors[rating] || "#333" // Default color if no match
 
   return (
     <Chip
       label={text}
       sx={{
-        backgroundColor: color,
-        color: "#333",
-        fontWeight: "bold",
+        color: color, // Apply color to the text
+        fontWeight: "500",
+        backgroundColor: "transparent", // No background color
+       
       }}
     />
   )
@@ -117,8 +117,8 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
   if (!feedback) return null
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth sx={{marginBottom:"15px" }}>
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center"}}>
         <Typography variant="h6">Detailed Manager Feedback</Typography>
         <IconButton onClick={handleClose}>
           <Close />
@@ -181,8 +181,8 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
           </Grid>
 
           <Grid item xs={12}>
-            <Card variant="outlined">
-              <CardContent>
+            <Card variant="outlined" sx={{mt: 1}}>
+              <CardContent >
                 <Typography variant="subtitle1" color="primary" gutterBottom>
                   <Star sx={{ verticalAlign: "middle", mr: 1 }} />
                   Skill Demonstration
@@ -195,14 +195,14 @@ const FeedbackDetailDialog = ({ open, handleClose, feedback }) => {
                         Demonstrated Skill
                       </Typography>
                       <Box sx={{ mt: 1 }}>
-                        <Chip
-                          label={feedback.demonstrate_skill === "yes" ? "Yes" : "No"}
-                          sx={{
-                            backgroundColor: feedback.demonstrate_skill === "yes" ? "#8fd3b6" : "#ffb6b9",
-                            color: "#333",
-                            fontWeight: "medium",
-                          }}
-                        />
+                      <Chip
+  label={feedback.demonstrate_skill === "yes" ? "Yes" : "No"}
+  sx={{
+    color: feedback.demonstrate_skill === "yes" ? "green" : "red", // Apply color to the font
+    fontWeight: "medium",
+    backgroundColor: "transparent", // Remove background color
+  }}
+/>
                       </Box>
                     </Box>
                   </Grid>
@@ -636,7 +636,7 @@ const ManagerFeedbackDashboard = () => {
                     Filter Type
                   </Typography>
                   <FormControl fullWidth size="small">
-                    <Select value={filterType} onChange={handleFilterTypeChange}>
+                    <Select value={filterType} onChange={handleFilterTypeChange} sx={{color:"#707070",fontSize:"13px"}}>
                       <MenuItem value="range">Date Range</MenuItem>
                       <MenuItem value="month">Month & Year</MenuItem>
                     </Select>
@@ -653,7 +653,16 @@ const ManagerFeedbackDashboard = () => {
                         <DatePicker
                           value={startDate}
                           onChange={setStartDate}
-                          slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                          slotProps={{ textField: { 
+                            fullWidth: true,
+                             size: "small",
+                            InputProps:{
+                              sx:{
+                                fontSize:"13px",
+                              }
+
+                            } 
+                          } }}
                         />
                       </LocalizationProvider>
                     </Grid>
@@ -665,7 +674,16 @@ const ManagerFeedbackDashboard = () => {
                         <DatePicker
                           value={endDate}
                           onChange={setEndDate}
-                          slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                          slotProps={{ textField: { fullWidth: true, 
+                            size: "small",
+                            InputProps:{
+                              sx:{
+                                fontSize:"13px",
+                              }
+
+                            } 
+
+                           } }}
                         />
                       </LocalizationProvider>
                     </Grid>
@@ -1091,7 +1109,7 @@ const ManagerFeedbackDashboard = () => {
                               {feedback.demonstrate_skill === "yes" && feedback.enhancement_rating ? (
                                 <RatingChip rating={feedback.enhancement_rating} />
                               ) : (
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" color="text.secondary" sx={{marginLeft:"12px"}}>
                                   N/A
                                 </Typography>
                               )}

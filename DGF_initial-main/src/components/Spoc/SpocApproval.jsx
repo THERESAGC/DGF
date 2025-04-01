@@ -11,12 +11,12 @@ import { io } from "socket.io-client";
 import { ChatContext } from '../context/ChatContext'; // Import ChatContext
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
-
+import { CircularProgress } from "@mui/material"; // Import CircularProgress
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
  
 const SpocApproval = ({roleId}) => {
 const [learners, setLearners] = useState([]);
-
+ 
 const [action, setAction] = useState("approve");
 const navigate = useNavigate();
 const { requestid } = useParams();
@@ -24,7 +24,7 @@ const { user } = useContext(AuthContext);
 const { messages, sendMessage, newMessage, setNewMessage } = useContext(ChatContext);
 const [comments, setComments] = useState([]);
 const [userProfiles, setUserProfiles] = useState({});
-
+ 
 const [requestDetails, setRequestDetails] = useState(null);
 const itemsPerPage = 5;
 const [page, setPage] = useState(1);
@@ -32,9 +32,9 @@ const [socket, setSocket] = useState(null);
 const [sortedLearners, setSortedLearners] = useState(learners); // State to hold sorted learners
 const [anchorEl, setAnchorEl] = useState(null); // For menu anchor
 const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const [popupOpen, setPopupOpen] = useState(false);
+const [popupOpen, setPopupOpen] = useState(false);
 const handleClosePopup = () => setPopupOpen(false);
-
+const [isSubmitting, setIsSubmitting] = useState(false); // State to track submission status
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -44,30 +44,30 @@ useEffect(() => {
       setRequestDetails(null);
       setLearners([]);
       setUserProfiles({});
-
+ 
       // Fetch request details
       const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestid}`);
       const requestdata = await requestResponse.json();
       setRequestDetails(requestdata);
-
+ 
       // Fetch learners
       const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestid}`);
       const learnerdata = await learnerResponse.json();
       const initialLearners = learnerdata.employees || [];
       setLearners(initialLearners);
       setSortedLearners(initialLearners);
-
+ 
       // Fetch comments
       const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
       const commentsdata = await commentsResponse.json();
       setComments(commentsdata);
-
+ 
       // Fetch user profiles for comments
       const userIds = new Set();
       commentsdata.forEach(comment => {
         if (comment.created_by) userIds.add(comment.created_by);
       });
-
+ 
       const profiles = {};
       for (let userId of userIds) {
         const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
@@ -81,22 +81,22 @@ useEffect(() => {
         }
       }
       setUserProfiles(profiles);
-
+ 
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
-
+ 
   fetchData();
 }, [requestid]); // Runs when requestid changes
-
-
+ 
+ 
 const totalPages = Math.ceil(learners.length / itemsPerPage);
 const currentItems = sortedLearners.slice(
   (page - 1) * itemsPerPage,
   page * itemsPerPage
 );
-
+ 
 const sortedComments = comments.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
  
 useEffect(() => {
@@ -113,7 +113,7 @@ useEffect(() => {
   setLearners(updatedLearners);
 }
 }, [learners.length]);
-
+ 
 useEffect(() => {
   const socketConnection = io("http://localhost:8000");
   setSocket(socketConnection);
@@ -122,7 +122,7 @@ useEffect(() => {
     socketConnection.disconnect();
   };
 }, []);
-
+ 
 const handleClick = (event) => {
   setAnchorEl(event.currentTarget);
 };
@@ -146,13 +146,13 @@ const handleSort = (order) => {
   // setSortOrder(order); // Store the order (optional for future use)
   handleClose(); // Close the menu after sorting
 };
-
+ 
 const handleSubmit = async () => {
   if (!newMessage.trim()) {
     setPopupOpen(true);
     return;
   }
-
+  setIsSubmitting(true); // Start showing the progress bar
   try {
     // Prepare request data
     const requestData = {
@@ -161,7 +161,7 @@ const handleSubmit = async () => {
       roleId: roleId,
       approverId: user.emp_id,
     };
-
+ 
     // Prepare comment data
     const commentdata = {
       requestid: requestDetails?.requestid,
@@ -170,31 +170,31 @@ const handleSubmit = async () => {
       created_by: user.emp_id,
       requestStatus: "Approval Requested",
     };
-
+ 
     // Step 1: Update request status
     const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestData),
     });
-
+ 
     if (!statusResponse.ok) {
       console.error("Error in status update:", await statusResponse.json());
       return;
     }
-
+ 
     // Step 2: Add comment
     const commentResponse = await fetch("http://localhost:8000/api/comments/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(commentdata),
     });
-
+ 
     if (!commentResponse.ok) {
       console.error("Error adding comment:", await commentResponse.json());
       return;
     }
-
+ 
     // Step 3: Send email
     await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
       method: "POST",
@@ -207,21 +207,23 @@ const handleSubmit = async () => {
         requestedbyid: "swaroop.bidkar@harbingergroup.com"
       }),
     });
-
+ 
     // Clear states and refresh data
     setNewMessage('');
     setStatusDialogOpen(true);
-    
+   
     // Refresh comments
     const refreshComments = await fetch(`http://localhost:8000/api/comments/${requestid}`);
     const newComments = await refreshComments.json();
     setComments(newComments);
-
+ 
   } catch (error) {
     console.error("Submission error:", error);
+  }finally{
+    setIsSubmitting(false); // Stop showing the progress bar
   }
 };
-
+ 
 // Cleanup effect
 useEffect(() => {
   return () => {
@@ -231,8 +233,8 @@ useEffect(() => {
     setLearners([]);
   };
 }, []);
-  
-
+ 
+ 
 const handleCloseStatusDialog = () => {
   setStatusDialogOpen(false);
   navigate("/training-container");
@@ -413,7 +415,7 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                     </TableRow>
                   </TableHead>
                 )}
-
+ 
 <TableBody>
   {currentItems.length > 0 ? (
     currentItems.map((learner) => (
@@ -501,8 +503,8 @@ style={{ fontSize: "12px", display: "flex", alignItems: "center" }}>
                 borderRadius: "8px",
                 marginTop: "1rem",
                 marginBottom: "1rem",
-              
-
+             
+ 
               }}
             >
 <Box style={{width:"92%", margin:"auto"}}>
@@ -572,10 +574,10 @@ style={{ height: '150px', overflowY: 'auto'}} // Add this line
     }
   />
   {roleId === 4 && (
-    <FormControlLabel 
-      value="hold" 
+    <FormControlLabel
+      value="hold"
       control={<Radio color=" " />}  // Added color="primary"
-      label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>} 
+      label={<Typography style={{ fontSize: "12px", fontWeight: "bold" }}>Suspend Learning</Typography>}
     />
   )}
   {roleId !== 4 && (
@@ -590,7 +592,7 @@ style={{ height: '150px', overflowY: 'auto'}} // Add this line
     />
   )}
 </RadioGroup>
-
+ 
               </FormControl>
               <FormControl fullWidth style={{ marginBottom: "1rem" ,width:"100%"}}>
               <Typography style={{ fontSize: "12px", marginTop: "0.5rem", color: "#4F4949", display: 'inline' }}>
@@ -613,8 +615,8 @@ style={{ height: '150px', overflowY: 'auto'}} // Add this line
               </Box>
               </Box>
             </Box>
-
-            
+ 
+           
             <Box
               display="flex"
               justifyContent="flex-end"
@@ -630,18 +632,18 @@ style={{ height: '150px', overflowY: 'auto'}} // Add this line
               </Button>
               <Button
   variant="contained"
-  style={{ 
-    minWidth: "120px", 
-    textTransform: 'none', 
+  style={{
+    minWidth: "120px",
+    textTransform: 'none',
     borderRadius: '10px',
     backgroundColor: !newMessage.trim() ? '#CCCCCC' : '#066DD2',
     color: 'white',
     boxShadow: 'none'
   }}
   onClick={handleSubmit}
-  disabled={!newMessage.trim()}
+  disabled={!newMessage.trim()|| isSubmitting} // Disable button while submitting
 >
-  Submit
+{isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Submit"} {/* Show progress bar */}
 </Button>
             </Box>
           </div>
@@ -700,4 +702,5 @@ SpocApproval.propTypes = {
 };
  
 export default SpocApproval;
+ 
  

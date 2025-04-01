@@ -170,27 +170,26 @@ const Reminders = () => {
     const fetchAllReminders = async () => {
       try {
         setLoading(true)
-        // Fetch all reminders created by the logged-in user
-        const response = await axios.get("http://localhost:8000/api/email-reminders/reminders")
-
+        // Fetch all reminders using the new API endpoint
+        const response = await axios.get("http://localhost:8000/api/reminders", {
+          params: { emp_id: user.emp_id, role_id: user.role_id },
+        })
+    
         if (Array.isArray(response.data)) {
-          setAllReminders(response.data)
-        console.log("All reminders:", response.data)
-          // Create a map of assignment_id to reminder details
-        //   const detailsMap = {}
-        //   response.data.forEach((reminder) => {
-        //     detailsMap[reminder.assignment_id] = {
-        //       employee_name: reminder.employee_name,
-        //       course_name: reminder.course_name,
-        //       request_id: reminder.request_id,
-        //     }
-        //   })
-        //   console.log("Reminder details map:", detailsMap)
-        //   setReminderDetailsMap(detailsMap)
-        // } else {
-        //   console.log("No reminders found")
-        // }
-}
+          const validReminders = response.data.filter((reminder) => {
+            const reminderDate = new Date(reminder.last_notified)
+            if (isNaN(reminderDate)) {
+              console.warn(`Invalid last_notified date: ${reminder.last_notified}`)
+              return false // Exclude invalid dates
+            }
+            return true // Include valid dates
+          })
+    
+          setAllReminders(validReminders)
+          console.log("All reminders:", validReminders)
+        } else {
+          console.log("No reminders found")
+        }
         setLoading(false)
       } catch (error) {
         console.error("Error fetching all reminders:", error)
@@ -278,7 +277,7 @@ const Reminders = () => {
       {/* Weekly Reminders Section */}
       {user?.role_id === 4 && (
         <>
-      <SectionTitle variant="h6">Your Reminders for this week !</SectionTitle>
+      <SectionTitle variant="h6" sx={{ml:"13px"}}>Your Reminders for this week !</SectionTitle>
 
       <Box
         sx={{
@@ -364,7 +363,7 @@ const Reminders = () => {
 </>
       )}
       {/* Reminders Table Section */}
-      <SectionTitle variant="h6">All Email Reminders</SectionTitle>
+      <SectionTitle variant="h6" sx={{ml:"13px"}}>All Email Reminders</SectionTitle>
 
       <Paper
         sx={{
@@ -378,7 +377,8 @@ const Reminders = () => {
           <Table stickyHeader aria-label="reminders table">
             <TableHead>
               <TableRow sx={{ borderBottom: "2px solid #8FBEF8" }}>
-                <StyledTableCell>
+                <StyledTableCell
+                >
                   <TableSortLabel
                     active={orderBy === "request_id"}
                     direction={orderBy === "request_id" ? order : "asc"}
@@ -444,7 +444,7 @@ const Reminders = () => {
               ) : sortedReminders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography variant="body1" color="text.secondary" sx={{mt: 3}}>
                       No reminders found
                     </Typography>
                   </TableCell>

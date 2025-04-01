@@ -2157,9 +2157,9 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
           placeholder="Search ID"
           value={formData.searchEmployeeIdQuery}
           onChange={(e) => setFormData({ ...formData, searchEmployeeIdQuery: e.target.value })}
-          style={{ fontSize: "12px", width: "90px", marginTop: "16px" }}
+          style={{ fontSize: "14px", width: "90px", marginTop: "16px" }}
           InputProps={{
-            style: { fontSize: "12.5px", color: "#4F4949" },
+            style: { fontSize: "12px", color: "#4F4949" },
           }}
         />
       </Box>
@@ -2174,7 +2174,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                               onChange={(e) => setFormData({ ...formData, searchQuery: e.target.value })}
                               style={{ fontSize: "12px", width: "200px", marginTop: "16px" }}
                               InputProps={{
-                                style: { fontSize: "12.5px", color: "#4F4949" },
+                                style: { fontSize: "12px", color: "#4F4949" },
                               }}
                             />
                           </Box>
@@ -2193,9 +2193,9 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                               fontFamily: "Poppins",
                               letterSpacing: "-0.5px",
                               padding: "5px",
-                              width: "160px",
+                              width: "130px",
                               "& input": {
-                                fontSize: "14px",
+                                fontSize: "12px",
                                 color: "#4F4949",
                               },
                             }}
@@ -2215,6 +2215,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                             sx={{
                               fontSize: "10px",
                               fontFamily: "Poppins",
+                              fontSize: "12px",
                               letterSpacing: "-0.5px",
                               padding: "5px",
                               color: "#4F4949",
@@ -2324,7 +2325,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                                   )}
                                 </TableCell>
                                 <TableCell>
-                                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "#4F4949" }}>
+                                  <Box sx={{ display: "flex",fontSize:"12px", alignItems: "center", gap: 1, color: "#4F4949" }}>
                                     <Avatar src={employee.profileImage} sx={{ width: 32, height: 32 }} />
                                     {employee.name}
                                   </Box>
@@ -2339,12 +2340,12 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                                       min: new Date().toISOString().split("T")[0],
                                     }}
                                     sx={{
-                                      fontSize: "10px",
+                                      fontSize: "12px",
                                       fontFamily: "Poppins",
                                       letterSpacing: "-0.5px",
                                       padding: "5px",
-                                      width: "160px",
-                                      "& input": { fontSize: "14px", color: "#4F4949" },
+                                      width: "130px",
+                                      "& input": { fontSize: "12px", color: "#4F4949" },
                                     }}
                                   />
                                 </TableCell>
@@ -2360,6 +2361,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
                                       letterSpacing: "-0.5px",
                                       padding: "5px",
                                       color: "#4F4949",
+                                      fontSize:"12px",
                                     }}
                                   >
                                     <MenuItem value="" disabled>
@@ -2503,15 +2505,19 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
             {/* Summary */}
             {formData.showSummary && (
-              <Grid item xs={12}>
-                <Typography style={{ marginTop: "-55px" }}>
+              <Grid item xs={12}  style={{
+                marginTop: formData.employees.length > 0 ? "-67px" : "0px", // Apply margin only if employees are added
+              }}>
+                <Typography className="total" >
                   Total employees selected: {formData.employees.length}
                   {formData.invalidEmails.length > 0 && <span> (Invalid emails: {formData.invalidEmails.length})</span>}
                 </Typography>
               </Grid>
             )}
           </Grid>
-          <Box className="buttonGroup  ButtonBox">
+          <Box className="buttonGroup  ButtonBox"  style={{
+                marginTop: formData.employees.length > 0 ? "10px" : "70px", // Apply margin only if employees are added
+              }}>
             <Button
               variant="outlined"
               style={{
@@ -2569,7 +2575,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
         >
           <CheckCircleIcon style={{ color: "green", fontSize: "3rem", marginBottom: "10px" }} />
           Request generated successfully with request number :
-          <strong style={{ fontSize: "18px", color: "#333" }}>LR{newRequestId}</strong>.
+          <strong style={{ fontSize: "18px", color: "#333" }}>LR{newRequestId}</strong>
           <IconButton
             onClick={handleCloseDialog}
             style={{

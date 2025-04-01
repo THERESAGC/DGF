@@ -60,7 +60,7 @@
   font-family: 'Poppins', sans-serif !important;
   letter-spacing: 0.3px !important;
   opacity: 1 !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
   color: black !important;
   border-bottom: none !important;
  
@@ -70,7 +70,7 @@
 }
 .selected-tab {
   color: #0544A1 !important;
-  font-weight: bold !important;
+  font-weight: 500 !important;
 }
  
  
