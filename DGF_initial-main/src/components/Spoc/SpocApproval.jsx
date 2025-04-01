@@ -557,7 +557,7 @@ style={{ height: '150px', overflowY: 'auto'}} // Add this line
 >
   <FormControlLabel
     value="approve"
-    control={<Radio color=" " />}  
+    control={<Radio color=" " />}  // Added color="primary"
     label={
       <Typography style={{ fontSize: "12px", fontWeight: "bold" }}>
         Approve

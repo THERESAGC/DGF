@@ -110,7 +110,7 @@ const RatingChip = ({ rating, field }) => {
     <Chip
       label={text}
       sx={{
-        color: color, 
+        color: color, // Apply color to the text
         fontWeight: "500",
         backgroundColor: "transparent", // No background color
        

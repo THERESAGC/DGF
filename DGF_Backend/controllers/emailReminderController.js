@@ -37,4 +37,3 @@ module.exports = {
     fetchEmailReminders,sendReminder 
 };
 
-// In this code, we have a controller that handles two main functions:

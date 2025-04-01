@@ -638,7 +638,7 @@ const RequestTable = ({ roleId }) => {
           size="small"
           style={{ marginLeft: "10px", height: "30px", backgroundColor: "white", width: "105px" }}
           InputProps={{
-            style: { fontSize: "0.63rem" }, 
+            style: { fontSize: "0.63rem" }, // Decreasing the font size here
           }}
           MenuProps={{
             PaperProps: {

@@ -145,7 +145,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
     display: "none",
   },
   "-ms-overflow-style": "none", // For Internet Explorer and Edge
-  "scrollbar-width": "none", 
+  "scrollbar-width": "none", // For Firefox
 }))
 
 const ModalHeader = styled(Box)(({ theme }) => ({

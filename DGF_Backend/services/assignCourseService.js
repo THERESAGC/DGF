@@ -146,4 +146,3 @@ console.log('API URL:', apiUrl);
  
 module.exports = { assignCourse };
 
-// In this code, we have a service that handles the assignment of courses to employees. It includes the following steps:

@@ -272,7 +272,7 @@ app.use('/api/getemp', getsetEmpBasedOnIdRoutes);
 app.use('/api/training-comment', TrainingCommentRoutes);
  
 //orglevellearner
-app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); // Add this line
+app.use('/api/orgLevelLearners', orgLevelLearnerRoutes); 
 
 //get all roles
 app.use('/api/getAllRoles', getAllRolesRoutes);

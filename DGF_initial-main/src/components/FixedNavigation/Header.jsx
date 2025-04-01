@@ -175,7 +175,7 @@ const Header = () => {
           variant="h6"
           style={{
             fontFamily: "'Poppins', sans-serif",
-            fontWeight: 600, //fontweight of the color
+            fontWeight: 600, 
             color: "#333333",
             marginBottom: "20px",
           }}

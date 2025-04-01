@@ -4,7 +4,7 @@ const { sendReminder } = require('../controllers/emailReminderController');
 
 const router = express.Router();
 
-// Route to fetch all email reminders
+// Route to fetch all email reminder
 router.get('/reminders', fetchEmailReminders);
 router.post('/send-reminder', sendReminder);
 
