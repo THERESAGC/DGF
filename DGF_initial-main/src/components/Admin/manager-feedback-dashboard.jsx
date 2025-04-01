@@ -939,7 +939,7 @@ const ManagerFeedbackDashboard = () => {
                                 fontSize: "11px", // Adjust font size
                                 color: "#333", // Adjust text color
                                 fontWeight: "600", // Optional: Adjust font weight
-                                textAlign: "center", // Optional: Align legend text
+                                textAlign: "center", 
                               }}
                             />
                           </PieChart>

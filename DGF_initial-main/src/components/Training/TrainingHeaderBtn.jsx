@@ -46,7 +46,7 @@ const TrainingHeaderBtn = () => {
         </Box>
         <Box className="box">
           {user.role_id !== 10 && (
-            <Button variant="contained" color="primary" className="button" onClick={() => navigate("/new-request")}>
+            <Button variant="contained" color="primary" className="button" onClick={() => navigate("/new-request")}> 
               New Request
             </Button>
           )}
@@ -57,4 +57,6 @@ const TrainingHeaderBtn = () => {
 }
 
 export default TrainingHeaderBtn
+// export default TrainingHeaderBtn
+
 

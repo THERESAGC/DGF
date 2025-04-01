@@ -127,3 +127,5 @@ const sendReminderEmailAndUpdate = async (learningInitiatedAssignments, empId) =
 module.exports = {
     getEmailReminders,sendReminderEmailAndUpdate,
 };
+
+// In this code, we have a service that handles two main functions:

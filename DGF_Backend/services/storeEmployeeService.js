@@ -151,3 +151,4 @@ async function syncEmployees() {
  
 module.exports = { syncEmployees };
  
+// Schedule the sync 
