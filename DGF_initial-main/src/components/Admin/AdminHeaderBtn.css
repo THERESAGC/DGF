@@ -59,7 +59,7 @@
   content: "";
   position: absolute;
   bottom: 0px; /* Adjust the space between text and the underline */
-  left: 45px;
+  left: 50px;
   width: 30%; /* Adjust the length of the underline (e.g., 50% of the text width) */
   height: 2px; /* Set the thickness of the underline */
   background-color: #fa5864; /* Set the color of the underline */

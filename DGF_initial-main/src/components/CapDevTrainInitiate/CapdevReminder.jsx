@@ -53,32 +53,32 @@ const CapdevReminder = ({ assignmentId }) => {
   const createdBy = JSON.parse(localStorage.getItem("user"))?.emp_id;
  
   // Fetch reminders from the API when the component mounts or assignmentId changes
+  const fetchReminders = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/reminders/date?assignment_id=${assignmentId}`);
+      const remindersData = response.data;
+      // console.log("Fetched Reminders:", remindersData);
+      // Group reminders by date
+      const groupedReminders = remindersData.reduce((acc, reminder) => {
+        const date = reminder.reminder_date;
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push({
+          id: reminder.reminder_id,
+          text: reminder.reminder_text,
+        });
+        return acc;
+      }, {});
+ 
+      setReminders(groupedReminders);
+    } catch (error) {
+      console.error("Error fetching reminders:", error);
+      setSnackbar({ open: true, message: "Failed to fetch reminders", severity: "error" });
+    }
+  };
+ 
   useEffect(() => {
-    const fetchReminders = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8000/api/reminders/date?assignment_id=${assignmentId}`);
-        const remindersData = response.data;
- 
-        // Group reminders by date
-        const groupedReminders = remindersData.reduce((acc, reminder) => {
-          const date = reminder.reminder_date;
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date].push({
-            id: reminder.reminder_id,
-            text: reminder.reminder_text,
-          });
-          return acc;
-        }, {});
- 
-        setReminders(groupedReminders);
-      } catch (error) {
-        console.error("Error fetching reminders:", error);
-        setSnackbar({ open: true, message: "Failed to fetch reminders", severity: "error" });
-      }
-    };
- 
     if (assignmentId) {
       fetchReminders();
     }
@@ -94,20 +94,19 @@ const CapdevReminder = ({ assignmentId }) => {
  
     const allEvents = [];
     Object.keys(reminders).forEach((dateStr) => {
-       reminders[dateStr].forEach((reminder) => {
-      const reminderDate = new Date(dateStr) // Ensure consistent parsing
-     
+      reminders[dateStr].forEach((reminder) => {
+        const reminderDate = new Date(dateStr); // Ensure consistent parsing
+ 
         const daysDifference = (reminderDate - today) / (1000 * 60 * 60 * 24);
         if (daysDifference >= 0 && daysDifference <= filterDays) {
           allEvents.push({
             date: reminderDate,
-             text:  reminder.text, // Combine texts if multiple reminders  text: reminders[dateStr].text,
+            text: reminder.text, // Combine texts if multiple reminders
             isPast: reminderDate < today,
           });
         }
       });
     });
- 
  
     allEvents.sort((a, b) => a.date - b.date);
     setUpcomingEvents(allEvents);
@@ -142,15 +141,12 @@ const CapdevReminder = ({ assignmentId }) => {
       setSnackbar({ open: true, message: "Please enter reminder text", severity: "error" });
       setLoading(false);
       return;
- 
     }
- 
-    // setLoading(true);
  
     try {
       const dateStr = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000)
-      .toISOString()
-      .split("T")[0];
+        .toISOString()
+        .split("T")[0];
       const payload = {
         assignment_id: assignmentId,
         reminder_date: dateStr,
@@ -160,22 +156,12 @@ const CapdevReminder = ({ assignmentId }) => {
  
       const response = await axios.post("http://localhost:8000/api/reminders", payload);
       console.log("New Reminder Response:", response.data);
-      const newReminder = response.data;
  
-      const updatedReminders = { ...reminders };
-      if (!updatedReminders[dateStr]) {
-        updatedReminders[dateStr] = [];
-      }
-      updatedReminders[dateStr].push({
-        id: newReminder.reminder_id,
-        text: newReminder.reminder_text || reminderText, // Fallback to reminderText
-      });
-      console.log("Updated Reminders:", updatedReminders);
- 
-      setReminders(updatedReminders);
       setReminderText("");
       setSnackbar({ open: true, message: "Reminder saved successfully", severity: "success" });
-   
+ 
+      // Fetch reminders again to ensure the latest data
+      fetchReminders();
     } catch (error) {
       console.error("Error saving reminder:", error);
       setSnackbar({ open: true, message: "Failed to save reminder", severity: "error" });
@@ -183,6 +169,7 @@ const CapdevReminder = ({ assignmentId }) => {
       setLoading(false);
     }
   };
+ 
   const deleteReminder = async (dateStr, index, reminderId) => {
     try {
       // Delete the reminder from the backend
@@ -208,12 +195,12 @@ const CapdevReminder = ({ assignmentId }) => {
       });
  
       setSnackbar({ open: true, message: "Reminder deleted successfully", severity: "success" });
-      setLoading(false);
     } catch (error) {
       console.error("Error deleting reminder:", error);
       setSnackbar({ open: true, message: "Failed to delete reminder", severity: "error" });
     }
   };
+ 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     const options = { weekday: "short", month: "short", day: "numeric" };
@@ -228,11 +215,9 @@ const CapdevReminder = ({ assignmentId }) => {
     setFilterDays(event.target.value);
   };
  
-  // const selectedDateStr = selectedDate ? selectedDate.toISOString().split("T")[0] : null;
   const selectedDateReminders = selectedDateStr && reminders[selectedDateStr] ? reminders[selectedDateStr] : [];
- 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 2, p: 1 }}>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 2, p: 1,mb: 4 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 1, paddingTop: "10px" }}>
         <NotificationsIcon sx={{ mr: 1, color: "primary.main" }} />
         <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
@@ -399,4 +384,5 @@ CapdevReminder.propTypes = {
 };
  
 export default CapdevReminder;
+ 
  

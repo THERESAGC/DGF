@@ -33,6 +33,7 @@ import AuthContext from "../Auth/AuthContext"
 
 // Styled components with improved spacing and softer colors
 const MainContainer = styled(Paper)(({ theme }) => ({
+  width: "100%",
   padding: theme.spacing(5),
   borderRadius: "12px",
   backgroundColor: "#ffffff",
@@ -192,14 +193,12 @@ const MyCourses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // Use the employee ID from the logged-in user or a default for testing
-        const employeeId = user?.employee_id || "HS1889"
-        const response = await axios.get(`http://localhost:8000/api/employee-courses/${employeeId}`)
+        const response = await axios.get(`http://localhost:8000/api/employee-courses/${user.emp_id}`)
         setCourses(response.data.data || [])
         setLoading(false)
       } catch (err) {
         console.error("Error fetching courses:", err)
-        setError("Failed to load courses. Please try again later.")
+      
         setLoading(false)
       }
     }
@@ -248,7 +247,7 @@ const MyCourses = () => {
           <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={8}>
             <Info color="error" sx={{ fontSize: 60, mb: 3, opacity: 0.8 }} />
             <Typography variant="h5" color="error" gutterBottom sx={{ fontWeight: 500, opacity: 0.9 }}>
-              Error Loading Courses
+              No Course Found
             </Typography>
             <Typography variant="body1" sx={{ color: "#455a64" }}>
               {error}

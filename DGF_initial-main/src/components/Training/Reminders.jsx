@@ -381,64 +381,217 @@ const Reminders = () => {
             <TableHead>
               <TableRow sx={{ borderBottom: "2px solid #8FBEF8" }}>
               <StyledTableCell>
-  <TableSortLabel
-    active={orderBy === "request_id"}
-    direction={orderBy === "request_id" ? order : "asc"}
+  <div
     onClick={createSortHandler("request_id")}
-    IconComponent={orderBy === "request_id" && order === "asc" ? KeyboardArrowUpIcon : KeyboardArrowDownIcon} // Add the arrow icons
+    onMouseEnter={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 1; // Show the icon on hover
+    }}
+    onMouseLeave={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 0; // Hide the icon when not hovering
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      cursor: "pointer",
+      position: "relative",
+    }}
   >
-    Request ID
-  </TableSortLabel>
+    <span>Request ID</span>
+    <span
+      className="hover-icon"
+      style={{
+        
+        opacity: 0, // Initially hidden
+        transition: "opacity 0.3s ease", // Smooth transition
+      }}
+    >
+      {orderBy === "request_id" && order === "asc" ? (
+        <KeyboardArrowUpIcon style={{ height: "20px", color: "#AAAAAA" , marginTop:"10px"}} />
+      ) : (
+        <KeyboardArrowDownIcon style={{ height: "20px", color: "#AAAAAA" , marginTop:"10px"}} />
+      )}
+    </span>
+  </div>
 </StyledTableCell>
 <StyledTableCell>
-  <TableSortLabel
-    active={orderBy === "employee_name"}
-    direction={orderBy === "employee_name" ? order : "asc"}
+  <div
     onClick={createSortHandler("employee_name")}
-    IconComponent={orderBy === "employee_name" && order === "asc" ? KeyboardArrowUpIcon : KeyboardArrowDownIcon}
+    onMouseEnter={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 1; // Show the icon on hover
+    }}
+    onMouseLeave={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 0; // Hide the icon when not hovering
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      cursor: "pointer",
+      position: "relative",
+    }}
   >
-    Employee Name
-  </TableSortLabel>
+    <span>Employee Name</span>
+    <span
+      className="hover-icon"
+      style={{
+        
+        opacity: 0, // Initially hidden
+        transition: "opacity 0.3s ease", // Smooth transition
+      }}
+    >
+      {orderBy === "employee_name" && order === "asc" ? (
+        <KeyboardArrowUpIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px" }} />
+      ) : (
+        <KeyboardArrowDownIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px" }} />
+      )}
+    </span>
+  </div>
 </StyledTableCell>
 <StyledTableCell>
-      <div onClick={createSortHandler("course_name")} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-        <span>Course Name</span>
-        {orderBy === "course_name" && (
-          order === "asc" ? (
-            <KeyboardArrowDownIcon style={{ marginLeft: 8 }} />
-          ) : (
-            <KeyboardArrowUpIcon style={{ marginLeft: 8 }} />
-          )
+  <div
+    onClick={createSortHandler("course_name")}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      cursor: "pointer",
+      position: "relative",
+    }}
+    onMouseEnter={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 1; // Show the icon on hover
+    }}
+    onMouseLeave={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 0; // Hide the icon when not hovering
+    }}
+  >
+    <span>Course Name</span>
+    {orderBy === "course_name" && (
+      <span
+        className="hover-icon"
+        style={{
+          
+          opacity: 0, // Initially hidden
+          transition: "opacity 0.2s ease", // Smooth transition
+        }}
+      >
+        {order === "asc" ? (
+          <KeyboardArrowUpIcon style={{ height: "20px", color: "#AAAAAA", marginTop:"10px" }} />
+        ) : (
+          <KeyboardArrowDownIcon style={{ height: "20px", color: "#AAAAAA" , marginTop:"10px" }} />
         )}
-      </div>
-    </StyledTableCell>
-                <StyledTableCell>
-                  <TableSortLabel
-                    active={orderBy === "last_notified"}
-                    direction={orderBy === "last_notified" ? order : "asc"}
-                    onClick={createSortHandler("last_notified")}
-                  >
-                    Last Notified
-                  </TableSortLabel>
-                </StyledTableCell>
-                <StyledTableCell>
-                  <TableSortLabel
-                    active={orderBy === "notified_by"}
-                    direction={orderBy === "notified_by" ? order : "asc"}
-                    onClick={createSortHandler("notified_by")}
-                  >
-                    Notified By
-                  </TableSortLabel>
-                </StyledTableCell>
-                <StyledTableCell>
-                  <TableSortLabel
-                    active={orderBy === "reminder_count"}
-                    direction={orderBy === "reminder_count" ? order : "asc"}
-                    onClick={createSortHandler("reminder_count")}
-                  >
-                    Reminder Count
-                  </TableSortLabel>
-                </StyledTableCell>
+      </span>
+    )}
+  </div>
+</StyledTableCell>
+<StyledTableCell>
+  <div
+    onClick={createSortHandler("last_notified")}
+    onMouseEnter={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 1; // Show the icon on hover
+    }}
+    onMouseLeave={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 0; // Hide the icon when not hovering
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      cursor: "pointer",
+      position: "relative",
+    }}
+  >
+    <span>Last Notified</span>
+    <span
+      className="hover-icon"
+      style={{
+        opacity: 0, // Initially hidden
+        transition: "opacity 0.3s ease", // Smooth transition
+        
+      }}
+    >
+      {orderBy === "last_notified" && order === "asc" ? (
+        <KeyboardArrowUpIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px" }} />
+      ) : (
+        <KeyboardArrowDownIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px"}} />
+      )}
+    </span>
+  </div>
+</StyledTableCell>
+<StyledTableCell>
+  <div
+    onClick={createSortHandler("notified_by")}
+    onMouseEnter={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 1; // Show the icon on hover
+    }}
+    onMouseLeave={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 0; // Hide the icon when not hovering
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      cursor: "pointer",
+      position: "relative",
+    }}
+  >
+    <span>Notified By</span>
+    <span
+      className="hover-icon"
+      style={{
+        opacity: 0, // Initially hidden
+        transition: "opacity 0.3s ease", // Smooth transition
+      
+      }}
+    >
+      {orderBy === "notified_by" && order === "asc" ? (
+        <KeyboardArrowUpIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px" }} />
+      ) : (
+        <KeyboardArrowDownIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px" }} />
+      )}
+    </span>
+  </div>
+</StyledTableCell>
+<StyledTableCell>
+  <div
+    onClick={createSortHandler("reminder_count")}
+    onMouseEnter={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 1; // Show the icon on hover
+    }}
+    onMouseLeave={(e) => {
+      const icon = e.currentTarget.querySelector(".hover-icon");
+      if (icon) icon.style.opacity = 0; // Hide the icon when not hovering
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      cursor: "pointer",
+      position: "relative",
+    }}
+  >
+    <span>Reminder Count</span>
+    <span
+      className="hover-icon"
+      style={{
+        opacity: 0, // Initially hidden
+        transition: "opacity 0.3s ease", // Smooth transition
+        
+      }}
+    >
+      {orderBy === "reminder_count" && order === "asc" ? (
+        <KeyboardArrowUpIcon style={{ height: "20px", color: "#AAAAAA" ,marginTop:"10px"}} />
+      ) : (
+        <KeyboardArrowDownIcon style={{ height: "20px", color: "#AAAAAA",marginTop:"10px" }} />
+      )}
+    </span>
+  </div>
+</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -519,11 +672,9 @@ const Reminders = () => {
                 fontFamily: "inherit",
               },
               "& .Mui-selected": {
-                backgroundColor: "rgba(143, 190, 248, 0.2)",
-                color: "#1976d2",
-                "&:hover": {
-                  backgroundColor: "rgba(143, 190, 248, 0.3)",
-                },
+                borderRadius: "50%",
+                color: "red",
+               
               },
             }}
           />

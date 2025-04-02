@@ -5,29 +5,41 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [role_id, setRoleId] = useState(null); // Add role_id state
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+
     if (storedUser) {
-      console.log('User data retrieved from localStorage:', storedUser);
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser); // Parse the user object
+        console.log('User data retrieved from localStorage:', parsedUser);
+
+        setUser(parsedUser); // Set the user object in state
+        setRoleId(parsedUser.role_id); // Extract and set the role_id from the user object
+        console.log('Role ID retrieved from user object:', parsedUser.role_id);
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
     }
     setLoading(false);
   }, []);
 
   const login = (userData) => {
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('user', JSON.stringify(userData)); // Store the entire user object
     setUser(userData);
+    setRoleId(userData.role_id); // Extract and set the role_id from the user object
   };
 
   const logout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem('user'); // Remove the user object from localStorage
     setUser(null);
+    setRoleId(null); // Clear role_id state
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, role_id, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

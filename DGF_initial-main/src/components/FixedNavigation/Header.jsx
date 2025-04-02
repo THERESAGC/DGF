@@ -1,6 +1,5 @@
- 
 import { useState, useContext, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import {
   AppBar,
   Toolbar,
@@ -22,15 +21,17 @@ import {
   Divider,
   FormControlLabel,
   Switch,
+  ListItemIcon,
 } from "@mui/material"
 import AuthContext from "../Auth/AuthContext"
 import "./Header.css"
 import { toPascalCase } from "../../utils/stringUtils"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import axios from "axios"
- 
+ import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import NotificationIcon from "../../assets/Notification-icon.svg"
 import ArrowDownIcon from "../../assets/arrow-down.svg"
+import { LogOutIcon } from "lucide-react"
  
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -43,7 +44,7 @@ const Header = () => {
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [showAllNotifications, setShowAllNotifications] = useState(false)
-  const location = useLocation() // Get the current location
+  // const location = useLocation() // Get the current location
   useEffect(() => {
     if (user && user.profile_image && user.profile_image.data) {
       const base64Flag = `data:image/jpeg;base64,${arrayBufferToBase64(user.profile_image.data)}`
@@ -171,18 +172,19 @@ const Header = () => {
   return (
     <AppBar position="static" className="header">
       <Toolbar>
-        <Typography
+        {/* <Typography
           variant="h6"
           style={{
             fontFamily: "'Poppins', sans-serif",
-            fontWeight: 600, 
+            fontWeight: 600,
             color: "#333333",
             marginBottom: "20px",
           }}
         >
           Demand Generation Framework <span style={{ fontSize: "0.8em", color: "#707070" }}>(DGF)</span>
-        </Typography>
+        </Typography> */}
  
+        <img src="src\assets\Media (1).jpg" alt="Logo" style={{ width: "110px", height: "50px", marginBottom: "20px" }} />
         {/* Spacer to push items to the right */}
         <div style={{ flexGrow: 1 }} />
  
@@ -331,10 +333,78 @@ const Header = () => {
         </div>
  
         {/* Dropdown Menu */}
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
-        </Menu>
+       
+<Menu
+  anchorEl={anchorEl}
+  open={Boolean(anchorEl)}
+  onClose={handleMenuClose}
+  PaperProps={{
+    sx: {
+      width: "200px", // Increase the width
+      borderRadius: "8px", // Add rounded corners
+      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Add a subtle shadow
+      mt: 1, // Add margin at the top
+      overflow: "visible", // Ensure the menu doesn't clip
+      "&:before": {
+        content: '""',
+        display: "block",
+        position: "absolute",
+        top: 0,
+        right: 16,
+        width: 10,
+        height: 10,
+        bgcolor: "white",
+        transform: "translateY(-50%) rotate(45deg)", // Add a small arrow at the top
+        zIndex: 0,
+      },
+    },
+  }}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right", // Align with the right corner
+  }}
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "right", // Align with the right corner
+  }}
+>
+  <MenuItem
+    onClick={handleProfileClick}
+    sx={{
+      fontSize: "14px",
+      fontWeight: 500,
+      color: "#333",
+      "&:hover": {
+        backgroundColor: "#f5f5f5",
+      },
+    }}
+  >
+    <ListItemIcon>
+      <AccountCircleIcon fontSize="small" />
+    </ListItemIcon>
+    <ListItemText primary="Profile" />
+  </MenuItem>
+  <MenuItem
+    onClick={handleLogout}
+    sx={{
+      fontSize: "14px",
+      fontWeight: 500,
+      color: "#d32f2f",
+      "&:hover": {
+        backgroundColor: "#fdecea",
+      },
+    }}
+  >
+    <ListItemIcon>
+      <LogOutIcon style={{
+ 
+    width: "20px",
+    height: "20px",
+      }} />
+    </ListItemIcon>
+    <ListItemText primary="Logout" />
+  </MenuItem>
+</Menu>
       </Toolbar>
     </AppBar>
   )
