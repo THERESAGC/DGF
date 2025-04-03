@@ -31,7 +31,7 @@ import PropTypes from "prop-types"
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import CommentsSidebar from "./commentsSidebar";
 import AuthContext from "../Auth/AuthContext"
- 
+
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
     padding: "16px",
@@ -57,7 +57,7 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     fontSize: "10px !important",
   },
 }))
- 
+
 const HeaderButton = styled(Button)(({ theme }) => ({
   height: "30px",
   fontSize: "10px",
@@ -72,7 +72,7 @@ const HeaderButton = styled(Button)(({ theme }) => ({
     backgroundColor: "#f5f5f5",
   },
 }))
- 
+
 const ActionIconButton = styled(IconButton)(({ theme, disabled }) => ({
   width: "22px",
   height: "22px",
@@ -90,12 +90,12 @@ const ActionIconButton = styled(IconButton)(({ theme, disabled }) => ({
     // color: disabled ? "#a9a9a9" : "inherit",
   },
 }))
- 
+
 const StatusChip = styled(Box)(({ theme }) => ({
   padding: "6px 12px",
   color: "#06819E",
 }))
- 
+
 function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCourse, onStatusUpdate }) {
   const [assignedCourses, setAssignedCourses] = useState([])
   const [loadingCourses, setLoadingCourses] = useState(false)
@@ -103,17 +103,17 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" })
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [currentAssignmentId, setCurrentAssignmentId] = useState(null)
- 
- 
- 
+
+
+
   const handleMenuClick = (event, assignmentId) => {
     setAnchorElMap((prev) => ({ ...prev, [assignmentId]: event.currentTarget }))
   }
- 
+
   const handleMenuClose = (assignmentId) => {
     setAnchorElMap((prev) => ({ ...prev, [assignmentId]: null }))
   }
- 
+
   const handleStatusUpdate = async (assignmentId, newStatus) => {
     try {
       const response = await fetch(`http://localhost:8000/api/course-status/${assignmentId}`, {
@@ -121,13 +121,13 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       })
- 
+
       if (!response.ok) throw new Error("Failed to update status")
- 
+
       setAssignedCourses((prev) =>
         prev.map((course) => (course.assignment_id === assignmentId ? { ...course, status: newStatus } : course)),
       )
- 
+
       setSnackbar({ open: true, message: "Status updated successfully!", severity: "success" })
       onStatusUpdate()
     } catch (error) {
@@ -140,7 +140,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
     setCurrentAssignmentId(assignmentId)
     setSidebarOpen(true)
   }
- 
+
   useEffect(() => {
     const fetchAssignedCourses = async () => {
       try {
@@ -155,7 +155,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         setLoadingCourses(false)
       }
     }
- 
+
     if (isExpanded) fetchAssignedCourses()
   }, [isExpanded, row.emp_id, row.requestid])
   useEffect(() => {
@@ -171,7 +171,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           </IconButton>
         </TableCell>
         <TableCell padding="checkbox">
-          <Checkbox checked={isSelected} onChange={onSelect} color="primary"  />
+          <Checkbox checked={isSelected} onChange={onSelect} color="primary" disabled={row.coursesAssigned == 3} />
         </TableCell>
         <TableCell>
           <Box sx={{ display: "-webkit-box", alignItems: "center", gap: 1 }}>
@@ -186,7 +186,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
         <TableCell>
           <StatusChip>{row.status}</StatusChip>
         </TableCell>
- 
+
         <TableCell style={{ textAlign: "left" }}>
           <HeaderButton
             onClick={() => onAssignCourse(row.emp_id, row.coursesAssigned)}
@@ -196,7 +196,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           </HeaderButton>
         </TableCell>
       </TableRow>
- 
+
       {isExpanded && (
         <TableRow sx={{ backgroundColor: "#f1f2fd" }}>
           <TableCell colSpan={12} className="innertable">
@@ -215,7 +215,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                       <TableCell style={{ textAlign: "left" }}>Course Name</TableCell>
                       <TableCell align="center">End Date</TableCell>
                       <TableCell align="center">Comments</TableCell>
- 
+
                       <TableCell align="center">Status</TableCell>
                       <TableCell style={{ textAlign: "left", width:" 9%" }}>Actions</TableCell>
                     </TableRow>
@@ -256,7 +256,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                                 value={course.progress || 0}
                                 sx={{ height: 8, borderRadius: 4, width: "48px" }}
                               />
- 
+
                               <Typography variant="caption">{course.progress || 0}%</Typography>
                             </Box>
                           </Box>
@@ -321,7 +321,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
     </>
   )
 }
- 
+
 Row.propTypes = {
   row: PropTypes.shape({
     emp_id: PropTypes.string.isRequired,
@@ -342,7 +342,7 @@ Row.propTypes = {
   onAssignCourse: PropTypes.func.isRequired,
   onStatusUpdate: PropTypes.func.isRequired,
 }
- 
+
 export default function CourseTracker() {
   const { requestId } = useParams()
   const [page, setPage] = useState(1)
@@ -353,7 +353,7 @@ export default function CourseTracker() {
   const [showAssignModal, setShowAssignModal] = useState(false)
   const [coursesAssigned, setCoursesAssigned] = useState(0)
   const itemsPerPage = 5
- 
+
   const fetchLearnersData = async () => {
     try {
       setLoading(true)
@@ -375,7 +375,7 @@ export default function CourseTracker() {
         status: item.status === "0" ? "Not Assigned" : item.status,
         requestid: requestId,
       }))
- 
+
       setLearners(formattedLearners)
     } catch (error) {
       console.error("Error fetching learners:", error)
@@ -383,14 +383,14 @@ export default function CourseTracker() {
       setLoading(false)
     }
   }
- 
+
   useEffect(() => {
     fetchLearnersData()
   }, [requestId])
- 
+
   const totalPages = Math.ceil(learners.length / itemsPerPage)
   const currentItems = learners.slice((page - 1) * itemsPerPage, page * itemsPerPage)
- 
+
   const handleSelectEmployee = (empId) => {
     setSelectedEmployees((prev) => (prev.includes(empId) ? prev.filter((id) => id !== empId) : [...prev, empId]))
   }
@@ -406,84 +406,93 @@ export default function CourseTracker() {
     setCoursesAssigned(coursesAssigned) // Set the coursesAssigned state
     setShowAssignModal(true)
   }
- 
+
   // const handleSendEmails = async (empIds) => {
   //   console.log("Send Reminder Clicked");
- 
+  
   //   const learningInitiatedAssignments = [];
- 
+  
   //   // Fetch assigned courses for all selected employees
   //   for (const empId of empIds) {
   //     try {
   //       const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`);
   //       const data = await response.json();
- 
+  
   //       // Filter assignment IDs with status "Learning Initiated"
   //       const initiatedAssignments = (data.data || [])
   //         .filter((course) => course.status === "Learning Initiated")
   //         .map((course) => course.assignment_id);
- 
+  
   //       learningInitiatedAssignments.push(...initiatedAssignments);
   //     } catch (error) {
   //       console.error(`Error fetching assigned courses for employee ${empId}:`, error);
   //     }
   //   }
- 
+  
   //   console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
   // };
- 
+
   const user = useContext(AuthContext)?.user; // Retrieve user from AuthContext
- 
+  
   const handleSendEmails = async (empIds) => {
-      console.log("Send Reminder Clicked");
- 
+    console.log("Send Reminder Clicked");
+  
     const learningInitiatedAssignments = [];
- 
+  
     // Fetch assigned courses for all selected employees
     for (const empId of empIds) {
       try {
         const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`);
         const data = await response.json();
- 
+  
         // Filter assignment IDs with status "Learning Initiated"
         const initiatedAssignments = (data.data || [])
           .filter((course) => course.status === "Learning Initiated")
           .map((course) => course.assignment_id);
- 
+  
         learningInitiatedAssignments.push(...initiatedAssignments);
- 
       } catch (error) {
         console.error(`Error fetching assigned courses for employee ${empId}:`, error);
       }
     }
- 
+  
     console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
- 
+  
     if (learningInitiatedAssignments.length > 0) {
       try {
-        const response = await fetch("http://localhost:8000/api/email-reminders/send-reminder", {
+        const requestBody = {
+          learningInitiatedAssignments,
+          empId: user.emp_id,
+        };
+  
+        console.log("Request Body:", requestBody);
+  
+        const response = await fetch("http://localhost:8000/api/send-reminder", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            learningInitiatedAssignments, // Pass the assignments
-            empId: user?.empId, // Example of sending empId (assuming this is logged in user ID)
-          }),
+          body: JSON.stringify(requestBody),
         });
- 
+  
+        console.log("Response:", response);
+  
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Error Response Text:", errorText);
+          throw new Error(`Failed to send reminders: ${response.status} ${response.statusText}`);
+        }
+  
         const data = await response.json();
         console.log(data.message);
-        alert('Reminder emails have been sent successfully!');
+        alert("Reminder emails have been sent successfully!");
       } catch (error) {
-        console.error('Error sending reminders:', error);
-        alert('There was an error sending the reminders.');
+        console.error("Error sending reminders:", error);
+        alert("There was an error sending the reminders.");
       }
     }
   };
- 
- 
- 
+
   const handleModalClose = () => {
     setShowAssignModal(false)
     setSelectedEmployees([])
@@ -508,28 +517,16 @@ export default function CourseTracker() {
            onClick={() => handleSendEmails(selectedEmployees)}
            disabled={selectedEmployees.length === 0}
           >Send Reminder ({selectedEmployees.length})</HeaderButton>
-        <HeaderButton
-  variant="outlined"
-  onClick={() => {
-    // Map selectedEmployees (emp_id) to their corresponding objects in the learners array
-    const selectedEmployeeObjects = learners.filter((learner) =>
-      selectedEmployees.includes(learner.emp_id)
-    );
- 
-    // Calculate the maximum coursesAssigned for the selected employees
-    const maxCoursesAssigned = Math.max(
-      ...selectedEmployeeObjects.map((employee) => employee.coursesAssigned)
-    );
- 
-    handleAssignCourse(selectedEmployees, maxCoursesAssigned);
-  }}
-  disabled={selectedEmployees.length === 0}
->
-  Assign Course ({selectedEmployees.length})
-</HeaderButton>
+          <HeaderButton
+            variant="outlined"
+            onClick={() => handleAssignCourse(selectedEmployees, 0)}
+            disabled={selectedEmployees.length === 0}
+          >
+            Assign Course ({selectedEmployees.length})
+          </HeaderButton>
         </Box>
       </Box>
- 
+
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
@@ -545,17 +542,18 @@ export default function CourseTracker() {
                     <Checkbox
                       checked={
                         selectedEmployees.length > 0 &&
-                        selectedEmployees.length === currentItems.length // Check if all rows are selected
+                        selectedEmployees.length === currentItems.filter((row) => row.coursesAssigned < 3).length
                       }
                       indeterminate={
                         selectedEmployees.length > 0 &&
-                        selectedEmployees.length < currentItems.length // Indeterminate if some rows are selected
+                        selectedEmployees.length < currentItems.filter((row) => row.coursesAssigned < 3).length
                       }
                       onChange={(e) => {
                         if (e.target.checked) {
-                           // Select all employees in currentItems
-      setSelectedEmployees(currentItems.map((row) => row.emp_id));
-                         
+                          // Select all employees that have less than 3 courses assigned
+                          setSelectedEmployees(
+                            currentItems.filter((row) => row.coursesAssigned < 3).map((row) => row.emp_id),
+                          )
                         } else {
                           // Deselect all employees
                           setSelectedEmployees([])
@@ -588,7 +586,7 @@ export default function CourseTracker() {
               </TableBody>
             </Table>
           </StyledTableContainer>
- 
+
           <Box
             sx={{
               display: "flex",
@@ -620,7 +618,7 @@ export default function CourseTracker() {
           </Box>
         </>
       )}
- 
+
       <AssignCourseModal
         open={showAssignModal}
         onClose={handleModalClose}
@@ -631,4 +629,3 @@ export default function CourseTracker() {
     </Box>
   )
 }
- 

@@ -93,7 +93,7 @@ const sendReminderEmailAndUpdate = async (learningInitiatedAssignments, empId) =
       const [reminderRows] = await connection.execute(
         `SELECT * FROM email_reminders WHERE assignment_id = ?`,
         [assignmentId]
-      );
+      )
 
       if (reminderRows.length > 0) {
         // Increment the reminder count and update last_reminder_date

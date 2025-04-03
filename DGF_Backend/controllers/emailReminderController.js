@@ -23,7 +23,7 @@ const fetchEmailReminders = async (req, res) => {
 
 const sendReminder = async (req, res) => {
     const { learningInitiatedAssignments, empId } = req.body;
-  
+  console.log('Received request body:', req.body); // Log the request body
     try {
       const result = await sendReminderEmailAndUpdate(learningInitiatedAssignments, empId);
       res.status(200).json(result);
@@ -32,6 +32,8 @@ const sendReminder = async (req, res) => {
       res.status(500).json({ message: 'Failed to send email reminders', error: error.message });
     }
   };
+
+
 
 module.exports = {
     fetchEmailReminders,sendReminder 
