@@ -118,7 +118,7 @@ export default function UserTable() {
                 <TableCell sx={{ fontFamily: "inherit" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Avatar src={user.avatar} sx={{ width: 24, height: 24 }} />
-                    <Typography>{user.name}</Typography>
+                    <Typography sx={{ fontFamily: "inherit",fontSize:"11px !important" }}>{user.name}</Typography>
                   </Box>
                 </TableCell>
                 <TableCell sx={{ fontFamily: "inherit" }}>{user.email}</TableCell>

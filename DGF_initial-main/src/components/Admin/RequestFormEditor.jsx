@@ -1675,7 +1675,7 @@ const handleDeleteLearningObjective = async (id) => {
       border: '1px solid #ccc',
       borderRadius: '4px',
       outline:"none",
-      color: selectedServiceDivisionId ? '#000000 ' : '#BDBDBD',
+      color: selectedServiceDivisionId ? '#000000 ' : '#747474',
     }}
     
   >
@@ -1840,6 +1840,7 @@ const handleDeleteLearningObjective = async (id) => {
   <input
     id="tech-stack-name"
     type="text"
+    placeholder="Tech Stack Name"
     value={newTechStackName}
     onChange={(e) => setNewTechStackName(e.target.value)}
     style={{
@@ -1983,6 +1984,7 @@ const handleDeleteLearningObjective = async (id) => {
       border: '1px solid #ccc',
       fontSize: '12px',
       outline: 'none',
+      
      
     }}
   />
@@ -2125,7 +2127,9 @@ const handleDeleteLearningObjective = async (id) => {
                 }}
               >
                 <MenuItem value="" disabled>
-                  <em style={{ color: "#8A8A8A" }}>Select Source</em>
+                  <label style={{ color: "#8A8A8A" , fontFamily: "inherit", fontSize: "12px",color:"#747474"}}>
+                    Select Source
+                    </label>
                 </MenuItem>
                 {sources.map((source) => (
                   <MenuItem key={source.id} value={source.id}>
