@@ -15,7 +15,7 @@ import formatDate from "../../utils/dateUtils"
 import removeHtmlTags from "../../utils/htmlUtils"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import { ChatContext } from "../context/ChatContext" // Import ChatContext
-
+import { backendUrl } from "../../../config/config"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
 
@@ -58,13 +58,13 @@ const ClarificationRequested = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestid}`)
+        const requestResponse = await fetch(`${backendUrl}api/training-request/${requestid}`)
         const requestdata = await requestResponse.json()
         setRequestDetails(requestdata)
         console.log("Request Details:", requestdata)
 
         const learnerResponse = await fetch(
-          `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestid}`,
+          `${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestid}`,
         )
         const learnerdata = await learnerResponse.json()
         setpreviousEmployeesInDB(learnerdata.employees)
@@ -92,7 +92,7 @@ const ClarificationRequested = () => {
 
         setLearners(updatedLearners)
 
-        const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`)
+        const commentsResponse = await fetch(`${backendUrl}api/comments/${requestid}`)
         const commentsdata = await commentsResponse.json()
         setComments(commentsdata)
         console.log("Fetched Comments:", commentsdata) // Add this line to log fetched comments
@@ -111,7 +111,7 @@ const ClarificationRequested = () => {
 
         const profiles = {}
         for (const userId of userIds) {
-          const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`)
+          const userResponse = await fetch(`${backendUrl}api/getempdetails/getEmpbasedOnId/${userId}`)
           const userData = await userResponse.json()
           console.log(`User Data for ${userId}:`, userData)
           if (userData && userData.length > 0) {
@@ -164,7 +164,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
 
   useEffect(() => {
     if (requestid) {
-      fetch(`http://localhost:8000/api/training-request/${requestid}`)
+      fetch(`${backendUrl}api/training-request/${requestid}`)
         .then((response) => response.json())
         .then((data) => setRequestDetails(data))
         .catch((error) => console.error("Error fetching data:", error))
@@ -182,7 +182,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
     // Process selected employee from the dropdown
     if (selectedEmployee && !formData.employees.some((emp) => emp.emp_id === selectedEmployee.id)) {
       try {
-        const learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${selectedEmployee.id}`)
+        const learnerResponse = await fetch(`${backendUrl}api/learners/getLearners/${selectedEmployee.id}`)
         const learnerData = await learnerResponse.json()
 
         newEmployees.push({
@@ -221,7 +221,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
         if (employee) {
           if (!formData.employees.some((emp) => emp.emp_id === employee.id)) {
             try {
-              const learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${employee.id}`)
+              const learnerResponse = await fetch(`${backendUrl}api/learners/getLearners/${employee.id}`)
               const learnerData = await learnerResponse.json()
 
               newEmployees.push({
@@ -287,7 +287,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
     }
     console.log(emp_id, requestDetails.requestid)
     const response = await fetch(
-      "http://localhost:8000/api/empDeleteTrainingRequested/deleteEmployeeFromTrainingRequest",
+      `${backendUrl}api/empDeleteTrainingRequested/deleteEmployeeFromTrainingRequest`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -312,7 +312,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
   const handleEmailSearch = async (email) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${requestDetails.requestedbyid}&emailPrefix=${email}`,
+        `${backendUrl}api/employee/searchEmployeesByManagerIdAndEmail?managerid=${requestDetails.requestedbyid}&emailPrefix=${email}`,
       )
       const data = await response.json()
 
@@ -346,7 +346,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
   }
   const handleEmployeeSearch = (event, value) => {
     if (value.length > 0) {
-      const apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${requestDetails.requestedbyid}&name=${value}`
+      const apiUrl = `${backendUrl}api/employeeSearchByName/searchEmployeesByName?managerId=${requestDetails.requestedbyid}&name=${value}`
 
       fetch(apiUrl)
         .then((response) => response.json())
@@ -355,7 +355,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
             const employeesWithSkills = await Promise.all(
               data.map(async (emp) => {
                 try {
-                  const learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
+                  const learnerResponse = await fetch(`${backendUrl}api/learners/getLearners/${emp.emp_id}`)
                   const learnerData = await learnerResponse.json()
 
                   return {
@@ -396,7 +396,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
       },
     ]
     console.log("Add", requestBody)
-    const response = await fetch("http://localhost:8000/api/empNewTrainingRequested/insertTrainingRequest", {
+    const response = await fetch(`${backendUrl}api/empNewTrainingRequested/insertTrainingRequest`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
@@ -422,7 +422,7 @@ const endIndex = Math.min(page * itemsPerPage, formData.employees.length);
     ]
     console.log("Update", requestBody)
     const response = await fetch(
-      "http://localhost:8000/api/empUpdateTrainingRequested/updateMultipleTrainingRequests",
+      `${backendUrl}api/empUpdateTrainingRequested/updateMultipleTrainingRequests`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

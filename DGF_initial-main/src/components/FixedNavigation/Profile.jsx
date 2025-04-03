@@ -26,7 +26,7 @@ import axios from "axios"
 import AuthContext from "../Auth/AuthContext"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import { toPascalCase } from "../../utils/stringUtils"
-
+import { backendUrl } from "../../../config/config"
 const Profile = () => {
   const [profileDetails, setProfileDetails] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -39,7 +39,7 @@ const Profile = () => {
     const fetchProfileDetails = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`http://localhost:8000/api/profiles/${user.emp_id}`)
+        const response = await axios.get(`${backendUrl}api/profiles/${user.emp_id}`)
         setProfileDetails(response.data)
 
         // Handle profile image

@@ -31,6 +31,7 @@ import PropTypes from "prop-types"
 import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 import CommentsSidebar from "./commentsSidebar";
 import AuthContext from "../Auth/AuthContext"
+import { backendUrl } from "../../../config/config"
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -116,7 +117,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
 
   const handleStatusUpdate = async (assignmentId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/course-status/${assignmentId}`, {
+      const response = await fetch(`${backendUrl}api/course-status/${assignmentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -145,7 +146,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
     const fetchAssignedCourses = async () => {
       try {
         setLoadingCourses(true)
-        const response = await fetch(`http://localhost:8000/api/assigned-courses/${row.emp_id}/${row.requestid}`)
+        const response = await fetch(`${backendUrl}api/assigned-courses/${row.emp_id}/${row.requestid}`)
         const data = await response.json()
         setAssignedCourses(data.data || [])
       } catch (error) {
@@ -358,7 +359,7 @@ export default function CourseTracker() {
     try {
       setLoading(true)
       const response = await fetch(
-        `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
+        `${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
       )
       const data = await response.json()
       console.log(data)
@@ -415,7 +416,7 @@ export default function CourseTracker() {
   //   // Fetch assigned courses for all selected employees
   //   for (const empId of empIds) {
   //     try {
-  //       const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`);
+  //       const response = await fetch(`${backendUrl}api/assigned-courses/${empId}/${requestId}`);
   //       const data = await response.json();
   
   //       // Filter assignment IDs with status "Learning Initiated"
@@ -442,7 +443,7 @@ export default function CourseTracker() {
     // Fetch assigned courses for all selected employees
     for (const empId of empIds) {
       try {
-        const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`);
+        const response = await fetch(`${backendUrl}api/assigned-courses/${empId}/${requestId}`);
         const data = await response.json();
   
         // Filter assignment IDs with status "Learning Initiated"
@@ -467,7 +468,7 @@ export default function CourseTracker() {
   
         console.log("Request Body:", requestBody);
   
-        const response = await fetch("http://localhost:8000/api/send-reminder", {
+        const response = await fetch(`${backendUrl}api/send-reminder`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

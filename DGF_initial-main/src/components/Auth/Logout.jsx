@@ -5,6 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AuthContext from '../Auth/AuthContext';
 import './Header.css';
+import { backendUrl } from '../../../config/config';
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);

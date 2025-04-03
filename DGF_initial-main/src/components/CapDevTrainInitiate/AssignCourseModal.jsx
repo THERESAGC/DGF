@@ -11,6 +11,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { color } from 'chart.js/helpers';
 import { useContext } from 'react';
 import AuthContext from '../Auth/AuthContext';
+import { backendUrl } from '../../../config/config';
 const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssigned}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [availableCourses, setAvailableCourses] = useState([]);
@@ -28,7 +29,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
   useEffect(() => {
     const fetchCourseTypes = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/course-types/types');
+        const response = await fetch(`${backendUrl}api/course-types/types`);
         const data = await response.json();
         setCourseTypes(data);
       } catch (error) {
@@ -45,7 +46,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
           setLoading(true);
           console.log('Search Query:', searchQuery); // Log the search query
           const response = await fetch(
-            `http://localhost:8000/api/courses/search?query=${encodeURIComponent(searchQuery)}`
+            `${backendUrl}api/courses/search?query=${encodeURIComponent(searchQuery)}`
           );
           const data = await response.json();
           console.log('Fetched Courses:', data); // Log the fetched courses
@@ -99,7 +100,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
  
   //         console.log('Payload:', payload); // Log the payload to verify its content
  
-  //         await fetch('http://localhost:8000/api/assign-courses/assign', {
+  //         await fetch('${backendUrl}api/assign-courses/assign', {
   //           method: 'POST',
   //           headers: { 'Content-Type': 'application/json' },
   //           body: JSON.stringify(payload)
@@ -138,7 +139,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
   
           console.log('Payload:', payload); // Log the payload to verify its content
   
-          const response = await fetch('http://localhost:8000/api/assign-courses/assign', {
+          const response = await fetch(`${backendUrl}api/assign-courses/assign`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -146,7 +147,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
   
           if (response.ok) {
             // After assigning the course, trigger email to the employee
-            const emailResponse = await fetch('http://localhost:8000/api/send-email', {
+            const emailResponse = await fetch(`${backendUrl}api/send-email`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
@@ -173,7 +174,7 @@ const AssignCourseModal = ({ open, onClose, employeeIds, requestId,coursesAssign
   const handleMentorSearch = async (query) => {
     try {
       setMentorLoading(true);
-      const response = await fetch(`http://localhost:8000/api/employees/searchWithoutManager?name=${encodeURIComponent(query)}`);
+      const response = await fetch(`${backendUrl}api/employees/searchWithoutManager?name=${encodeURIComponent(query)}`);
       const data = await response.json();
       setMentors(data);
     } catch (error) {

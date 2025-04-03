@@ -41,7 +41,7 @@ import { toPascalCase } from "../../utils/stringUtils"
 import getRoleType from "../../utils/roleUtils"
 import Grid from "@mui/material/Grid2"
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material"
-
+import { backendUrl } from "../../../config/config"
 const CustomRadio = styled(Radio)({
   "& .MuiSvgIcon-root": { fontSize: 16 },
 })
@@ -188,7 +188,7 @@ const NewTrainingRequest = () => {
 
   useEffect(() => {
     if (user) {
-      fetch(`http://localhost:8000/api/role/sources?role_id=${user.role_id}`)
+      fetch(`${backendUrl}api/role/sources?role_id=${user.role_id}`)
         .then((response) => response.json())
         .then((data) => {
           const sortedSources = data.sort((a, b) => a.source_name.localeCompare(b.source_name));
@@ -201,7 +201,7 @@ const NewTrainingRequest = () => {
         .catch((error) => console.error("Error fetching sources:", error));
     }
     // Fetch tech stacks
-    fetch(`http://localhost:8000/api/techstack/all`)
+    fetch(`${backendUrl}api/techstack/all`)
     .then((response) => response.json())
     .then((data) => {
       const sortedTechStacks = data.sort((a, b) => a.stack_name.localeCompare(b.stack_name));
@@ -215,7 +215,7 @@ const NewTrainingRequest = () => {
  
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/employee-level/all`)
+    fetch(`${backendUrl}api/employee-level/all`)
       .then((response) => response.json())
       .then((data) => {
         setFormData((prevFormData) => ({
@@ -228,7 +228,7 @@ const NewTrainingRequest = () => {
 
   useEffect(() => {
     // Fetch services data
-    fetch(`http://localhost:8000/api/services`)
+    fetch(`${backendUrl}api/services`)
       .then((response) => response.json())
       .then((data) => {
         const sortedServices = data.services.sort((a, b) => a.service_name.localeCompare(b.service_name));
@@ -242,7 +242,7 @@ const NewTrainingRequest = () => {
 
   useEffect(() => {
     // Fetch employee levels data
-    fetch(`http://localhost:8000/api/employee-level/all`)
+    fetch(`${backendUrl}api/employee-level/all`)
       .then((response) => response.json())
       .then((data) => {
         setFormData((prevFormData) => ({
@@ -256,7 +256,7 @@ const NewTrainingRequest = () => {
   useEffect(() => {
     const fetchNewRequestId = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/get-max-request-id/max-request-id")
+        const response = await fetch(`${backendUrl}api/get-max-request-id/max-request-id`)
         const data = await response.json()
         if (response.ok) {
           setNewRequestId(data.newRequestId)
@@ -311,7 +311,7 @@ const NewTrainingRequest = () => {
     setTrainingObjectiveErrorMessage("");
  
     // Fetch training objectives based on the selected source
-    fetch(`http://localhost:8000/api/training/objectives?source_id=${selectedSource}`)
+    fetch(`${backendUrl}api/training/objectives?source_id=${selectedSource}`)
       .then((response) => response.json())
       .then((data) => {
         const sortedObjectives = data.sort((a, b) => a.training_name.localeCompare(b.training_name));
@@ -392,7 +392,7 @@ const NewTrainingRequest = () => {
     setPrimarySkillErrorMessage("");
  
     // Fetch primary skills based on the selected tech stack
-    fetch(`http://localhost:8000/api/primaryskill/by-stack?stack_id=${selectedTechStack}`)
+    fetch(`${backendUrl}api/primaryskill/by-stack?stack_id=${selectedTechStack}`)
       .then((response) => response.json())
       .then((data) => {
         const sortedPrimarySkills = data.sort((a, b) => a.skill_name.localeCompare(b.skill_name));
@@ -409,7 +409,7 @@ const NewTrainingRequest = () => {
   // Fetch projects data
   useEffect(() => {
     if (formData.selectedServiceDivision) {
-      fetch(`http://localhost:8000/api/project/by-service-division?service_division_id=${formData.selectedServiceDivision}`)
+      fetch(`${backendUrl}api/project/by-service-division?service_division_id=${formData.selectedServiceDivision}`)
         .then((response) => response.json())
         .then((data) => {
           setFormData((prevFormData) => ({
@@ -441,9 +441,9 @@ const NewTrainingRequest = () => {
     if (value.length > 0) {
       let apiUrl
       if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-        apiUrl = `http://localhost:8000/api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
+        apiUrl = `${backendUrl}api/employeeSearchByName/searchEmployeesByName?managerId=${formData.requestonbehalf}&name=${value}`
       } else {
-        apiUrl = `http://localhost:8000/api/employees/searchWithoutManager?name=${value}`
+        apiUrl = `${backendUrl}api/employees/searchWithoutManager?name=${value}`
       }
 
       fetch(apiUrl)
@@ -458,7 +458,7 @@ const NewTrainingRequest = () => {
 
                   if (formData.employeeDetails === "open") {
                     learnerResponse = await fetch(
-                      `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
+                      `${backendUrl}api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`,
                     )
                     learnerData = await learnerResponse.json()
                     return {
@@ -466,7 +466,7 @@ const NewTrainingRequest = () => {
                       totalPrimarySkills: learnerData.total_requests || 0,
                     }
                   } else {
-                    learnerResponse = await fetch(`http://localhost:8000/api/learners/getLearners/${emp.emp_id}`)
+                    learnerResponse = await fetch(`${backendUrl}api/learners/getLearners/${emp.emp_id}`)
                     learnerData = await learnerResponse.json()
                     return {
                       ...emp,
@@ -499,7 +499,7 @@ const NewTrainingRequest = () => {
 
   const handleManagerSearch = (event, value) => {
     if (value.length > 0) {
-      fetch(`http://localhost:8000/api/managerSearchByName/searchManagersByName?name=${value}`)
+      fetch(`${backendUrl}api/managerSearchByName/searchManagersByName?name=${value}`)
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -528,9 +528,9 @@ const NewTrainingRequest = () => {
 
       // Construct the API URL based on the conditions
       if (formData.employeeDetails === "add" && formData.requestonbehalfRole !== 4) {
-        apiUrl = `http://localhost:8000/api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`
+        apiUrl = `${backendUrl}api/employee/searchEmployeesByManagerIdAndEmail?managerid=${formData.requestonbehalf}&emailPrefix=${email}`
       } else {
-        apiUrl = `http://localhost:8000/api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`
+        apiUrl = `${backendUrl}api/emailSearchWithoutManagerId/getEmployeesByEmail?email=${email}`
       }
 
       const response = await fetch(apiUrl)
@@ -575,7 +575,7 @@ const NewTrainingRequest = () => {
   //     const levelNames = formData.selectedEmployeeLevel.join(",")
   //     try {
   //       const response = await fetch(
-  //         `http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`,
+  //         `${backendUrl}api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`,
   //       )
   //       const data = await response.json()
   //       if (response.ok) {
@@ -628,7 +628,7 @@ const NewTrainingRequest = () => {
       const levelNames = formData.selectedEmployeeLevel.join(",");
       try {
         const response = await fetch(
-`http://localhost:8000/api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`
+`${backendUrl}api/employeeDesignation/getEmployeesByDesignation?designationNames=${levelNames}`
         );
         const data = await response.json();
         if (response.ok) {
@@ -636,7 +636,7 @@ const NewTrainingRequest = () => {
 data.map(async (emp) => {
               try {
                 const learnerResponse = await fetch(
-`http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
+`${backendUrl}api/orgLevelLearners/getOrgLevelLearnerData/${emp.emp_id}`
                 );
                 const learnerData = await learnerResponse.json();
                 return {
@@ -730,7 +730,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:8000/api/project/by-service-division?service_division_id=${serviceDivisionId}`
+        `${backendUrl}api/project/by-service-division?service_division_id=${serviceDivisionId}`
       );
       const data = await response.json();
  
@@ -779,7 +779,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     // Add selected employee from "Select Employee" field
     if (selectedEmployee && !formData.employees.some((emp) => emp.id === selectedEmployee.id)) {
       try {
-        const response = await fetch(`http://localhost:8000/api/learners/getLearners/${selectedEmployee.id}`)
+        const response = await fetch(`${backendUrl}api/learners/getLearners/${selectedEmployee.id}`)
         const data = await response.json()
 
         newEmployees.push({
@@ -806,7 +806,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
         const employee = await handleEmailSearch(email)
         if (employee) {
           try {
-            const response = await fetch(`http://localhost:8000/api/learners/getLearners/${employee.id}`)
+            const response = await fetch(`${backendUrl}api/learners/getLearners/${employee.id}`)
             const data = await response.json()
 
             newEmployees.push({
@@ -882,7 +882,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     console.log("Submitting primary skills to API:", requestBody) // Log the request body
 
     try {
-      const response = await fetch("http://localhost:8000/api/trainingRequestPrimarySkills/storePrimarySkills", {
+      const response = await fetch(`${backendUrl}api/trainingRequestPrimarySkills/storePrimarySkills`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -932,7 +932,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
     console.log("Submitting request body to newtrainingrequest API:", requestBody) // Log the request body
 
     try {
-      const response = await fetch("http://localhost:8000/api/newtrainingrequest", {
+      const response = await fetch(`${backendUrl}api/newtrainingrequest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -957,7 +957,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
           console.log("Submitting request body to training-request/employee-levels API:", employeeLevelRequestBody) // Log the request body
 
           try {
-            const employeeLevelResponse = await fetch("http://localhost:8000/api/training-request/employee-levels", {
+            const employeeLevelResponse = await fetch(`${backendUrl}api/training-request/employee-levels`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -997,7 +997,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
           try {
             const empNewTrainingResponse = await fetch(
-              "http://localhost:8000/api/empNewTrainingRequested/insertTrainingRequest",
+              `${backendUrl}api/empNewTrainingRequested/insertTrainingRequest`,
               {
                 method: "POST",
                 headers: {
@@ -1041,7 +1041,7 @@ uniqueKey: `${emp.emp_id}-${Date.now()}`,
 
     try {
       // Make the API request to submit the training request and trigger email sending
-      const response = await fetch("http://localhost:8000/api/email/submitTrainingRequest", {
+      const response = await fetch(`${backendUrl}api/email/submitTrainingRequest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

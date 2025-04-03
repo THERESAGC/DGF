@@ -1,8 +1,8 @@
 import  { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { io } from 'socket.io-client';
- 
-const socket = io('http://localhost:8000'); // Adjust this URL to your server
+import { backendUrl } from '../../../config/config'; 
+const socket = io(`${backendUrl}`); // Adjust this URL to your server
  
 export const ChatContext = createContext();
  
@@ -39,7 +39,7 @@ export const ChatProvider = ({ children }) => {
  
     try {
         // First, send the message to the backend API (save to DB)
-        const response = await fetch('http://localhost:8000/api/comments', {
+        const response = await fetch(`${backendUrl}api/comments`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export const ChatProvider = ({ children }) => {
   };
   const fetchMessages = async (requestId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/comments/${requestId}`);
+      const response = await fetch(`${backendUrl}api/comments/${requestId}`);
       const fetchedMessages = await response.json();
       setMessages(fetchedMessages);
     } catch (error) {

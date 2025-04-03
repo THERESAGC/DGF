@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material"
 import axios from "axios"
 import AuthContext from "../Auth/AuthContext"
-
+import { backendUrl } from "../../../config/config"
 // Styled components with improved spacing and softer colors
 const MainContainer = styled(Paper)(({ theme }) => ({
   width: "100%",
@@ -193,7 +193,7 @@ const MyCourses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/employee-courses/${user.emp_id}`)
+        const response = await axios.get(`${backendUrl}api/employee-courses/${user.emp_id}`)
         setCourses(response.data.data || [])
         setLoading(false)
       } catch (err) {

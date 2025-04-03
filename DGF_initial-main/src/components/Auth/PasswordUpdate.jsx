@@ -379,6 +379,7 @@ import { TextField, Button, Box, Paper, InputLabel } from "@mui/material";
 import axios from "axios";
 import backgroundImage from "../../assets/Onelogin-BG 1.jpg"; // Your background image
 import logo from "../../assets/harbinger-logo.svg"; // Your logo
+import { backendUrl } from '../../../config/config';
 
 const PasswordUpdate = () => {
   const [email, setEmail] = useState("");
@@ -474,7 +475,7 @@ const PasswordUpdate = () => {
 
       // Make API request to the change password endpoint
       const response = await axios.post(
-        "http://localhost:8000/api/change-password", // Your backend URL
+        `${backendUrl}api/change-password`, // Your backend URL
         payload,
         {
           headers: {

@@ -6,7 +6,7 @@ import "../Training/Requesterinformation.css";
 import formatDate from "../../utils/dateUtils";
 import removeHtmlTags from "../../utils/htmlUtils";
 import { arrayBufferToBase64 } from '../../utils/ImgConveter';
-
+import { backendUrl } from "../../../config/config";
 
 const Requesterinformation = () => {
   
@@ -20,19 +20,19 @@ const [page, setPage] = useState(1);
 useEffect(() => {
   const fetchData = async () => {
     try {
-      const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestId}`);
+      const requestResponse = await fetch(`${backendUrl}api/training-request/${requestId}`);
       const requestdata = await requestResponse.json();
       setRequestDetails(requestdata);
       console.log('Request Details:', requestdata);
       console.log('Request IDdddd:', requestId);
       
 
-      const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`);
+      const learnerResponse = await fetch(`${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`);
       const learnerdata = await learnerResponse.json();
       setLearners(learnerdata.employees || []);
       console.log('Learners Data:', learnerdata);
 
-      const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestId}`);
+      const commentsResponse = await fetch(`${backendUrl}api/comments/${requestId}`);
       const commentsdata = await commentsResponse.json();
       setComments(commentsdata);
       console.log('Fetched Comments:', commentsdata); // Add this line to log fetched comments
@@ -46,7 +46,7 @@ useEffect(() => {
 
       const profiles = {};
       for (let userId of userIds) {
-        const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
+        const userResponse = await fetch(`${backendUrl}api/getempdetails/getEmpbasedOnId/${userId}`);
         const userData = await userResponse.json();
         console.log(`User Data for ${userId}:`, userData);
         if (userData && userData.length > 0) {

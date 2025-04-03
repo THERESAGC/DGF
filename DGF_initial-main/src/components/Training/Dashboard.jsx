@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import AuthContext from "../Auth/AuthContext";
 import GraphComponent from "./GraphComponent";
 import "../Training/Dashboard.css";
- 
+import { backendUrl } from "../../../config/config";
 const Dashboard = ({ roleId }) => {
   const { user } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
@@ -23,7 +23,7 @@ const Dashboard = ({ roleId }) => {
  
   useEffect(() => {
     if (user) {
-      fetch('http://localhost:8000/api/training-requests')
+      fetch(`${backendUrl}api/training-requests`)
         .then(response => response.json())
         .then(data => {
           console.log("Fetched Data:", data); // Log the entire response

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { TextField, Button, Box, Typography, Paper, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { backendUrl } from '../../../config/config';
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -30,7 +32,7 @@ const navigate = useNavigate();
  
     try {
       // Make a request to the API to send a password change email
-      const response = await axios.post("http://localhost:8000/api/request-password-change", {
+      const response = await axios.post(`${backendUrl}api/request-password-change`, {
         email,
       });
  

@@ -32,6 +32,7 @@ import "../Training/RequestTable.css"
 import getRoleType from "../../utils/roleUtils"
 import AuthContext from "../Auth/AuthContext"
 import formatDate from "../../utils/dateUtils"
+import { backendUrl } from "../../../config/config"
 // import DownloadReport from "../Training/DownloadReport";
 
 const statuses = ["In Progress", "Completed", "Incomplete", "Rejected", "Suspended"]
@@ -72,7 +73,7 @@ const RequestTable = ({ roleId }) => {
 
   //fetch learners data
   const fetchLearnerData = useCallback((requestId) => {
-    fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestId}`)
+    fetch(`${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested?requestid=${requestId}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data, "Learner data fetched successfully") // Log the entire response
@@ -99,7 +100,7 @@ const RequestTable = ({ roleId }) => {
 
   // Fetch completion data
   const fetchCompletionData = useCallback((requestId) => {
-    fetch(`http://localhost:8000/api/employee-completion-status/${requestId}`)
+    fetch(`${backendUrl}api/employee-completion-status/${requestId}`)
       .then((response) => response.json())
       .then((data) => {
         if (data && data.length) {
@@ -194,7 +195,7 @@ const RequestTable = ({ roleId }) => {
   // Update the useEffect to fetch and sort the requests
   useEffect(() => {
     if (user) {
-      fetch("http://localhost:8000/api/training-requests")
+      fetch(`${backendUrl}api/training-requests`)
         .then((response) => response.json())
         .then((data) => {
           console.log("Fetched Data:", data) // Log the entire response
@@ -227,7 +228,7 @@ const RequestTable = ({ roleId }) => {
             setAssignedToData(initialAssignedData)
           }
 
-          fetch("http://localhost:8000/api/emp/getEmpsforCapdev")
+          fetch(`${backendUrl}api/emp/getEmpsforCapdev`)
             .then((response) => response.json())
             .then((empData) => {
               const formattedData = empData.map((member) => ({
@@ -259,7 +260,7 @@ const RequestTable = ({ roleId }) => {
 
   // Update the assigned employee in the backend
   const updateRequestWithAssignedTo = (emp_id, requestid) => {
-    return fetch("http://localhost:8000/api/getemp/updateAssignedTo", {
+    return fetch(`${backendUrl}api/getemp/updateAssignedTo`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -271,7 +272,7 @@ const RequestTable = ({ roleId }) => {
         console.log("Request updated successfully:", data)
 
         // Trigger notification to the assigned user
-        return fetch(`http://localhost:8000/api/notifications/assignment?requestId=${requestid}`, {
+        return fetch(`${backendUrl}api/notifications/assignment?requestId=${requestid}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -306,7 +307,7 @@ const RequestTable = ({ roleId }) => {
     // Send the updated assigned employee to the backend
     updateRequestWithAssignedTo(employeeId, requestId).then(() => {
       // Refetch the data after updating the assignment
-      fetch("http://localhost:8000/api/training-requests")
+      fetch(`${backendUrl}api/training-requests`)
         .then((response) => response.json())
         .then((data) => {
           const sortedRequests = sortRequestsByDate(data || [])

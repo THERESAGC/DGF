@@ -34,7 +34,7 @@ const RequestInformation = () => {
     const fetchRequestDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/training-request/${requestId}`
+          `${backendUrl}api/training-request/${requestId}`
         );
         if (!response.ok) throw new Error('Failed to fetch request details');
         const data = await response.json();

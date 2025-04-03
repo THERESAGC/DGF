@@ -195,7 +195,8 @@ import { Box, Container, Typography, TextField, Paper, Button, Radio, RadioGroup
 import axios from 'axios'; // To make HTTP requests
 import PropTypes from 'prop-types'; // Import PropTypes
 import Divider from '@mui/material/Divider';
- 
+import { backendUrl } from '../../../config/config'; 
+
 const StyledPaper = styled(Paper)({
   padding: '24px',
   maxWidth: "622px",
@@ -255,7 +256,7 @@ const UserFeedbackForm = () => {
           return;
         }
  
-        const response = await axios.get('http://localhost:8000/api/effectiveness-feedback/feedback/details', {
+        const response = await axios.get(`${backendUrl}api/effectiveness-feedback/feedback/details`, {
           params: { reqid: reqidParam, course_id: courseIdParam, employee_id: employeeIdParam },
         });
  
@@ -309,7 +310,7 @@ const UserFeedbackForm = () => {
     };
  
     try {
-      const response = await axios.post('http://localhost:8000/api/feedback', feedbackPayload);
+      const response = await axios.post(`${backendUrl}api/feedback`, feedbackPayload);
       console.log('Feedback submitted successfully:', response.data);
       // alert('Feedback submitted successfully!');
       setDialogOpen(true);

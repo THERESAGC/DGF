@@ -21,7 +21,7 @@ import {
   Divider,Dialog, DialogActions, DialogContent, DialogTitle
 } from "@mui/material";
 import axios from "axios";
- 
+import { backendUrl } from "../../../config/config"; 
 const StyledPaper = styled(Paper)({
   padding: "24px",
   maxWidth: 600,
@@ -80,7 +80,7 @@ const ManagerFeedbackForm = () => {
           return;
         }
  
-        const response = await axios.get("http://localhost:8000/api/effectiveness-feedback/feedback/details", {
+        const response = await axios.get(`${backendUrl}api/effectiveness-feedback/feedback/details`, {
           params: { reqid: reqidParam, course_id: courseIdParam, employee_id: employeeIdParam },
         });
  
@@ -134,7 +134,7 @@ const ManagerFeedbackForm = () => {
  
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/manager-feedback",
+        `${backendUrl}api/manager-feedback`,
         requestData
       );
  

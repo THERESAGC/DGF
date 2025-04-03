@@ -2,7 +2,8 @@ import { useState } from "react"
 import { Box, Tabs, Tab, Paper } from "@mui/material"
 // import DownloadReport from "./Download-report"
 import EffectivenessReport from "./EffectivenessReport"
- 
+import { backendUrl } from "../../../config/config"
+
 const ReportsManagement = () => {
   const [tabValue, setTabValue] = useState(0)
  

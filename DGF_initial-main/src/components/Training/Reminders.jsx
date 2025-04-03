@@ -26,6 +26,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
+import { backendUrl } from "../../../config/config"
 // Styled components for consistent design
 const StyledTableCell = styled(TableCell)({
   fontFamily: "inherit",
@@ -134,7 +135,7 @@ const Reminders = () => {
       try {
         setLoading(true)
         // Fetch reminders created by the logged-in user
-        const response = await axios.get(`http://localhost:8000/api/reminders/emp`, {
+        const response = await axios.get(`${backendUrl}api/reminders/emp`, {
           params: { emp_id: user.emp_id },
 
         })
@@ -174,7 +175,7 @@ const Reminders = () => {
       try {
         setLoading(true)
         // Fetch all reminders using the new API endpoint
-        const response = await axios.get("http://localhost:8000/api/reminders", {
+        const response = await axios.get(`${backendUrl}api/reminders`, {
           params: { emp_id: user.emp_id, role_id: user.role_id },
         })
     

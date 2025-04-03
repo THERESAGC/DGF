@@ -19,6 +19,7 @@ import {
 } from "@mui/material"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import axios from "axios"
+import { backendUrl } from "../../../config/config"
 
 const AddUserModal = ({ open, onClose }) => {
   const [role, setRole] = useState("")
@@ -33,7 +34,7 @@ const AddUserModal = ({ open, onClose }) => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/getallroles/getAllRoles")
+        const response = await axios.get(`${backendUrl}api/getallroles/getAllRoles`)
         setRoles(response.data)
       } catch (error) {
         console.error("Error fetching roles:", error)
@@ -47,7 +48,7 @@ const AddUserModal = ({ open, onClose }) => {
       const fetchEmployees = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:8000/api/employees/searchWithoutManager?name=${searchTerm}`,
+            `${backendUrl}api/employees/searchWithoutManager?name=${searchTerm}`,
           )
           setEmployees(response.data)
         } catch (error) {
@@ -102,12 +103,12 @@ const AddUserModal = ({ open, onClose }) => {
 
     try {
       // First, add the user
-      const addUserResponse = await axios.post("http://localhost:8000/api/addUser", newUserData)
+      const addUserResponse = await axios.post(`${backendUrl}api/addUser`, newUserData)
       alert("User added successfully")
 
       // Then, request password change
       const { email } = newUserData // Assuming newUserData contains the email
-      const passwordChangeResponse = await axios.post("http://localhost:8000/api/request-password-change", { email })
+      const passwordChangeResponse = await axios.post(`${backendUrl}api/request-password-change`, { email })
 
       if (passwordChangeResponse.status === 200) {
         alert("Password change request sent successfully")

@@ -18,6 +18,7 @@ import { styled } from "@mui/material/styles"
 import axios from "axios"
 import UserActionModal from "./UserActionModal"
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined"
+import { backendUrl } from "../../../config/config"
 
 const ArrowForwardDesign = styled(IconButton)(({ theme }) => ({
   width: "22px",
@@ -50,7 +51,7 @@ export default function UserTable() {
 
   const fetchUsers = () => {
     axios
-      .get("http://localhost:8000/api/logins")
+      .get(`${backendUrl}api/logins`)
       .then((response) => {
         const fetchedUsers = response.data.map((user) => ({
           id: user.emp_id,

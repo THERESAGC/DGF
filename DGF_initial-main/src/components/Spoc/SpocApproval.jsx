@@ -13,7 +13,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import { CircularProgress } from "@mui/material"; // Import CircularProgress
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
- 
+import { backendUrl } from "../../../config/config";
 const SpocApproval = ({roleId}) => {
 const [learners, setLearners] = useState([]);
  
@@ -46,19 +46,19 @@ useEffect(() => {
       setUserProfiles({});
  
       // Fetch request details
-      const requestResponse = await fetch(`http://localhost:8000/api/training-request/${requestid}`);
+      const requestResponse = await fetch(`${backendUrl}api/training-request/${requestid}`);
       const requestdata = await requestResponse.json();
       setRequestDetails(requestdata);
  
       // Fetch learners
-      const learnerResponse = await fetch(`http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestid}`);
+      const learnerResponse = await fetch(`${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestid}`);
       const learnerdata = await learnerResponse.json();
       const initialLearners = learnerdata.employees || [];
       setLearners(initialLearners);
       setSortedLearners(initialLearners);
  
       // Fetch comments
-      const commentsResponse = await fetch(`http://localhost:8000/api/comments/${requestid}`);
+      const commentsResponse = await fetch(`${backendUrl}api/comments/${requestid}`);
       const commentsdata = await commentsResponse.json();
       setComments(commentsdata);
  
@@ -70,7 +70,7 @@ useEffect(() => {
  
       const profiles = {};
       for (let userId of userIds) {
-        const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`);
+        const userResponse = await fetch(`${backendUrl}api/getempdetails/getEmpbasedOnId/${userId}`);
         const userData = await userResponse.json();
         if (userData && userData.length > 0) {
           if (userData[0]?.profile_image?.data) {
@@ -172,7 +172,7 @@ const handleSubmit = async () => {
     };
  
     // Step 1: Update request status
-    const statusResponse = await fetch("http://localhost:8000/api/request-status/update-status", {
+    const statusResponse = await fetch(`${backendUrl}api/request-status/update-status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestData),
@@ -184,7 +184,7 @@ const handleSubmit = async () => {
     }
  
     // Step 2: Add comment
-    const commentResponse = await fetch("http://localhost:8000/api/comments/", {
+    const commentResponse = await fetch(`${backendUrl}api/comments/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(commentdata),
@@ -196,7 +196,7 @@ const handleSubmit = async () => {
     }
  
     // Step 3: Send email
-    await fetch("http://localhost:8000/api/email/approveRejectSuspendClarify", {
+    await fetch(`${backendUrl}api/email/approveRejectSuspendClarify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -213,7 +213,7 @@ const handleSubmit = async () => {
     setStatusDialogOpen(true);
    
     // Refresh comments
-    const refreshComments = await fetch(`http://localhost:8000/api/comments/${requestid}`);
+    const refreshComments = await fetch(`${backendUrl}api/comments/${requestid}`);
     const newComments = await refreshComments.json();
     setComments(newComments);
  

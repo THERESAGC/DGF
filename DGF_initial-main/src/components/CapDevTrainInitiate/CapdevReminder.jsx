@@ -26,7 +26,7 @@ import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PropTypes from "prop-types";
- 
+import { backendUrl } from "../../../config/config";
 import { styled } from "@mui/material/styles";
  
 // Define ReminderPaper
@@ -55,7 +55,7 @@ const CapdevReminder = ({ assignmentId }) => {
   // Fetch reminders from the API when the component mounts or assignmentId changes
   const fetchReminders = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/reminders/date?assignment_id=${assignmentId}`);
+      const response = await axios.get(`${backendUrl}api/reminders/date?assignment_id=${assignmentId}`);
       const remindersData = response.data;
       // console.log("Fetched Reminders:", remindersData);
       // Group reminders by date
@@ -154,7 +154,7 @@ const CapdevReminder = ({ assignmentId }) => {
         created_by: createdBy,
       };
  
-      const response = await axios.post("http://localhost:8000/api/reminders", payload);
+      const response = await axios.post(`${backendUrl}api/reminders`, payload);
       console.log("New Reminder Response:", response.data);
  
       setReminderText("");
@@ -173,7 +173,7 @@ const CapdevReminder = ({ assignmentId }) => {
   const deleteReminder = async (dateStr, index, reminderId) => {
     try {
       // Delete the reminder from the backend
-      await axios.delete(`http://localhost:8000/api/reminders/${reminderId}`);
+      await axios.delete(`${backendUrl}api/reminders/${reminderId}`);
  
       // Update the local reminders state immutably
       setReminders((prevReminders) => {

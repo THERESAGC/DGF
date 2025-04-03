@@ -49,6 +49,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward"
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward"
 import MenuBookIcon from "@mui/icons-material/MenuBook"
 import axios from "axios"
+import { backendUrl } from "../../../config/config"
 
 const RequestFormEditor = () => {
   const [tabValue, setTabValue] = useState(0)
@@ -104,7 +105,7 @@ const RequestFormEditor = () => {
 
   const fetchServiceDivisions = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/services")
+      const response = await axios.get(`${backendUrl}api/services`)
       const serviceDivisionsData = response.data.services.map((service) => ({
         id: service.id,
         name: service.service_name,
@@ -125,7 +126,7 @@ const RequestFormEditor = () => {
   const fetchProjects = async (serviceDivisionId) => {
     try {
         const response = await axios.get(
-            `http://localhost:8000/api/project/by-service-division?service_division_id=${serviceDivisionId}`
+            `${backendUrl}api/project/by-service-division?service_division_id=${serviceDivisionId}`
         );
 
         // Utility function to decode HTML entities
@@ -156,7 +157,7 @@ const RequestFormEditor = () => {
 
   const fetchTechStacks = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/techstack/all")
+      const response = await axios.get(`${backendUrl}api/techstack/all`)
       const techStacksData = response.data.map((stack) => ({
         id: stack.stack_id,
         name: stack.stack_name,
@@ -169,7 +170,7 @@ const RequestFormEditor = () => {
 
   const fetchPrimarySkills = async (stackId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/primaryskill/by-stack?stack_id=${stackId}`)
+      const response = await axios.get(`${backendUrl}api/primaryskill/by-stack?stack_id=${stackId}`)
       const primarySkillsData = response.data.map((skill) => ({
         id: skill.skill_id,
         name: skill.skill_name,
@@ -185,7 +186,7 @@ const RequestFormEditor = () => {
   const fetchSources = async () => {
     try {
         // Make an API call to fetch sources
-        const response = await axios.get("http://localhost:8000/api/sources");
+        const response = await axios.get(`${backendUrl}api/sources`);
         
         // Map the response data to match the expected structure
         const sourcesData = response.data.map((source) => ({
@@ -207,7 +208,7 @@ const RequestFormEditor = () => {
 };
   const fetchLearningObjectives = async (sourceId) => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/training/objectives?source_id=${sourceId}`);
+        const response = await axios.get(`${backendUrl}api/training/objectives?source_id=${sourceId}`);
         const objectives = response.data.map((objective) => ({
           id: objective.training_id,
           name: objective.training_name,
@@ -232,7 +233,7 @@ const RequestFormEditor = () => {
     try {
       if (isEditMode && editItem) {
         // Update existing project
-        await axios.put(`http://localhost:8000/api/projects/${editItem.id}`, {
+        await axios.put(`${backendUrl}api/projects/${editItem.id}`, {
           name: newProjectName,
           serviceDivisionId: selectedServiceDivisionId,
         })
@@ -244,7 +245,7 @@ const RequestFormEditor = () => {
         setAlert({ open: true, message: "Project updated successfully", severity: "success" })
       } else {
         // Add new project
-        const response = await axios.post("http://localhost:8000/api/add-project", {
+        const response = await axios.post(`${backendUrl}api/add-project`, {
           ProjectName: newProjectName,
           serviceDivisionId: selectedServiceDivisionId,
         })
@@ -276,7 +277,7 @@ const RequestFormEditor = () => {
 
     try {
       // Add new division
-      const response = await axios.post("http://localhost:8000/api/add-service-division", {
+      const response = await axios.post(`${backendUrl}api/add-service-division`, {
         service_name: newDivisionName,
       })
 
@@ -316,14 +317,14 @@ const RequestFormEditor = () => {
     try {
       if (isEditMode && editItem) {
         // Update existing tech stack
-        await axios.put(`http://localhost:8000/api/tech-stacks/${editItem.id}`, {
+        await axios.put(`${backendUrl}api/tech-stacks/${editItem.id}`, {
           name: newTechStackName,
         })
         setTechStacks(techStacks.map((t) => (t.id === editItem.id ? { ...t, name: newTechStackName } : t)))
         setAlert({ open: true, message: "Tech stack updated successfully", severity: "success" })
       } else {
         // Add new tech stack
-        const response = await axios.post("http://localhost:8000/api/tech-stacks", {
+        const response = await axios.post(`${backendUrl}api/tech-stacks`, {
           stackName: newTechStackName,
         })
         setTechStacks([...techStacks, response.data])
@@ -346,7 +347,7 @@ const RequestFormEditor = () => {
     try {
       if (isEditMode && editItem) {
         // Update existing primary skill
-        await axios.put(`http://localhost:8000/api/primary-skills/${editItem.id}`, {
+        await axios.put(`${backendUrl}api/primary-skills/${editItem.id}`, {
           name: newPrimarySkillName,
           techStackId: selectedTechStackId,
         })
@@ -358,7 +359,7 @@ const RequestFormEditor = () => {
         setAlert({ open: true, message: "Primary skill updated successfully", severity: "success" })
       } else {
         // Add new primary skill
-        const response = await axios.post("http://localhost:8000/api/primary-skill", {
+        const response = await axios.post(`${backendUrl}api/primary-skill`, {
           skillName: newPrimarySkillName,
           stackId: selectedTechStackId,
         })
@@ -388,7 +389,7 @@ const RequestFormEditor = () => {
             setAlert({ open: true, message: "Source updated successfully", severity: "success" });
         } else {
             // Add new source using the API
-            const response = await axios.post("http://localhost:8000/api/add-source", {
+            const response = await axios.post(`${backendUrl}api/add-source`, {
                 source_name: newSourceName,
             });
 
@@ -440,7 +441,7 @@ const handleAddLearningObjective = async () => {
           setAlert({ open: true, message: "Learning objective updated successfully", severity: "success" });
       } else {
           // Add new learning objective using the API
-          const response = await axios.post("http://localhost:8000/api/add-learning-objective", {
+          const response = await axios.post(`${backendUrl}api/add-learning-objective`, {
               training_name: newLearningObjectiveName,
               source_id: selectedSourceId,
           });
@@ -468,7 +469,7 @@ const handleAddLearningObjective = async () => {
 
   const handleDeleteProject = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/projects/${id}`)
+      await axios.delete(`${backendUrl}api/projects/${id}`)
       setProjects(projects.filter((p) => p.id !== id))
       setAlert({ open: true, message: "Project deleted successfully", severity: "success" })
     } catch (error) {
@@ -479,7 +480,7 @@ const handleAddLearningObjective = async () => {
 
   const handleDeleteDivision = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/delete-service-division/${id}`)
+      await axios.delete(`${backendUrl}api/delete-service-division/${id}`)
       setServiceDivisions(serviceDivisions.filter((d) => d.id !== id))
 
       // Also remove associated projects or reassign them
@@ -494,7 +495,7 @@ const handleAddLearningObjective = async () => {
 
   const handleDeleteTechStack = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/delete-tech-stack/${id}`)
+      await axios.delete(`${backendUrl}api/delete-tech-stack/${id}`)
       setTechStacks(techStacks.filter((t) => t.id !== id))
       // Also remove associated primary skills
       setPrimarySkills(primarySkills.filter((s) => s.techStackId !== id))
@@ -510,7 +511,7 @@ const handleAddLearningObjective = async () => {
 
   const handleDeletePrimarySkill = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/primary-skill/${id}`)
+      await axios.delete(`${backendUrl}api/primary-skill/${id}`)
       setPrimarySkills(primarySkills.filter((s) => s.id !== id))
       setAlert({ open: true, message: "Primary skill deleted successfully", severity: "success" })
     } catch (error) {
@@ -525,7 +526,7 @@ const handleAddLearningObjective = async () => {
   const handleDeleteSource = async (id) => {
     try {
         // Call the delete source API
-        await axios.delete(`http://localhost:8000/api/delete-source/${id}`);
+        await axios.delete(`${backendUrl}api/delete-source/${id}`);
 
         // Update the state to remove the deleted source
         setSources(sources.filter((s) => s.id !== id));
@@ -546,7 +547,7 @@ const handleAddLearningObjective = async () => {
 const handleDeleteLearningObjective = async (id) => {
   try {
       // Call the delete learning objective API
-      await axios.delete(`http://localhost:8000/api/delete-learning-objective/${id}`);
+      await axios.delete(`${backendUrl}api/delete-learning-objective/${id}`);
 
       // Update the state to remove the deleted learning objective
       setLearningObjectives(learningObjectives.filter((o) => o.id !== id));

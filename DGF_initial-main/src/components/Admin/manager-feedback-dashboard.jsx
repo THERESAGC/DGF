@@ -68,6 +68,7 @@ import {
 } from "@mui/icons-material"
 import axios from "axios"
 import { exportData } from "../../utils/manager-export-utils"
+import { backendUrl } from "../../../config/config"
 
 // Utility function to format dates
 const formatDate = (dateString) => {
@@ -309,7 +310,7 @@ const ManagerFeedbackDashboard = () => {
     const fetchFeedbackData = async () => {
       try {
         setLoading(true)
-        const response = await axios.get("http://localhost:8000/api/manager-feedback")
+        const response = await axios.get(`${backendUrl}api/manager-feedback`)
         setFeedbackData(response.data)
         setFilteredData(response.data) // Initially set filtered data to all data
 

@@ -32,7 +32,8 @@ import axios from "axios"
 import NotificationIcon from "../../assets/Notification-icon.svg"
 import ArrowDownIcon from "../../assets/arrow-down.svg"
 import { LogOutIcon } from "lucide-react"
- 
+import { backendUrl } from "../../../config/config"
+
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null)
@@ -55,7 +56,7 @@ const Header = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/notifications", {
+        const response = await axios.get(`${backendUrl}api/notifications`, {
           params: { empId: user.emp_id, roleId: user.role_id }, // Fetch notifications based on role
         })
         setNotifications(response.data)
@@ -99,7 +100,7 @@ const Header = () => {
  
     if (!notification.is_read) {
       try {
-        await axios.post("http://localhost:8000/api/notifications/mark-as-read", {
+        await axios.post(`${backendUrl}api/notifications/mark-as-read`, {
           notificationId: notification.id,
           empId: user.emp_id, // Pass empId to mark it as read for the specific user
         })
@@ -129,7 +130,7 @@ const Header = () => {
         )
  
         const requests = unreadNotifications.map((notification) =>
-          axios.post("http://localhost:8000/api/notifications/mark-as-read", {
+          axios.post(`${backendUrl}api/notifications/mark-as-read`, {
             notificationId: notification.id,
             empId: user.emp_id,
           }),

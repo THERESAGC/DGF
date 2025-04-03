@@ -5,6 +5,7 @@ import axios from "axios"
 import AuthContext from "./AuthContext"
 import logo from "../../assets/harbinger-logo.svg"
 import backgroundImage from "../../assets/Onelogin-BG 1.jpg" // Import the background image
+import { backendUrl } from "../../../config/config"
  
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -45,9 +46,9 @@ const Login = () => {
  
   const handleLogin = async () => {
     if (!isFormValid) return
- 
+    console.log(backendUrl)
     try {
-      const response = await axios.post("http://localhost:8000/api/auth/login", {
+      const response = await axios.post(`${backendUrl}api/auth/login`, {
         email,
         password,
       })

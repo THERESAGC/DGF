@@ -56,6 +56,7 @@ import {
 } from "@mui/icons-material"
 import axios from "axios"
 import { exportData } from "../../utils/learners-export-utils"
+import { backendUrl } from "../../../config/config"
 
 // Utility function to map numeric ratings to text
 const mapRatingToText = (field, value) => {
@@ -356,11 +357,11 @@ const FeedbackDashboard = () => {
         setLoading(true);
   
         // Fetch learner feedback data for total received
-        const learnerFeedbackResponse = await axios.get("http://localhost:8000/api/learner-feedback");
+        const learnerFeedbackResponse = await axios.get(`${backendUrl}api/learner-feedback`);
         const learnerFeedbackData = learnerFeedbackResponse.data;
   
         // Fetch total triggered feedbacks
-        const triggeredFeedbackResponse = await axios.get("http://localhost:8000/api/total-feedbacks-triggered");
+        const triggeredFeedbackResponse = await axios.get(`${backendUrl}api/total-feedbacks-triggered`);
         const triggeredFeedbackData = triggeredFeedbackResponse.data;
   
         // Filter data based on the selected date range

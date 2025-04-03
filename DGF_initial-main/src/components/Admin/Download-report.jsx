@@ -22,6 +22,7 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { Download, Refresh } from "@mui/icons-material"
+import { backendUrl } from "../../../config/config"
 
 import FeedbackDashboard from "./feedback-dashboard"
 import ManagerFeedbackDashboard from "./manager-feedback-dashboard"
@@ -91,7 +92,7 @@ const DownloadReport = () => {
         const to = toDate.toISOString().split("T")[0]
   
         const response = await fetch(
-          `http://localhost:8000/api/report/data?fromDate=${from}&toDate=${to}&status=${selectedStatus}`,
+          `${backendUrl}api/report/data?fromDate=${from}&toDate=${to}&status=${selectedStatus}`,
         )
   
         if (!response.ok) {
@@ -132,7 +133,7 @@ const DownloadReport = () => {
     const handleExport = () => {
       const from = fromDate?.toISOString().split("T")[0] || ""
       const to = toDate?.toISOString().split("T")[0] || ""
-      window.location.href = `http://localhost:8000/api/export-excel?fromDate=${from}&toDate=${to}&status=${selectedStatus}`
+      window.location.href = `${backendUrl}api/export-excel?fromDate=${from}&toDate=${to}&status=${selectedStatus}`
     }
   
     const handleStatusFilter = (event, newStatus) => {

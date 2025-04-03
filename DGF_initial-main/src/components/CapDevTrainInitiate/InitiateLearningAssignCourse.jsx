@@ -7,6 +7,7 @@ import { KeyboardArrowDown, KeyboardArrowUp, NavigateBefore, NavigateNext } from
 import { useParams } from "react-router-dom"
 import AssignCourseModal from "./AssignCourseModal"
 import PropTypes from "prop-types"
+import { backendUrl } from "../../../config/config"
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -187,7 +188,7 @@ function CourseTracker() {
         setLoading(true)
         // Fetch employees for the training request
         const response = await fetch(
-          `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
+          `${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
         )
         const data = await response.json()
  
@@ -204,8 +205,8 @@ function CourseTracker() {
                   // Choose API endpoint based on request_org_level
                   const apiEndpoint =
                     data.request_org_level === 1
-                      ? `http://localhost:8000/api/orgLevelLearners/getOrgLevelLearnerData/${learner.emp_id}`
-                      : `http://localhost:8000/api/learners/getLearners/${learner.emp_id}`
+                      ? `${backendUrl}api/orgLevelLearners/getOrgLevelLearnerData/${learner.emp_id}`
+                      : `${backendUrl}api/learners/getLearners/${learner.emp_id}`
  
                   const detailsResponse = await fetch(apiEndpoint)
                   const detailsData = await detailsResponse.json()

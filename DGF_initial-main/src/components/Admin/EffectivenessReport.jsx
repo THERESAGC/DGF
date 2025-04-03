@@ -19,6 +19,7 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { Download, Refresh } from "@mui/icons-material"
+import { backendUrl } from "../../../config/config"
 
 // Custom CSS for calendar
 // import "./calendar-styles.css"
@@ -75,7 +76,7 @@ const EffectivenessReport = () => {
 
       // Mock API call - replace with actual endpoint
       // const response = await axios.get(
-      //   `http://localhost:8000/api/effectiveness/data?fromDate=${from}&toDate=${to}&rating=${selectedRating}`
+      //   `${backendUrl}api/effectiveness/data?fromDate=${from}&toDate=${to}&rating=${selectedRating}`
       // )
 
       // For demo purposes, generate mock data
@@ -115,7 +116,7 @@ const EffectivenessReport = () => {
   const handleExport = () => {
     const from = fromDate?.toISOString().split("T")[0] || ""
     const to = toDate?.toISOString().split("T")[0] || ""
-    window.location.href = `http://localhost:8000/api/export-effectiveness?fromDate=${from}&toDate=${to}&rating=${selectedRating}`
+    window.location.href = `${backendUrl}api/export-effectiveness?fromDate=${from}&toDate=${to}&rating=${selectedRating}`
   }
 
   const handleRatingFilter = (event, newRating) => {

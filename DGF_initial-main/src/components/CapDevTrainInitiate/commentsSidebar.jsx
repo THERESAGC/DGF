@@ -6,6 +6,7 @@ import AuthContext from "../Auth/AuthContext";
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import formatDate from "../../utils/dateUtils"
 import CapdevReminder from "./CapdevReminder";
+import { backendUrl } from "../../../config/config";
 const CommentsSidebar = ({ open, onClose, assignmentId}) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [newMessage, setNewMessage] = useState("");
@@ -22,7 +23,7 @@ const CommentsSidebar = ({ open, onClose, assignmentId}) => {
 
     const fetchData = async () => {
         try{           
- const commentsResponse = await fetch(`http://localhost:8000/api/training-comment?assignment_id=${assignmentId}`); 
+ const commentsResponse = await fetch(`${backendUrl}api/training-comment?assignment_id=${assignmentId}`); 
  const commentsData = await commentsResponse.json(); // Call json() once
 
     setComments(commentsData);
@@ -35,7 +36,7 @@ const CommentsSidebar = ({ open, onClose, assignmentId}) => {
     
             const profiles = {}
             for (const userId of userIds) {
-              const userResponse = await fetch(`http://localhost:8000/api/getempdetails/getEmpbasedOnId/${userId}`)
+              const userResponse = await fetch(`${backendUrl}api/getempdetails/getEmpbasedOnId/${userId}`)
               const userData = await userResponse.json()
               console.log(`User Data for ${userId}:`, userData)
               if (userData && userData.length > 0) {
@@ -74,7 +75,7 @@ if (open) {
       };
 console.log(commentdata);
       try {
-        const response = await fetch("http://localhost:8000/api/training-comment/", {
+        const response = await fetch(`${backendUrl}api/training-comment/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
