@@ -820,7 +820,7 @@ const ManagerFeedbackDashboard = () => {
               <Grid item xs={12} sm={6} md={3}>
                 <Card sx={{ bgcolor: "#ffb6b9", color: "#333", borderRadius: 2, height: 180 }}>
                   <CardContent>
-                    <Typography variant="h6" align="center" gutterBottom>
+                    <Typography variant="h6" align="center" gutterBottom sx={{width:"108%"}}> 
                       Awaiting Opportunity
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2 }}>
