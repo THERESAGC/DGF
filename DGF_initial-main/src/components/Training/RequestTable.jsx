@@ -922,8 +922,7 @@ const RequestTable = ({ roleId }) => {
           count={Math.ceil(filteredData.length / rowsPerPage)} // Update this line
           page={page}
           onChange={(e, value) => setPage(value)}
-          shape="rounded"
-          color="secondary"
+         
           sx={{
             "& .MuiPaginationItem-root.Mui-selected": {
               color: "red", // Change text color for selected page
