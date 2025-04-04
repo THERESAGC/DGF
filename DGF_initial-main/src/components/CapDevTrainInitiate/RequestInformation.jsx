@@ -4,7 +4,7 @@ import { Box, Grid2 , Card, CardContent, Typography, Divider } from "@mui/materi
 import { styled } from "@mui/material/styles";
 import formatDate from "../../utils/dateUtils";
 import removeHtmlTags from "../../utils/htmlUtils";
- 
+import { backendUrl } from "../../../config/config"
 const InfoLabel = styled(Typography)({
   color: "#666666",
   fontSize: "0.875rem",

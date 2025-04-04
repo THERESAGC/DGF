@@ -185,7 +185,7 @@ const Header = () => {
           Demand Generation Framework <span style={{ fontSize: "0.8em", color: "#707070" }}>(DGF)</span>
         </Typography> */}
  
-        <img src="src\assets\Media (1).jpg" alt="Logo" style={{ width: "110px", height: "50px", marginBottom: "20px" }} />
+        <img src="src/assets/Media.jpg" alt="Logo" style={{ width: "110px", height: "60px", marginBottom: "20px" }} />
         {/* Spacer to push items to the right */}
         <div style={{ flexGrow: 1 }} />
  
