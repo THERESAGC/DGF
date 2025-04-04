@@ -412,15 +412,29 @@ const RequestTable = ({ roleId }) => {
       statusMatch = status === selectedStatus.toLowerCase().trim()
     }
 
-    // Then apply search filter if there's a search query
-    if (searchQuery && searchQuery.trim() !== "") {
-      // Check if the request ID contains the search query
-      const requestIdMatch = row.requestid && row.requestid.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    // // Then apply search filter if there's a search query
+    // if (searchQuery && searchQuery.trim() !== "") {
+    //   // Check if the request ID contains the search query
+    //   const requestIdMatch = row.requestid && row.requestid.toString().toLowerCase().includes(searchQuery.toLowerCase())
 
-      return statusMatch && requestIdMatch
-    }
+    //   return statusMatch && requestIdMatch
+    // }
 
-    return statusMatch
+    // return statusMatch
+
+    // Search filtering
+  if (searchQuery && searchQuery.trim() !== "") {
+    const searchLower = searchQuery.toLowerCase();
+    const projectMatch = (
+      (row.newprospectname || row.project_name || "").toLowerCase().includes(searchLower)
+    );
+    const techMatch = (row.techstack_name || "").toLowerCase().includes(searchLower);
+    const idMatch = row.requestid.toString().toLowerCase().includes(searchLower);
+ 
+    return statusMatch && (projectMatch || techMatch || idMatch);
+  }
+ 
+  return statusMatch;
   })
 
   console.log("Filtered Data for Status:", selectedStatus, filteredData.length)
