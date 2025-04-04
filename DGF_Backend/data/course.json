@@ -1,0 +1,426 @@
+[
+  {
+    "id": 1448,
+    "username": "jomy.john",
+    "firstname": "Jomy",
+    "lastname": "John",
+    "fullname": "Jomy John",
+    "email": "jomy.john@harbingergroup.com",
+    "department": "",
+    "firstaccess": 1597149417,
+    "lastaccess": 1597149417,
+    "lastcourseaccess": 1536241553,
+    "description": "",
+    "descriptionformat": 1,
+    "profileimageurlsmall": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f2",
+    "profileimageurl": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f1",
+    "customfields": [
+      {
+        "type": "text",
+        "value": "1970-01-01",
+        "name": "emp_joining_date",
+        "shortname": "emp_joining_date"
+      }
+    ],
+    "groups": [],
+    "roles": [
+      {
+        "roleid": 3,
+        "name": "Teacher",
+        "shortname": "editingteacher",
+        "sortorder": 0
+      }
+    ],
+    "enrolledcourses": [
+      {
+        "id": 480,
+        "fullname": "Software Project Estimation",
+        "shortname": "Software Project Estimation"
+      },
+      {
+        "id": 604,
+        "fullname": "Train the trainer April 2017",
+        "shortname": "Train the trainer April 2017"
+      },
+      {
+        "id": 579,
+        "fullname": " Prevention of Sexual Harassment at work V2",
+        "shortname": "POSH V2"
+      },
+      {
+        "id": 564,
+        "fullname": "Prevention Of Sexual Harassment at Work",
+        "shortname": "POSH at WORK"
+      },
+      {
+        "id": 183,
+        "fullname": "FPA Estimation Technique ",
+        "shortname": "FPA Training"
+      },
+      {
+        "id": 938,
+        "fullname": "MySQL Self Learning Course",
+        "shortname": "MySQL"
+      },
+      {
+        "id": 337,
+        "fullname": "Client Side Scripting Using JavaScript and jQuery ",
+        "shortname": "Client Side Scripting Using JavaScript and jQuery "
+      },
+      {
+        "id": 307,
+        "fullname": "Overview to Big Data",
+        "shortname": "Overview to Big Data"
+      },
+      { "id": 312, "fullname": "SCRUM  Methodology ", "shortname": "SCRUM" },
+      { "id": 313, "fullname": "PhoneGap", "shortname": "PhoneGap" },
+      {
+        "id": 326,
+        "fullname": "Proposal  Workflow",
+        "shortname": "Proposal  Workflow"
+      },
+      { "id": 345, "fullname": "Webinars by HSPL", "shortname": "Webinar" },
+      {
+        "id": 790,
+        "fullname": "Learning Industry shift towards LXP",
+        "shortname": "Learning Industry shift towards LXP"
+      },
+      {
+        "id": 856,
+        "fullname": "Technology Overview to Proposal Team",
+        "shortname": "Technology Overview"
+      },
+      {
+        "id": 747,
+        "fullname": "Global Anti-Bribery Compliance",
+        "shortname": "TC101"
+      },
+      { "id": 712, "fullname": "About Zahid Tractors", "shortname": "AZT101" },
+      { "id": 708, "fullname": "All About Respect", "shortname": "ZG_101" },
+      {
+        "id": 561,
+        "fullname": "Business Code of Conduct",
+        "shortname": "BCOC"
+      },
+      {
+        "id": 485,
+        "fullname": "Prevention of Sexual Harassment at Workplace.",
+        "shortname": "Prevention of Sexual Harassment at Workplace."
+      }
+    ]
+  },
+  {
+    "id": 1753,
+    "username": "gangaprasad.raikode",
+    "firstname": "Gangaprasad",
+    "lastname": "Raikode",
+    "fullname": "Gangaprasad Raikode",
+    "email": "Gangaprasad.Raikode@harbingergroup.com",
+    "department": "",
+    "firstaccess": 1597143869,
+    "lastaccess": 1637162336,
+    "lastcourseaccess": 1565694380,
+    "description": "",
+    "descriptionformat": 1,
+    "profileimageurlsmall": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f2",
+    "profileimageurl": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f1",
+    "customfields": [
+      {
+        "type": "text",
+        "value": "10000742",
+        "name": "SF_EMP_ID",
+        "shortname": "sfempid"
+      },
+      {
+        "type": "text",
+        "value": "10000195",
+        "name": "Manager_Id",
+        "shortname": "managerid"
+      },
+      {
+        "type": "text",
+        "value": "shivkumar",
+        "name": "Manager_Name",
+        "shortname": "managername"
+      },
+      {
+        "type": "datetime",
+        "value": "17-12-2021",
+        "name": "Assigned_Date",
+        "shortname": "assigneddate"
+      },
+      {
+        "type": "menu",
+        "value": "Associate Lead - Sales Development",
+        "name": "Designation",
+        "shortname": "designation"
+      }
+    ],
+    "groups": [],
+    "roles": [
+      { "roleid": 5, "name": "Student", "shortname": "student", "sortorder": 0 }
+    ],
+    "enrolledcourses": [
+      {
+        "id": 579,
+        "fullname": " Prevention of Sexual Harassment at work V2",
+        "shortname": "POSH V2"
+      },
+      {
+        "id": 564,
+        "fullname": "Prevention Of Sexual Harassment at Work",
+        "shortname": "POSH at WORK"
+      },
+      { "id": 708, "fullname": "All About Respect", "shortname": "ZG_101" },
+      { "id": 123, "fullname": "SiteJazzer", "shortname": "SiteJazzer" },
+      { "id": 880, "fullname": "O3 Quiz", "shortname": "O3" },
+      {
+        "id": 561,
+        "fullname": "Business Code of Conduct",
+        "shortname": "BCOC"
+      },
+      {
+        "id": 485,
+        "fullname": "Prevention of Sexual Harassment at Workplace.",
+        "shortname": "Prevention of Sexual Harassment at Workplace."
+      },
+      {
+        "id": 343,
+        "fullname": "Email Communication",
+        "shortname": "Email Communication"
+      }
+    ]
+  },
+  {
+    "id": 2211,
+    "username": "mohammed",
+    "firstname": "Mohammed",
+    "lastname": "Mehdi",
+    "fullname": "Mohammed Mehdi",
+    "email": "mehdi@zahid.com",
+    "department": "",
+    "firstaccess": 0,
+    "lastaccess": 1527593058,
+    "lastcourseaccess": 1527509235,
+    "description": "",
+    "descriptionformat": 1,
+    "city": "Riyadh",
+    "country": "SA",
+    "profileimageurlsmall": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f2",
+    "profileimageurl": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f1",
+    "groups": [],
+    "roles": [
+      { "roleid": 5, "name": "Student", "shortname": "student", "sortorder": 0 }
+    ],
+    "enrolledcourses": [
+      { "id": 712, "fullname": "About Zahid Tractors", "shortname": "AZT101" },
+      { "id": 708, "fullname": "All About Respect", "shortname": "ZG_101" }
+    ]
+  },
+  {
+    "id": 2212,
+    "username": "khalaf",
+    "firstname": "Khalaf",
+    "lastname": "Al Hamayel",
+    "fullname": "Khalaf Al Hamayel",
+    "email": "jomyjohn16@gmail.com",
+    "department": "",
+    "firstaccess": 0,
+    "lastaccess": 1527509184,
+    "lastcourseaccess": 1527509190,
+    "description": "Regional Manager at Zahid Tractor",
+    "descriptionformat": 1,
+    "city": "Riyadh",
+    "country": "SA",
+    "profileimageurlsmall": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f2",
+    "profileimageurl": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f1",
+    "groups": [],
+    "roles": [
+      { "roleid": 5, "name": "Student", "shortname": "student", "sortorder": 0 }
+    ],
+    "enrolledcourses": [
+      {
+        "id": 553,
+        "fullname": "Scalable and Modular Architecture for CSS",
+        "shortname": "SMACSS"
+      },
+      { "id": 712, "fullname": "About Zahid Tractors", "shortname": "AZT101" },
+      { "id": 708, "fullname": "All About Respect", "shortname": "ZG_101" }
+    ]
+  },
+  {
+    "id": 2516,
+    "username": "supriya.kachare",
+    "firstname": "Supriya",
+    "lastname": "Kachare",
+    "fullname": "Supriya Kachare",
+    "email": "Supriya.Kachare@harbingergroup.com",
+    "department": "",
+    "firstaccess": 0,
+    "lastaccess": 1564492348,
+    "lastcourseaccess": 1564492185,
+    "description": "",
+    "descriptionformat": 1,
+    "profileimageurlsmall": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f2",
+    "profileimageurl": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f1",
+    "groups": [],
+    "roles": [
+      { "roleid": 5, "name": "Student", "shortname": "student", "sortorder": 0 }
+    ],
+    "enrolledcourses": [
+      {
+        "id": 579,
+        "fullname": " Prevention of Sexual Harassment at work V2",
+        "shortname": "POSH V2"
+      },
+      {
+        "id": 564,
+        "fullname": "Prevention Of Sexual Harassment at Work",
+        "shortname": "POSH at WORK"
+      },
+      { "id": 708, "fullname": "All About Respect", "shortname": "ZG_101" },
+      {
+        "id": 301,
+        "fullname": "Introduction to SCORM 1.2 - KSS10",
+        "shortname": "Introduction to SCORM 1.2 - KSS10"
+      },
+      { "id": 561, "fullname": "Business Code of Conduct", "shortname": "BCOC" }
+    ]
+  },
+  {
+    "id": 4350,
+    "username": "shruti.rawat",
+    "firstname": "Shruti",
+    "lastname": "Rawat",
+    "fullname": "Shruti Rawat",
+    "email": "Shruti.Rawat@harbingergroup.com",
+    "department": "",
+    "firstaccess": 0,
+    "lastaccess": 0,
+    "lastcourseaccess": 0,
+    "profileimageurlsmall": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f2",
+    "profileimageurl": "https://academy.harbingergroup.com/theme/image.php/adaptable/core/1742280368/u/f1",
+    "customfields": [
+      {
+        "type": "text",
+        "value": "HS2734",
+        "name": "employee_id",
+        "shortname": "employee_id"
+      },
+      {
+        "type": "text",
+        "value": "HS1972",
+        "name": "direct_manager_employee_id",
+        "shortname": "direct_manager_employee_id"
+      },
+      {
+        "type": "text",
+        "value": "Amit Kulkarni",
+        "name": "direct_manager",
+        "shortname": "direct_manager"
+      },
+      {
+        "type": "text",
+        "value": "Umesh Sodmise (HS104)",
+        "name": "manager12",
+        "shortname": "manager12"
+      },
+      {
+        "type": "text",
+        "value": "HSPL.RMG.RESOUGROUP",
+        "name": "department_code",
+        "shortname": "department_code"
+      },
+      {
+        "type": "text",
+        "value": "Resource Management Group",
+        "name": "department_name",
+        "shortname": "department_name"
+      },
+      {
+        "type": "text",
+        "value": "HSPL.RMG.RESOUGROUP.TRAINEE",
+        "name": "designation_code",
+        "shortname": "designation_code"
+      },
+      {
+        "type": "text",
+        "value": "Resource Management Group",
+        "name": "business_unit",
+        "shortname": "business_unit"
+      },
+      {
+        "type": "text",
+        "value": "HSPL.RMG",
+        "name": "business_unit_code",
+        "shortname": "business_unit_code"
+      },
+      {
+        "type": "text",
+        "value": "Trainee",
+        "name": "designation_name",
+        "shortname": "designation_name"
+      },
+      {
+        "type": "text",
+        "value": "HS104",
+        "name": "manager12id",
+        "shortname": "manager12id"
+      }
+    ],
+    "groups": [],
+    "roles": [
+      { "roleid": 5, "name": "Student", "shortname": "student", "sortorder": 0 }
+    ],
+    "enrolledcourses": [
+      {
+        "id": 1672,
+        "fullname": "Microservice with Node self learning",
+        "shortname": "Microservice with Node self learning"
+      },
+      {
+        "id": 721,
+        "fullname": "React Native June 2018",
+        "shortname": "React Native June 2018"
+      },
+      {
+        "id": 112,
+        "fullname": "Windows Communication Foundation (WCF)",
+        "shortname": "Windows Communication Foundation (WCF)"
+      },
+      { "id": 474, "fullname": "Salesforce", "shortname": "Salesforce" },
+      {
+        "id": 501,
+        "fullname": "Coaching and mentoring to Tech Leads",
+        "shortname": "Coaching and mentoring to Tech Leads"
+      },
+      {
+        "id": 554,
+        "fullname": "Verbal Communication Aug 2016",
+        "shortname": "Communiation Skill"
+      },
+      {
+        "id": 562,
+        "fullname": "Interviewing Skills Sep 2016",
+        "shortname": "Interviewing Skills"
+      },
+      {
+        "id": 726,
+        "fullname": "UI-UX Design Guidelines June 2018",
+        "shortname": "UI-UX Design Guidelines June 2018"
+      },
+      {
+        "id": 749,
+        "fullname": "Python Sep 2018",
+        "shortname": "Python Sep 2018"
+      },
+      {
+        "id": 778,
+        "fullname": "React Native Feb 2019",
+        "shortname": "React Native Feb 2019"
+      },
+      { "id": 712, "fullname": "About Zahid Tractors", "shortname": "AZT101" },
+      { "id": 708, "fullname": "All About Respect", "shortname": "ZG_101" }
+    ]
+  }
+]

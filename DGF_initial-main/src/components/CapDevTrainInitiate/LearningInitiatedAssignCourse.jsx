@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useContext } from "react"
 import {
   Box,
@@ -16,22 +17,30 @@ import {
   Pagination,
   CircularProgress,
   LinearProgress,
-  Menu,
-  MenuItem,
   Snackbar,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  TextareaAutosize,
+  Radio,
 } from "@mui/material"
 import { styled } from "@mui/material/styles"
-import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, } from "@mui/icons-material"
+import { KeyboardArrowDown, KeyboardArrowUp, ChatBubbleOutline, Close as CloseIcon } from "@mui/icons-material"
 import { useParams } from "react-router-dom"
 import { arrayBufferToBase64 } from "../../utils/ImgConveter"
 import AssignCourseModal from "./AssignCourseModal"
 // import CommentsSidebar from "./CommentsSidebar"
 import PropTypes from "prop-types"
-import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
-import CommentsSidebar from "./commentsSidebar";
+import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined"
+import CommentsSidebar from "./commentsSidebar"
 import AuthContext from "../Auth/AuthContext"
-import { backendUrl } from "../../../config/config"
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   "& .MuiTableCell-root": {
@@ -104,11 +113,15 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" })
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [currentAssignmentId, setCurrentAssignmentId] = useState(null)
-
-
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState("")
+  const [commentText, setCommentText] = useState("")
 
   const handleMenuClick = (event, assignmentId) => {
-    setAnchorElMap((prev) => ({ ...prev, [assignmentId]: event.currentTarget }))
+    setCurrentAssignmentId(assignmentId)
+    setSelectedStatus("")
+    setCommentText("")
+    setStatusDialogOpen(true)
   }
 
   const handleMenuClose = (assignmentId) => {
@@ -117,7 +130,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
 
   const handleStatusUpdate = async (assignmentId, newStatus) => {
     try {
-      const response = await fetch(`${backendUrl}api/course-status/${assignmentId}`, {
+      const response = await fetch(`http://localhost:8000/api/course-status/${assignmentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -136,6 +149,39 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
       setSnackbar({ open: true, message: error.message || "Failed to update status", severity: "error" })
     }
   }
+
+  const handleCommentSubmit = async () => {
+    try {
+      // If a status is selected, update the status
+      if (selectedStatus) {
+        await handleStatusUpdate(currentAssignmentId, selectedStatus)
+      }
+
+      // If there's a comment, submit it
+      if (commentText.trim()) {
+        const response = await fetch(`http://localhost:8000/api/status-comments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assignmentId: currentAssignmentId,
+            comments: commentText,
+          }),
+        })
+
+        if (!response.ok) throw new Error("Failed to add comment")
+
+        setSnackbar({ open: true, message: "Comment added successfully!", severity: "success" })
+      }
+
+      setStatusDialogOpen(false)
+      setCommentText("")
+      setSelectedStatus("")
+    } catch (error) {
+      console.error("Comment submission error:", error)
+      setSnackbar({ open: true, message: error.message || "Failed to submit comment", severity: "error" })
+    }
+  }
+
   const handleChatIconClick = (assignmentId) => {
     console.log(assignmentId, "clicked")
     setCurrentAssignmentId(assignmentId)
@@ -146,7 +192,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
     const fetchAssignedCourses = async () => {
       try {
         setLoadingCourses(true)
-        const response = await fetch(`${backendUrl}api/assigned-courses/${row.emp_id}/${row.requestid}`)
+        const response = await fetch(`http://localhost:8000/api/assigned-courses/${row.emp_id}/${row.requestid}`)
         const data = await response.json()
         setAssignedCourses(data.data || [])
       } catch (error) {
@@ -218,7 +264,7 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                       <TableCell align="center">Comments</TableCell>
 
                       <TableCell align="center">Status</TableCell>
-                      <TableCell style={{ textAlign: "left", width:" 9%" }}>Actions</TableCell>
+                      <TableCell style={{ textAlign: "left", width: " 9%" }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -276,25 +322,8 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
                             onClick={(e) => handleMenuClick(e, course.assignment_id)}
                             disabled={["Completed", "Incomplete", "Completed with Delay"].includes(course.status)}
                           >
-                            <ArrowCircleRightOutlinedIcon  />
+                            <ArrowCircleRightOutlinedIcon />
                           </IconButton>
-                          <Menu
-                            anchorEl={anchorElMap[course.assignment_id]}
-                            open={Boolean(anchorElMap[course.assignment_id])}
-                            onClose={() => handleMenuClose(course.assignment_id)}
-                          >
-                            {["Completed", "Incomplete", "Learning Suspended", "Completed with Delay"].map((status) => (
-                              <MenuItem
-                                key={status}
-                                onClick={() => {
-                                  handleMenuClose(course.assignment_id)
-                                  handleStatusUpdate(course.assignment_id, status)
-                                }}
-                              >
-                                {status}
-                              </MenuItem>
-                            ))}
-                          </Menu>
                           <IconButton size="small" onClick={() => handleChatIconClick(course.assignment_id)}>
                             <ChatBubbleOutline />
                           </IconButton>
@@ -308,6 +337,75 @@ function Row({ row, isExpanded, isSelected, onToggleExpand, onSelect, onAssignCo
           </TableCell>
         </TableRow>
       )}
+
+      {/* Status Update Dialog */}
+      <Dialog open={statusDialogOpen} onClose={() => setStatusDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #e0e0e0",
+            pb: 1,
+          }}
+        >
+          Update Status
+          <IconButton aria-label="close" onClick={() => setStatusDialogOpen(false)} size="small">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2, mt: 1 }}>
+          <FormControl component="fieldset" sx={{ mb: 2, width: "100%" }}>
+            <FormLabel component="legend" sx={{ mb: 1, fontWeight: "medium" }}>
+              Select Status (Optional)
+            </FormLabel>
+            <RadioGroup value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} row>
+              {["Completed", "Incomplete", "Learning Suspended", "Completed with Delay"].map((status) => (
+                <FormControlLabel key={status} value={status} control={<Radio />} label={status} sx={{ mr: 2 }} />
+              ))}
+            </RadioGroup>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <FormLabel component="legend" sx={{ mb: 1, fontWeight: "medium" }}>
+              Add Comment
+            </FormLabel>
+
+
+ <TextareaAutosize
+            minRows={3}
+            style={{
+              width: '99%',
+             
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              resize: 'none',  // Disable resizing
+              overflowY: 'scroll',  // Enable scrolling if content overflows
+              outline: 'none',  // Remove outline
+            }}
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
+
+
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setStatusDialogOpen(false)} variant="outlined" size="small">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCommentSubmit}
+            variant="contained"
+            color="primary"
+            size="small"
+            disabled={!selectedStatus && !commentText.trim()}
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Sidebar component */}
       <CommentsSidebar open={isSidebarOpen} onClose={() => setSidebarOpen(false)} assignmentId={currentAssignmentId} />
       <Snackbar
@@ -359,7 +457,7 @@ export default function CourseTracker() {
     try {
       setLoading(true)
       const response = await fetch(
-        `${backendUrl}api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
+        `http://localhost:8000/api/getEmpNewTrainingRequested/getEmpNewTrainingRequested/?requestid=${requestId}`,
       )
       const data = await response.json()
       console.log(data)
@@ -395,104 +493,89 @@ export default function CourseTracker() {
   const handleSelectEmployee = (empId) => {
     setSelectedEmployees((prev) => (prev.includes(empId) ? prev.filter((id) => id !== empId) : [...prev, empId]))
   }
-  const handleAssignCourse = (empId, coursesAssigned) => {
-    console.log(empId, coursesAssigned, "Initiate Learning Details Page")
-    if (Array.isArray(empId)) {
+  const handleAssignCourse = (empIds, coursesAssigned) => {
+    console.log(empIds, coursesAssigned, "Initiate Learning Details Page");
+ 
+    if (Array.isArray(empIds)) {
       // Multiple employees selected
-      setSelectedEmployees(empId)
+      setSelectedEmployees(empIds);
+ 
+      // Calculate the maximum courses assigned among the selected employees
+      const maxCoursesAssigned = Math.max(...empIds.map((empId) => {
+        const employee = learners.find((learner) => learner.emp_id === empId);
+        return employee ? employee.coursesAssigned : 0;
+      }));
+ 
+      setCoursesAssigned(maxCoursesAssigned);
     } else {
       // Single employee selected
-      setSelectedEmployees([empId])
+      setSelectedEmployees([empIds]);
+      setCoursesAssigned(coursesAssigned); // Use the provided coursesAssigned value
     }
-    setCoursesAssigned(coursesAssigned) // Set the coursesAssigned state
-    setShowAssignModal(true)
-  }
+ 
+    setShowAssignModal(true);
+  };
 
-  // const handleSendEmails = async (empIds) => {
-  //   console.log("Send Reminder Clicked");
-  
-  //   const learningInitiatedAssignments = [];
-  
-  //   // Fetch assigned courses for all selected employees
-  //   for (const empId of empIds) {
-  //     try {
-  //       const response = await fetch(`${backendUrl}api/assigned-courses/${empId}/${requestId}`);
-  //       const data = await response.json();
-  
-  //       // Filter assignment IDs with status "Learning Initiated"
-  //       const initiatedAssignments = (data.data || [])
-  //         .filter((course) => course.status === "Learning Initiated")
-  //         .map((course) => course.assignment_id);
-  
-  //       learningInitiatedAssignments.push(...initiatedAssignments);
-  //     } catch (error) {
-  //       console.error(`Error fetching assigned courses for employee ${empId}:`, error);
-  //     }
-  //   }
-  
-  //   console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
-  // };
+  const user = useContext(AuthContext)?.user // Retrieve user from AuthContext
 
-  const user = useContext(AuthContext)?.user; // Retrieve user from AuthContext
-  
   const handleSendEmails = async (empIds) => {
-    console.log("Send Reminder Clicked");
-  
-    const learningInitiatedAssignments = [];
-  
+    console.log("Send Reminder Clicked")
+
+    const learningInitiatedAssignments = []
+
     // Fetch assigned courses for all selected employees
     for (const empId of empIds) {
       try {
-        const response = await fetch(`${backendUrl}api/assigned-courses/${empId}/${requestId}`);
-        const data = await response.json();
-  
+        const response = await fetch(`http://localhost:8000/api/assigned-courses/${empId}/${requestId}`)
+        const data = await response.json()
+
         // Filter assignment IDs with status "Learning Initiated"
         const initiatedAssignments = (data.data || [])
           .filter((course) => course.status === "Learning Initiated")
-          .map((course) => course.assignment_id);
-  
-        learningInitiatedAssignments.push(...initiatedAssignments);
+          .map((course) => course.assignment_id)
+
+        learningInitiatedAssignments.push(...initiatedAssignments)
       } catch (error) {
-        console.error(`Error fetching assigned courses for employee ${empId}:`, error);
+        console.error(`Error fetching assigned courses for employee ${empId}:`, error)
       }
     }
-  
-    console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments);
-  
+
+    console.log("Learning Initiated Assignment IDs for Selected Employees:", learningInitiatedAssignments)
+
     if (learningInitiatedAssignments.length > 0) {
       try {
         const requestBody = {
           learningInitiatedAssignments,
           empId: user.emp_id,
-        };
-  
-        console.log("Request Body:", requestBody);
-  
-        const response = await fetch(`${backendUrl}api/send-reminder`, {
+        }
+
+        console.log("Request Body:", requestBody)
+
+        const response = await fetch("http://localhost:8000/api/send-reminder", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-        });
-  
-        console.log("Response:", response);
-  
+        })
+
+        console.log("Response:", response)
+
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Error Response Text:", errorText);
-          throw new Error(`Failed to send reminders: ${response.status} ${response.statusText}`);
+          const errorText = await response.text()
+          console.error("Error Response Text:", errorText)
+          throw new Error(`Failed to send reminders: ${response.status} ${response.statusText}`)
         }
-  
-        const data = await response.json();
-        console.log(data.message);
-        alert("Reminder emails have been sent successfully!");
+
+        const data = await response.json()
+        console.log(data.message)
+        alert("Reminder emails have been sent successfully!")
       } catch (error) {
-        console.error("Error sending reminders:", error);
-        alert("There was an error sending the reminders.");
+        console.error("Error sending reminders:", error)
+        alert("There was an error sending the reminders.")
       }
     }
-  };
+  }
 
   const handleModalClose = () => {
     setShowAssignModal(false)
@@ -514,10 +597,13 @@ export default function CourseTracker() {
           Assign Courses & Track Progress
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
-          <HeaderButton variant="outlined"
-           onClick={() => handleSendEmails(selectedEmployees)}
-           disabled={selectedEmployees.length === 0}
-          >Send Reminder ({selectedEmployees.length})</HeaderButton>
+          <HeaderButton
+            variant="outlined"
+            onClick={() => handleSendEmails(selectedEmployees)}
+            disabled={selectedEmployees.length === 0}
+          >
+            Send Reminder ({selectedEmployees.length})
+          </HeaderButton>
           <HeaderButton
             variant="outlined"
             onClick={() => handleAssignCourse(selectedEmployees, 0)}
@@ -630,3 +716,4 @@ export default function CourseTracker() {
     </Box>
   )
 }
+
