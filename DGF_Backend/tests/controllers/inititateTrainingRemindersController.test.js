@@ -1,107 +1,101 @@
-const request = require("supertest");
-const express = require("express");
-const reminderController = require("../../controllers/inititateTrainingRemindersController");
-const reminderService = require("../../services/inititateTrainingRemindersService");
+const request = require('supertest');
+const express = require('express');
+const remindersController = require('../../controllers/inititateTrainingRemindersController');
+const remindersService = require('../../services/inititateTrainingRemindersService');
 
-jest.mock("../../services/inititateTrainingRemindersService");
+jest.mock('../../services/inititateTrainingRemindersService');
 
 const app = express();
 app.use(express.json());
-app.post("/reminders", reminderController.createReminder);
-app.delete("/reminders/:reminder_id", reminderController.deleteReminder);
-app.put("/reminders/:reminder_id", reminderController.updateReminder);
-app.get("/reminders", reminderController.getRemindersByDate);
+app.post('/reminders', remindersController.createReminder);
+app.delete('/reminders/:reminder_id', remindersController.deleteReminder);
+app.get('/reminders/by-assignment', remindersController.getRemindersByDateandByAssignmentId);
+app.get('/reminders/by-employee', remindersController.getRemindersByDateandByEmpId);
 
-describe("Training Reminders Controller", () => {
+describe('Training Reminders Controller', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    describe("createReminder", () => {
-        it("should create a reminder successfully", async () => {
-            reminderService.createReminder.mockResolvedValue();
-
-            const response = await request(app)
-                .post("/reminders")
-                .send({ title: "Reminder 1", date: "2025-03-30" });
-
-            expect(response.status).toBe(201);
-            expect(response.body.message).toBe("Reminder created successfully");
-            expect(reminderService.createReminder).toHaveBeenCalledWith({ title: "Reminder 1", date: "2025-03-30" });
-        });
-
-        it("should return 500 on error", async () => {
-            reminderService.createReminder.mockRejectedValue(new Error("Database error"));
-
-            const response = await request(app).post("/reminders").send({ title: "Reminder 1" });
-
-            expect(response.status).toBe(500);
-            expect(response.body.error).toBe("Database error");
-        });
+    test('should create a reminder successfully', async () => {
+        remindersService.createReminder.mockResolvedValue();
+        
+        const response = await request(app)
+            .post('/reminders')
+            .send({ title: 'Test Reminder' });
+        
+        expect(response.status).toBe(201);
+        expect(response.body).toEqual({ message: 'Reminder created successfully' });
+        expect(remindersService.createReminder).toHaveBeenCalledWith({ title: 'Test Reminder' });
     });
 
-    describe("deleteReminder", () => {
-        it("should delete a reminder successfully", async () => {
-            reminderService.deleteReminder.mockResolvedValue();
-
-            const response = await request(app).delete("/reminders/1");
-
-            expect(response.status).toBe(200);
-            expect(response.body.message).toBe("Reminder deleted successfully");
-            expect(reminderService.deleteReminder).toHaveBeenCalledWith("1");
-        });
-
-        it("should return 500 on error", async () => {
-            reminderService.deleteReminder.mockRejectedValue(new Error("Delete error"));
-
-            const response = await request(app).delete("/reminders/1");
-
-            expect(response.status).toBe(500);
-            expect(response.body.error).toBe("Delete error");
-        });
+    test('should return 500 on createReminder error', async () => {
+        remindersService.createReminder.mockRejectedValue(new Error('Database error'));
+        
+        const response = await request(app)
+            .post('/reminders')
+            .send({ title: 'Test Reminder' });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ error: 'Database error' });
     });
 
-    describe("updateReminder", () => {
-        it("should update a reminder successfully", async () => {
-            reminderService.updateReminder.mockResolvedValue();
-
-            const response = await request(app)
-                .put("/reminders/1")
-                .send({ title: "Updated Reminder" });
-
-            expect(response.status).toBe(200);
-            expect(response.body.message).toBe("Reminder updated successfully");
-            expect(reminderService.updateReminder).toHaveBeenCalledWith("1", { title: "Updated Reminder" });
-        });
-
-        it("should return 500 on error", async () => {
-            reminderService.updateReminder.mockRejectedValue(new Error("Update error"));
-
-            const response = await request(app).put("/reminders/1").send({ title: "Updated Reminder" });
-
-            expect(response.status).toBe(500);
-            expect(response.body.error).toBe("Update error");
-        });
+    test('should delete a reminder successfully', async () => {
+        remindersService.deleteReminder.mockResolvedValue();
+        
+        const response = await request(app).delete('/reminders/123');
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ message: 'Reminder deleted successfully' });
+        expect(remindersService.deleteReminder).toHaveBeenCalledWith('123');
     });
 
-    describe("getRemindersByDate", () => {
-        it("should retrieve reminders successfully", async () => {
-            const mockReminders = [{ id: 1, title: "Reminder 1", date: "2025-03-30" }];
-            reminderService.getRemindersByDate.mockResolvedValue(mockReminders);
+    test('should return 500 on deleteReminder error', async () => {
+        remindersService.deleteReminder.mockRejectedValue(new Error('Delete error'));
+        
+        const response = await request(app).delete('/reminders/123');
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ error: 'Delete error' });
+    });
 
-            const response = await request(app).get("/reminders");
+    test('should retrieve reminders by assignment ID', async () => {
+        const mockReminders = [{ id: 1, message: 'Test' }];
+        remindersService.getRemindersByDateandByAssignmentId.mockResolvedValue(mockReminders);
+        
+        const response = await request(app).get('/reminders/by-assignment').query({ assignment_id: '101' });
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(mockReminders);
+        expect(remindersService.getRemindersByDateandByAssignmentId).toHaveBeenCalledWith('101');
+    });
 
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockReminders);
-        });
+    test('should return 500 on getRemindersByDateandByAssignmentId error', async () => {
+        remindersService.getRemindersByDateandByAssignmentId.mockRejectedValue(new Error('Fetch error'));
+        
+        const response = await request(app).get('/reminders/by-assignment').query({ assignment_id: '101' });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ error: 'Fetch error' });
+    });
 
-        it("should return 500 on error", async () => {
-            reminderService.getRemindersByDate.mockRejectedValue(new Error("Fetch error"));
+    test('should retrieve reminders by employee ID', async () => {
+        const mockReminders = [{ id: 2, message: 'Employee Reminder' }];
+        remindersService.getRemindersByDateandByEmpId.mockResolvedValue(mockReminders);
+        
+        const response = await request(app).get('/reminders/by-employee').query({ emp_id: '202' });
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(mockReminders);
+        expect(remindersService.getRemindersByDateandByEmpId).toHaveBeenCalledWith('202');
+    });
 
-            const response = await request(app).get("/reminders");
-
-            expect(response.status).toBe(500);
-            expect(response.body.error).toBe("Fetch error");
-        });
+    test('should return 500 on getRemindersByDateandByEmpId error', async () => {
+        remindersService.getRemindersByDateandByEmpId.mockRejectedValue(new Error('Service error'));
+        
+        const response = await request(app).get('/reminders/by-employee').query({ emp_id: '202' });
+        
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ error: 'Service error' });
     });
 });

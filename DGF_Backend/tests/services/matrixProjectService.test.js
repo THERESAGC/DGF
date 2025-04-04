@@ -14,6 +14,10 @@ describe('getMatrixProjects', () => {
         jest.clearAllMocks();
     });
 
+    beforeEach(() => {
+        jest.spyOn(console, "error").mockImplementation(() => {}); 
+    });
+
     it('should fetch data from the API and insert unique project names into the database', async () => {
         const mockData = [
             { projectlists: ['Project A', 'Project B'] },

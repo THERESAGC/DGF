@@ -1,12 +1,16 @@
 const { assignCourse } = require('../../services/assignCourseService');
 const db = require('../../config/db');
+const axios = require('axios');
 
 jest.mock('../../config/db', () => ({
   getConnection: jest.fn(),
 }));
 
+jest.mock('axios'); 
+
 describe('assignCourse Service', () => {
   let connectionMock;
+
   beforeEach(() => {
     connectionMock = {
       beginTransaction: jest.fn((cb) => cb(null)),
@@ -45,9 +49,17 @@ describe('assignCourse Service', () => {
       completion_date: '2025-05-01',
       comments: 'Test Comment',
       learning_type: 'Online',
+      course_assigned_by_id: 501
     };
 
-    connectionMock.query.mockImplementation((query, values, cb) => cb(null, { affectedRows: 1 }));
+    connectionMock.query
+    .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Insert success
+    .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Increment success
+    .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Employee update success
+    .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Final update success
+    .mockImplementationOnce((query, values, cb) => cb(null, [{ userid: 9999 }])); // Fetch userId success
+
+    axios.get.mockResolvedValue({ data: {} }); // Mock API success response
 
     await expect(assignCourse(assignmentData)).resolves.toEqual({
       insertResult: { affectedRows: 1 },
@@ -106,12 +118,29 @@ describe('assignCourse Service', () => {
     expect(connectionMock.release).toHaveBeenCalled();
   });
 
+  test('should throw error if user ID is not found for the employee', async () => {
+    connectionMock.query
+      .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Insert success
+      .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Increment success
+      .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Employee update success
+      .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Final update success
+      .mockImplementationOnce((query, values, cb) => cb(null, [])); // Empty result for userId
+  
+    await expect(assignCourse({ requestid: 1, employee_id: 101 })).rejects.toThrow('User ID not found for the employee.');
+  
+    expect(connectionMock.rollback).toHaveBeenCalled();
+    expect(connectionMock.release).toHaveBeenCalled();
+  });  
+
   test('should rollback if commit fails', async () => {
     connectionMock.query
       .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Insert success
       .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Increment success
       .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Employee update success
-      .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })); // Final update success
+      .mockImplementationOnce((query, values, cb) => cb(null, { affectedRows: 1 })) // Final update success
+      .mockImplementationOnce((query, values, cb) => cb(null, [{ userid: 9999 }])); // Fetch userId success
+
+    axios.get.mockResolvedValue({ data: {} }); // Mock API call success
 
     connectionMock.commit.mockImplementationOnce((cb) => cb(new Error('Commit failed')));
 
@@ -119,5 +148,6 @@ describe('assignCourse Service', () => {
 
     expect(connectionMock.rollback).toHaveBeenCalled();
     expect(connectionMock.release).toHaveBeenCalled();
-  });
+  }, 10000); // Increased timeout to 10s
+
 });

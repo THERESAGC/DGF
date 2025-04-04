@@ -59,37 +59,37 @@ describe("Training Reminders Service", () => {
         });
     });
 
-    describe("updateReminder", () => {
-        it("should successfully update a reminder", async () => {
-            const updatedFields = { reminder_date: "2025-04-01", reminder_text: "Updated reminder" };
+    // describe("updateReminder", () => {
+    //     it("should successfully update a reminder", async () => {
+    //         const updatedFields = { reminder_date: "2025-04-01", reminder_text: "Updated reminder" };
 
-            db.query.mockImplementation((query, values, callback) => {
-                callback(null, { affectedRows: 1 });
-            });
+    //         db.query.mockImplementation((query, values, callback) => {
+    //             callback(null, { affectedRows: 1 });
+    //         });
 
-            const result = await reminderService.updateReminder(1, updatedFields);
-            expect(result).toEqual({ affectedRows: 1 });
-            expect(db.query).toHaveBeenCalledWith(expect.any(String), [updatedFields.reminder_date, updatedFields.reminder_text, 1], expect.any(Function));
-        });
+    //         const result = await reminderService.updateReminder(1, updatedFields);
+    //         expect(result).toEqual({ affectedRows: 1 });
+    //         expect(db.query).toHaveBeenCalledWith(expect.any(String), [updatedFields.reminder_date, updatedFields.reminder_text, 1], expect.any(Function));
+    //     });
 
-        it("should return an error if update fails", async () => {
-            db.query.mockImplementation((query, values, callback) => {
-                callback(new Error("Update error"), null);
-            });
+    //     it("should return an error if update fails", async () => {
+    //         db.query.mockImplementation((query, values, callback) => {
+    //             callback(new Error("Update error"), null);
+    //         });
 
-            await expect(reminderService.updateReminder(1, {})).rejects.toThrow("Update error");
-        });
-    });
+    //         await expect(reminderService.updateReminder(1, {})).rejects.toThrow("Update error");
+    //     });
+    // });
 
-    describe("getRemindersByDate", () => {
-        it("should successfully retrieve reminders", async () => {
+    describe("getRemindersByDateandByAssignmentId", () => {
+        it("should successfully retrieve reminders by assignment ID", async () => {
             const mockReminders = [{ reminder_id: 1, assignment_id: 10, reminder_date: "2025-03-30", reminder_text: "Test reminder" }];
 
             db.query.mockImplementation((query, values, callback) => {
                 callback(null, mockReminders);
             });
 
-            const result = await reminderService.getRemindersByDate();
+            const result = await reminderService.getRemindersByDateandByAssignmentId(10);
             expect(result).toEqual(mockReminders);
             expect(db.query).toHaveBeenCalledWith(expect.any(String), expect.any(Array), expect.any(Function));
         });
@@ -99,7 +99,29 @@ describe("Training Reminders Service", () => {
                 callback(new Error("Fetch error"), null);
             });
 
-            await expect(reminderService.getRemindersByDate()).rejects.toThrow("Fetch error");
+            await expect(reminderService.getRemindersByDateandByAssignmentId(10)).rejects.toThrow("Fetch error");
+        });
+    });
+
+    describe("getRemindersByDateandByEmpId", () => {
+        it("should successfully retrieve reminders by employee ID", async () => {
+            const mockReminders = [{ reminder_id: 2, emp_id: 5, reminder_date: "2025-04-01", reminder_text: "Employee reminder" }];
+
+            db.query.mockImplementation((query, values, callback) => {
+                callback(null, mockReminders);
+            });
+
+            const result = await reminderService.getRemindersByDateandByEmpId(5);
+            expect(result).toEqual(mockReminders);
+            expect(db.query).toHaveBeenCalledWith(expect.any(String), expect.any(Array), expect.any(Function));
+        });
+
+        it("should return an error if retrieval fails", async () => {
+            db.query.mockImplementation((query, values, callback) => {
+                callback(new Error("Fetch error"), null);
+            });
+
+            await expect(reminderService.getRemindersByDateandByEmpId(5)).rejects.toThrow("Fetch error");
         });
     });
 });

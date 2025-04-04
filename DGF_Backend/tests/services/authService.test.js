@@ -29,9 +29,20 @@ describe('authenticateUser', () => {
       done();
     });
   });
+  
+  test('should return "User not found" if user is not active', (done) => {
+    const mockUser = { id: 1, email: 'test@example.com', password: 'correctPassword', status: 'inactive' };
+    User.findByEmail.mockImplementation((email, callback) => callback(null, [mockUser]));
+
+    authenticateUser('test@example.com', 'correctPassword', (err, user) => {
+      expect(err).toBe('User not found');
+      expect(user).toBeNull();
+      done();
+    });
+  });
 
   test('should return "Incorrect password" if password does not match', (done) => {
-    const mockUser = { id: 1, email: 'test@example.com', password: 'correctPassword' };
+    const mockUser = { id: 1, email: 'test@example.com', password: 'correctPassword',  status: 'active' };
     User.findByEmail.mockImplementation((email, callback) => callback(null, [mockUser]));
 
     authenticateUser('test@example.com', 'wrongPassword', (err, user) => {
@@ -42,7 +53,7 @@ describe('authenticateUser', () => {
   });
 
   test('should return user object if authentication is successful', (done) => {
-    const mockUser = { id: 1, email: 'test@example.com', password: 'correctPassword' };
+    const mockUser = { id: 1, email: 'test@example.com', password: 'correctPassword', status: 'active' };
     User.findByEmail.mockImplementation((email, callback) => callback(null, [mockUser]));
 
     authenticateUser('test@example.com', 'correctPassword', (err, user) => {

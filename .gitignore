@@ -1,2 +1,5 @@
 DGF_Initial-main/node_modules/
 DGF_Backend/node_modules/
+
+# Backend Test coverage directory
+DGF_Backend/coverage/

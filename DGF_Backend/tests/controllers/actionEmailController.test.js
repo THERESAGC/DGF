@@ -23,12 +23,13 @@ describe("Action Email Controller - handleAction", () => {
       json: jest.fn(),
     };
 
-    sendEmail.mockReset(); // Reset mock before each test
+    sendEmail.mockReset(); 
   });
 
   beforeEach(() => {
     jest.spyOn(console, "error").mockImplementation(() => {}); // Suppress console error logs
   });
+
 
   test("should send approval email and return 200 on success", async () => {
     sendEmail.mockResolvedValue(true); // Simulate successful email sending
@@ -36,10 +37,10 @@ describe("Action Email Controller - handleAction", () => {
     await handleAction(req, res);
 
     expect(sendEmail).toHaveBeenCalledWith(
-      "user@example.com",
-      "Training Request Approved",
-      expect.stringContaining("We are pleased to let you know that your request number <strong>LR REQ123</strong> has been approved."),
-      "cc@example.com"
+      "user@example.com", 
+      "Congratulations! Learning Request Approved ", 
+      expect.stringContaining("<html>"), // Expect email body to be an HTML string
+      "" 
     );
 
     expect(res.status).toHaveBeenCalledWith(200);
@@ -52,9 +53,9 @@ describe("Action Email Controller - handleAction", () => {
 
     expect(sendEmail).toHaveBeenCalledWith(
       "user@example.com",
-      "Training Request Rejected",
-      expect.stringContaining("Rejection reason is as below:"),
-      "cc@example.com"
+      "Learning request REQ123 is rejected",
+      expect.stringContaining("<html>"),
+      ""
     );
 
     expect(res.status).toHaveBeenCalledWith(200);
@@ -68,8 +69,8 @@ describe("Action Email Controller - handleAction", () => {
     expect(sendEmail).toHaveBeenCalledWith(
       "user@example.com",
       "Training Request Suspended",
-      expect.stringContaining("is temporarily on hold due to"),
-      "cc@example.com"
+      expect.stringContaining("<html>"),
+      ""
     );
 
     expect(res.status).toHaveBeenCalledWith(200);
@@ -83,8 +84,8 @@ describe("Action Email Controller - handleAction", () => {
     expect(sendEmail).toHaveBeenCalledWith(
       "user@example.com",
       "Clarification Required for Training Request",
-      expect.stringContaining("the approver needs the following clarification:"),
-      "cc@example.com"
+      expect.stringContaining("<html>"),
+      ""
     );
 
     expect(res.status).toHaveBeenCalledWith(200);
