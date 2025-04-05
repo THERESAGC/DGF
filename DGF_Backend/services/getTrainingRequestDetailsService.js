@@ -54,7 +54,7 @@ const getTrainingRequestDetails = (requestid) => {
 
             const primarySkillsQuery = `
                 SELECT ps.skill_name
-                FROM Request_Primary_Skills rps
+                FROM request_primary_skills rps
                 JOIN primaryskill ps ON rps.primaryskill_id = ps.skill_id
                 WHERE rps.requestid = ?;
             `;

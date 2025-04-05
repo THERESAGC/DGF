@@ -24,7 +24,7 @@ describe('Training Request Primary Skill Service - storePrimarySkills', () => {
 
     expect(result).toEqual(mockResults);
     expect(db.query).toHaveBeenCalledWith(
-      'INSERT INTO Request_Primary_Skills (requestid, primaryskill_id) VALUES ?',
+      'INSERT INTO request_primary_skills (requestid, primaryskill_id) VALUES ?',
       [[[2001, 10], [2001, 20], [2001, 30]]],
       expect.any(Function)
     );
@@ -44,7 +44,7 @@ describe('Training Request Primary Skill Service - storePrimarySkills', () => {
 
     expect(result).toEqual(mockResults);
     expect(db.query).toHaveBeenCalledWith(
-      'INSERT INTO Request_Primary_Skills (requestid, primaryskill_id) VALUES ?',
+      'INSERT INTO request_primary_skills (requestid, primaryskill_id) VALUES ?',
       [[]],
       expect.any(Function)
     );

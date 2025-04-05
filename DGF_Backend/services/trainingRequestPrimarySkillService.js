@@ -6,7 +6,7 @@ const storePrimarySkills = (requestid, primary_skill_ids) => {
         const values = primary_skill_ids.map(primary_skill_id => [requestid, primary_skill_id]);
 
         // SQL query to insert multiple primary skills for a given requestid
-        const query = 'INSERT INTO Request_Primary_Skills (requestid, primaryskill_id) VALUES ?';
+        const query = 'INSERT INTO request_primary_skills (requestid, primaryskill_id) VALUES ?';
 
         // Use query method and pass the array of values
         db.query(query, [values], (err, results) => {

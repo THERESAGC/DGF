@@ -46,7 +46,7 @@ describe('getTrainingRequestDetailsService', () => {
     db.execute.mockImplementation((query, params, callback) => {
       if (query.includes('FROM newtrainingrequest')) {
         callback(null, mockRequestDetails);
-      } else if (query.includes('FROM Request_Primary_Skills')) {
+      } else if (query.includes('FROM request_primary_skills')) {
         callback(null, mockPrimarySkills);
       }
     });
