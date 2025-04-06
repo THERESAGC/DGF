@@ -329,7 +329,7 @@ app.use('/api', passwordForUserRoutes);
 app.use('/api/effectiveness-feedback', effectivenessFeedbackRoutes);
 
 // console.log('Triggering cron job manually...');
-checkCompletedTasksAndSendEmails();
+// checkCompletedTasksAndSendEmails();
 
 // Initiate training reminders routes
 app.use('/api',remindersRoutes );

@@ -193,7 +193,7 @@ const text = `
 
       <p>Would you be willing to take a few moments to share your thoughts? Kindly click on the link below to share your thoughts and feedback.</p>
 
-      <p><a href="${feedbackURL}">Provide Feedback</a></p>
+      <p><a href="${feedbackURL}">Click Here To Submit Feedback</a></p>
 
       <p>Your feedback is invaluable to us. Please feel free to connect if you have any further feedback that is not captured/covered in the feedback form.</p>
 
@@ -411,13 +411,44 @@ const handleTaskCompletion = async (assignment_id) => {
   }
 };
 
+// const checkCompletedTasksAndSendEmails = async () => {
+//   try {
+//     const query = `
+//       SELECT * 
+//       FROM assigned_courses 
+//       WHERE status = 'Completed' 
+//       AND (employee_email_sent = FALSE OR manager_email_sent = FALSE OR manager_second_email_sent = FALSE)
+//     `;
+
+//     pool.query(query, async (error, results) => {
+//       if (error) {
+//         console.error("Error fetching completed tasks:", error);
+//         return;
+//       }
+
+//       for (let task of results) {
+//         await handleTaskCompletion(task.assignment_id);
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error in checking completed tasks:", error);
+//   }
+// };
+
+
+//Created function change for the org level req emp does not get the feedback mail
+
 const checkCompletedTasksAndSendEmails = async () => {
   try {
     const query = `
-      SELECT * 
-      FROM assigned_courses 
-      WHERE status = 'Completed' 
-      AND (employee_email_sent = FALSE OR manager_email_sent = FALSE OR manager_second_email_sent = FALSE)
+      SELECT ac.*, ntr.org_level 
+      FROM assigned_courses ac
+      JOIN newtrainingrequest ntr ON ac.requestid = ntr.requestid
+      WHERE ac.status = 'Completed' 
+      AND (ac.employee_email_sent = FALSE 
+           OR ac.manager_email_sent = FALSE 
+           OR ac.manager_second_email_sent = FALSE)
+      AND ntr.org_level != 1;
     `;
 
     pool.query(query, async (error, results) => {
@@ -426,6 +457,7 @@ const checkCompletedTasksAndSendEmails = async () => {
         return;
       }
 
+      // Loop over the tasks and handle task completion
       for (let task of results) {
         await handleTaskCompletion(task.assignment_id);
       }
