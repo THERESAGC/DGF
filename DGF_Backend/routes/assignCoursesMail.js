@@ -27,18 +27,37 @@ router.post('/send-email', async (req, res) => {
 
       // If email is found, proceed to send the email
       const subject = `Course Assigned: ${course_name}`;
-      const text = `Hello ${employee_name},\n\nYou have been assigned the course ${course_name} by your mentor. Please make sure to complete it by ${completion_date}.`;
+      // const text = `Hello ${employee_name},\n\nYou have been assigned the course ${course_name} by your mentor. Please make sure to complete it by ${completion_date}.`;
       const html = `
-        <html>
-          <body>
-            <h2>Hello ${employee_name},</h2>
-            <p>You have been assigned the course <strong>${course_name}</strong> by your mentor.</p>
-            <p>Completion Date: <strong>${completion_date}</strong></p>
-            <p><em>Comments: ${comments}</em></p>
-            <p>Please make sure to complete the course by the specified date.</p>
-          </body>
-        </html>
-      `;
+    <html>
+      <body>
+        <div>
+          <img src="cid:headerImage" alt="Header Image" style="width: 100%; height: auto;" />
+        </div>
+        <h2>Hello ${employee_name},</h2>
+        <p>You have been assigned the course <strong>${course_name}</strong> by your mentor.</p>
+        <p>Completion Date: <strong>${completion_date}</strong></p>
+        <p><em>Comments: ${comments}</em></p>
+        <p>Please make sure to complete the course by the specified date.</p>
+        <p>Best regards,</p>
+      <p>CAPDEV</p>
+        <div>
+          <img src="cid:footerImage" alt="Footer Image" style="width: 100%; height: auto;" />
+        </div>
+      </body>
+    </html>
+  `;
+      // const html = `
+      //   <html>
+      //     <body>
+      //       <h2>Hello ${employee_name},</h2>
+      //       <p>You have been assigned the course <strong>${course_name}</strong> by your mentor.</p>
+      //       <p>Completion Date: <strong>${completion_date}</strong></p>
+      //       <p><em>Comments: ${comments}</em></p>
+      //       <p>Please make sure to complete the course by the specified date.</p>
+      //     </body>
+      //   </html>
+      // `;
 
       const headerImagePath = 'assets/MailHeader.png'; // Optional
       const footerImagePath = 'assets/MailFooter.png'; // Optional
@@ -48,7 +67,7 @@ router.post('/send-email', async (req, res) => {
         const emailResponse = await sendEmail(
           employeeEmail,  // The recipient email (fetched from database)
           subject,         // The subject of the email
-          text,            // Plain text content of the email
+                      // Plain text content of the email
           html,            // HTML content of the email
           headerImagePath, // Path to the header image (optional)
           footerImagePath  // Path to the footer image (optional)

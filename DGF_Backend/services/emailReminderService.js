@@ -84,7 +84,23 @@ const sendReminderEmailAndUpdate = async (learningInitiatedAssignments, empId) =
       const requestid = employeeRows[0].requestid;
           // Prepare the email content
           const subject = "Reminder: Learning Initiated Assignment";
-          const text = `<p>Dear Employee,</p><p>This is a reminder that your learning assignment is initiated. Please take action.</p><p>Best regards,</p><p>Your Company</p>`;
+          const text = `
+  <html>
+    <body>
+      <div>
+        <img src="cid:Reminder-headerImage" alt="Reminder Image" style="width: 100%; height: auto;" />
+      </div>
+      <p>Dear Employee,</p>
+      <p>This is a reminder that your learning assignment is initiated. Please take action.</p>
+      <p>Best regards,</p>
+      <p>CAPDEV</p>
+      <div>
+        <img src="cid:footerImage" alt="Footer Image" style="width: 100%; height: auto;" />
+      </div>
+    </body>
+  </html>
+`;
+          // const text = `<p>Dear Employee,</p><p>This is a reminder that your learning assignment is initiated. Please take action.</p><p>Best regards,</p><p>Your Company</p>`;
    
           // Send the email
           await sendEmail(empEmail, subject, text, "assets/MailHeader.png", "assets/MailFooter.png");
