@@ -352,7 +352,7 @@ const handleSubmit = async (req, res) => {
 
             <p>Dear ${requester_name},</p>
 
-            <p>We trust this message finds you well. This is to acknowledge that we have received your Learning request for the below mentioned team member/s.</p>
+            <p>We trust this message finds you well. This is to acknowledge that we have received your Learning request for the below mentioned team members.</p>
 
             <p>Thank you for taking the initiative to prioritize the professional development of your team.</p>
             

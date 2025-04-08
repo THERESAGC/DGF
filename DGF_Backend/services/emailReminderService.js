@@ -86,19 +86,21 @@ const sendReminderEmailAndUpdate = async (learningInitiatedAssignments, empId) =
           const subject = "Reminder: Learning Initiated Assignment";
           const text = `
   <html>
-    <body>
-      <div>
-        <img src="cid:Reminder-headerImage" alt="Reminder Image" style="width: 100%; height: auto;" />
-      </div>
-      <p>Dear Employee,</p>
-      <p>This is a reminder that your learning assignment is initiated. Please take action.</p>
-      <p>Best regards,</p>
-      <p>CAPDEV</p>
-      <div>
-        <img src="cid:footerImage" alt="Footer Image" style="width: 100%; height: auto;" />
-      </div>
-    </body>
-  </html>
+  <body>
+    <div>
+      <img src="cid:Reminder-headerImage" alt="Reminder Image" style="width: 100%; height: auto;" />
+    </div>
+    <p>Dear Learner,</p>
+    <p>This is a reminder that your learning course is now available. Please make sure to complete it as soon as possible.</p>
+    <p>Completing the course on time is important for your ongoing development. If you need any help, feel free to reach out.</p>
+    <p>Thank you for your attention, and we appreciate your prompt action.</p>
+    <p>Best regards,</p>
+    <p>CAPDEV Team</p>
+    <div>
+      <img src="cid:footerImage" alt="Footer Image" style="width: 100%; height: auto;" />
+    </div>
+  </body>
+</html>
 `;
           // const text = `<p>Dear Employee,</p><p>This is a reminder that your learning assignment is initiated. Please take action.</p><p>Best regards,</p><p>Your Company</p>`;
    
