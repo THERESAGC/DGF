@@ -26,7 +26,16 @@ const getCourses = async () => {
         `;
         for (const course of data) {
             try {
-                const durationHours = (course.enddate - course.startdate) / 3600; // Convert duration from seconds to hours
+                // Extract durationHours from customfields
+                let durationHours = 0;
+                const durationField = course.customfields?.find(field => field.name === "Course Duration");
+                if (durationField && durationField.value) {
+                    const match = durationField.value.match(/\d+/); // Extract numeric value
+                    if (match) {
+                        durationHours = parseInt(match[0], 10); // Convert to integer
+                    }
+                }
+
                 await db.promise().execute(insertQuery, [
                     course.id, course.displayname, course.summary, durationHours, new Date(course.timecreated * 1000), 
                     course.shortname, course.categoryid, course.categorysortorder, course.fullname, course.idnumber, 
