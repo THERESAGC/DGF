@@ -305,12 +305,7 @@ const handleAction = async (req, res) => {
 
       We hope this email finds you well. <br><br>
 
-      We are delighted to let you know that the Learning request ${requestid} submitted by you for the below team member/s has been approved by the SPOC. <br><br>
-
-      <strong>Name</strong> <br>
-      <strong>Current Project</strong> <br>
-      <strong>Delivery Unit</strong> <br>
-      <strong>Daily Learning Slot you have suggested</strong> <br><br>
+      We are delighted to let you know that the Learning request ${requestid} submitted by you for the team members has been approved by the SPOC. <br><br>
 
       <!-- Team Member Details -->
      <!-- Dynamically generated list of team members -->
